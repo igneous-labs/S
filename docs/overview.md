@@ -26,6 +26,8 @@ Each LST program will have its corresponding SOL value calculator program that:
 
 ### Pricing Programs
 
+Separated from the controller program for the sake of keeping separation of concerns, the state of pricing program is managed solely by the CPIs from the controller program.
+
 At any time, a single pricing program is active for the pool.
 
 The pricing program determines how much LST should be exchanged for another given their respective SOL values and any other parameters it might require.
