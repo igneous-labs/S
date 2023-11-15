@@ -53,7 +53,7 @@ Swap to output LST from an exact amount of given input LST.
 | dst_lst_acc | LST token account to swap to | W | N |
 | protocol_fee_dest | dst_lst protocol fee destination token account | W | N |
 | token_program | - | R | N |
-| pool_state | thpoole 's state singleton | W | N |
+| pool_state | the pool's state singleton | W | N |
 | pool_src_reserves | src token token account reserves of the pool | W | N |
 | pool_dst_reserves | dst token token account reserves of the pool | W | N |
 | src_lst_value_calc_accs | accounts to invoke src token's SOL value calculator program LstToSol with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
@@ -153,6 +153,29 @@ Remove single-LST liquidity from the pool.
 - Burn LP tokens
 - Transfer LST due to dst_acc
 - Self CPI SyncSolValue for LST
+
+### CallPricingProgram
+
+CPI the pricing program.
+
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | instruction discriminant | u8 |
+| pricing program args | ... | ... |
+
+raw bytes of pricing program args are passed directly to pricing program CPI
+
+#### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| pricing_accs | accounts to invoke pricing program with. First account should be the pricing program itself. Multiple Accounts. | ... | ... |
+
+#### Procedure
+
+- CPI pricing program with the accounts and data passed in, signed by the pricing program authority PDA
 
 ## SOL Value Calculator Program
 
