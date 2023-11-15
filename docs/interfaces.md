@@ -50,7 +50,7 @@ Varies with each LST program.
 #### Return Data
 
 | Name | Value | Type |
-| result | the calculated SOL value | u64 | 
+| result | the calculated SOL value | u64 |
 
 ### SolToLst Instruction
 
@@ -70,7 +70,7 @@ Varies with each LST program.
 #### Return Data
 
 | Name | Value | Type |
-| result | the calculated LST amount | u64 | 
+| result | the calculated LST amount | u64 |
 
 ## Pricing Program
 
