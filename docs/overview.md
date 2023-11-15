@@ -30,6 +30,7 @@ Separated from the controller program for the sake of keeping separation of conc
 
 At any time, a single pricing program is active for the pool.
 
-The pricing program determines how much LST should be exchanged for another given their respective SOL values and any other parameters it might require.
-
-This could include pool fee information, pool's target LST allocations, etc.
+The pricing program has instructions that:
+  - determine how much SOL value should be exchanged for a given amount of LST and its SOL value + any other parameters it might require. This could include pool fee information, pool's target LST allocations, etc.
+  - determine how much SOL value should be redeemed for a given amount of LP tokens given the desired output LST + any other parameters it might require.
+  - determine how much SOL value should be minted in new LP tokens for a given amount of input LST and its SOL value, + any other parameters it might require.
