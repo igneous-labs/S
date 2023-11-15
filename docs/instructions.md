@@ -253,7 +253,7 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 Given an output LST amount and its SOL value, calculate the input SOL value.
 
-Same interface as [PriceExactIn](#priceexactin-instruction), just that discriminant = 1.
+Same interface as PriceExactIn, just that discriminant = 1.
 
 ### PriceLpTokensToMint
 
@@ -261,7 +261,7 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 #### Data
 
-Same interface as [PriceExactIn](#priceexactin-instruction), just that discriminant = 2.
+Same interface as PriceExactIn, just that discriminant = 2.
 
 #### Accounts
 
@@ -273,7 +273,7 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 #### Data
 
-Same interface as [PriceExactIn](#priceexactin-instruction), just that discriminant = 3.
+Same interface as PriceExactIn, just that discriminant = 3.
 
 #### Accounts
 
