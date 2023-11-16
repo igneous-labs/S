@@ -249,6 +249,7 @@ Add a LST to the pool
 | lst | The new LST to add | R | N |
 | reserves | The LST reserves token account to create | W | N |
 | protocol_fee_accumulator | The LST protocol fee accumulator token account to create | W | N |
+| protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W | N |
 | sol_value_calculator | The LST's SOL value calculator program | R | N |
 | pool_state | The pool's state singleton | W | N |
 
@@ -279,6 +280,7 @@ Remove a LST from the pool
 | lst | The LST to remove | R | N |
 | reserves | The LST reserves token account to destroy | W | N |
 | protocol_fee_accumulator | The LST protocol fee accumulator token account to destroy | W | N |
+| protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W | N |
 | pool_state | The pool's state singleton | W | N |
 
 #### Procedure
@@ -403,7 +405,7 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 | protocol_fee_beneficiary | - | R | Y |
 | withdraw_to_acc | token account to withdraw all accumulated protocol fees to | W | N | 
 | protocol_fee_accumulator | The LST protocol fee accumulator token account to withdraw from | W | N |
-| protocol_fee_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W | N |
+| protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W | N |
 | token_program | - | R | N |
 | pool_state | The pool's state singleton | W | N |
 
