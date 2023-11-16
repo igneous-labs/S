@@ -1,6 +1,8 @@
 # Flat Fee Pricing Program
 
-Pricing program that levies flat fees to each LST quotes.
+Pricing program that levies flat fees.
+
+Fees are deducted by taking a set portion from the calculated resulting value depending on the token type.
 
 ## Instructions
 
