@@ -67,9 +67,9 @@ Swap to output LST from an exact amount of given input LST.
 - CPI src token's SOL value calculator program LstToSol to get SOL value of input amount
 - CPI pricing program PriceExactIn to get output SOL value
 - CPI dst token's SOL value calculator program SolToLst with output SOL value to get output token amount
-- transfer input amount src tokens from src_lst_acc to src token reserves
-- transfer output amount less protocol fees dst tokens from dst token reserves to dst_lst_acc
-- transfer protocol fees to protocol_fee_dest
+- Transfer input amount src tokens from src_lst_acc to src token reserves
+- Subtract and transfer protocol fees to protocol_fee_dest
+- Transfer remaining output dst tokens from dst token reserves to dst_lst_acc
 - Self CPI SyncSolValue for src_lst
 - Self CPI SyncSolValue for dst_lst
 
@@ -139,6 +139,7 @@ Remove single-LST liquidity from the pool.
 | lst | LST token mint | R | N |
 | dst_lst_acc | LST token account to redeem to | W | N |
 | src_lp_token_acc | LP token account to burn LP tokens from | W | N |
+| protocol_fee_dest | dst_lst protocol fee destination token account | W | N |
 | token_program | - | R | N |
 | pool_state | the pool's state singleton | W | N |
 | pool_reserves | pool's token reserves for the LST | W | N |
@@ -151,7 +152,8 @@ Remove single-LST liquidity from the pool.
 - CPI pricing program's PriceLpTokensToRedeem with SOL value of LP tokens to be burt
 - CPI LST's SOL value calculator program SolToLst to get amount of LST due
 - Burn LP tokens
-- Transfer LST due to dst_acc
+- Subtract and transfer protocol fees
+- Transfer remaining LST due to dst_acc
 - Self CPI SyncSolValue for LST
 
 ### CallPricingProgram
@@ -278,6 +280,10 @@ Same interface as PriceExactIn, just that discriminant = 3.
 #### Accounts
 
 Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the output LST.
+
+### Procedure
+
+Regardless of how the price is calculated, the pricing program should guarantee that this instruction levies sufficient fees on the redeem amount such that LPs cannot extract value from the pool by adding liquidity right before the epoch boundary and then removing liquidity right after the SOL value increase from staking rewards. 
 
 ### Other Instructions
 
