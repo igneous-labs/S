@@ -1,6 +1,10 @@
 # Instructions
 
-Programs' instructions
+Controller program's instructions.
+
+For more information about the pricing programs CPIs, see [interface doc](../docs/pricing-programs/interface.md)
+
+For more information about the SOL value calculator programs CPIs, see [interface doc](../docs/sol-value-calculator-programs/interface.md)
 
 ## Controller Program
 
@@ -178,113 +182,3 @@ raw bytes of pricing program args are passed directly to pricing program CPI
 #### Procedure
 
 - CPI pricing program with the accounts and data passed in, signed by the pricing program authority PDA
-
-## SOL Value Calculator Program
-
-### LstToSol
-
-Given a LST quantity, calculate its SOL value.
-
-Should validate accounts passed in and conditions - e.g. stake pool has been updated for this epoch for SPL.
-
-#### Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 0 | u8 |
-| amount | amount of LSTs | u64 |
-
-#### Accounts
-
-Varies with each LST program.
-
-#### Return Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| result | the calculated SOL value | u64 |
-
-### SolToLst
-
-Given a SOL value, calculate its LST quantity.
-
-Should validate accounts passed in and conditions - e.g. stake pool has been updated for this epoch for SPL.
-
-#### Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 1 | u8 |
-| amount | amount of SOL | u64 |
-
-#### Accounts
-
-Varies with each LST program.
-
-#### Return Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| result | the calculated LST amount | u64 |
-
-## Pricing Program
-
-### PriceExactIn
-
-Given an input LST amount and its SOL value, calculate the output SOL value.
-
-#### Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 0 | u8 |
-| amount | amount of input LST | u64 |
-| sol_value | SOL value of amount input LST | u64 |
-
-#### Accounts
-
-Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the 2 LSTs involved.
-
-#### Return Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| result | the calculated SOL value | u64 |
-
-### PriceExactOut
-
-Given an output LST amount and its SOL value, calculate the input SOL value.
-
-Same interface as PriceExactIn, just that discriminant = 1.
-
-### PriceLpTokensToMint
-
-Given an input LST amount and its SOL value, calculate the SOL value of the LP tokens to mint.
-
-#### Data
-
-Same interface as PriceExactIn, just that discriminant = 2.
-
-#### Accounts
-
-Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the input LST.
-
-### PriceLpTokensToRedeem
-
-Given an input LP token amount and its SOL value, calculate the SOL value of the LST to redeem.
-
-#### Data
-
-Same interface as PriceExactIn, just that discriminant = 3.
-
-#### Accounts
-
-Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the output LST.
-
-#### Procedure
-
-Regardless of how the price is calculated, the pricing program should guarantee that this instruction levies sufficient fees on the redeem amount such that LPs cannot extract value from the pool by adding liquidity right before the epoch boundary and then removing liquidity right after the SOL value increase from staking rewards. 
-
-### Other Instructions
-
-Each pricing program may also have different instructions for state management and control.
