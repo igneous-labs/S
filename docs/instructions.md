@@ -281,7 +281,7 @@ Same interface as PriceExactIn, just that discriminant = 3.
 
 Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the output LST.
 
-### Procedure
+#### Procedure
 
 Regardless of how the price is calculated, the pricing program should guarantee that this instruction levies sufficient fees on the redeem amount such that LPs cannot extract value from the pool by adding liquidity right before the epoch boundary and then removing liquidity right after the SOL value increase from staking rewards. 
 
