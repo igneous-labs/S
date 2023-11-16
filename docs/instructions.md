@@ -61,7 +61,8 @@ Swap to output LST from an exact amount of given input LST.
 | src_lst_acc | LST token account being swapped from | W | N |
 | dst_lst_acc | LST token account to swap to | W | N |
 | protocol_fee_accumulator | protocol fee accumulator token account | W | N |
-| token_program | - | R | N |
+| src_lst_token_program | - | R | N |
+| dst_lst_token_program | - | R | N |
 | pool_state | the pool's state singleton | W | N |
 | pool_src_reserves | src token token account reserves of the pool | W | N |
 | pool_dst_reserves | dst token token account reserves of the pool | W | N |
