@@ -30,4 +30,4 @@ SOL value calculator program for Marinade program.
 ##### Procedure
 
 - Check stake_pool owner = marinade program and anchor account discriminator
-- Calculate output SOL based on code copied from `OrderUnstake::process()`
+- Calculate LST amount by reversing procedure in `OrderUnstake::process()`
