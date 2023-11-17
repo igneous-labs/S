@@ -133,13 +133,10 @@ Initialize the program state.
 
 ##### Data
 
-##### Accounts
-
-#### SetFee
-
-Update the fees for given type of pricing action.
-
-##### Data
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 4 | u8 |
+| manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
 
 ##### Accounts
 
@@ -149,4 +146,21 @@ Update the manager authority of the pricing program.
 
 ##### Data
 
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 5 | u8 |
+
 ##### Accounts
+
+#### SetFee
+
+Update the fees for given type of pricing action.
+
+##### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 6 | u8 |
+
+##### Accounts
+
