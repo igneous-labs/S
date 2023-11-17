@@ -31,9 +31,10 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| lst_input | input LST token mint | R | N |
+| lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_output | output LST token mint | R | N |
 
 ##### Return Data
 
@@ -63,9 +64,10 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| lst_input | input LST token mint | R | N |
+| lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
 
 #### PriceLpTokensToMint
 
@@ -89,9 +91,9 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| lst_input | input LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
 
 #### PriceLpTokensToRedeem
 
@@ -115,9 +117,9 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_output | output LST token mint | R | N |
 
 ##### Procedure
 
