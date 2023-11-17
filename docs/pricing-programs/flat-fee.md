@@ -11,7 +11,7 @@ The program state singleton is located at PDA ["state"].
 
 | Name | Value | Type |
 | -- | -- | -- |
-| Manager | The manager authorized to update the fee accounts for each LST and LP |
+| Manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
 
 ## Instructions
 ### Common Interface
@@ -32,8 +32,7 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | |
-| lst_input | input LST token mint | R | N |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_output | output LST token mint | R | N |
 
 ##### Return Data
@@ -65,9 +64,8 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
-| lst_output | output LST token mint | R | N |
 
 #### PriceLpTokensToMint
 
@@ -92,7 +90,7 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
 
 #### PriceLpTokensToRedeem
@@ -118,14 +116,25 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | |
-| lst_input | input LST token mint | R | N |
+| pricing_authority | PDA for pricing authorization | R | Y |
+| lst_output | output LST token mint | R | N |
 
 ##### Procedure
 
 Regardless of how the price is calculated, the pricing program should guarantee that this instruction levies sufficient fees on the redeem amount such that LPs cannot extract value from the pool by adding liquidity right before the epoch boundary and then removing liquidity right after the SOL value increase from staking rewards. 
 
 ### Management Instructions
+
+Only the current manager is authorized to execute.
+
+#### Initialize
+
+Initialize the program state.
+
+##### Data
+
+##### Accounts
+
 #### SetFee
 
 Update the fees for given type of pricing action.
@@ -137,8 +146,6 @@ Update the fees for given type of pricing action.
 #### SetManager
 
 Update the manager authority of the pricing program.
-
-Only the current manager or the controller program's CPI is authorized to execute (admin authority should be checked by the controller program).
 
 ##### Data
 
