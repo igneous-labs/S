@@ -17,12 +17,12 @@ SOL value calculator program for SPL and Socean stake pool program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| token | See interface | R | N |
+| lst | See interface | R | N |
 | stake_pool | The main stake pool account | R | N |
 
 ##### Procedure
 
-- Check token mint addr, stake_pool owner = SPL or Socean program, account_type = AccountType::StakePool
+- Check lst mint addr, stake_pool owner = SPL or Socean program, account_type = AccountType::StakePool
 - Calculate output SOL based on code copied from `process_withdraw_stake()`
 
 #### SolToLst
@@ -31,10 +31,10 @@ SOL value calculator program for SPL and Socean stake pool program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| token | See interface | R | N |
+| lst | See interface | R | N |
 | stake_pool | The main stake pool account | R | N |
 
 ##### Procedure
 
-- Check token mint addr, stake_pool owner = SPL or Socean program, account_type = AccountType::StakePool
+- Check lst mint addr, stake_pool owner = SPL or Socean program, account_type = AccountType::StakePool
 - Calculate LST amount by reversing procedure in `process_withdraw_stake()`
