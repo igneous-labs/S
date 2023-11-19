@@ -1,6 +1,6 @@
-# Lido
+# SVSP
 
-SOL value calculator program for Lido on Solana program.
+SOL value calculator program for Single Validator Stake Pool program.
 
 ## Instructions
 
@@ -12,11 +12,12 @@ SOL value calculator program for Lido on Solana program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| lido | The lido stake pool state account | R | N |
+| token | See interface | R | N |
+| pool | The SVSP pool struct | R | N |
 
 ##### Procedure
 
-- `Lido::deserialize_lido(lido)` - this checks program ownership etc
+- Check pool program ownership + AccountType, token PDA.
 - Calculate output SOL based on code copied from `process_withdraw()`
 
 #### SolToLst
@@ -25,9 +26,10 @@ SOL value calculator program for Lido on Solana program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| lido | The lido stake pool state account | R | N |
+| token | See interface | R | N |
+| pool | The SVSP pool struct | R | N |
 
 ##### Procedure
 
-- `Lido::deserialize_lido(lido)` - this checks program ownership etc
+- Check pool program ownership + AccountType, token PDA.
 - Calculate LST amount by reversing procedure in `process_withdraw()`
