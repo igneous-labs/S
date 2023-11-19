@@ -12,11 +12,12 @@ SOL value calculator program for Marinade program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| token | See interface | R | N |
 | state | The marinade state account | R | N |
 
 ##### Procedure
 
-- Check stake_pool owner = marinade program and anchor account discriminator
+- Check mSOL mint addr, stake_pool owner = marinade program and anchor account discriminator
 - Calculate output SOL based on code copied from `OrderUnstake::process()`
 
 #### SolToLst
@@ -25,9 +26,10 @@ SOL value calculator program for Marinade program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| token | See interface | R | N |
 | state | The marinade state account | R | N |
 
 ##### Procedure
 
-- Check stake_pool owner = marinade program and anchor account discriminator
+- Check mSOL mint addr, stake_pool owner = marinade program and anchor account discriminator
 - Calculate LST amount by reversing procedure in `OrderUnstake::process()`
