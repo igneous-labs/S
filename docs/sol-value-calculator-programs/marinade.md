@@ -12,7 +12,7 @@ SOL value calculator program for Marinade program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| token | See interface | R | N |
+| lst | See interface | R | N |
 | state | The marinade state account | R | N |
 
 ##### Procedure
@@ -26,7 +26,7 @@ SOL value calculator program for Marinade program.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| token | See interface | R | N |
+| lst | See interface | R | N |
 | state | The marinade state account | R | N |
 
 ##### Procedure
