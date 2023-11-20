@@ -31,6 +31,8 @@ Varies with each LST program.
 
 Given a SOL value, calculate its LST quantity.
 
+Slightly confusing but following the [definition of SOL value](../overview.md#sol-value), this should be thought of as "how much LST do I need to redeem into the given SOL value at this current instant" instead of "how much LST can I get mint from staking the given SOL value at this current instant".
+
 Should validate accounts passed in and conditions - e.g. stake pool has been updated for this epoch for SPL.
 
 #### Data
