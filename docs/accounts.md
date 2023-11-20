@@ -13,8 +13,9 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Name | Value | Type |
 | -- | -- | -- |
 | version | incrementing counter representing schema version number. Starts at 1 | u8 |
-| protocol_fee_bps | The flat protocol fee to charge on output amounts in bps | u16 |
-| _padding | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 22] |
+| trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps | u16 |
+| lp_protocol_fee_bps | The flat protocol fee to charge on LP withdrawal fees in bps | u16 |
+| _padding | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 18] |
 | total_sol_value | The last recorded total SOL value of the pool, updated by SyncSolValue | u64 |
 | admin | The admin pubkey authorized to perform all admin actions | Pubkey |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey |
