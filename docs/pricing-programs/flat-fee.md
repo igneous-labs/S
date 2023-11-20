@@ -16,6 +16,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Name | Value | Type |
 | -- | -- | -- |
 | manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
+| lp_withdrawal_fee | Fee in bips to impose when redeeming LP token for LST | u16 |
 
 ### FeeAccount
 
@@ -29,8 +30,8 @@ NOTE: a negative fee value means incentivization for given route
 
 | Name | Value | Type |
 | -- | -- | -- |
-| input_fee | fee in bips to impose when the token type is used as input | i16 |
-| output_fee | fee in bips to impose when the token type is used as output | i16 |
+| input_fee | Fee in bips to impose when the token type is used as input | i16 |
+| output_fee | Fee in bips to impose when the token type is used as output | i16 |
 
 ## Instructions
 ### Common Interface
@@ -45,7 +46,7 @@ Given an input LST amount and its SOL value, calculate the output SOL value by:
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 0 | u8 |
-| amount | amount of input LST | u64 |
+| amount | Amount of input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
 
 ##### Accounts
@@ -53,15 +54,15 @@ Given an input LST amount and its SOL value, calculate the output SOL value by:
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
-| lst_output | output LST token mint | R | N |
-| fee_acc | account that describes the fee for each pricing type | R | N |
+| lst_input | Input LST token mint | R | N |
+| lst_output | Output LST token mint | R | N |
+| fee_acc | Account that describes the fee for each pricing type | R | N |
 
 ##### Return Data
 
 | Name | Value | Type |
 | -- | -- | -- |
-| result | the calculated output SOL value | u64 |
+| result | The calculated output SOL value | u64 |
 
 ##### Procedure
 
@@ -76,23 +77,23 @@ Given an output LST amount and its SOL value, calculate the input SOL value by:
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 1 | u8 |
-| amount | amount of output LST | u64 |
+| amount | Amount of output LST | u64 |
 | sol_value | SOL value of amount output LST | u64 |
 
 ##### Return Data
 
 | Name | Value | Type |
 | -- | -- | -- |
-| result | the calculated input SOL value | u64 |
+| result | The calculated input SOL value | u64 |
 
 #####  Accounts
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
-| lst_output | output LST token mint | R | N |
-| fee_acc | account that describes the fee for each pricing type | R | N |
+| lst_input | Input LST token mint | R | N |
+| lst_output | Output LST token mint | R | N |
+| fee_acc | Account that describes the fee for each pricing type | R | N |
 
 ##### Procedure
 
@@ -105,22 +106,21 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 2 | u8 |
-| amount | amount of input LST | u64 |
+| amount | Amount of input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
 
 ##### Return Data
 
 | Name | Value | Type |
 | -- | -- | -- |
-| result | the calculated SOL value of LP tokens to mint | u64 |
+| result | The calculated SOL value of LP tokens to mint | u64 |
 
 #####  Accounts
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
-| fee_acc | account that describes the fee for each pricing type | R | N |
+| lst_input | Input LST token mint | R | N |
 
 ##### Procedure
 
@@ -133,22 +133,22 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 3 | u8 |
-| amount | amount of input LP | u64 |
+| amount | Amount of input LP | u64 |
 | sol_value | SOL value of amount input LP | u64 |
 
 ##### Return Data
 
 | Name | Value | Type |
 | -- | -- | -- |
-| result | the calculated SOL value of the LST to redeem | u64 |
+| result | The calculated SOL value of the LST to redeem | u64 |
 
 #####  Accounts
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | pricing_authority | PDA for pricing authorization | R | Y |
-| lst_output | output LST token mint | R | N |
-| fee_acc | account that describes the fee for each pricing type | R | N |
+| lst_output | Output LST token mint | R | N |
+| program_state | Program state account | R | N |
 
 ##### Procedure
 
@@ -160,7 +160,7 @@ Only the current manager is authorized to execute.
 
 #### Initialize
 
-Initialize the program state.
+Initialize the program state. Can only be called once with hardcoded init authority.
 
 ##### Data
 
@@ -173,7 +173,8 @@ Initialize the program state.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| signer | Authority of pricing program | R | Y |
+| init_authority | The hardcoded init authority of pricing program | R | Y |
+| program_state | Program state account | W | N |
 
 #### SetManager
 
@@ -191,6 +192,7 @@ Update the manager authority of the pricing program.
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | signer | Authority of pricing program | R | Y |
+| program_state | Program state account | W | N |
 
 #### SetFee
 
@@ -201,12 +203,30 @@ Update the fees for given type of pricing action.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 6 | u8 |
-| input_fee | fee in bips to impose when the token type is used as input | u16 |
-| output_fee | fee in bips to impose when the token type is used as output | u16 |
+| input_fee | Fee in bips to impose when the token type is used as input | u16 |
+| output_fee | Fee in bips to impose when the token type is used as output | u16 |
 
 ##### Accounts
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| fee_acc | account that describes the fee for each pricing type | R | N |
 | signer | Authority of pricing program | R | Y |
+| fee_acc | Account that describes the fee for each pricing type | R | N |
+
+#### SetLpWithdrawalFee
+
+Update the fees imposed for redeeming LP token for LST
+
+##### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 7 | u8 |
+| lp_withdrawal_fee | Fee in bips to impose when redeeming LP token for LST | u16 |
+
+##### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| signer | Authority of pricing program | R | Y |
+| program_state | Program state account | W | N |
