@@ -25,10 +25,12 @@ The FeeAccount is located at PDA ["fee", token_mint].
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
+NOTE: a negative fee value means incentivization for given route
+
 | Name | Value | Type |
 | -- | -- | -- |
-| input_fee | fee in bips to impose when the token type is used as input | u16 |
-| output_fee | fee in bips to impose when the token type is used as output | u16 |
+| input_fee | fee in bips to impose when the token type is used as input | i16 |
+| output_fee | fee in bips to impose when the token type is used as output | i16 |
 
 ## Instructions
 ### Common Interface
