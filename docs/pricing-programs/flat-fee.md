@@ -11,7 +11,7 @@ The program state singleton is located at PDA ["state"].
 
 #### Schema
 
-The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
 | Name | Value | Type |
 | -- | -- | -- |
@@ -23,7 +23,7 @@ The FeeAccount is located at PDA ["fee", token_mint].
 
 #### Schema
 
-The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
 | Name | Value | Type |
 | -- | -- | -- |
@@ -32,7 +32,7 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 
 #### Ratio Schema
 
-The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
 | Name | Value | Type |
 | -- | -- | -- |
@@ -57,10 +57,10 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
 | lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -79,7 +79,6 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 | discriminant | 1 | u8 |
 | amount | amount of output LST | u64 |
 | sol_value | SOL value of amount output LST | u64 |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -91,10 +90,10 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
 | lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 #### PriceLpTokensToMint
 
@@ -107,7 +106,6 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | discriminant | 2 | u8 |
 | amount | amount of input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -119,9 +117,9 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 #### PriceLpTokensToRedeem
 
@@ -134,7 +132,6 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | discriminant | 3 | u8 |
 | amount | amount of input LP | u64 |
 | sol_value | SOL value of amount input LP | u64 |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -146,9 +143,9 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
 | lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
-| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Procedure
 
