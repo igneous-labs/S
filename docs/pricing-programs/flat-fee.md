@@ -11,7 +11,16 @@ The program state singleton is located at PDA ["state"].
 
 | Name | Value | Type |
 | -- | -- | -- |
-| Manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
+| manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
+
+### Fee Account
+
+The Fee Account is located at PDA ["fee", token_mint].
+
+| Name | Value | Type |
+| -- | -- | -- |
+| input_fee | fee in bips to impose when the token type is used as input | u16 |
+| output_fee | fee in bips to impose when the token type is used as output | u16 |
 
 ## Instructions
 ### Common Interface
@@ -53,6 +62,7 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 | discriminant | 1 | u8 |
 | amount | amount of output LST | u64 |
 | sol_value | SOL value of amount output LST | u64 |
+| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -80,6 +90,7 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | discriminant | 2 | u8 |
 | amount | amount of input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
+| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -106,6 +117,7 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | discriminant | 3 | u8 |
 | amount | amount of input LP | u64 |
 | sol_value | SOL value of amount input LP | u64 |
+| pricing_authority | PDA for pricing authorization | R | Y |
 
 ##### Return Data
 
@@ -142,6 +154,10 @@ Initialize the program state.
 
 ##### Accounts
 
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| signer | Authority of pricing program | R | Y |
+
 #### SetManager
 
 Update the manager authority of the pricing program.
@@ -151,8 +167,13 @@ Update the manager authority of the pricing program.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 5 | u8 |
+| manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
 
 ##### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| signer | Authority of pricing program | R | Y |
 
 #### SetFee
 
@@ -163,6 +184,12 @@ Update the fees for given type of pricing action.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 6 | u8 |
+| input_fee | fee in bips to impose when the token type is used as input | u16 |
+| output_fee | fee in bips to impose when the token type is used as output | u16 |
 
 ##### Accounts
 
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| fee_acc | account that describes the fee for each pricing type | R | N |
+| signer | Authority of pricing program | R | Y |
