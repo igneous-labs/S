@@ -12,21 +12,14 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Name | Value | Type |
 | -- | -- | -- |
+| version | incrementing counter representing schema version number. Starts at 1 | u8 |
+| protocol_fee | The flat protocol fee to charge on output amounts in bps | u16 |
+| _padding | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 22] |
 | total_sol_value | The last recorded total SOL value of the pool, updated by SyncSolValue | u64 |
-| protocol_fee | The flat protocol fee to charge on output amounts | Ratio |
 | admin | The admin pubkey authorized to perform all admin actions | Pubkey |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey |
 | pricing_program | Address of pricing program used by pool | Pubkey |
 | lst_states | Dynamic list of LstStates for each LST in the pool | LstState[] |
-
-#### Ratio Schema
-
-The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
-
-| Name | Value | Type |
-| -- | -- | -- |
-| num | Numerator | u64 |
-| denom | Denominator | u64 |
 
 #### LstState Schema
 
@@ -34,7 +27,7 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 
 | Name | Value | Type |
 | -- | -- | -- |
-| is_input_disabled | Flag indicating if inputs for this LST are disabled | bool |
+| is_input_disabled | Flag indicating if inputs for this LST are disabled | PodBool |
 | sol_value | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64 |
 | token | The LST's mint | Pubkey |
 | sol_value_calculator | The LST's SOL value calculator program | Pubkey |
