@@ -27,17 +27,8 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Name | Value | Type |
 | -- | -- | -- |
-| input_fee | fee in ratio to impose when the token type is used as input | Ratio |
-| output_fee | fee in ratio to impose when the token type is used as output | Ratio |
-
-#### Ratio Schema
-
-The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
-
-| Name | Value | Type |
-| -- | -- | -- |
-| num | Numerator | u64 |
-| denom | Denominator | u64 |
+| input_fee | fee in bips to impose when the token type is used as input | u16 |
+| output_fee | fee in bips to impose when the token type is used as output | u16 |
 
 ## Instructions
 ### Common Interface
@@ -68,6 +59,8 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 | -- | -- | -- |
 | result | the calculated output SOL value | u64 |
 
+##### Procedure
+
 #### PriceExactOut
 
 Given an output LST amount and its SOL value, calculate the input SOL value.
@@ -95,6 +88,8 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 | lst_output | output LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
 
+##### Procedure
+
 #### PriceLpTokensToMint
 
 Given an input LST amount and its SOL value, calculate the SOL value of the LP tokens to mint.
@@ -120,6 +115,8 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | pricing_authority | PDA for pricing authorization | R | Y |
 | lst_input | input LST token mint | R | N |
 | fee_acc | account that describes the fee for each pricing type | R | N |
+
+##### Procedure
 
 #### PriceLpTokensToRedeem
 
