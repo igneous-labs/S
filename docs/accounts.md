@@ -12,10 +12,12 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Name | Value | Type |
 | -- | -- | -- |
+| discriminant | 1 | u8 |
 | version | incrementing counter representing schema version number. Starts at 1 | u8 |
+| is_disabled | true if all functionality of the pool has been disabled by DisablePool | PodBool |
 | trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps | u16 |
 | lp_protocol_fee_bps | The flat protocol fee to charge on LP withdrawal fees in bps | u16 |
-| _padding | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 18] |
+| _padding | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 16] |
 | total_sol_value | The last recorded total SOL value of the pool, updated by SyncSolValue | u64 |
 | admin | The admin pubkey authorized to perform all admin actions | Pubkey |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey |
@@ -32,6 +34,19 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 | sol_value | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64 |
 | token | The LST's mint | Pubkey |
 | sol_value_calculator | The LST's SOL value calculator program | Pubkey |
+
+## DisablePoolAuthorityList
+
+List of pubkeys authorized to disable the pool. PDA ["disable-pool-authority-list"].
+
+### Schema
+
+The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 2 | u8 |
+| whitelisted_pubkeys | list of pubkeys allowed to call the panic instruction | Pubkey[] |
 
 ## LST Reserves
 
