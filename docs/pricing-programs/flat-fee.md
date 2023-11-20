@@ -34,7 +34,9 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 ### Common Interface
 #### PriceExactIn
 
-Given an input LST amount and its SOL value, calculate the output SOL value.
+Given an input LST amount and its SOL value, calculate the output SOL value by:
+ - calculate total fee in bips by adding `fee_acc.input_fee` and `fee_acc.output_fee`
+ - calculate output LST's sol value after imposing fee by using the calculated fee and the given `sol_value` of input lst
 
 ##### Data
 
@@ -63,7 +65,9 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 
 #### PriceExactOut
 
-Given an output LST amount and its SOL value, calculate the input SOL value.
+Given an output LST amount and its SOL value, calculate the input SOL value by:
+ - calculate total fee in bips by adding `fee_acc.input_fee` and `fee_acc.output_fee`
+ - calculate input LST's sol value using given `sol_value` of output lst assuming that the calculated fee was imposed to resulting input lst's SOL value
 
 ##### Data
 
