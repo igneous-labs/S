@@ -19,7 +19,7 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 
 ### FeeAccount
 
-The Fee Account is located at PDA ["fee", token_mint].
+The FeeAccount is located at PDA ["fee", token_mint].
 
 #### Schema
 
@@ -38,7 +38,6 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 | -- | -- | -- |
 | num | Numerator | u64 |
 | denom | Denominator | u64 |
-
 
 ## Instructions
 ### Common Interface
