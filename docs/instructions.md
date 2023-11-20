@@ -26,7 +26,7 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 | lst | mint of the LST to sync SOL value for | R | N |
 | pool_state | the pool's state singleton | W | N |
 | pool_reserves | LST token account reserves of the pool | R | N |
-| lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
+| lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
 
 #### Procedure
 
@@ -44,8 +44,8 @@ Swap to output LST from an exact amount of given input LST.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 1 | u8 |
-| src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, including the program itself | u8 |
-| dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, including the program itself | u8 |
+| src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself | u8 |
+| dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8 |
 | pricing_accs | number of accounts following to invoke pricing program PriceExactIn with, including the program itself | u8 |
 | src_lst_index | index of src_lst in pool_state.lst_states | u64 |
 | dst_lst_index | index of dst_lst in pool_state.lst_states | u64 |
@@ -66,8 +66,8 @@ Swap to output LST from an exact amount of given input LST.
 | pool_state | the pool's state singleton | W | N |
 | pool_src_reserves | src token token account reserves of the pool | W | N |
 | pool_dst_reserves | dst token token account reserves of the pool | W | N |
-| src_lst_value_calc_accs | accounts to invoke src token's SOL value calculator program LstToSol with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
-| dst_lst_value_calc_accs | accounts to invoke dst token's SOL value calculator program SolToLst with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
+| src_lst_value_calc_accs | accounts to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
+| dst_lst_value_calc_accs | accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
 | pricing_accs | accounts to invoke pricing program PriceExactIn with. First account should be the pricing program itself. Multiple Accounts. | ... | ... |
 
 #### Procedure
@@ -102,7 +102,7 @@ Add single-LST liquidity to the pool.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 3 | u8 |
-| lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program LstToSol with, including the program itself | u8 |
+| lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. | u8 |
 | pricing_accs | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself | u8 |
 | lst_index | index of lst in pool_state.lst_states | u64 |
 | amount | amount of tokens to add as liquidity | u64 |
@@ -118,7 +118,7 @@ Add single-LST liquidity to the pool.
 | token_program | - | R | N |
 | pool_state | the pool's state singleton | W | N |
 | pool_reserves | pool's token reserves for the LST | W | N |
-| lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
+| lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
 | pricing_accs | accounts to invoke pricing program PriceLpTokensToMint with. First account should be the pricing program itself. Multiple Accounts. | ... | ... |
 
 #### Procedure
@@ -140,7 +140,7 @@ Remove single-LST liquidity from the pool.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 4 | u8 |
-| lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program SolToLst with, including the program itself | u8 |
+| lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8 |
 | pricing_accs | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself | u8 |
 | lst_index | index of lst in pool_state.lst_states | u64 |
 | amount | amount of LP tokens to burn and redeem | u64 |
@@ -157,7 +157,7 @@ Remove single-LST liquidity from the pool.
 | token_program | - | R | N |
 | pool_state | the pool's state singleton | W | N |
 | pool_reserves | pool's token reserves for the LST | W | N |
-| lst_value_calc_accs | accounts to invoke token's SOL value calculator program SolToLst with. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
+| lst_value_calc_accs | accounts to invoke token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ... | ... |
 | pricing_accs | accounts to invoke pricing program PriceLpTokensToRedeem with. First account should be the pricing program itself. Multiple Accounts. | ... | ... |
 
 #### Procedure

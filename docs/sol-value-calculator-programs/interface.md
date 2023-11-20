@@ -19,7 +19,10 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Accounts
 
-Varies with each LST program.
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| lst | Token mint of the lst | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ... | ... |
 
 #### Return Data
 
@@ -44,7 +47,10 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Accounts
 
-Varies with each LST program.
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| lst | Token mint of the lst | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ... | ... |
 
 #### Return Data
 
