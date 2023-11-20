@@ -179,9 +179,7 @@ CPI the pricing program.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 5 | u8 |
-| pricing program args | ... | ... |
-
-raw bytes of pricing program args are passed directly to pricing program CPI
+| pricing program args | raw bytes passed directly to pricing program CPI | ... |
 
 #### Accounts
 
@@ -343,7 +341,7 @@ Updates the protocol fee rate of the pool
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 12 | u8 |
-| new_protocol_fee | - | Ratio |
+| new_protocol_fee_bps | - | u16 |
 
 #### Accounts
 
@@ -419,7 +417,7 @@ Initialize the pool. Can only be called once with hardcoded init authority.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 16 | u8 |
-| protocol_fee | initial protocol fee | Ratio |
+| protocol_fee_bps | initial protocol fee | u16 |
 
 #### Accounts
 
@@ -431,3 +429,5 @@ Initialize the pool. Can only be called once with hardcoded init authority.
 | protocol_fee_beneficiary | The new pool's protocol fee beneficiary | R | N |
 | pricing_program | The new pool's pricing program | R | N |
 | pool_state | The pool's state singleton | W | N |
+| token_2022 | Token 2022 program | R | N |
+| remaining_accounts | accounts required to initialize the LP token and transfer fee and metadata extensions | ... | ... |
