@@ -170,27 +170,6 @@ Remove single-LST liquidity from the pool.
 - Transfer remaining LST due to dst_acc
 - Self CPI SyncSolValue for LST
 
-### CallPricingProgram
-
-CPI the pricing program.
-
-#### Data
-
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 5 | u8 |
-| pricing program args | raw bytes passed directly to pricing program CPI | ... |
-
-#### Accounts
-
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| pricing_accs | accounts to invoke pricing program with. First account should be the pricing program itself. Multiple Accounts. | ... | ... |
-
-#### Procedure
-
-- CPI pricing program with the accounts and data passed in, signed by the pricing program authority PDA
-
 ### DisableInput
 
 Disable input for a LST to prepare for removal
@@ -199,7 +178,7 @@ Disable input for a LST to prepare for removal
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 6 | u8 |
+| discriminant | 5 | u8 |
 | index | index of lst in pool_state.lst_states | u64 |
 
 #### Accounts
@@ -218,7 +197,7 @@ Re-enable input for a LST
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 7 | u8 |
+| discriminant | 6 | u8 |
 | index | index of lst in pool_state.lst_states | u64 |
 
 #### Accounts
@@ -237,7 +216,7 @@ Add a LST to the pool
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 8 | u8 |
+| discriminant | 7 | u8 |
 
 #### Accounts
 
@@ -267,7 +246,7 @@ Remove a LST from the pool
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 9 | u8 |
+| discriminant | 8 | u8 |
 | index | index of lst in pool_state.lst_states | u64 |
 
 #### Accounts
@@ -296,7 +275,7 @@ Update the SOL value calculator program for a LST
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 10 | u8 |
+| discriminant | 9 | u8 |
 | index | index of lst in pool_state.lst_states | u64 |
 
 #### Accounts
@@ -322,7 +301,7 @@ Updates the admin authority pubkey of the pool
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 11 | u8 |
+| discriminant | 10 | u8 |
 
 #### Accounts
 
@@ -340,7 +319,7 @@ Updates the protocol fee rate of the pool
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 12 | u8 |
+| discriminant | 11 | u8 |
 | new_protocol_fee_bps | - | u16 |
 
 #### Accounts
@@ -358,7 +337,7 @@ Updates the pool's protocol fee beneficiary
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 13 | u8 |
+| discriminant | 12 | u8 |
 
 #### Accounts
 
@@ -376,7 +355,7 @@ Updates the pool's pricing program.
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 14 | u8 |
+| discriminant | 13 | u8 |
 
 #### Accounts
 
@@ -394,7 +373,7 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 15 | u8 |
+| discriminant | 14 | u8 |
 | amount | amount of LST to withdraw | u64 |
 
 #### Accounts
@@ -408,6 +387,93 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 | token_program | - | R | N |
 | pool_state | The pool's state singleton | W | N |
 
+### AddDisablePoolAuthority
+
+Add a disable pool authority
+
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 15 | u8 |
+
+#### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| admin | The pool's admin | R | Y |
+| new_authority | The new disable pool authority to add | R | N |
+| disable_pool_authority_list | DisablePoolAuthorityList PDA | W | N |
+
+#### Procedure
+
+- realloc and extend disable_pool_authority_list, and write new_authority in 
+
+### RemoveDisablePoolAuthority
+
+Remove a disable pool authority
+
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 16 | u8 |
+
+#### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| admin | The pool's admin | R | Y if authority signature missing |
+| authority | The authority to remove | R | Y if admin signature missing |
+| disable_pool_authority_list | DisablePoolAuthorityList PDA | W | N |
+
+#### Procedure
+
+- rewrite array and resize pool down
+
+### DisablePool
+
+Disable functionality of the entire pool.
+
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 17 | u8 |
+
+#### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| authority | The pool's admin or a disable pool authority | R | Y |
+| pool_state | The pool's state singleton | W | N |
+| disable_pool_authority_list | DisablePoolAuthorityList PDA. Optional if authority = pool's admin | R | N |
+
+#### Procedure
+
+- set bool flag on pool_state
+
+### EnablePool
+
+Re-enable functionality of the entire pool.
+
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 18 | u8 |
+
+#### Accounts
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| admin | The pool's admin | R | Y |
+| pool_state | The pool's state singleton | W | N |
+
+#### Procedure
+
+- unset bool flag on pool_state 
+
 ### Initialize
 
 Initialize the pool. Can only be called once with hardcoded init authority.
@@ -416,7 +482,7 @@ Initialize the pool. Can only be called once with hardcoded init authority.
 
 | Name | Value | Type |
 | -- | -- | -- |
-| discriminant | 16 | u8 |
+| discriminant | 19 | u8 |
 | protocol_fee_bps | initial protocol fee | u16 |
 
 #### Accounts
@@ -429,5 +495,6 @@ Initialize the pool. Can only be called once with hardcoded init authority.
 | protocol_fee_beneficiary | The new pool's protocol fee beneficiary | R | N |
 | pricing_program | The new pool's pricing program | R | N |
 | pool_state | The pool's state singleton | W | N |
+| disable_pool_authority_list | The DisablePoolAuthorityList singleton | W | N |
 | token_2022 | Token 2022 program | R | N |
 | remaining_accounts | accounts required to initialize the LP token and transfer fee and metadata extensions | ... | ... |
