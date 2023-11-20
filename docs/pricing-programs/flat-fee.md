@@ -5,22 +5,40 @@ Pricing program that levies flat fees.
 Fees are deducted by taking a set portion from the calculated resulting value depending on the token type.
 
 ## Accounts
-### Program State
+### ProgramState
 
 The program state singleton is located at PDA ["state"].
+
+#### Schema
+
+The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
 | Name | Value | Type |
 | -- | -- | -- |
 | manager | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
 
-### Fee Account
+### FeeAccount
 
 The Fee Account is located at PDA ["fee", token_mint].
 
+#### Schema
+
+The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+
 | Name | Value | Type |
 | -- | -- | -- |
-| input_fee | fee in bips to impose when the token type is used as input | u16 |
-| output_fee | fee in bips to impose when the token type is used as output | u16 |
+| input_fee | fee in ratio to impose when the token type is used as input | Ratio |
+| output_fee | fee in ratio to impose when the token type is used as output | Ratio |
+
+#### Ratio Schema
+
+The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
+
+| Name | Value | Type |
+| -- | -- | -- |
+| num | Numerator | u64 |
+| denom | Denominator | u64 |
+
 
 ## Instructions
 ### Common Interface
