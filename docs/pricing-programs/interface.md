@@ -20,6 +20,13 @@ Given an input LST amount and its SOL value, calculate the output SOL value.
 
 Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the 2 LSTs involved.
 
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
+| lst_input | input LST token mint | R | N |
+| lst_output | output LST token mint | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
+
 #### Return Data
 
 | Name | Value | Type |
@@ -30,7 +37,30 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 Given an output LST amount and its SOL value, calculate the input SOL value.
 
-Same interface as PriceExactIn, just that discriminant = 1.
+#### Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 1 | u8 |
+| amount | amount of input LST | u64 |
+| sol_value | SOL value of amount input LST | u64 |
+
+#### Accounts
+
+Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the 2 LSTs involved.
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
+| lst_input | input LST token mint | R | N |
+| lst_output | output LST token mint | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
+
+#### Return Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| result | the calculated SOL value | u64 |
 
 ### PriceLpTokensToMint
 
@@ -38,11 +68,27 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 #### Data
 
-Same interface as PriceExactIn, just that discriminant = 2.
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 1 | u8 |
+| amount | amount of input LST | u64 |
+| sol_value | SOL value of amount input LST | u64 |
+
+#### Return Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| result | the calculated SOL value | u64 |
 
 #### Accounts
 
 Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the input LST.
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
+| lst_input | input LST token mint | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 ### PriceLpTokensToRedeem
 
@@ -50,11 +96,27 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 #### Data
 
-Same interface as PriceExactIn, just that discriminant = 3.
+| Name | Value | Type |
+| -- | -- | -- |
+| discriminant | 1 | u8 |
+| amount | amount of input LST | u64 |
+| sol_value | SOL value of amount input LST | u64 |
+
+#### Return Data
+
+| Name | Value | Type |
+| -- | -- | -- |
+| result | the calculated SOL value | u64 |
 
 #### Accounts
 
 Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the output LST.
+
+| Account | Description | Read/Write (R/W) | Signer (Y/N) |
+| -- | -- | -- | -- |
+| pricing_authority | PDA for pricing authorization | R | Y |
+| lst_output | output LST token mint | R | N |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 #### Procedure
 
