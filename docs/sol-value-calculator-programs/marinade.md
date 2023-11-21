@@ -18,7 +18,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Name | Value | Type |
 | -- | -- | -- |
-| manager | pricing program manager | Pubkey |
+| manager | The SOL value calculator program manager | Pubkey |
 | last_upgrade_slot | The last recorded slot at which the marinade program was upgraded | u64 |
 
 ## Instructions
