@@ -66,8 +66,8 @@ pub struct LstToSolAccounts<'me, 'info> {
     pub lst: &'me AccountInfo<'info>,
     ///The MarinadeCalculatorState PDA
     pub state: &'me AccountInfo<'info>,
-    ///The main stake pool account
-    pub stake_pool: &'me AccountInfo<'info>,
+    ///The marinade state account
+    pub marinade_state: &'me AccountInfo<'info>,
     ///The marinade program
     pub marinade_program: &'me AccountInfo<'info>,
     ///The marinade program executable data
@@ -79,8 +79,8 @@ pub struct LstToSolKeys {
     pub lst: Pubkey,
     ///The MarinadeCalculatorState PDA
     pub state: Pubkey,
-    ///The main stake pool account
-    pub stake_pool: Pubkey,
+    ///The marinade state account
+    pub marinade_state: Pubkey,
     ///The marinade program
     pub marinade_program: Pubkey,
     ///The marinade program executable data
@@ -91,7 +91,7 @@ impl From<&LstToSolAccounts<'_, '_>> for LstToSolKeys {
         Self {
             lst: *accounts.lst.key,
             state: *accounts.state.key,
-            stake_pool: *accounts.stake_pool.key,
+            marinade_state: *accounts.marinade_state.key,
             marinade_program: *accounts.marinade_program.key,
             marinade_program_data: *accounts.marinade_program_data.key,
         }
@@ -102,7 +102,7 @@ impl From<&LstToSolKeys> for [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
         [
             AccountMeta::new_readonly(keys.lst, false),
             AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.stake_pool, false),
+            AccountMeta::new_readonly(keys.marinade_state, false),
             AccountMeta::new_readonly(keys.marinade_program, false),
             AccountMeta::new_readonly(keys.marinade_program_data, false),
         ]
@@ -113,7 +113,7 @@ impl From<[Pubkey; LST_TO_SOL_IX_ACCOUNTS_LEN]> for LstToSolKeys {
         Self {
             lst: pubkeys[0],
             state: pubkeys[1],
-            stake_pool: pubkeys[2],
+            marinade_state: pubkeys[2],
             marinade_program: pubkeys[3],
             marinade_program_data: pubkeys[4],
         }
@@ -126,7 +126,7 @@ impl<'info> From<&LstToSolAccounts<'_, 'info>>
         [
             accounts.lst.clone(),
             accounts.state.clone(),
-            accounts.stake_pool.clone(),
+            accounts.marinade_state.clone(),
             accounts.marinade_program.clone(),
             accounts.marinade_program_data.clone(),
         ]
@@ -139,7 +139,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]>
         Self {
             lst: &arr[0],
             state: &arr[1],
-            stake_pool: &arr[2],
+            marinade_state: &arr[2],
             marinade_program: &arr[3],
             marinade_program_data: &arr[4],
         }
@@ -217,7 +217,7 @@ pub fn lst_to_sol_verify_account_keys(
     for (actual, expected) in [
         (accounts.lst.key, &keys.lst),
         (accounts.state.key, &keys.state),
-        (accounts.stake_pool.key, &keys.stake_pool),
+        (accounts.marinade_state.key, &keys.marinade_state),
         (accounts.marinade_program.key, &keys.marinade_program),
         (
             accounts.marinade_program_data.key,
@@ -243,8 +243,8 @@ pub struct SolToLstAccounts<'me, 'info> {
     pub lst: &'me AccountInfo<'info>,
     ///The MarinadeCalculatorState PDA
     pub state: &'me AccountInfo<'info>,
-    ///The main stake pool account
-    pub stake_pool: &'me AccountInfo<'info>,
+    ///The marinade state account
+    pub marinade_state: &'me AccountInfo<'info>,
     ///The marinade program
     pub marinade_program: &'me AccountInfo<'info>,
     ///The marinade program executable data
@@ -256,8 +256,8 @@ pub struct SolToLstKeys {
     pub lst: Pubkey,
     ///The MarinadeCalculatorState PDA
     pub state: Pubkey,
-    ///The main stake pool account
-    pub stake_pool: Pubkey,
+    ///The marinade state account
+    pub marinade_state: Pubkey,
     ///The marinade program
     pub marinade_program: Pubkey,
     ///The marinade program executable data
@@ -268,7 +268,7 @@ impl From<&SolToLstAccounts<'_, '_>> for SolToLstKeys {
         Self {
             lst: *accounts.lst.key,
             state: *accounts.state.key,
-            stake_pool: *accounts.stake_pool.key,
+            marinade_state: *accounts.marinade_state.key,
             marinade_program: *accounts.marinade_program.key,
             marinade_program_data: *accounts.marinade_program_data.key,
         }
@@ -279,7 +279,7 @@ impl From<&SolToLstKeys> for [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] {
         [
             AccountMeta::new_readonly(keys.lst, false),
             AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.stake_pool, false),
+            AccountMeta::new_readonly(keys.marinade_state, false),
             AccountMeta::new_readonly(keys.marinade_program, false),
             AccountMeta::new_readonly(keys.marinade_program_data, false),
         ]
@@ -290,7 +290,7 @@ impl From<[Pubkey; SOL_TO_LST_IX_ACCOUNTS_LEN]> for SolToLstKeys {
         Self {
             lst: pubkeys[0],
             state: pubkeys[1],
-            stake_pool: pubkeys[2],
+            marinade_state: pubkeys[2],
             marinade_program: pubkeys[3],
             marinade_program_data: pubkeys[4],
         }
@@ -303,7 +303,7 @@ impl<'info> From<&SolToLstAccounts<'_, 'info>>
         [
             accounts.lst.clone(),
             accounts.state.clone(),
-            accounts.stake_pool.clone(),
+            accounts.marinade_state.clone(),
             accounts.marinade_program.clone(),
             accounts.marinade_program_data.clone(),
         ]
@@ -316,7 +316,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]>
         Self {
             lst: &arr[0],
             state: &arr[1],
-            stake_pool: &arr[2],
+            marinade_state: &arr[2],
             marinade_program: &arr[3],
             marinade_program_data: &arr[4],
         }
@@ -394,7 +394,7 @@ pub fn sol_to_lst_verify_account_keys(
     for (actual, expected) in [
         (accounts.lst.key, &keys.lst),
         (accounts.state.key, &keys.state),
-        (accounts.stake_pool.key, &keys.stake_pool),
+        (accounts.marinade_state.key, &keys.marinade_state),
         (accounts.marinade_program.key, &keys.marinade_program),
         (
             accounts.marinade_program_data.key,

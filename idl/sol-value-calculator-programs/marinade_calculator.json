@@ -28,10 +28,10 @@
           "desc": "The MarinadeCalculatorState PDA"
         },
         {
-          "name": "stake_pool",
+          "name": "marinade_state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The main stake pool account"
+          "desc": "The marinade state account"
         },
         {
           "name": "marinade_program",
@@ -73,10 +73,10 @@
           "desc": "The MarinadeCalculatorState PDA"
         },
         {
-          "name": "stake_pool",
+          "name": "marinade_state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The main stake pool account"
+          "desc": "The marinade state account"
         },
         {
           "name": "marinade_program",
