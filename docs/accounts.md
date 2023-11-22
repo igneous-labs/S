@@ -12,13 +12,13 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Name                     | Value                                                                                                    | Type       |
 | ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------- |
+| total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                                   | u64        |
+| trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                                      | u16        |
+| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                                             | u16        |
 | version                  | incrementing counter representing schema version number. Starts at 1                                     | u8         |
 | is_disabled              | true if all functionality of the pool has been disabled by DisablePool                                   | PodBool    |
 | is_rebalancing           | true if a rebalance is currently occuring                                                                | PodBool    |
-| trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                                      | u16        |
-| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                                             | u16        |
-| total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                                   | u64        |
-| \_padding                | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 16]   |
+| \_padding                | Additional padding to allow for additional fields in future migrations and to make admin 256-bit aligned | [u8; 17]   |
 | admin                    | The admin pubkey authorized to perform all admin actions                                                 | Pubkey     |
 | rebalance_authority      | The pubkey authorized to rebalance                                                                       | Pubkey     |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees                    | Pubkey     |
