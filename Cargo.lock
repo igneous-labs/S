@@ -1262,6 +1262,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "spl_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "bytemuck",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
+]
+
+[[package]]
 name = "subtle"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
