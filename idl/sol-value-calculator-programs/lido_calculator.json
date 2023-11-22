@@ -1,0 +1,208 @@
+{
+  "version": "1.0.0",
+  "name": "lido_calculator",
+  "instructions": [
+    {
+      "name": "LstToSol",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "stSOL mint"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LidoCalculatorState PDA"
+        },
+        {
+          "name": "lido_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido state account"
+        },
+        {
+          "name": "lido_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program"
+        },
+        {
+          "name": "lido_program_data",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program executable data"
+        }
+      ]
+    },
+    {
+      "name": "SolToLst",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "stSOL mint"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LidoCalculatorState PDA"
+        },
+        {
+          "name": "lido_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido state account"
+        },
+        {
+          "name": "lido_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program"
+        },
+        {
+          "name": "lido_program_data",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program executable data"
+        }
+      ]
+    },
+    {
+      "name": "UpdateLastUpgradeSlot",
+      "discriminant": {
+        "type": "u8",
+        "value": 253
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "manager",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The program manager"
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LidoCalculatorState PDA"
+        },
+        {
+          "name": "lido_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program"
+        },
+        {
+          "name": "lido_program_data",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The lido program executable data"
+        }
+      ]
+    },
+    {
+      "name": "SetManager",
+      "discriminant": {
+        "type": "u8",
+        "value": 254
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "manager",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The program manager"
+        },
+        {
+          "name": "new_manager",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The new program manager to set to"
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LidoCalculatorState PDA"
+        }
+      ]
+    },
+    {
+      "name": "Init",
+      "discriminant": {
+        "type": "u8",
+        "value": 255
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LidoCalculatorState PDA"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "LidoCalculatorState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "manager",
+            "type": "publicKey"
+          },
+          {
+            "name": "last_upgrade_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "UnexpectedProgramUpgrade",
+      "msg": "lido program has been updated since last UpdateLastUpgradeSlot"
+    },
+    {
+      "code": 1,
+      "name": "IncorrectAccountType",
+      "msg": "lido state account type incorrect"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "11111111111111111111111111111111"
+  }
+}

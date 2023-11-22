@@ -754,6 +754,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "lido_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "bytemuck",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
+]
+
+[[package]]
 name = "lock_api"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
