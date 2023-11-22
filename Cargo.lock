@@ -1149,6 +1149,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
 
 [[package]]
+name = "socean_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "bytemuck",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
+]
+
+[[package]]
 name = "solana-frozen-abi"
 version = "1.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
