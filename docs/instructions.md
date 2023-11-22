@@ -235,6 +235,7 @@ Add a LST to the pool
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | sol_value_calculator          | The LST's SOL value calculator program                                         | R                | N            |
 | pool_state                    | The pool's state singleton                                                     | W                | N            |
+| system_program                | System Program                                                                 | R                | N            |
 
 #### Procedure
 
@@ -266,6 +267,7 @@ Remove a LST from the pool
 | protocol_fee_accumulator      | The LST protocol fee accumulator token account to destroy                      | W                | N            |
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | pool_state                    | The pool's state singleton                                                     | W                | N            |
+| system_program                | System Program                                                                 | R                | N            |
 
 #### Procedure
 
@@ -406,11 +408,13 @@ Add a disable pool authority
 
 #### Accounts
 
-| Account                     | Description                           | Read/Write (R/W) | Signer (Y/N) |
-| --------------------------- | ------------------------------------- | ---------------- | ------------ |
-| admin                       | The pool's admin                      | R                | Y            |
-| new_authority               | The new disable pool authority to add | R                | N            |
-| disable_pool_authority_list | DisablePoolAuthorityList PDA          | W                | N            |
+| Account                     | Description                                        | Read/Write (R/W) | Signer (Y/N) |
+| --------------------------- | -------------------------------------------------- | ---------------- | ------------ |
+| payer                       | The account paying for additional rent for realloc | W                | Y            |
+| admin                       | The pool's admin                                   | R                | Y            |
+| new_authority               | The new disable pool authority to add              | R                | N            |
+| disable_pool_authority_list | DisablePoolAuthorityList PDA                       | W                | N            |
+| system_program              | System Program                                     | R                | N            |
 
 #### Procedure
 
@@ -428,15 +432,16 @@ Remove a disable pool authority
 
 #### Accounts
 
-| Account                     | Description                  | Read/Write (R/W) | Signer (Y/N)                     |
-| --------------------------- | ---------------------------- | ---------------- | -------------------------------- |
-| admin                       | The pool's admin             | R                | Y if authority signature missing |
-| authority                   | The authority to remove      | R                | Y if admin signature missing     |
-| disable_pool_authority_list | DisablePoolAuthorityList PDA | W                | N                                |
+| Account                     | Description                                  | Read/Write (R/W) | Signer (Y/N)                     |
+| --------------------------- | -------------------------------------------- | ---------------- | -------------------------------- |
+| refund_rent_to              | The account to refund the excess lamports to | W                | N                                |
+| admin                       | The pool's admin                             | R                | Y if authority signature missing |
+| authority                   | The authority to remove                      | R                | Y if admin signature missing     |
+| disable_pool_authority_list | DisablePoolAuthorityList PDA                 | W                | N                                |
 
 #### Procedure
 
-- rewrite array and resize pool down
+- rewrite array and resize list down
 
 ### DisablePool
 
@@ -510,6 +515,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | pool_dst_reserves       | dst LST token account reserves of the pool                                                                                                                                                    | W                | N            |
 | withdraw_to             | src LST token account to withdraw to                                                                                                                                                          | W                | N            |
 | instructions            | instructions sysvar                                                                                                                                                                           | R                | N            |
+| system_program          | System Program                                                                                                                                                                                | R                | N            |
 | src_lst_value_calc_accs | accounts to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | dst_lst_value_calc_accs | accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
@@ -591,6 +597,7 @@ Initialize the pool. Can only be called once.
 | pool_state                  | The pool's state singleton                                                            | W                | N            |
 | disable_pool_authority_list | The DisablePoolAuthorityList singleton                                                | W                | N            |
 | token_2022                  | Token 2022 program                                                                    | R                | N            |
+| system_program              | System Program                                                                        | R                | N            |
 | remaining_accounts          | accounts required to initialize the LP token and transfer fee and metadata extensions | ...              | ...          |
 
 #### Procedure
