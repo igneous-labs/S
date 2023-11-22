@@ -10,6 +10,8 @@ pub enum LidoCalculatorError {
     UnexpectedProgramUpgrade = 0,
     #[error("lido state account type incorrect")]
     IncorrectAccountType = 1,
+    #[error("state already initialized")]
+    AlreadyInitialized = 3,
 }
 impl From<LidoCalculatorError> for ProgramError {
     fn from(e: LidoCalculatorError) -> Self {

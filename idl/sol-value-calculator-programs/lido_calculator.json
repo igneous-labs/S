@@ -163,6 +163,12 @@
       "args": [],
       "accounts": [
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for LidoCalculatorState's rent"
+        },
+        {
           "name": "state",
           "isMut": true,
           "isSigner": false,
@@ -199,6 +205,11 @@
       "code": 1,
       "name": "IncorrectAccountType",
       "msg": "lido state account type incorrect"
+    },
+    {
+      "code": 3,
+      "name": "AlreadyInitialized",
+      "msg": "state already initialized"
     }
   ],
   "metadata": {
