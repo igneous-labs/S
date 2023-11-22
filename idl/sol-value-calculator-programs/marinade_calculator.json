@@ -163,6 +163,12 @@
       "args": [],
       "accounts": [
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for MarinadeCalculatorState's rent"
+        },
+        {
           "name": "state",
           "isMut": true,
           "isSigner": false,
@@ -199,6 +205,11 @@
       "code": 1,
       "name": "IncorrectPoolAccountType",
       "msg": "marinade account type incorrect"
+    },
+    {
+      "code": 2,
+      "name": "AlreadyInitialized",
+      "msg": "state already initialized"
     }
   ],
   "metadata": {

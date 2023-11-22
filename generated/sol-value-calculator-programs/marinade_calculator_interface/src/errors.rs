@@ -10,6 +10,8 @@ pub enum MarinadeCalculatorError {
     UnexpectedProgramUpgrade = 0,
     #[error("marinade account type incorrect")]
     IncorrectPoolAccountType = 1,
+    #[error("state already initialized")]
+    AlreadyInitialized = 2,
 }
 impl From<MarinadeCalculatorError> for ProgramError {
     fn from(e: MarinadeCalculatorError) -> Self {
