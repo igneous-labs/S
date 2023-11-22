@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+    "generated/sol-value-calculator-programs/*"
+]
+
+
+[workspace.dependencies]
+borsh = ">=0.9" # TODO: there are probably gonna be issues from having both 0.9 and 0.10 in the workspace but idk how to fix this bec solana-program depends on both
+bytemuck = "^1.0"
+num-derive = "^0.3"
+num-traits = "^0.2"
+serde = "^1.0"
+solana-program = "~1.16.0"
+thiserror = "^1.0"
