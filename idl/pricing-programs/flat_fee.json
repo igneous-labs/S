@@ -128,7 +128,7 @@
           "isMut": false,
           "isSigner": false,
           "desc": "Input LST token mint"
-        },
+        }
       ]
     },
     {
@@ -165,7 +165,7 @@
           "isMut": false,
           "isSigner": false,
           "desc": "Program state PDA"
-        },
+        }
       ]
     },
     {
@@ -178,7 +178,7 @@
         {
           "name": "lp_withdrawal_fee",
           "type": "u16"
-        },
+        }
       ],
       "accounts": [
         {
@@ -192,7 +192,7 @@
           "isMut": true,
           "isSigner": false,
           "desc": "Program state PDA"
-        },
+        }
       ]
     },
     {
@@ -209,7 +209,7 @@
         {
           "name": "output_fee",
           "type": "i16"
-        },
+        }
       ],
       "accounts": [
         {
@@ -223,7 +223,7 @@
           "isMut": true,
           "isSigner": false,
           "desc": "FeeAccount PDA to modify"
-        },
+        }
       ]
     },
     {
@@ -306,7 +306,7 @@
       "code": 0,
       "name": "UnsupportedLstMint",
       "msg": "FeeAccount is not initialized for the given LST mint"
-    },
+    }
   ],
   "metadata": {
     "origin": "shank",
