@@ -12,6 +12,8 @@ pub enum SplCalculatorError {
     IncorrectPoolAccountType = 1,
     #[error("stake pool not yet updated for the current epoch")]
     NotYetUpdatedForEpoch = 2,
+    #[error("state already initialized")]
+    AlreadyInitialized = 3,
 }
 impl From<SplCalculatorError> for ProgramError {
     fn from(e: SplCalculatorError) -> Self {
