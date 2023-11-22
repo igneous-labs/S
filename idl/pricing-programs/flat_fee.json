@@ -299,6 +299,22 @@
           }
         ]
       }
+    },
+    {
+      "name": "FeeAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "input_fee",
+            "type": "i16"
+          },
+          {
+            "name": "output_fee",
+            "type": "i16"
+          }
+        ]
+      }
     }
   ],
   "errors": [
