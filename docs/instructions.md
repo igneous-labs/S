@@ -519,9 +519,10 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 - Verify input is not disabled for dst_lst
 - Verify a corresponding EndRebalance instruction follows
 - Self CPI SyncSolValue for dst_lst
+- Self CPI SyncSolValue for src_lst
 - Withdraw amount src_lst from reserves to withdraw_to
-- Self CPI SyncSolValue fo src_lst
-- Initialize rebalance_record with sol_value = the difference between pool's total SOL value before and after the Self CPI
+- Self CPI SyncSolValue for src_lst
+- Initialize rebalance_record with sol_value = the difference between pool's total SOL value before and after the second SyncSolValue for src_lst
 - Set is_rebalancing = true
 
 ### EndRebalance
