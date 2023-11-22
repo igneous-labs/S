@@ -44,9 +44,9 @@ List of pubkeys authorized to disable the pool. PDA ["disable-pool-authority-lis
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name                | Value                                                 | Type     |
-| ------------------- | ----------------------------------------------------- | -------- |
-| whitelisted_pubkeys | list of pubkeys allowed to call the panic instruction | Pubkey[] |
+| Name                | Value                                                       | Type     |
+| ------------------- | ----------------------------------------------------------- | -------- |
+| whitelisted_pubkeys | list of pubkeys allowed to call the DisablePool instruction | Pubkey[] |
 
 ## RebalanceRecord
 
