@@ -1,0 +1,325 @@
+{
+  "version": "1.0.0",
+  "name": "flat_fee",
+  "instructions": [
+    {
+      "name": "PriceExactIn",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "pricing_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Pricing authority PDA"
+        },
+        {
+          "name": "lst_input",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Input LST token mint"
+        },
+        {
+          "name": "lst_output",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Output LST token mint"
+        },
+        {
+          "name": "fee_acc_input",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "FeeAccount PDA for input LST"
+        },
+        {
+          "name": "fee_acc_output",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "FeeAccount PDA for output LST"
+        }
+      ]
+    },
+    {
+      "name": "PriceExactOut",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "pricing_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Pricing authority PDA"
+        },
+        {
+          "name": "lst_input",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Input LST token mint"
+        },
+        {
+          "name": "lst_output",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Output LST token mint"
+        },
+        {
+          "name": "fee_acc_input",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "FeeAccount PDA for input LST"
+        },
+        {
+          "name": "fee_acc_output",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "FeeAccount PDA for output LST"
+        }
+      ]
+    },
+    {
+      "name": "PriceLpTokensToMint",
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "pricing_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Pricing authority PDA"
+        },
+        {
+          "name": "lst_input",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Input LST token mint"
+        }
+      ]
+    },
+    {
+      "name": "PriceLpTokensToRedeem",
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "pricing_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Pricing authority PDA"
+        },
+        {
+          "name": "lst_output",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Output LST token mint"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Program state PDA"
+        }
+      ]
+    },
+    {
+      "name": "SetLpWithdrawalFee",
+      "discriminant": {
+        "type": "u8",
+        "value": 252
+      },
+      "args": [
+        {
+          "name": "lp_withdrawal_fee",
+          "type": "u16"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "manager",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The program manager"
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Program state PDA"
+        }
+      ]
+    },
+    {
+      "name": "SetFee",
+      "discriminant": {
+        "type": "u8",
+        "value": 253
+      },
+      "args": [
+        {
+          "name": "input_fee",
+          "type": "i16"
+        },
+        {
+          "name": "output_fee",
+          "type": "i16"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "manager",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The program manager"
+        },
+        {
+          "name": "fee_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "FeeAccount PDA to modify"
+        }
+      ]
+    },
+    {
+      "name": "SetManager",
+      "discriminant": {
+        "type": "u8",
+        "value": 254
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "manager",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The program manager"
+        },
+        {
+          "name": "new_manager",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The new program manager to set to"
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The program state PDA"
+        }
+      ]
+    },
+    {
+      "name": "Init",
+      "discriminant": {
+        "type": "u8",
+        "value": 255
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "init_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The hardcoded init authority of pricing program"
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Program state PDA"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "ProgramState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "manager",
+            "type": "publicKey"
+          },
+          {
+            "name": "lp_withdrawal_fee",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "input_fee",
+            "type": "i16"
+          },
+          {
+            "name": "output_fee",
+            "type": "i16"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "UnsupportedLstMint",
+      "msg": "FeeAccount is not initialized for the given LST mint"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "11111111111111111111111111111111"
+  }
+}
