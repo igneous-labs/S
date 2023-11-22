@@ -1,16 +1,16 @@
-# SVSP
+# Lido
 
-SOL value calculator program for Single Validator Stake Pool program.
+SOL value calculator program for Lido for Solana program.
 
-To avoid being rugged by compromise of the SVSP program, this program records the last updated slot of the SVSP program and errors if the current one does not match.
+To avoid being rugged by compromise of the lido program, this program records the last updated slot of the lido program and errors if the current one does not match.
 
-A manager is solely authorized to whitelist the current SVSP program deployed. 
+A manager is solely authorized to whitelist the current lido program deployed. 
 
 ## Accounts
 
-### SvspCalculatorState
+### LidoCalculatorState
 
-The SvspCalculatorState singleton is located at PDA ["state"].
+The LidoCalculatorState singleton is located at PDA ["state"].
 
 #### Schema
 
@@ -19,7 +19,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Name | Value | Type |
 | -- | -- | -- |
 | manager | The SOL value calculator program manager | Pubkey |
-| last_upgrade_slot | The last recorded slot at which the SVSP program was upgraded | u64 |
+| last_upgrade_slot | The last recorded slot at which the lido program was upgraded | u64 |
 
 ## Instructions
 
@@ -32,18 +32,18 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | lst | See interface | R | N |
-| state | The SvspCalculatorState singleton PDA | R | N |
-| pool | The SVSP pool account | R | N |
-| svsp_program | SVSP program | R | N |
-| svsp_program_data | SVSP program executable data | R | N |
+| state | The LidoCalculatorState singleton PDA | R | N |
+| lido_state | The lido state account | R | N |
+| lido_program | lido program | R | N |
+| lido_program_data | lido program executable data | R | N |
 
 ##### Procedure
 
 - Check state PDA
-- Check SVSP program hardcoded address
-- Check SVSP program data matches that on SVSP program
+- Check lido program hardcoded address
+- Check lido program data matches that on lido program
 - Check state.last_upgrade_slot matches that on program data
-- Check pool program ownership + AccountType, lst mint PDA.
+- Check stSOL mint addr, lido_state hardcoded address
 - Calculate output SOL based on code copied from `process_withdraw()`
 
 #### SolToLst
@@ -53,25 +53,25 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | lst | See interface | R | N |
-| state | The SvspCalculatorState singleton PDA | R | N |
-| pool | The SVSP pool account | R | N |
-| svsp_program | SVSP program | R | N |
-| svsp_program_data | SVSP program executable data | R | N |
+| state | The LidoCalculatorState singleton PDA | R | N |
+| lido_state | The lido state account | R | N |
+| lido_program | lido program | R | N |
+| lido_program_data | lido program executable data | R | N |
 
 ##### Procedure
 
 - Check state PDA
-- Check SVSP program hardcoded address
-- Check SVSP program data matches that on SVSP program
+- Check lido program hardcoded address
+- Check lido program data matches that on lido program
 - Check state.last_upgrade_slot matches that on program data
-- Check pool program ownership + AccountType, lst mint PDA.
-- Calculate LST amount by reversing procedure in `process_withdraw()`
+- Check stSOL mint addr, lido_state hardcoded address
+- Calculate stSOL amount by reversing procedure in `process_withdraw()`
 
 ### Management Instructions
 
 #### UpdateLastUpgradeSlot
 
-Update last_upgrade_slot to SVSP program's current one.
+Update last_upgrade_slot to lido program's current one.
 
 #### Data
 
@@ -84,16 +84,16 @@ Update last_upgrade_slot to SVSP program's current one.
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | manager | The manager pubkey | R | Y |
-| state | The SvspCalculatorState singleton PDA | W | N |
-| svsp_program | SVSP program | R | N |
-| svsp_program_data | SVSP program executable data | R | N |
+| state | The LidoCalculatorState singleton PDA | W | N |
+| lido_program | lido program | R | N |
+| lido_program_data | lido program executable data | R | N |
 
 ##### Procedure
 
 - Check state PDA
 - Check manager pubkey and signature
-- Check SVSP program hardcoded address
-- Check SVSP program data matches that on SVSP program
+- Check lido program hardcoded address
+- Check lido program data matches that on lido program
 - Write last_upgrade_slot to state
 
 #### SetManager
@@ -112,7 +112,7 @@ Set a new manager.
 | -- | -- | -- | -- |
 | manager | The manager pubkey | R | Y |
 | new_manager | The new manager to set | R | N |
-| state | The SvspCalculatorState singleton PDA | W | N |
+| state | The LidoCalculatorState singleton PDA | W | N |
 
 ##### Procedure
 
@@ -122,7 +122,7 @@ Set a new manager.
 
 #### Init
 
-Initialize SvspCalculatorState, can only be called once.
+Initialize LidoCalculatorState, can only be called once.
 
 #### Data
 
@@ -134,7 +134,7 @@ Initialize SvspCalculatorState, can only be called once.
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| state | The SvspCalculatorState singleton PDA | W | N |
+| state | The LidoCalculatorState singleton PDA | W | N |
 
 ##### Procedure
 
