@@ -12,6 +12,8 @@ pub enum EverstakeCalculatorError {
     IncorrectPoolAccountType = 1,
     #[error("stake pool not yet updated for the current epoch")]
     NotYetUpdatedForEpoch = 2,
+    #[error("state already initialized")]
+    StateAlreadyInitialized = 3,
 }
 impl From<EverstakeCalculatorError> for ProgramError {
     fn from(e: EverstakeCalculatorError) -> Self {

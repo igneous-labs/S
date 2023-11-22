@@ -163,6 +163,12 @@
       "args": [],
       "accounts": [
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for SplCalculatorState's rent"
+        },
+        {
           "name": "state",
           "isMut": true,
           "isSigner": false,
@@ -204,6 +210,11 @@
       "code": 2,
       "name": "NotYetUpdatedForEpoch",
       "msg": "stake pool not yet updated for the current epoch"
+    },
+    {
+      "code": 3,
+      "name": "StateAlreadyInitialized",
+      "msg": "state already initialized"
     }
   ],
   "metadata": {
