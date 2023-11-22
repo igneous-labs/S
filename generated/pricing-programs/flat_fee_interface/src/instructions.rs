@@ -1224,13 +1224,11 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const INIT_IX_ACCOUNTS_LEN: usize = 3;
+pub const INIT_IX_ACCOUNTS_LEN: usize = 2;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
     ///The hardcoded init authority of pricing program
     pub init_authority: &'me AccountInfo<'info>,
-    ///The manager of the program
-    pub manager: &'me AccountInfo<'info>,
     ///Program state PDA
     pub state: &'me AccountInfo<'info>,
 }
@@ -1238,8 +1236,6 @@ pub struct InitAccounts<'me, 'info> {
 pub struct InitKeys {
     ///The hardcoded init authority of pricing program
     pub init_authority: Pubkey,
-    ///The manager of the program
-    pub manager: Pubkey,
     ///Program state PDA
     pub state: Pubkey,
 }
@@ -1247,7 +1243,6 @@ impl From<&InitAccounts<'_, '_>> for InitKeys {
     fn from(accounts: &InitAccounts) -> Self {
         Self {
             init_authority: *accounts.init_authority.key,
-            manager: *accounts.manager.key,
             state: *accounts.state.key,
         }
     }
@@ -1256,7 +1251,6 @@ impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
     fn from(keys: &InitKeys) -> Self {
         [
             AccountMeta::new_readonly(keys.init_authority, true),
-            AccountMeta::new_readonly(keys.manager, false),
             AccountMeta::new(keys.state, false),
         ]
     }
@@ -1265,18 +1259,13 @@ impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
     fn from(pubkeys: [Pubkey; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             init_authority: pubkeys[0],
-            manager: pubkeys[1],
-            state: pubkeys[2],
+            state: pubkeys[1],
         }
     }
 }
 impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
     fn from(accounts: &InitAccounts<'_, 'info>) -> Self {
-        [
-            accounts.init_authority.clone(),
-            accounts.manager.clone(),
-            accounts.state.clone(),
-        ]
+        [accounts.init_authority.clone(), accounts.state.clone()]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
@@ -1285,8 +1274,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
     fn from(arr: &'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             init_authority: &arr[0],
-            manager: &arr[1],
-            state: &arr[2],
+            state: &arr[1],
         }
     }
 }
@@ -1359,7 +1347,6 @@ pub fn init_verify_account_keys(
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.init_authority.key, &keys.init_authority),
-        (accounts.manager.key, &keys.manager),
         (accounts.state.key, &keys.state),
     ] {
         if actual != expected {

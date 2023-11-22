@@ -269,12 +269,6 @@
           "desc": "The hardcoded init authority of pricing program"
         },
         {
-          "name": "manager",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "The manager of the program"
-        },
-        {
           "name": "state",
           "isMut": true,
           "isSigner": false,

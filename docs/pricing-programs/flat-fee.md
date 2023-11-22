@@ -175,7 +175,6 @@ Initialize the program state. Can only be called once with hardcoded init author
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
 | init_authority | The hardcoded init authority of pricing program | R | Y |
-| manager | The program manager | R | N |
 | state | Program state PDA | W | N |
 
 #### SetManager
