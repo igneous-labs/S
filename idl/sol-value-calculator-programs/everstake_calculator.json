@@ -166,7 +166,7 @@
           "name": "payer",
           "isMut": true,
           "isSigner": true,
-          "desc": "The account paying for SplCalculatorState's rent"
+          "desc": "The account paying for EverstakeCalculatorState's rent"
         },
         {
           "name": "state",

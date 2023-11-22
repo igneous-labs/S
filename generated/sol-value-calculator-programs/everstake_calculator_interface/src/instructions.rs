@@ -756,14 +756,14 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
 pub const INIT_IX_ACCOUNTS_LEN: usize = 2;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
-    ///The account paying for SplCalculatorState's rent
+    ///The account paying for EverstakeCalculatorState's rent
     pub payer: &'me AccountInfo<'info>,
     ///The EverstakeCalculatorState PDA
     pub state: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct InitKeys {
-    ///The account paying for SplCalculatorState's rent
+    ///The account paying for EverstakeCalculatorState's rent
     pub payer: Pubkey,
     ///The EverstakeCalculatorState PDA
     pub state: Pubkey,
