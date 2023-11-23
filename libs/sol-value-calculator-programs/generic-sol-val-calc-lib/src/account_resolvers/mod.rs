@@ -1,5 +1,3 @@
-//! TODO: maybe custom Into<ProgramError> error type for more fine-grained resolve() error reporting instead of using ProgramError
-
 mod init;
 mod lst_to_sol;
 mod set_manager;

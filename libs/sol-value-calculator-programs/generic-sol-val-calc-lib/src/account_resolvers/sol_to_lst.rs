@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
-use generic_pool_calculator_interface::SolToLstKeys;
-use solana_program::{program_error::ProgramError, pubkey::Pubkey};
+use generic_pool_calculator_interface::{GenericPoolCalculatorError, SolToLstKeys};
+use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{utils::read_programdata_addr, GenericPoolSolValCalc};
@@ -16,9 +16,9 @@ pub struct SolToLstRootAccounts<P: GenericPoolSolValCalc, Q: KeyedAccount + Read
 }
 
 impl<P: GenericPoolSolValCalc, Q: KeyedAccount + ReadonlyAccountData> SolToLstRootAccounts<P, Q> {
-    pub fn resolve(self) -> Result<SolToLstKeys, ProgramError> {
+    pub fn resolve(self) -> Result<SolToLstKeys, GenericPoolCalculatorError> {
         if *self.pool_program.key() != P::POOL_PROGRAM_ID {
-            return Err(ProgramError::InvalidArgument);
+            return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
         Ok(SolToLstKeys {
             lst: self.lst,

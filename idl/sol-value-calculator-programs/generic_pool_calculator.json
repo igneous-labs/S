@@ -203,19 +203,39 @@
   ],
   "errors": [
     {
-      "code": 0,
+      "code": 1000,
       "name": "UnexpectedProgramUpgrade",
       "msg": "stake pool program has been updated since last UpdateLastUpgradeSlot"
     },
     {
-      "code": 1,
-      "name": "IncorrectPoolAccountType",
-      "msg": "stake pool account type incorrect"
+      "code": 1001,
+      "name": "WrongPoolAccountType",
+      "msg": "stake pool account type is wrong"
     },
     {
-      "code": 2,
+      "code": 1002,
       "name": "StateAlreadyInitialized",
       "msg": "state already initialized"
+    },
+    {
+      "code": 1003,
+      "name": "WrongPoolProgram",
+      "msg": "calculator program is not for the given stake pool program"
+    },
+    {
+      "code": 1004,
+      "name": "WrongCalculatorStatePDA",
+      "msg": "address of CalculatorState PDA is wrong"
+    },
+    {
+      "code": 1005,
+      "name": "InvalidCalculatorStateData",
+      "msg": "Invalid calculator state data"
+    },
+    {
+      "code": 1006,
+      "name": "InvalidStakePoolProgramData",
+      "msg": "Invalid stake pool program data"
     }
   ],
   "metadata": {
