@@ -1,5 +1,7 @@
 use solana_program::pubkey::Pubkey;
 
+mod utils;
+
 pub mod account_resolvers;
 
 /// Implement this trait for individual generic pool SOL value calculator programs

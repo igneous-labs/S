@@ -2,10 +2,10 @@ use std::marker::PhantomData;
 
 use bytemuck::try_from_bytes;
 use generic_pool_calculator_interface::{CalculatorState, UpdateLastUpgradeSlotKeys};
-use solana_program::{bpf_loader_upgradeable::UpgradeableLoaderState, program_error::ProgramError};
+use solana_program::program_error::ProgramError;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
-use crate::GenericPoolSolValCalc;
+use crate::{utils::read_programdata_addr, GenericPoolSolValCalc};
 
 pub struct UpdateLastUpgradeSlotRootAccounts<
     P: GenericPoolSolValCalc,
@@ -35,17 +35,7 @@ impl<
         let calc_state: &CalculatorState =
             try_from_bytes(state_bytes).map_err(|_e| ProgramError::InvalidAccountData)?;
 
-        let pool_prog_bytes = &self.pool_program.data();
-        let prog: UpgradeableLoaderState =
-            bincode::deserialize(pool_prog_bytes).map_err(|_e| ProgramError::InvalidAccountData)?;
-        let pool_program_data = if let UpgradeableLoaderState::Program {
-            programdata_address,
-        } = prog
-        {
-            programdata_address
-        } else {
-            return Err(ProgramError::InvalidAccountData);
-        };
+        let pool_program_data = read_programdata_addr(&self.pool_program)?;
 
         Ok(UpdateLastUpgradeSlotKeys {
             manager: calc_state.manager,

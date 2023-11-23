@@ -1,3 +1,13 @@
-pub mod init;
-pub mod set_manager;
-pub mod update_last_upgrade_slot;
+//! TODO: maybe custom Into<ProgramError> error type for more fine-grained resolve() error reporting instead of using ProgramError
+
+mod init;
+mod lst_to_sol;
+mod set_manager;
+mod sol_to_lst;
+mod update_last_upgrade_slot;
+
+pub use init::*;
+pub use lst_to_sol::*;
+pub use set_manager::*;
+pub use sol_to_lst::*;
+pub use update_last_upgrade_slot::*;
