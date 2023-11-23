@@ -25,6 +25,7 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
 | lst                 | mint of the LST to sync SOL value for                                                                                                                                                     | R                | N            |
 | pool_state          | the pool's state singleton                                                                                                                                                                | W                | N            |
+| lst_states          | Dynamic list of LstStates for each LST in the pool                                                                                                                                        | W                | N            |
 | pool_reserves       | LST token account reserves of the pool                                                                                                                                                    | R                | N            |
 | lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
