@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "name": "wsol_calculator",
+  "instructions": [
+    {
+      "name": "LstToSol",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "wSOL mint"
+        }
+      ]
+    },
+    {
+      "name": "SolToLst",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "wSOL mint"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "IncorrectMint",
+      "msg": "Mint passed in is not the wSOL mint"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "11111111111111111111111111111111"
+  }
+}
