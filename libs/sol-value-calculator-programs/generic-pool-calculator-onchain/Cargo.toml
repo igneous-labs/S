@@ -1,0 +1,9 @@
+[package]
+name = "generic-pool-calculator-onchain"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
+generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+solana-program = { workspace = true }

@@ -582,14 +582,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "generic-sol-val-calc-lib"
-version = "0.1.0"
+name = "generic-pool-calculator-lib"
+version = "1.0.0"
 dependencies = [
  "bincode",
  "bytemuck",
  "generic_pool_calculator_interface",
  "solana-program",
  "solana-readonly-account",
+]
+
+[[package]]
+name = "generic-pool-calculator-onchain"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic_pool_calculator_interface",
+ "solana-program",
 ]
 
 [[package]]
@@ -1324,10 +1333,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "spl-sol-val-calc-lib"
-version = "0.1.0"
+name = "spl-calculator-lib"
+version = "1.0.0"
 dependencies = [
- "generic-sol-val-calc-lib",
+ "generic-pool-calculator-lib",
  "generic_pool_calculator_interface",
  "sanctum-macros",
  "solana-program",
