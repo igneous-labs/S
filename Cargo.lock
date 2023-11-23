@@ -541,19 +541,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
-name = "everstake_calculator_interface"
-version = "1.0.0"
-dependencies = [
- "borsh 0.9.3",
- "bytemuck",
- "num-derive",
- "num-traits",
- "serde",
- "solana-program",
- "thiserror",
-]
-
-[[package]]
 name = "feature-probe"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -581,6 +568,19 @@ dependencies = [
  "serde",
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "generic_pool_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "bytemuck",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
 ]
 
 [[package]]
@@ -1272,19 +1272,6 @@ dependencies = [
  "quote",
  "rustversion",
  "syn 2.0.39",
-]
-
-[[package]]
-name = "spl_calculator_interface"
-version = "1.0.0"
-dependencies = [
- "borsh 0.9.3",
- "bytemuck",
- "num-derive",
- "num-traits",
- "serde",
- "solana-program",
- "thiserror",
 ]
 
 [[package]]

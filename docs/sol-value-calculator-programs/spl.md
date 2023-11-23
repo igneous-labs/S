@@ -6,6 +6,8 @@ To avoid being rugged by compromise of the SPL stake pool program, this program 
 
 A manager is solely authorized to whitelist the current SPL stake pool program deployed.
 
+Compatible with [generic_pool interface](./generic_pool.md)
+
 ## Notes
 
 - Only considers stake withdrawal fee for both interface instructions, never deposit fee or SOL withdraw fee

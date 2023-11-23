@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "spl_calculator",
+  "name": "generic_pool_calculator",
   "instructions": [
     {
       "name": "LstToSol",
@@ -19,31 +19,31 @@
           "name": "lst",
           "isMut": false,
           "isSigner": false,
-          "desc": "The SPL stake pool LST mint"
+          "desc": "The LST mint"
         },
         {
           "name": "state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The SplCalculatorState PDA"
+          "desc": "The CalculatorState PDA"
         },
         {
-          "name": "stake_pool",
+          "name": "pool_state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The main stake pool account"
+          "desc": "The main stake pool state account"
         },
         {
-          "name": "spl_program",
+          "name": "pool_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program"
+          "desc": "The stake pool program"
         },
         {
-          "name": "spl_program_data",
+          "name": "pool_program_data",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program executable data"
+          "desc": "The stake pool program executable data"
         }
       ]
     },
@@ -64,31 +64,31 @@
           "name": "lst",
           "isMut": false,
           "isSigner": false,
-          "desc": "The SPL stake pool LST mint"
+          "desc": "The LST mint"
         },
         {
           "name": "state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The SplCalculatorState PDA"
+          "desc": "The CalculatorState PDA"
         },
         {
-          "name": "stake_pool",
+          "name": "pool_state",
           "isMut": false,
           "isSigner": false,
-          "desc": "The main stake pool account"
+          "desc": "The main stake pool state account"
         },
         {
-          "name": "spl_program",
+          "name": "pool_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program"
+          "desc": "The stake pool program"
         },
         {
-          "name": "spl_program_data",
+          "name": "pool_program_data",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program executable data"
+          "desc": "The stake pool program executable data"
         }
       ]
     },
@@ -110,19 +110,19 @@
           "name": "state",
           "isMut": true,
           "isSigner": false,
-          "desc": "The SplCalculatorState PDA"
+          "desc": "The CalculatorState PDA"
         },
         {
-          "name": "spl_program",
+          "name": "pool_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program"
+          "desc": "The stake pool program"
         },
         {
-          "name": "spl_program_data",
+          "name": "pool_program_data",
           "isMut": false,
           "isSigner": false,
-          "desc": "The spl stake pool program executable data"
+          "desc": "The stake pool program executable data"
         }
       ]
     },
@@ -150,7 +150,7 @@
           "name": "state",
           "isMut": true,
           "isSigner": false,
-          "desc": "The SplCalculatorState PDA"
+          "desc": "The CalculatorState PDA"
         }
       ]
     },
@@ -166,13 +166,13 @@
           "name": "payer",
           "isMut": true,
           "isSigner": true,
-          "desc": "The account paying for SplCalculatorState's rent"
+          "desc": "The account paying for CalculatorState's rent"
         },
         {
           "name": "state",
           "isMut": true,
           "isSigner": false,
-          "desc": "The SplCalculatorState PDA"
+          "desc": "The CalculatorState PDA"
         },
         {
           "name": "system_program",
@@ -185,7 +185,7 @@
   ],
   "types": [
     {
-      "name": "SplCalculatorState",
+      "name": "CalculatorState",
       "type": {
         "kind": "struct",
         "fields": [
@@ -214,12 +214,7 @@
     },
     {
       "code": 2,
-      "name": "NotYetUpdatedForEpoch",
-      "msg": "stake pool not yet updated for the current epoch"
-    },
-    {
-      "code": 3,
-      "name": "AlreadyInitialized",
+      "name": "StateAlreadyInitialized",
       "msg": "state already initialized"
     }
   ],
