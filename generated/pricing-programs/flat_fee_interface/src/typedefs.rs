@@ -12,6 +12,8 @@ pub struct ProgramState {
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FeeAccount {
+    pub bump: u8,
+    pub padding: u8,
     pub input_fee: i16,
     pub output_fee: i16,
 }

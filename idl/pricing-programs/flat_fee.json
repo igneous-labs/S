@@ -312,6 +312,14 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "padding",
+            "type": "u8"
+          },
+          {
             "name": "input_fee",
             "type": "i16"
           },
