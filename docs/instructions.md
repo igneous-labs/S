@@ -66,6 +66,7 @@ Swap to output LST from an exact amount of given input LST.
 | src_lst_token_program    | -                                                                                                                                                                                             | R                | N            |
 | dst_lst_token_program    | -                                                                                                                                                                                             | R                | N            |
 | pool_state               | the pool's state singleton                                                                                                                                                                    | W                | N            |
+| lst_states               | Dynamic list of LstStates for each LST in the pool                                                                                                                                            | W                | N            |
 | pool_src_reserves        | src LST token account reserves of the pool                                                                                                                                                    | W                | N            |
 | pool_dst_reserves        | dst LST token account reserves of the pool                                                                                                                                                    | W                | N            |
 | src_lst_value_calc_accs  | accounts to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
@@ -121,6 +122,7 @@ Add single-LST liquidity to the pool.
 | dst_lp_token_acc    | LP token account to mint new LP tokens to                                                                                                                                                 | W                | N            |
 | token_program       | -                                                                                                                                                                                         | R                | N            |
 | pool_state          | the pool's state singleton                                                                                                                                                                | W                | N            |
+| lst_states          | Dynamic list of LstStates for each LST in the pool                                                                                                                                        | W                | N            |
 | pool_reserves       | pool's token reserves for the LST                                                                                                                                                         | W                | N            |
 | lst_value_calc_accs | accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | pricing_accs        | accounts to invoke pricing program PriceLpTokensToMint with. First account should be the pricing program itself. Multiple Accounts.                                                       | ...              | ...          |
@@ -161,6 +163,7 @@ Remove single-LST liquidity from the pool.
 | protocol_fee_accumulator | protocol fee accumulator token account                                                                                                                                                    | W                | N            |
 | token_program            | -                                                                                                                                                                                         | R                | N            |
 | pool_state               | the pool's state singleton                                                                                                                                                                | W                | N            |
+| lst_states               | Dynamic list of LstStates for each LST in the pool                                                                                                                                        | W                | N            |
 | pool_reserves            | pool's token reserves for the LST                                                                                                                                                         | W                | N            |
 | lst_value_calc_accs      | accounts to invoke token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | pricing_accs             | accounts to invoke pricing program PriceLpTokensToRedeem with. First account should be the pricing program itself. Multiple Accounts.                                                     | ...              | ...          |
@@ -189,11 +192,12 @@ Disable input for a LST to prepare for removal
 
 #### Accounts
 
-| Account    | Description                  | Read/Write (R/W) | Signer (Y/N) |
-| ---------- | ---------------------------- | ---------------- | ------------ |
-| admin      | The pool's admin             | R                | Y            |
-| lst        | The LST to disable input for | R                | N            |
-| pool_state | The pool's state singleton   | W                | N            |
+| Account    | Description                                        | Read/Write (R/W) | Signer (Y/N) |
+| ---------- | -------------------------------------------------- | ---------------- | ------------ |
+| admin      | The pool's admin                                   | R                | Y            |
+| lst        | The LST to disable input for                       | R                | N            |
+| pool_state | The pool's state singleton                         | W                | N            |
+| lst_states | Dynamic list of LstStates for each LST in the pool | W                | N            |
 
 ### EnableInput
 
@@ -208,11 +212,12 @@ Re-enable input for a LST
 
 #### Accounts
 
-| Account    | Description                    | Read/Write (R/W) | Signer (Y/N) |
-| ---------- | ------------------------------ | ---------------- | ------------ |
-| admin      | The pool's admin               | R                | Y            |
-| lst        | The LST to re-enable input for | R                | N            |
-| pool_state | The pool's state singleton     | W                | N            |
+| Account    | Description                                        | Read/Write (R/W) | Signer (Y/N) |
+| ---------- | -------------------------------------------------- | ---------------- | ------------ |
+| admin      | The pool's admin                                   | R                | Y            |
+| lst        | The LST to re-enable input for                     | R                | N            |
+| pool_state | The pool's state singleton                         | W                | N            |
+| lst_states | Dynamic list of LstStates for each LST in the pool | W                | N            |
 
 ### AddLst
 
@@ -236,6 +241,7 @@ Add a LST to the pool
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | sol_value_calculator          | The LST's SOL value calculator program                                         | R                | N            |
 | pool_state                    | The pool's state singleton                                                     | W                | N            |
+| lst_states                    | Dynamic list of LstStates for each LST in the pool                             | W                | N            |
 | system_program                | System Program                                                                 | R                | N            |
 
 #### Procedure
@@ -268,6 +274,7 @@ Remove a LST from the pool
 | protocol_fee_accumulator      | The LST protocol fee accumulator token account to destroy                      | W                | N            |
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | pool_state                    | The pool's state singleton                                                     | W                | N            |
+| lst_states                    | Dynamic list of LstStates for each LST in the pool                             | W                | N            |
 | system_program                | System Program                                                                 | R                | N            |
 
 #### Procedure
@@ -294,8 +301,9 @@ Update the SOL value calculator program for a LST
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
 | admin               | The pool's admin                                                                                                                                         | R                | Y            |
 | lst                 | The LST to remove                                                                                                                                        | R                | N            |
-| pool_state          | The pool's state singleton                                                                                                                               | W                | N            |
+| pool_state          | The pool's state singleton                                                                                                                               | R                | N            |
 | pool_reserves       | LST token account reserves of the pool                                                                                                                   | R                | N            |
+| lst_states          | Dynamic list of LstStates for each LST in the pool                                                                                                       | W                | N            |
 | lst_value_calc_accs | accounts to invoke token's new SOL value calculator program LstToSol with. First account should be the new calculator program itself. Multiple Accounts. | ...              | ...          |
 
 #### Procedure
@@ -509,6 +517,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | payer                   | The account paying the 1 lamport rent for RebalanceRecord                                                                                                                                     | W                | Y            |
 | rebalance_authority     | The pool's rebalance authority                                                                                                                                                                | R                | Y            |
 | pool_state              | The pool's state singleton                                                                                                                                                                    | W                | N            |
+| lst_states              | Dynamic list of LstStates for each LST in the pool                                                                                                                                            | W                | N            |
 | rebalance_record        | The RebalanceRecord PDA                                                                                                                                                                       | W                | N            |
 | src_lst                 | Mint of the LST to rebalance from                                                                                                                                                             | R                | N            |
 | dst_lst                 | Mint of the LST to rebalance to                                                                                                                                                               | R                | N            |
@@ -548,6 +557,7 @@ End a flash rebalancing procedure after returning the funds to the pool
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
 | refund_rent_to          | The account getting the 1 lamport rent for RebalanceRecord back                                                                                                                               | W                | N            |
 | pool_state              | The pool's state singleton                                                                                                                                                                    | W                | N            |
+| lst_states              | Dynamic list of LstStates for each LST in the pool                                                                                                                                            | W                | N            |
 | rebalance_record        | The RebalanceRecord PDA                                                                                                                                                                       | W                | N            |
 | dst_lst                 | Mint of the LST to rebalance to                                                                                                                                                               | R                | N            |
 | pool_dst_reserves       | dst LST token account reserves of the pool                                                                                                                                                    | R                | N            |
@@ -596,6 +606,7 @@ Initialize the pool. Can only be called once.
 | --------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------ |
 | payer                       | Account paying for rent                                                               | W                | Y            |
 | pool_state                  | The pool's state singleton                                                            | W                | N            |
+| lst_states                  | Dynamic list of LstStates for each LST in the pool                                    | W                | N            |
 | disable_pool_authority_list | The DisablePoolAuthorityList singleton                                                | W                | N            |
 | token_2022                  | Token 2022 program                                                                    | R                | N            |
 | system_program              | System Program                                                                        | R                | N            |
