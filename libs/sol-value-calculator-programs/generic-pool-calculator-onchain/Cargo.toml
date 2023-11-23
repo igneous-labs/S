@@ -4,6 +4,8 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+bytemuck = { workspace = true }
 generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
 generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
 solana-program = { workspace = true }

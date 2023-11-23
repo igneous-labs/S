@@ -20,4 +20,5 @@ impl GenericPoolSolValCalc for SplSolValCalc {
     const POOL_PROGRAM_ID: Pubkey = spl_stake_pool_program::ID;
     const CALCULATOR_STATE_PDA: Pubkey = program::SPL_CALCULATOR_STATE_ID;
     const CALCULATOR_STATE_BUMP: u8 = program::SPL_CALCULATOR_STATE_BUMP;
+    const ID: Pubkey = program::ID;
 }

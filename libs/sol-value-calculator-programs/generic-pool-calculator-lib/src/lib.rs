@@ -16,4 +16,7 @@ pub trait GenericPoolSolValCalc {
 
     /// Bump seed of CALCULATOR_STATE_PDA
     const CALCULATOR_STATE_BUMP: u8;
+
+    /// The SOL value calculator program ID
+    const ID: Pubkey;
 }

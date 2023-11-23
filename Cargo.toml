@@ -1,8 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "generated/sol-value-calculator-programs/*",
     "generated/pricing-programs/*",
+    "generated/sol-value-calculator-programs/*",
+    "libs/sanctum-onchain-utils",
     "libs/sol-value-calculator-programs/*"
 ]
 
