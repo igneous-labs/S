@@ -1,5 +1,5 @@
 [package]
-name = "spl_calculator_interface"
+name = "generic_pool_calculator_interface"
 version = "1.0.0"
 edition = "2021"
 

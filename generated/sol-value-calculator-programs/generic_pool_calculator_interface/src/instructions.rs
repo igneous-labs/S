@@ -8,14 +8,14 @@ use solana_program::{
     pubkey::Pubkey,
 };
 #[derive(Clone, Debug, PartialEq)]
-pub enum EverstakeCalculatorProgramIx {
+pub enum GenericPoolCalculatorProgramIx {
     LstToSol(LstToSolIxArgs),
     SolToLst(SolToLstIxArgs),
     UpdateLastUpgradeSlot(UpdateLastUpgradeSlotIxArgs),
     SetManager(SetManagerIxArgs),
     Init(InitIxArgs),
 }
-impl BorshSerialize for EverstakeCalculatorProgramIx {
+impl BorshSerialize for GenericPoolCalculatorProgramIx {
     fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
         match self {
             Self::LstToSol(args) => {
@@ -41,7 +41,7 @@ impl BorshSerialize for EverstakeCalculatorProgramIx {
         }
     }
 }
-impl EverstakeCalculatorProgramIx {
+impl GenericPoolCalculatorProgramIx {
     pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         let maybe_discm = u8::deserialize(buf)?;
         match maybe_discm {
@@ -62,38 +62,38 @@ impl EverstakeCalculatorProgramIx {
 pub const LST_TO_SOL_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct LstToSolAccounts<'me, 'info> {
-    ///eSOL mint
+    ///The LST mint
     pub lst: &'me AccountInfo<'info>,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
-    ///The main stake pool account
-    pub stake_pool: &'me AccountInfo<'info>,
-    ///The everstake program
-    pub everstake_program: &'me AccountInfo<'info>,
-    ///The everstake program executable data
-    pub everstake_program_data: &'me AccountInfo<'info>,
+    ///The main stake pool state account
+    pub pool_state: &'me AccountInfo<'info>,
+    ///The stake pool program
+    pub pool_program: &'me AccountInfo<'info>,
+    ///The stake pool program executable data
+    pub pool_program_data: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct LstToSolKeys {
-    ///eSOL mint
+    ///The LST mint
     pub lst: Pubkey,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: Pubkey,
-    ///The main stake pool account
-    pub stake_pool: Pubkey,
-    ///The everstake program
-    pub everstake_program: Pubkey,
-    ///The everstake program executable data
-    pub everstake_program_data: Pubkey,
+    ///The main stake pool state account
+    pub pool_state: Pubkey,
+    ///The stake pool program
+    pub pool_program: Pubkey,
+    ///The stake pool program executable data
+    pub pool_program_data: Pubkey,
 }
 impl From<&LstToSolAccounts<'_, '_>> for LstToSolKeys {
     fn from(accounts: &LstToSolAccounts) -> Self {
         Self {
             lst: *accounts.lst.key,
             state: *accounts.state.key,
-            stake_pool: *accounts.stake_pool.key,
-            everstake_program: *accounts.everstake_program.key,
-            everstake_program_data: *accounts.everstake_program_data.key,
+            pool_state: *accounts.pool_state.key,
+            pool_program: *accounts.pool_program.key,
+            pool_program_data: *accounts.pool_program_data.key,
         }
     }
 }
@@ -102,9 +102,9 @@ impl From<&LstToSolKeys> for [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
         [
             AccountMeta::new_readonly(keys.lst, false),
             AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.stake_pool, false),
-            AccountMeta::new_readonly(keys.everstake_program, false),
-            AccountMeta::new_readonly(keys.everstake_program_data, false),
+            AccountMeta::new_readonly(keys.pool_state, false),
+            AccountMeta::new_readonly(keys.pool_program, false),
+            AccountMeta::new_readonly(keys.pool_program_data, false),
         ]
     }
 }
@@ -113,9 +113,9 @@ impl From<[Pubkey; LST_TO_SOL_IX_ACCOUNTS_LEN]> for LstToSolKeys {
         Self {
             lst: pubkeys[0],
             state: pubkeys[1],
-            stake_pool: pubkeys[2],
-            everstake_program: pubkeys[3],
-            everstake_program_data: pubkeys[4],
+            pool_state: pubkeys[2],
+            pool_program: pubkeys[3],
+            pool_program_data: pubkeys[4],
         }
     }
 }
@@ -126,9 +126,9 @@ impl<'info> From<&LstToSolAccounts<'_, 'info>>
         [
             accounts.lst.clone(),
             accounts.state.clone(),
-            accounts.stake_pool.clone(),
-            accounts.everstake_program.clone(),
-            accounts.everstake_program_data.clone(),
+            accounts.pool_state.clone(),
+            accounts.pool_program.clone(),
+            accounts.pool_program_data.clone(),
         ]
     }
 }
@@ -139,9 +139,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]>
         Self {
             lst: &arr[0],
             state: &arr[1],
-            stake_pool: &arr[2],
-            everstake_program: &arr[3],
-            everstake_program_data: &arr[4],
+            pool_state: &arr[2],
+            pool_program: &arr[3],
+            pool_program_data: &arr[4],
         }
     }
 }
@@ -217,12 +217,9 @@ pub fn lst_to_sol_verify_account_keys(
     for (actual, expected) in [
         (accounts.lst.key, &keys.lst),
         (accounts.state.key, &keys.state),
-        (accounts.stake_pool.key, &keys.stake_pool),
-        (accounts.everstake_program.key, &keys.everstake_program),
-        (
-            accounts.everstake_program_data.key,
-            &keys.everstake_program_data,
-        ),
+        (accounts.pool_state.key, &keys.pool_state),
+        (accounts.pool_program.key, &keys.pool_program),
+        (accounts.pool_program_data.key, &keys.pool_program_data),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -239,38 +236,38 @@ pub fn lst_to_sol_verify_account_privileges<'me, 'info>(
 pub const SOL_TO_LST_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct SolToLstAccounts<'me, 'info> {
-    ///eSOL mint
+    ///The LST mint
     pub lst: &'me AccountInfo<'info>,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
-    ///The main stake pool account
-    pub stake_pool: &'me AccountInfo<'info>,
-    ///The everstake program
-    pub everstake_program: &'me AccountInfo<'info>,
-    ///The everstake program executable data
-    pub everstake_program_data: &'me AccountInfo<'info>,
+    ///The main stake pool state account
+    pub pool_state: &'me AccountInfo<'info>,
+    ///The stake pool program
+    pub pool_program: &'me AccountInfo<'info>,
+    ///The stake pool program executable data
+    pub pool_program_data: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct SolToLstKeys {
-    ///eSOL mint
+    ///The LST mint
     pub lst: Pubkey,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: Pubkey,
-    ///The main stake pool account
-    pub stake_pool: Pubkey,
-    ///The everstake program
-    pub everstake_program: Pubkey,
-    ///The everstake program executable data
-    pub everstake_program_data: Pubkey,
+    ///The main stake pool state account
+    pub pool_state: Pubkey,
+    ///The stake pool program
+    pub pool_program: Pubkey,
+    ///The stake pool program executable data
+    pub pool_program_data: Pubkey,
 }
 impl From<&SolToLstAccounts<'_, '_>> for SolToLstKeys {
     fn from(accounts: &SolToLstAccounts) -> Self {
         Self {
             lst: *accounts.lst.key,
             state: *accounts.state.key,
-            stake_pool: *accounts.stake_pool.key,
-            everstake_program: *accounts.everstake_program.key,
-            everstake_program_data: *accounts.everstake_program_data.key,
+            pool_state: *accounts.pool_state.key,
+            pool_program: *accounts.pool_program.key,
+            pool_program_data: *accounts.pool_program_data.key,
         }
     }
 }
@@ -279,9 +276,9 @@ impl From<&SolToLstKeys> for [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] {
         [
             AccountMeta::new_readonly(keys.lst, false),
             AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.stake_pool, false),
-            AccountMeta::new_readonly(keys.everstake_program, false),
-            AccountMeta::new_readonly(keys.everstake_program_data, false),
+            AccountMeta::new_readonly(keys.pool_state, false),
+            AccountMeta::new_readonly(keys.pool_program, false),
+            AccountMeta::new_readonly(keys.pool_program_data, false),
         ]
     }
 }
@@ -290,9 +287,9 @@ impl From<[Pubkey; SOL_TO_LST_IX_ACCOUNTS_LEN]> for SolToLstKeys {
         Self {
             lst: pubkeys[0],
             state: pubkeys[1],
-            stake_pool: pubkeys[2],
-            everstake_program: pubkeys[3],
-            everstake_program_data: pubkeys[4],
+            pool_state: pubkeys[2],
+            pool_program: pubkeys[3],
+            pool_program_data: pubkeys[4],
         }
     }
 }
@@ -303,9 +300,9 @@ impl<'info> From<&SolToLstAccounts<'_, 'info>>
         [
             accounts.lst.clone(),
             accounts.state.clone(),
-            accounts.stake_pool.clone(),
-            accounts.everstake_program.clone(),
-            accounts.everstake_program_data.clone(),
+            accounts.pool_state.clone(),
+            accounts.pool_program.clone(),
+            accounts.pool_program_data.clone(),
         ]
     }
 }
@@ -316,9 +313,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]>
         Self {
             lst: &arr[0],
             state: &arr[1],
-            stake_pool: &arr[2],
-            everstake_program: &arr[3],
-            everstake_program_data: &arr[4],
+            pool_state: &arr[2],
+            pool_program: &arr[3],
+            pool_program_data: &arr[4],
         }
     }
 }
@@ -394,12 +391,9 @@ pub fn sol_to_lst_verify_account_keys(
     for (actual, expected) in [
         (accounts.lst.key, &keys.lst),
         (accounts.state.key, &keys.state),
-        (accounts.stake_pool.key, &keys.stake_pool),
-        (accounts.everstake_program.key, &keys.everstake_program),
-        (
-            accounts.everstake_program_data.key,
-            &keys.everstake_program_data,
-        ),
+        (accounts.pool_state.key, &keys.pool_state),
+        (accounts.pool_program.key, &keys.pool_program),
+        (accounts.pool_program_data.key, &keys.pool_program_data),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -418,31 +412,31 @@ pub const UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN: usize = 4;
 pub struct UpdateLastUpgradeSlotAccounts<'me, 'info> {
     ///The program manager
     pub manager: &'me AccountInfo<'info>,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
-    ///The everstake program
-    pub everstake_program: &'me AccountInfo<'info>,
-    ///The everstake program executable data
-    pub everstake_program_data: &'me AccountInfo<'info>,
+    ///The stake pool program
+    pub pool_program: &'me AccountInfo<'info>,
+    ///The stake pool program executable data
+    pub pool_program_data: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct UpdateLastUpgradeSlotKeys {
     ///The program manager
     pub manager: Pubkey,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: Pubkey,
-    ///The everstake program
-    pub everstake_program: Pubkey,
-    ///The everstake program executable data
-    pub everstake_program_data: Pubkey,
+    ///The stake pool program
+    pub pool_program: Pubkey,
+    ///The stake pool program executable data
+    pub pool_program_data: Pubkey,
 }
 impl From<&UpdateLastUpgradeSlotAccounts<'_, '_>> for UpdateLastUpgradeSlotKeys {
     fn from(accounts: &UpdateLastUpgradeSlotAccounts) -> Self {
         Self {
             manager: *accounts.manager.key,
             state: *accounts.state.key,
-            everstake_program: *accounts.everstake_program.key,
-            everstake_program_data: *accounts.everstake_program_data.key,
+            pool_program: *accounts.pool_program.key,
+            pool_program_data: *accounts.pool_program_data.key,
         }
     }
 }
@@ -451,8 +445,8 @@ impl From<&UpdateLastUpgradeSlotKeys> for [AccountMeta; UPDATE_LAST_UPGRADE_SLOT
         [
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.state, false),
-            AccountMeta::new_readonly(keys.everstake_program, false),
-            AccountMeta::new_readonly(keys.everstake_program_data, false),
+            AccountMeta::new_readonly(keys.pool_program, false),
+            AccountMeta::new_readonly(keys.pool_program_data, false),
         ]
     }
 }
@@ -461,8 +455,8 @@ impl From<[Pubkey; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN]> for UpdateLastUpgr
         Self {
             manager: pubkeys[0],
             state: pubkeys[1],
-            everstake_program: pubkeys[2],
-            everstake_program_data: pubkeys[3],
+            pool_program: pubkeys[2],
+            pool_program_data: pubkeys[3],
         }
     }
 }
@@ -473,8 +467,8 @@ impl<'info> From<&UpdateLastUpgradeSlotAccounts<'_, 'info>>
         [
             accounts.manager.clone(),
             accounts.state.clone(),
-            accounts.everstake_program.clone(),
-            accounts.everstake_program_data.clone(),
+            accounts.pool_program.clone(),
+            accounts.pool_program_data.clone(),
         ]
     }
 }
@@ -485,8 +479,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; UPDATE_LAST_UPGRADE_SLOT_IX_ACCO
         Self {
             manager: &arr[0],
             state: &arr[1],
-            everstake_program: &arr[2],
-            everstake_program_data: &arr[3],
+            pool_program: &arr[2],
+            pool_program_data: &arr[3],
         }
     }
 }
@@ -565,11 +559,8 @@ pub fn update_last_upgrade_slot_verify_account_keys(
     for (actual, expected) in [
         (accounts.manager.key, &keys.manager),
         (accounts.state.key, &keys.state),
-        (accounts.everstake_program.key, &keys.everstake_program),
-        (
-            accounts.everstake_program_data.key,
-            &keys.everstake_program_data,
-        ),
+        (accounts.pool_program.key, &keys.pool_program),
+        (accounts.pool_program_data.key, &keys.pool_program_data),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -599,7 +590,7 @@ pub struct SetManagerAccounts<'me, 'info> {
     pub manager: &'me AccountInfo<'info>,
     ///The new program manager to set to
     pub new_manager: &'me AccountInfo<'info>,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
@@ -608,7 +599,7 @@ pub struct SetManagerKeys {
     pub manager: Pubkey,
     ///The new program manager to set to
     pub new_manager: Pubkey,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: Pubkey,
 }
 impl From<&SetManagerAccounts<'_, '_>> for SetManagerKeys {
@@ -756,18 +747,18 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
 pub const INIT_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
-    ///The account paying for EverstakeCalculatorState's rent
+    ///The account paying for CalculatorState's rent
     pub payer: &'me AccountInfo<'info>,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
     ///System Program
     pub system_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct InitKeys {
-    ///The account paying for EverstakeCalculatorState's rent
+    ///The account paying for CalculatorState's rent
     pub payer: Pubkey,
-    ///The EverstakeCalculatorState PDA
+    ///The CalculatorState PDA
     pub state: Pubkey,
     ///System Program
     pub system_program: Pubkey,
