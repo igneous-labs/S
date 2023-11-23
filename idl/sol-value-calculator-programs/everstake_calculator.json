@@ -173,6 +173,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "The EverstakeCalculatorState PDA"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System Program"
         }
       ]
     }

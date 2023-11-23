@@ -139,10 +139,11 @@ Initialize SplCalculatorState, can only be called once.
 
 ##### Accounts
 
-| Account | Description                                      | Read/Write (R/W) | Signer (Y/N) |
-| ------- | ------------------------------------------------ | ---------------- | ------------ |
-| payer   | The account paying for SplCalculatorState's rent | W                | Y            |
-| state   | The SplCalculatorState singleton PDA             | W                | N            |
+| Account        | Description                                      | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------------------ | ---------------- | ------------ |
+| payer          | The account paying for SplCalculatorState's rent | W                | Y            |
+| state          | The SplCalculatorState singleton PDA             | W                | N            |
+| system_program | System Program                                   | R                | N            |
 
 ##### Procedure
 
