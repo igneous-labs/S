@@ -1224,26 +1224,36 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const INIT_IX_ACCOUNTS_LEN: usize = 2;
+pub const INIT_IX_ACCOUNTS_LEN: usize = 4;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
     ///The hardcoded init authority of pricing program
     pub init_authority: &'me AccountInfo<'info>,
+    ///The account paying for ProgramState's rent
+    pub payer: &'me AccountInfo<'info>,
     ///Program state PDA
     pub state: &'me AccountInfo<'info>,
+    ///System program
+    pub system_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct InitKeys {
     ///The hardcoded init authority of pricing program
     pub init_authority: Pubkey,
+    ///The account paying for ProgramState's rent
+    pub payer: Pubkey,
     ///Program state PDA
     pub state: Pubkey,
+    ///System program
+    pub system_program: Pubkey,
 }
 impl From<&InitAccounts<'_, '_>> for InitKeys {
     fn from(accounts: &InitAccounts) -> Self {
         Self {
             init_authority: *accounts.init_authority.key,
+            payer: *accounts.payer.key,
             state: *accounts.state.key,
+            system_program: *accounts.system_program.key,
         }
     }
 }
@@ -1251,7 +1261,9 @@ impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
     fn from(keys: &InitKeys) -> Self {
         [
             AccountMeta::new_readonly(keys.init_authority, true),
+            AccountMeta::new(keys.payer, true),
             AccountMeta::new(keys.state, false),
+            AccountMeta::new_readonly(keys.system_program, false),
         ]
     }
 }
@@ -1259,13 +1271,20 @@ impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
     fn from(pubkeys: [Pubkey; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             init_authority: pubkeys[0],
-            state: pubkeys[1],
+            payer: pubkeys[1],
+            state: pubkeys[2],
+            system_program: pubkeys[3],
         }
     }
 }
 impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
     fn from(accounts: &InitAccounts<'_, 'info>) -> Self {
-        [accounts.init_authority.clone(), accounts.state.clone()]
+        [
+            accounts.init_authority.clone(),
+            accounts.payer.clone(),
+            accounts.state.clone(),
+            accounts.system_program.clone(),
+        ]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
@@ -1274,7 +1293,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
     fn from(arr: &'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             init_authority: &arr[0],
-            state: &arr[1],
+            payer: &arr[1],
+            state: &arr[2],
+            system_program: &arr[3],
         }
     }
 }
@@ -1347,7 +1368,9 @@ pub fn init_verify_account_keys(
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.init_authority.key, &keys.init_authority),
+        (accounts.payer.key, &keys.payer),
         (accounts.state.key, &keys.state),
+        (accounts.system_program.key, &keys.system_program),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -1358,12 +1381,12 @@ pub fn init_verify_account_keys(
 pub fn init_verify_account_privileges<'me, 'info>(
     accounts: &InitAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [accounts.state] {
+    for should_be_writable in [accounts.payer, accounts.state] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.init_authority] {
+    for should_be_signer in [accounts.init_authority, accounts.payer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
