@@ -263,6 +263,12 @@
       "args": [],
       "accounts": [
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for ProgramState's rent"
+        },
+        {
           "name": "init_authority",
           "isMut": false,
           "isSigner": true,
