@@ -2,15 +2,19 @@
 resolver = "2"
 members = [
     "generated/sol-value-calculator-programs/*",
-    "generated/pricing-programs/*"
+    "generated/pricing-programs/*",
+    "libs/sol-value-calculator-programs/*"
 ]
 
 
 [workspace.dependencies]
+bincode = "^1"
 borsh = ">=0.9" # TODO: there are probably gonna be issues from having both 0.9 and 0.10 in the workspace but idk how to fix this bec solana-program depends on both
 bytemuck = "^1.0"
-num-derive = "^0.3"
-num-traits = "^0.2"
+num-derive = ">=0.3"
+num-traits = ">=0.2"
+sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branch = "master" }
 serde = "^1.0"
-solana-program = "~1.16.0"
+solana-program = "*" # flexibility for library users, lock to 1.16 for development
+solana-readonly-account = { git = "https://github.com/igneous-labs/solana-readonly-account", branch = "master" }
 thiserror = "^1.0"
