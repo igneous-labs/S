@@ -9,3 +9,9 @@ generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
 generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
 solana-program = { workspace = true }
+
+[dev-dependencies]
+sanctum-macros = { workspace = true }
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+tokio = { workspace = true }

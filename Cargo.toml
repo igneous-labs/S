@@ -4,18 +4,25 @@ members = [
     "generated/pricing-programs/*",
     "generated/sol-value-calculator-programs/*",
     "libs/sanctum-onchain-utils",
-    "libs/sol-value-calculator-programs/*"
+    "libs/sol-value-calculator-programs/*",
+    "programs/sol-value-calculator-programs/*"
 ]
 
 
 [workspace.dependencies]
 bincode = "^1"
 borsh = ">=0.9" # TODO: there are probably gonna be issues from having both 0.9 and 0.10 in the workspace but idk how to fix this bec solana-program depends on both
-bytemuck = "^1.0"
+bytemuck = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branch = "master" }
-serde = "^1.0"
-solana-program = "*" # flexibility for library users, lock to 1.16 for development
+serde = "^1"
 solana-readonly-account = { git = "https://github.com/igneous-labs/solana-readonly-account", branch = "master" }
-thiserror = "^1.0"
+thiserror = "^1"
+tokio = "^1"
+
+# solana libraries (not pure rust)
+# Use * for flexibility for library users, but lock to 1.16 for development
+solana-program = "*"
+solana-program-test = "*"
+solana-sdk = "*"

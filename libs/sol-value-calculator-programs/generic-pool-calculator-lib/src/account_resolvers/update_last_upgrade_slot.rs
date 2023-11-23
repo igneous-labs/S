@@ -15,7 +15,7 @@ pub struct UpdateLastUpgradeSlotRootAccounts<
 > {
     pub state: S,
     pub pool_program: Q,
-    _phantom: PhantomData<P>,
+    pub phantom: PhantomData<P>,
 }
 
 impl<

@@ -12,7 +12,7 @@ pub struct SolToLstRootAccounts<P: GenericPoolSolValCalc, Q: KeyedAccount + Read
     pub lst: Pubkey,
     pub pool_state: Pubkey,
     pub pool_program: Q,
-    _phantom: PhantomData<P>,
+    pub phantom: PhantomData<P>,
 }
 
 impl<P: GenericPoolSolValCalc, Q: KeyedAccount + ReadonlyAccountData> SolToLstRootAccounts<P, Q> {

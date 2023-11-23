@@ -11,7 +11,7 @@ pub struct InitRootAccounts<P: GenericPoolSolValCalc> {
     /// Associate generic with struct so
     /// that InitRootAccounts<Spl> is different type from
     /// InitRootAccounts<Marinade>
-    _phantom: PhantomData<P>,
+    pub phantom: PhantomData<P>,
 }
 
 impl<P: GenericPoolSolValCalc> InitRootAccounts<P> {

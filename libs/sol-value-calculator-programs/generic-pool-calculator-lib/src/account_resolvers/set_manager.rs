@@ -12,7 +12,7 @@ use crate::GenericPoolSolValCalc;
 pub struct SetManagerRootAccounts<P: GenericPoolSolValCalc, S: KeyedAccount + ReadonlyAccountData> {
     pub new_manager: Pubkey,
     pub state: S,
-    _phantom: PhantomData<P>,
+    pub phantom: PhantomData<P>,
 }
 
 impl<P: GenericPoolSolValCalc, S: KeyedAccount + ReadonlyAccountData> SetManagerRootAccounts<P, S> {
