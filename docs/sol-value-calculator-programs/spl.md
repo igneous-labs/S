@@ -4,7 +4,7 @@ SOL value calculator program for SPL stake pool program.
 
 To avoid being rugged by compromise of the SPL stake pool program, this program records the last updated slot of the SPL stake pool program and errors if the current one does not match.
 
-A manager is solely authorized to whitelist the current SPL stake pool program deployed. 
+A manager is solely authorized to whitelist the current SPL stake pool program deployed.
 
 ## Notes
 
@@ -21,10 +21,10 @@ The SplCalculatorState singleton is located at PDA ["state"].
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name | Value | Type |
-| -- | -- | -- |
-| manager | The SOL value calculator program manager | Pubkey |
-| last_upgrade_slot | The last recorded slot at which the  SPL stake pool program was upgraded | u64 |
+| Name              | Value                                                                   | Type   |
+| ----------------- | ----------------------------------------------------------------------- | ------ |
+| manager           | The SOL value calculator program manager                                | Pubkey |
+| last_upgrade_slot | The last recorded slot at which the SPL stake pool program was upgraded | u64    |
 
 ## Instructions
 
@@ -34,13 +34,13 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 ##### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| lst | See interface | R | N |
-| state | The SplCalculatorState singleton PDA | R | N |
-| stake_pool | The main stake pool account | R | N |
-| spl_program | spl program | R | N |
-| spl_program_data | spl program executable data | R | N |
+| Account          | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| ---------------- | ------------------------------------ | ---------------- | ------------ |
+| lst              | See interface                        | R                | N            |
+| state            | The SplCalculatorState singleton PDA | R                | N            |
+| stake_pool       | The main stake pool account          | R                | N            |
+| spl_program      | spl program                          | R                | N            |
+| spl_program_data | spl program executable data          | R                | N            |
 
 ##### Procedure
 
@@ -56,13 +56,13 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 ##### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| lst | See interface | R | N |
-| state | The SplCalculatorState singleton PDA | R | N |
-| stake_pool | The main stake pool account | R | N |
-| spl_program | spl program | R | N |
-| spl_program_data | spl program executable data | R | N |
+| Account          | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| ---------------- | ------------------------------------ | ---------------- | ------------ |
+| lst              | See interface                        | R                | N            |
+| state            | The SplCalculatorState singleton PDA | R                | N            |
+| stake_pool       | The main stake pool account          | R                | N            |
+| spl_program      | spl program                          | R                | N            |
+| spl_program_data | spl program executable data          | R                | N            |
 
 ##### Procedure
 
@@ -82,18 +82,18 @@ Update last_upgrade_slot to SPL program's current one.
 
 #### Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 253 | u8 |
+| Name         | Value | Type |
+| ------------ | ----- | ---- |
+| discriminant | 253   | u8   |
 
 ##### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| manager | The manager pubkey | R | Y |
-| state | The SplCalculatorState singleton PDA | W | N |
-| spl_program | SPL program | R | N |
-| spl_program_data | SPL program executable data | R | N |
+| Account          | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| ---------------- | ------------------------------------ | ---------------- | ------------ |
+| manager          | The manager pubkey                   | R                | Y            |
+| state            | The SplCalculatorState singleton PDA | W                | N            |
+| spl_program      | SPL program                          | R                | N            |
+| spl_program_data | SPL program executable data          | R                | N            |
 
 ##### Procedure
 
@@ -109,17 +109,17 @@ Set a new manager.
 
 #### Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 254 | u8 |
+| Name         | Value | Type |
+| ------------ | ----- | ---- |
+| discriminant | 254   | u8   |
 
 ##### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| manager | The manager pubkey | R | Y |
-| new_manager | The new manager to set | R | N |
-| state | The SplCalculatorState singleton PDA | W | N |
+| Account     | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| ----------- | ------------------------------------ | ---------------- | ------------ |
+| manager     | The manager pubkey                   | R                | Y            |
+| new_manager | The new manager to set               | R                | N            |
+| state       | The SplCalculatorState singleton PDA | W                | N            |
 
 ##### Procedure
 
@@ -133,15 +133,17 @@ Initialize SplCalculatorState, can only be called once.
 
 #### Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 255 | u8 |
+| Name         | Value | Type |
+| ------------ | ----- | ---- |
+| discriminant | 255   | u8   |
 
 ##### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| state | The SplCalculatorState singleton PDA | W | N |
+| Account        | Description                                      | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------------------ | ---------------- | ------------ |
+| payer          | The account paying for SplCalculatorState's rent | W                | Y            |
+| state          | The SplCalculatorState singleton PDA             | W                | N            |
+| system_program | System Program                                   | R                | N            |
 
 ##### Procedure
 
