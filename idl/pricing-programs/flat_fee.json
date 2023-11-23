@@ -263,22 +263,28 @@
       "args": [],
       "accounts": [
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "desc": "The account paying for ProgramState's rent"
-        },
-        {
           "name": "init_authority",
           "isMut": false,
           "isSigner": true,
           "desc": "The hardcoded init authority of pricing program"
         },
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for ProgramState's rent"
+        },
+        {
           "name": "state",
           "isMut": true,
           "isSigner": false,
           "desc": "Program state PDA"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
         }
       ]
     }
