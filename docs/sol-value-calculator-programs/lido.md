@@ -132,10 +132,11 @@ Initialize LidoCalculatorState, can only be called once.
 
 ##### Accounts
 
-| Account | Description                                       | Read/Write (R/W) | Signer (Y/N) |
-| ------- | ------------------------------------------------- | ---------------- | ------------ |
-| payer   | The account paying for LidoCalculatorState's rent | W                | Y            |
-| state   | The LidoCalculatorState singleton PDA             | W                | N            |
+| Account        | Description                                       | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------------------- | ---------------- | ------------ |
+| payer          | The account paying for LidoCalculatorState's rent | W                | Y            |
+| state          | The LidoCalculatorState singleton PDA             | W                | N            |
+| system_program | System Program                                    | R                | N            |
 
 ##### Procedure
 
