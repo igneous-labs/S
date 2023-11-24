@@ -1481,6 +1481,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "solana-program",
  "solana-readonly-account",
+ "static_assertions",
 ]
 
 [[package]]
@@ -1494,7 +1495,9 @@ dependencies = [
  "sanctum-onchain-utils",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-sdk",
+ "test-utils",
  "tokio",
 ]
 
@@ -3930,6 +3933,7 @@ source = "git+https://github.com/igneous-labs/solana-readonly-account?branch=mas
 dependencies = [
  "derive_more",
  "solana-program",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -4824,6 +4828,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "test-utils"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "serde",
+ "serde_json",
+ "solana-account-decoder",
+ "solana-program",
+ "solana-program-test",
+ "solana-sdk",
 ]
 
 [[package]]

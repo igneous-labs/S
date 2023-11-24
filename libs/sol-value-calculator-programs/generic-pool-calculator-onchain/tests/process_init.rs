@@ -1,6 +1,7 @@
-use bytemuck::try_from_bytes;
-use generic_pool_calculator_interface::{init_ix, CalculatorState, InitIxArgs};
-use generic_pool_calculator_lib::account_resolvers::InitRootAccounts;
+use generic_pool_calculator_interface::{init_ix, InitIxArgs};
+use generic_pool_calculator_lib::{
+    account_resolvers::InitRootAccounts, utils::try_calculator_state,
+};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signer::Signer, transaction::Transaction};
 
@@ -9,7 +10,7 @@ use crate::mock_calculator_program::MockCalculatorProgram;
 mod mock_calculator_program {
     use generic_pool_calculator_interface::{InitAccounts, INIT_IX_ACCOUNTS_LEN};
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
-    use generic_pool_calculator_onchain::processor::process_init;
+    use generic_pool_calculator_onchain::processor::process_init_unchecked;
     use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
     sanctum_macros::declare_program_keys!(
@@ -34,7 +35,7 @@ mod mock_calculator_program {
     ) -> ProgramResult {
         let accounts_arr: &[AccountInfo; INIT_IX_ACCOUNTS_LEN] = accounts.try_into().unwrap();
         let init_accounts: InitAccounts = accounts_arr.into();
-        process_init::<MockCalculatorProgram>(init_accounts, INITIAL_MANAGER_ID)
+        process_init_unchecked::<MockCalculatorProgram>(init_accounts, INITIAL_MANAGER_ID)
     }
 }
 
@@ -66,7 +67,7 @@ async fn init_basic() {
         .unwrap();
 
     let state_bytes = state_account.data;
-    let calc_state: &CalculatorState = try_from_bytes(&state_bytes).unwrap();
+    let calc_state = try_calculator_state(&state_bytes).unwrap();
 
     assert_eq!(calc_state.last_upgrade_slot, 0);
     assert_eq!(
@@ -74,3 +75,6 @@ async fn init_basic() {
         mock_calculator_program::INITIAL_MANAGER_ID
     );
 }
+
+// TODO: test
+// - calling twice

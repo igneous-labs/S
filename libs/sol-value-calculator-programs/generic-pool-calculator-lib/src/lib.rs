@@ -1,10 +1,17 @@
+use generic_pool_calculator_interface::CalculatorState;
 use solana_program::pubkey::Pubkey;
-
-mod utils;
+use static_assertions::const_assert_eq;
 
 pub mod account_resolvers;
+pub mod utils;
 
 pub const CALCULATOR_STATE_SEED: &[u8] = b"state";
+pub const CALCULATOR_STATE_SIZE: usize = 40;
+
+const_assert_eq!(
+    std::mem::size_of::<CalculatorState>(),
+    CALCULATOR_STATE_SIZE
+);
 
 /// Implement this trait for individual generic pool SOL value calculator programs
 pub trait GenericPoolSolValCalc {

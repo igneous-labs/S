@@ -1,11 +1,12 @@
-use bytemuck::try_from_bytes_mut;
 use generic_pool_calculator_interface::{CalculatorState, InitAccounts};
-use generic_pool_calculator_lib::{GenericPoolSolValCalc, CALCULATOR_STATE_SEED};
+use generic_pool_calculator_lib::{
+    utils::try_calculator_state_mut, GenericPoolSolValCalc, CALCULATOR_STATE_SEED,
+};
 use sanctum_onchain_utils::system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 
 /// Call on resolved and checked InitAccounts
-pub fn process_init<P: GenericPoolSolValCalc>(
+pub fn process_init_unchecked<P: GenericPoolSolValCalc>(
     InitAccounts {
         payer,
         state,
@@ -27,8 +28,7 @@ pub fn process_init<P: GenericPoolSolValCalc>(
     )?;
 
     let mut bytes = state.try_borrow_mut_data()?;
-    let calc_state: &mut CalculatorState =
-        try_from_bytes_mut(&mut bytes).map_err(|_e| ProgramError::AccountDataTooSmall)?;
+    let calc_state = try_calculator_state_mut(&mut bytes)?;
 
     calc_state.manager = initial_manager;
     calc_state.last_upgrade_slot = 0;

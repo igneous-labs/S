@@ -13,5 +13,7 @@ solana-program = { workspace = true }
 [dev-dependencies]
 sanctum-macros = { workspace = true }
 solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true }
 solana-sdk = { workspace = true }
+test-utils = { path = "../../../test-utils" }
 tokio = { workspace = true }

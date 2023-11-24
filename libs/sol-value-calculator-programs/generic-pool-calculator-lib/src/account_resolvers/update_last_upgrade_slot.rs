@@ -1,12 +1,12 @@
 use std::marker::PhantomData;
 
-use bytemuck::try_from_bytes;
-use generic_pool_calculator_interface::{
-    CalculatorState, GenericPoolCalculatorError, UpdateLastUpgradeSlotKeys,
-};
+use generic_pool_calculator_interface::{GenericPoolCalculatorError, UpdateLastUpgradeSlotKeys};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
-use crate::{utils::read_programdata_addr, GenericPoolSolValCalc};
+use crate::{
+    utils::{read_programdata_addr, try_calculator_state},
+    GenericPoolSolValCalc,
+};
 
 pub struct UpdateLastUpgradeSlotRootAccounts<
     P: GenericPoolSolValCalc,
@@ -33,8 +33,7 @@ impl<
         }
 
         let state_bytes = &self.state.data();
-        let calc_state: &CalculatorState = try_from_bytes(state_bytes)
-            .map_err(|_e| GenericPoolCalculatorError::InvalidCalculatorStateData)?;
+        let calc_state = try_calculator_state(state_bytes)?;
 
         let pool_program_data = read_programdata_addr(&self.pool_program)?;
 
