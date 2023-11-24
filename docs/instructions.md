@@ -179,7 +179,7 @@ Remove single-LST liquidity from the pool.
 - Transfer remaining LST due to dst_acc
 - Self CPI SyncSolValue for LST
 
-### DisableInput
+### DisableLstInput
 
 Disable input for a LST to prepare for removal
 
@@ -199,7 +199,7 @@ Disable input for a LST to prepare for removal
 | pool_state | The pool's state singleton PDA                         | W                | N            |
 | lst_states | Dynamic list PDA of LstStates for each LST in the pool | W                | N            |
 
-### EnableInput
+### EnableLstInput
 
 Re-enable input for a LST
 
@@ -236,11 +236,11 @@ Add a LST to the pool
 | admin                         | The pool's admin                                                               | R                | Y            |
 | payer                         | Account paying the SOL rent for the new space and accounts                     | W                | Y            |
 | lst                           | Mint of the new LST to add                                                     | R                | N            |
-| pool_reserves                 | LST reserves token account to create                                       | W                | N            |
+| pool_reserves                 | LST reserves token account to create                                           | W                | N            |
 | protocol_fee_accumulator      | The LST protocol fee accumulator token account to create                       | W                | N            |
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | sol_value_calculator          | The LST's SOL value calculator program                                         | R                | N            |
-| pool_state                    | The pool's state singleton PDA                                                 | W                | N            |
+| pool_state                    | The pool's state singleton PDA                                                 | R                | N            |
 | lst_states                    | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
 | system_program                | System program                                                                 | R                | N            |
 
@@ -270,10 +270,10 @@ Remove a LST from the pool
 | admin                         | The pool's admin                                                               | R                | Y            |
 | refund_rent_to                | The account to refund SOL rent to                                              | W                | N            |
 | lst                           | Mint of the LST to remove                                                      | R                | N            |
-| pool_reserves                 | LST reserves token account to destroy                                      | W                | N            |
+| pool_reserves                 | LST reserves token account to destroy                                          | W                | N            |
 | protocol_fee_accumulator      | The LST protocol fee accumulator token account to destroy                      | W                | N            |
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
-| pool_state                    | The pool's state singleton PDA                                                 | W                | N            |
+| pool_state                    | The pool's state singleton PDA                                                 | R                | N            |
 | lst_states                    | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
 | system_program                | System program                                                                 | R                | N            |
 

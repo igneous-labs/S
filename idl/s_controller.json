@@ -412,7 +412,7 @@
       ]
     },
     {
-      "name": "DisableInput",
+      "name": "DisableLstInput",
       "discriminant": {
         "type": "u8",
         "value": 5
@@ -451,7 +451,7 @@
       ]
     },
     {
-      "name": "EnableInput",
+      "name": "EnableLstInput",
       "discriminant": {
         "type": "u8",
         "value": 6
@@ -540,7 +540,7 @@
         },
         {
           "name": "pool_state",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "desc": "The pool's state singleton PDA"
         },
@@ -609,7 +609,7 @@
         },
         {
           "name": "pool_state",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "desc": "The pool's state singleton PDA"
         },
