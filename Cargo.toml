@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "generated/pricing-programs/*",
     "generated/sol-value-calculator-programs/*",
+    "keys/*",
     "libs/sanctum-onchain-utils",
     "libs/sol-value-calculator-programs/*",
     "programs/sol-value-calculator-programs/*",

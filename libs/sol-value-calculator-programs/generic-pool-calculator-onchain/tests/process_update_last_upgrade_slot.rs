@@ -5,9 +5,8 @@ use generic_pool_calculator_lib::{
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::{
-    spl_stake_pool_program, AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
-};
+use spl_stake_pool_keys::spl_stake_pool_program;
+use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
 
 use crate::{
     common::{mock_calculator_state_account, MockCalculatorStateAccountArgs},
@@ -23,7 +22,7 @@ mod mock_calculator_program {
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
     use generic_pool_calculator_onchain::processor::process_update_last_upgrade_slot_unchecked;
     use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
-    use test_utils::spl_stake_pool_program;
+    use spl_stake_pool_keys::spl_stake_pool_program;
 
     sanctum_macros::declare_program_keys!(
         "8kbLzKfKo5gjbGQf2HmULGGTXQx6hnfYGJ8inL1zvVeL",

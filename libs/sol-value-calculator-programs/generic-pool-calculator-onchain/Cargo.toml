@@ -15,5 +15,6 @@ sanctum-macros = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true }
 solana-sdk = { workspace = true }
+spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
 test-utils = { path = "../../../test-utils" }
 tokio = { workspace = true }
