@@ -10,8 +10,8 @@ use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 use spl_calculator_lib::{initial_manager, SplSolValCalc};
 
 pub fn process_init(accounts: &[AccountInfo]) -> Result<(), ProgramError> {
-    let init_accounts = verify(accounts)?;
-    process_init_unchecked::<SplSolValCalc>(init_accounts, initial_manager::ID)
+    let checked = verify(accounts)?;
+    process_init_unchecked::<SplSolValCalc>(checked, initial_manager::ID)
 }
 
 fn verify<'me, 'info>(

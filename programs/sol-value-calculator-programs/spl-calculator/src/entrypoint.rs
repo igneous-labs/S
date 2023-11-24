@@ -6,7 +6,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::processor::process_init;
+use crate::processor::{process_init, process_set_manager};
 
 entrypoint!(process_instruction);
 fn process_instruction(
@@ -19,6 +19,7 @@ fn process_instruction(
     }
     match GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])? {
         GenericPoolCalculatorProgramIx::Init(_args) => process_init(accounts),
+        GenericPoolCalculatorProgramIx::SetManager(_args) => process_set_manager(accounts),
         _ => todo!(),
     }
 }
