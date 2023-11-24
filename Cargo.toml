@@ -20,10 +20,13 @@ num-traits = ">=0.2"
 sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branch = "master" }
 serde = "^1"
 serde_json = "^1"
-solana-readonly-account = { git = "https://github.com/igneous-labs/solana-readonly-account", branch = "master", features = ["solana-sdk"] }
 static_assertions = "^1"
 thiserror = "^1"
 tokio = "^1"
+
+# DO NOT ENABLE `features = ["solana-sdk"]` HERE OR ELSE IT'LL MAKE ALL ONCHAIN PROGRAMS UNCOMPILABLE
+# CLIENT CRATES SHOULD ENABLE IT SEPARATELY
+solana-readonly-account = { git = "https://github.com/igneous-labs/solana-readonly-account", branch = "master" }
 
 # solana libraries (not pure rust)
 # Use * for flexibility for library users, but lock to 1.16 for development

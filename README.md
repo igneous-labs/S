@@ -15,3 +15,15 @@ Sanctum S comprises three main on-chain component programs listed below.
 ### SOL Value Calculator Programs
 
 ### Pricing Programs
+
+## Setup
+
+Install solana toolchain 1.16.20
+
+```sh
+$ sh -c "$(curl -sSfL https://release.solana.com/v1.16.20/install)"
+$ cargo-build-sbf --version
+solana-cargo-build-sbf 1.16.20
+platform-tools v1.37
+rustc 1.68.0
+```
