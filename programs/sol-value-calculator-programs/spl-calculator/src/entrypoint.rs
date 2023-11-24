@@ -6,7 +6,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::processor::{process_init, process_set_manager};
+use crate::processor::{process_init, process_set_manager, process_update_last_upgrade_slot};
 
 entrypoint!(process_instruction);
 fn process_instruction(
@@ -18,8 +18,11 @@ fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
     match GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])? {
-        GenericPoolCalculatorProgramIx::Init(_args) => process_init(accounts),
+        GenericPoolCalculatorProgramIx::UpdateLastUpgradeSlot(_args) => {
+            process_update_last_upgrade_slot(accounts)
+        }
         GenericPoolCalculatorProgramIx::SetManager(_args) => process_set_manager(accounts),
+        GenericPoolCalculatorProgramIx::Init(_args) => process_init(accounts),
         _ => todo!(),
     }
 }

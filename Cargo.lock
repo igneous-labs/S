@@ -4470,6 +4470,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "sanctum-macros",
  "solana-program",
+ "solana-readonly-account",
  "spl-stake-pool-keys",
 ]
 

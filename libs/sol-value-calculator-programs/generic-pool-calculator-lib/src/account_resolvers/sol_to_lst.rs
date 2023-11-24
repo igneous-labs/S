@@ -24,7 +24,7 @@ impl<P: GenericPoolSolValCalc, Q: KeyedAccount + ReadonlyAccountData> SolToLstRo
             lst: self.lst,
             state: P::CALCULATOR_STATE_PDA,
             pool_state: self.pool_state,
-            pool_program: *self.pool_program.key(),
+            pool_program: P::POOL_PROGRAM_ID,
             pool_program_data: read_programdata_addr(&self.pool_program)?,
         })
     }

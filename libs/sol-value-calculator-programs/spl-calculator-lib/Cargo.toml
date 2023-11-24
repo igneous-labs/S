@@ -10,4 +10,5 @@ generic_pool_calculator_interface = { path = "../../../generated/sol-value-calcu
 generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
 sanctum-macros = { workspace = true }
 solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
 spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
