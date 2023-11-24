@@ -34,8 +34,8 @@ mod mock_calculator_program {
         _instruction_data: &[u8],
     ) -> ProgramResult {
         let accounts_arr: &[AccountInfo; INIT_IX_ACCOUNTS_LEN] = accounts.try_into().unwrap();
-        let init_accounts: InitAccounts = accounts_arr.into();
-        process_init_unchecked::<MockCalculatorProgram>(init_accounts, INITIAL_MANAGER_ID)
+        let ix_accounts: InitAccounts = accounts_arr.into();
+        process_init_unchecked::<MockCalculatorProgram>(ix_accounts, INITIAL_MANAGER_ID)
     }
 }
 

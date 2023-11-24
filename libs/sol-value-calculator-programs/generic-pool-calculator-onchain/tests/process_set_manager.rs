@@ -1,12 +1,11 @@
-use generic_pool_calculator_interface::{update_last_upgrade_slot_ix, UpdateLastUpgradeSlotIxArgs};
+use generic_pool_calculator_interface::{set_manager_ix, SetManagerIxArgs};
 use generic_pool_calculator_lib::{
-    account_resolvers::UpdateLastUpgradeSlotRootAccounts, utils::try_calculator_state,
+    account_resolvers::SetManagerRootAccounts, utils::try_calculator_state,
 };
+use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
-use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
-use spl_stake_pool_keys::spl_stake_pool_program;
-use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
+use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 use crate::{
     common::{mock_calculator_state_account, MockCalculatorStateAccountArgs},
@@ -16,11 +15,9 @@ use crate::{
 mod common;
 
 mod mock_calculator_program {
-    use generic_pool_calculator_interface::{
-        UpdateLastUpgradeSlotAccounts, UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN,
-    };
+    use generic_pool_calculator_interface::{SetManagerAccounts, SET_MANAGER_IX_ACCOUNTS_LEN};
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
-    use generic_pool_calculator_onchain::processor::process_update_last_upgrade_slot_unchecked;
+    use generic_pool_calculator_onchain::processor::process_set_manager_unchecked;
     use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
     use spl_stake_pool_keys::spl_stake_pool_program;
 
@@ -43,17 +40,17 @@ mod mock_calculator_program {
         accounts: &[AccountInfo],
         _instruction_data: &[u8],
     ) -> ProgramResult {
-        let accounts_arr: &[AccountInfo; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] =
+        let accounts_arr: &[AccountInfo; SET_MANAGER_IX_ACCOUNTS_LEN] =
             accounts.try_into().unwrap();
-        let ix_accounts: UpdateLastUpgradeSlotAccounts = accounts_arr.into();
-        process_update_last_upgrade_slot_unchecked(ix_accounts)
+        let ix_accounts: SetManagerAccounts = accounts_arr.into();
+        process_set_manager_unchecked(ix_accounts)
     }
 }
 
 #[tokio::test]
-async fn update_last_upgrade_slot_basic() {
-    const INITIAL_LAST_UPGRADE_SLOT: u64 = 69;
+async fn set_manager_basic() {
     let manager = Keypair::new();
+    let new_manager = Pubkey::new_unique();
 
     let mut program_test = ProgramTest::default();
     program_test.prefer_bpf(false);
@@ -62,38 +59,25 @@ async fn update_last_upgrade_slot_basic() {
         mock_calculator_program::ID,
         processor!(mock_calculator_program::process_instruction),
     );
-    let spl_stake_pool_prog = KeyedUiAccount::from_test_fixtures_file("spl-stake-pool-prog.json");
-    let spl_stake_pool_prog_acc: Account = spl_stake_pool_prog.account.decode().unwrap();
-    program_test = program_test
-        .add_keyed_ui_account(spl_stake_pool_prog)
-        .add_test_fixtures_account("spl-stake-pool-prog-data.json");
 
     let mock_state = mock_calculator_state_account(MockCalculatorStateAccountArgs {
         manager: manager.pubkey(),
-        last_upgrade_slot: INITIAL_LAST_UPGRADE_SLOT,
+        last_upgrade_slot: 69,
         owner: mock_calculator_program::ID,
     });
     program_test.add_account(mock_calculator_program::STATE_ID, mock_state.clone());
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let root_accounts: UpdateLastUpgradeSlotRootAccounts<MockCalculatorProgram, _, _> =
-        UpdateLastUpgradeSlotRootAccounts {
-            state: KeyedReadonlyAccount {
-                key: mock_calculator_program::STATE_ID,
-                account: mock_state,
-            },
-            pool_program: KeyedReadonlyAccount {
-                key: spl_stake_pool_program::ID,
-                account: spl_stake_pool_prog_acc,
-            },
-            phantom: Default::default(),
-        };
-    let mut ix = update_last_upgrade_slot_ix(
-        root_accounts.resolve().unwrap(),
-        UpdateLastUpgradeSlotIxArgs {},
-    )
-    .unwrap();
+    let root_accounts: SetManagerRootAccounts<MockCalculatorProgram, _> = SetManagerRootAccounts {
+        new_manager,
+        state: KeyedReadonlyAccount {
+            key: mock_calculator_program::STATE_ID,
+            account: mock_state,
+        },
+        phantom: Default::default(),
+    };
+    let mut ix = set_manager_ix(root_accounts.resolve().unwrap(), SetManagerIxArgs {}).unwrap();
     ix.program_id = mock_calculator_program::ID;
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &manager], recent_blockhash);
@@ -105,7 +89,7 @@ async fn update_last_upgrade_slot_basic() {
         .unwrap();
     let state_bytes = state_account.data;
     let calc_state = try_calculator_state(&state_bytes).unwrap();
-    assert_eq!(calc_state.last_upgrade_slot, INITIAL_LAST_UPGRADE_SLOT);
+    assert_eq!(calc_state.manager, manager.pubkey());
 
     assert!(banks_client.process_transaction(tx).await.is_ok());
 
@@ -117,9 +101,5 @@ async fn update_last_upgrade_slot_basic() {
     let state_bytes = state_account.data;
     let calc_state = try_calculator_state(&state_bytes).unwrap();
 
-    assert_eq!(
-        calc_state.last_upgrade_slot,
-        SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT
-    );
-    assert_eq!(calc_state.manager, manager.pubkey());
+    assert_eq!(calc_state.manager, new_manager);
 }
