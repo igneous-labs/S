@@ -1,5 +1,6 @@
 use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use solana_program::pubkey::Pubkey;
+use spl_stake_pool_keys::spl_stake_pool_program;
 
 pub mod account_resolvers;
 
@@ -10,8 +11,9 @@ pub mod program {
     );
 }
 
-mod spl_stake_pool_program {
-    sanctum_macros::declare_program_keys!("SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy", []);
+/// TODO: set actual initial manager
+pub mod initial_manager {
+    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
 }
 
 pub struct SplSolValCalc;

@@ -14,5 +14,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+generic-pool-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-lib" }
+generic-pool-calculator-onchain = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-onchain" }
+sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
 solana-program = { workspace = true }
 spl-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/spl-calculator-lib" }

@@ -6,15 +6,19 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
+use crate::processor::process_init;
+
 entrypoint!(process_instruction);
 fn process_instruction(
     program_id: &Pubkey,
-    _accounts: &[AccountInfo],
+    accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
     if *program_id != spl_calculator_lib::program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-    GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])?;
-    todo!()
+    match GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])? {
+        GenericPoolCalculatorProgramIx::Init(_args) => process_init(accounts),
+        _ => todo!(),
+    }
 }
