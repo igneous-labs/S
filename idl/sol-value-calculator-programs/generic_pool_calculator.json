@@ -236,6 +236,11 @@
       "code": 1006,
       "name": "InvalidStakePoolProgramData",
       "msg": "Invalid stake pool program data"
+    },
+    {
+      "code": 1007,
+      "name": "MathError",
+      "msg": "Math error"
     }
   ],
   "metadata": {

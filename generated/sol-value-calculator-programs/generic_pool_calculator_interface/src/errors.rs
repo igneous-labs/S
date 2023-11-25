@@ -20,6 +20,8 @@ pub enum GenericPoolCalculatorError {
     InvalidCalculatorStateData = 1005,
     #[error("Invalid stake pool program data")]
     InvalidStakePoolProgramData = 1006,
+    #[error("Math error")]
+    MathError = 1007,
 }
 impl From<GenericPoolCalculatorError> for ProgramError {
     fn from(e: GenericPoolCalculatorError) -> Self {

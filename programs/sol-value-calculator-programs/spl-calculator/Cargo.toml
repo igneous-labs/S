@@ -17,5 +17,7 @@ generic_pool_calculator_interface = { path = "../../../generated/sol-value-calcu
 generic-pool-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-lib" }
 generic-pool-calculator-onchain = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-onchain" }
 sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
+sol-value-calculator-onchain = { path = "../../../libs/sol-value-calculator-programs/sol-value-calculator-onchain" }
 solana-program = { workspace = true }
+spl_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/spl_calculator_interface" }
 spl-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/spl-calculator-lib" }

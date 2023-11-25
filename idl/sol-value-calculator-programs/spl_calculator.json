@@ -1,15 +1,246 @@
 {
   "version": "1.0.0",
   "name": "spl_calculator",
-  "errors": [
+  "types": [
     {
-      "code": 0,
-      "name": "TODO",
-      "msg": "TODO"
+      "name": "SplStakePool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account_type",
+            "type": {
+              "defined": "AccountType"
+            }
+          },
+          {
+            "name": "manager",
+            "type": "publicKey"
+          },
+          {
+            "name": "staker",
+            "type": "publicKey"
+          },
+          {
+            "name": "stake_deposit_authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "stake_withdraw_bump_seed",
+            "type": "u8"
+          },
+          {
+            "name": "validator_list",
+            "type": "publicKey"
+          },
+          {
+            "name": "reserve_stake",
+            "type": "publicKey"
+          },
+          {
+            "name": "pool_mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "manager_fee_account",
+            "type": "publicKey"
+          },
+          {
+            "name": "token_program_id",
+            "type": "publicKey"
+          },
+          {
+            "name": "total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "pool_token_supply",
+            "type": "u64"
+          },
+          {
+            "name": "last_update_epoch",
+            "type": "u64"
+          },
+          {
+            "name": "lockup",
+            "type": {
+              "defined": "Lockup"
+            }
+          },
+          {
+            "name": "epoch_fee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "next_epoch_fee",
+            "type": {
+              "defined": "FutureEpochFee"
+            }
+          },
+          {
+            "name": "preferred_deposit_validator_vote_address",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "preferred_withdraw_validator_vote_address",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "stake_deposit_fee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "stake_withdrawal_fee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "next_stake_withdrawal_fee",
+            "type": {
+              "defined": "FutureEpochFee"
+            }
+          },
+          {
+            "name": "stake_referral_fee",
+            "type": "u8"
+          },
+          {
+            "name": "sol_deposit_authority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "sol_deposit_fee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "sol_referral_fee",
+            "type": "u8"
+          },
+          {
+            "name": "sol_withdraw_authority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "sol_withdrawal_fee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "next_sol_withdrawal_fee",
+            "type": {
+              "defined": "FutureEpochFee"
+            }
+          },
+          {
+            "name": "last_epoch_pool_token_supply",
+            "type": "u64"
+          },
+          {
+            "name": "last_epoch_total_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "StakePool"
+          },
+          {
+            "name": "ValidatorList"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lockup",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "unix_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "custodian",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Fee",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denominator",
+            "type": "u64"
+          },
+          {
+            "name": "numerator",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FutureEpochFee",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "One",
+            "fields": [
+              {
+                "defined": "Fee"
+              }
+            ]
+          },
+          {
+            "name": "Two",
+            "fields": [
+              {
+                "defined": "Fee"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "metadata": {
     "origin": "shank",
-    "address": "TH1S1DLoNLYCoNTA1NSERRoRTYPES11111111111111"
+    "address": "TH1S1DLoNLYCoNTA1NSERRoRANDCoP1EDTYPES11111"
   }
 }
