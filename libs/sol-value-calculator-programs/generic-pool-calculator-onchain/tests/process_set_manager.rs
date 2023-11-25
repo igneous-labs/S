@@ -69,15 +69,18 @@ async fn set_manager_basic() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let root_accounts: SetManagerRootAccounts<MockCalculatorProgram, _> = SetManagerRootAccounts {
+    let root_accounts = SetManagerRootAccounts {
         new_manager,
         state: KeyedReadonlyAccount {
             key: mock_calculator_program::STATE_ID,
             account: mock_state,
         },
-        phantom: Default::default(),
     };
-    let mut ix = set_manager_ix(root_accounts.resolve().unwrap(), SetManagerIxArgs {}).unwrap();
+    let mut ix = set_manager_ix(
+        root_accounts.resolve::<MockCalculatorProgram>().unwrap(),
+        SetManagerIxArgs {},
+    )
+    .unwrap();
     ix.program_id = mock_calculator_program::ID;
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &manager], recent_blockhash);

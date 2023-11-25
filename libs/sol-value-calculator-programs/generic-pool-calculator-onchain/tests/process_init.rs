@@ -49,11 +49,14 @@ async fn init_basic() {
         processor!(mock_calculator_program::process_instruction),
     );
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
-    let root_accounts: InitRootAccounts<MockCalculatorProgram> = InitRootAccounts {
+    let root_accounts = InitRootAccounts {
         payer: payer.pubkey(),
-        phantom: Default::default(),
     };
-    let mut ix = init_ix(root_accounts.resolve(), InitIxArgs {}).unwrap();
+    let mut ix = init_ix(
+        root_accounts.resolve::<MockCalculatorProgram>(),
+        InitIxArgs {},
+    )
+    .unwrap();
     ix.program_id = mock_calculator_program::ID;
 
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));

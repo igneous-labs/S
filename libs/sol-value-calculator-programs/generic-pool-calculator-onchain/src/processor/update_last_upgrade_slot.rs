@@ -34,12 +34,11 @@ pub fn verify_update_last_upgrade_slot<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<UpdateLastUpgradeSlotAccounts<'me, 'info>, ProgramError> {
     let actual: UpdateLastUpgradeSlotAccounts = load_accounts(accounts)?;
 
-    let root_keys: UpdateLastUpgradeSlotRootAccounts<P, _, _> = UpdateLastUpgradeSlotRootAccounts {
+    let root_keys = UpdateLastUpgradeSlotRootAccounts {
         pool_program: actual.pool_program,
         state: actual.state,
-        phantom: Default::default(),
     };
-    let expected: UpdateLastUpgradeSlotKeys = root_keys.resolve()?;
+    let expected: UpdateLastUpgradeSlotKeys = root_keys.resolve::<P>()?;
 
     update_last_upgrade_slot_verify_account_keys(&actual, &expected)
         .map_err(log_and_return_wrong_acc_err)?;

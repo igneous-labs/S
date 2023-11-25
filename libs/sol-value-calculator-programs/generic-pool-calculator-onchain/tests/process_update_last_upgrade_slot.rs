@@ -77,20 +77,18 @@ async fn update_last_upgrade_slot_basic() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let root_accounts: UpdateLastUpgradeSlotRootAccounts<MockCalculatorProgram, _, _> =
-        UpdateLastUpgradeSlotRootAccounts {
-            state: KeyedReadonlyAccount {
-                key: mock_calculator_program::STATE_ID,
-                account: mock_state,
-            },
-            pool_program: KeyedReadonlyAccount {
-                key: spl_stake_pool_program::ID,
-                account: spl_stake_pool_prog_acc,
-            },
-            phantom: Default::default(),
-        };
+    let root_accounts = UpdateLastUpgradeSlotRootAccounts {
+        state: KeyedReadonlyAccount {
+            key: mock_calculator_program::STATE_ID,
+            account: mock_state,
+        },
+        pool_program: KeyedReadonlyAccount {
+            key: spl_stake_pool_program::ID,
+            account: spl_stake_pool_prog_acc,
+        },
+    };
     let mut ix = update_last_upgrade_slot_ix(
-        root_accounts.resolve().unwrap(),
+        root_accounts.resolve::<MockCalculatorProgram>().unwrap(),
         UpdateLastUpgradeSlotIxArgs {},
     )
     .unwrap();

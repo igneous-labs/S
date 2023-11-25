@@ -1,4 +1,5 @@
 mod init;
+mod lst_sol_common;
 mod lst_to_sol;
 mod set_manager;
 mod sol_to_lst;

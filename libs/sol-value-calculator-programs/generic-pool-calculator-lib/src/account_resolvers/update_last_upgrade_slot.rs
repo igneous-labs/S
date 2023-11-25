@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use generic_pool_calculator_interface::{GenericPoolCalculatorError, UpdateLastUpgradeSlotKeys};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
@@ -9,22 +7,19 @@ use crate::{
 };
 
 pub struct UpdateLastUpgradeSlotRootAccounts<
-    P: GenericPoolSolValCalc,
     S: KeyedAccount + ReadonlyAccountData,
     Q: KeyedAccount + ReadonlyAccountData,
 > {
     pub state: S,
     pub pool_program: Q,
-    pub phantom: PhantomData<P>,
 }
 
-impl<
-        P: GenericPoolSolValCalc,
-        S: KeyedAccount + ReadonlyAccountData,
-        Q: KeyedAccount + ReadonlyAccountData,
-    > UpdateLastUpgradeSlotRootAccounts<P, S, Q>
+impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountData>
+    UpdateLastUpgradeSlotRootAccounts<S, Q>
 {
-    pub fn resolve(self) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {
+    pub fn resolve<P: GenericPoolSolValCalc>(
+        self,
+    ) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {
         if *self.state.key() != P::CALCULATOR_STATE_PDA {
             return Err(GenericPoolCalculatorError::WrongCalculatorStatePda);
         }

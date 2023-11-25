@@ -45,11 +45,10 @@ pub fn verify_init<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<InitAccounts<'me, 'info>, ProgramError> {
     let actual: InitAccounts = load_accounts(accounts)?;
 
-    let root_keys: InitRootAccounts<P> = InitRootAccounts {
+    let root_keys = InitRootAccounts {
         payer: *actual.payer.key,
-        phantom: Default::default(),
     };
-    let expected: InitKeys = root_keys.resolve();
+    let expected: InitKeys = root_keys.resolve::<P>();
 
     init_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     init_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;

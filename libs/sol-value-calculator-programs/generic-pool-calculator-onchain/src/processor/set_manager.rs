@@ -30,12 +30,11 @@ pub fn verify_set_manager<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<SetManagerAccounts<'me, 'info>, ProgramError> {
     let actual: SetManagerAccounts = load_accounts(accounts)?;
 
-    let root_keys: SetManagerRootAccounts<P, _> = SetManagerRootAccounts {
+    let root_keys = SetManagerRootAccounts {
         new_manager: *actual.new_manager.key,
         state: actual.state,
-        phantom: Default::default(),
     };
-    let expected: SetManagerKeys = root_keys.resolve()?;
+    let expected: SetManagerKeys = root_keys.resolve::<P>()?;
 
     set_manager_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     set_manager_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;

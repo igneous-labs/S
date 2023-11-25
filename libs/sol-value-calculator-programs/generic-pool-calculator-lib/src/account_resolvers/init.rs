@@ -1,21 +1,14 @@
-use std::marker::PhantomData;
-
 use generic_pool_calculator_interface::InitKeys;
 use solana_program::{pubkey::Pubkey, system_program};
 
 use crate::GenericPoolSolValCalc;
 
-pub struct InitRootAccounts<P: GenericPoolSolValCalc> {
+pub struct InitRootAccounts {
     pub payer: Pubkey,
-
-    /// Associate generic with struct so
-    /// that InitRootAccounts<Spl> is different type from
-    /// InitRootAccounts<Marinade>
-    pub phantom: PhantomData<P>,
 }
 
-impl<P: GenericPoolSolValCalc> InitRootAccounts<P> {
-    pub fn resolve(self) -> InitKeys {
+impl InitRootAccounts {
+    pub fn resolve<P: GenericPoolSolValCalc>(self) -> InitKeys {
         InitKeys {
             payer: self.payer,
             state: P::CALCULATOR_STATE_PDA,
