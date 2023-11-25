@@ -1,6 +1,17 @@
-use generic_pool_calculator_interface::UpdateLastUpgradeSlotAccounts;
-use generic_pool_calculator_lib::utils::{read_stake_pool_progdata_meta, try_calculator_state_mut};
-use solana_program::program_error::ProgramError;
+use generic_pool_calculator_interface::{
+    update_last_upgrade_slot_verify_account_keys,
+    update_last_upgrade_slot_verify_account_privileges, UpdateLastUpgradeSlotAccounts,
+    UpdateLastUpgradeSlotKeys,
+};
+use generic_pool_calculator_lib::{
+    account_resolvers::UpdateLastUpgradeSlotRootAccounts,
+    utils::{read_stake_pool_progdata_meta, try_calculator_state_mut},
+    GenericPoolSolValCalc,
+};
+use sanctum_onchain_utils::utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+};
+use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 
 /// Call on resolved and checked UpdateLastUpgradeSlotAccounts
 pub fn process_update_last_upgrade_slot_unchecked(
@@ -16,4 +27,24 @@ pub fn process_update_last_upgrade_slot_unchecked(
     let calc_state = try_calculator_state_mut(&mut bytes)?;
     calc_state.last_upgrade_slot = last_upgrade_slot;
     Ok(())
+}
+
+pub fn verify_update_last_upgrade_slot<'me, 'info, P: GenericPoolSolValCalc>(
+    accounts: &'me [AccountInfo<'info>],
+) -> Result<UpdateLastUpgradeSlotAccounts<'me, 'info>, ProgramError> {
+    let actual: UpdateLastUpgradeSlotAccounts = load_accounts(accounts)?;
+
+    let root_keys: UpdateLastUpgradeSlotRootAccounts<P, _, _> = UpdateLastUpgradeSlotRootAccounts {
+        pool_program: actual.pool_program,
+        state: actual.state,
+        phantom: Default::default(),
+    };
+    let expected: UpdateLastUpgradeSlotKeys = root_keys.resolve()?;
+
+    update_last_upgrade_slot_verify_account_keys(&actual, &expected)
+        .map_err(log_and_return_wrong_acc_err)?;
+    update_last_upgrade_slot_verify_account_privileges(&actual)
+        .map_err(log_and_return_acc_privilege_err)?;
+
+    Ok(actual)
 }
