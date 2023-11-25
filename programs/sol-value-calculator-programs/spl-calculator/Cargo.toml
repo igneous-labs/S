@@ -21,3 +21,11 @@ sol-value-calculator-onchain = { path = "../../../libs/sol-value-calculator-prog
 solana-program = { workspace = true }
 spl_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/spl_calculator_interface" }
 spl-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/spl-calculator-lib" }
+
+[dev-dependencies]
+generic-pool-calculator-test-utils = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
+solana-sdk = { workspace = true }
+test-utils = { path = "../../../test-utils" }
+tokio = { workspace = true }

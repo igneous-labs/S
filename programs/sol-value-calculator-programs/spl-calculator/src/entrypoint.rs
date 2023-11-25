@@ -1,5 +1,3 @@
-#![cfg(not(feature = "no-entrypoint"))]
-
 use generic_pool_calculator_interface::GenericPoolCalculatorProgramIx;
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, program_error::ProgramError,
@@ -11,8 +9,10 @@ use crate::processor::{
     process_update_last_upgrade_slot,
 };
 
+#[cfg(not(feature = "no-entrypoint"))]
 entrypoint!(process_instruction);
-fn process_instruction(
+
+pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],

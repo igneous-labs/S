@@ -1,7 +1,9 @@
-use std::{fs::File, path::Path};
+use std::{fs::File, path::Path, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 use solana_account_decoder::UiAccount;
+use solana_program::pubkey::Pubkey;
+use solana_readonly_account::sdk::KeyedReadonlyAccount;
 
 use crate::test_fixtures_dir;
 
@@ -21,5 +23,12 @@ impl KeyedUiAccount {
     /// arg: "account.json" -> "test-fixtures/account.json"
     pub fn from_test_fixtures_file<P: AsRef<Path>>(relative_json_file_path: P) -> Self {
         Self::from_file(test_fixtures_dir().join(relative_json_file_path))
+    }
+
+    pub fn to_keyed_readonly_account(&self) -> KeyedReadonlyAccount {
+        KeyedReadonlyAccount {
+            key: Pubkey::from_str(&self.pubkey).unwrap(),
+            account: self.account.decode().unwrap(),
+        }
     }
 }

@@ -1,2 +1,2 @@
-mod entrypoint;
-mod processor;
+pub mod entrypoint;
+pub mod processor;

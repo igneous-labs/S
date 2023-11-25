@@ -2,7 +2,6 @@
 name = "test-utils"
 version = "1.0.0"
 edition = "2021"
-publish = false
 
 [dependencies]
 sanctum-macros = { workspace = true }
@@ -10,5 +9,6 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 solana-account-decoder = { workspace = true }
 solana-program = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 solana-program-test = { workspace = true }

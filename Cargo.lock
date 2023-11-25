@@ -1490,6 +1490,7 @@ version = "1.0.0"
 dependencies = [
  "bytemuck",
  "generic-pool-calculator-lib",
+ "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "sanctum-macros",
  "sanctum-onchain-utils",
@@ -1500,6 +1501,15 @@ dependencies = [
  "spl-stake-pool-keys",
  "test-utils",
  "tokio",
+]
+
+[[package]]
+name = "generic-pool-calculator-test-utils"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "solana-program-test",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -4471,12 +4481,18 @@ version = "1.0.0"
 dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "sanctum-onchain-utils",
  "sol-value-calculator-onchain",
  "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
  "spl-calculator-lib",
  "spl_calculator_interface",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -4883,6 +4899,7 @@ dependencies = [
  "solana-account-decoder",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-sdk",
 ]
 

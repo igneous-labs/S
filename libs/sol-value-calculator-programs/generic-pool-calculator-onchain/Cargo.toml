@@ -11,6 +11,7 @@ sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
 solana-program = { workspace = true }
 
 [dev-dependencies]
+generic-pool-calculator-test-utils = { path = "../generic-pool-calculator-test-utils" }
 sanctum-macros = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}

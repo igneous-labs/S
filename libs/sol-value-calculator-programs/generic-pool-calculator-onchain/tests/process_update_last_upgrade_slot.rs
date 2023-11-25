@@ -2,18 +2,16 @@ use generic_pool_calculator_interface::{update_last_upgrade_slot_ix, UpdateLastU
 use generic_pool_calculator_lib::{
     account_resolvers::UpdateLastUpgradeSlotRootAccounts, utils::try_calculator_state,
 };
+use generic_pool_calculator_test_utils::{
+    mock_calculator_state_account, MockCalculatorStateAccountArgs,
+};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_stake_pool_keys::spl_stake_pool_program;
 use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
 
-use crate::{
-    common::{mock_calculator_state_account, MockCalculatorStateAccountArgs},
-    mock_calculator_program::MockCalculatorProgram,
-};
-
-mod common;
+use crate::mock_calculator_program::MockCalculatorProgram;
 
 mod mock_calculator_program {
     use generic_pool_calculator_interface::{

@@ -3,10 +3,13 @@ use solana_program::pubkey::Pubkey;
 use spl_stake_pool_keys::spl_stake_pool_program;
 
 mod calc;
+mod instructions;
 
 pub mod account_resolvers;
 
 pub use calc::*;
+pub use instructions::*;
+
 pub mod program {
     sanctum_macros::declare_program_keys!(
         "sp1V4h2gWorkGhVcazBc22Hfo2f5sd7jcjT4EDPrWFF",

@@ -2,17 +2,15 @@ use generic_pool_calculator_interface::{set_manager_ix, SetManagerIxArgs};
 use generic_pool_calculator_lib::{
     account_resolvers::SetManagerRootAccounts, utils::try_calculator_state,
 };
+use generic_pool_calculator_test_utils::{
+    mock_calculator_state_account, MockCalculatorStateAccountArgs,
+};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
-use crate::{
-    common::{mock_calculator_state_account, MockCalculatorStateAccountArgs},
-    mock_calculator_program::MockCalculatorProgram,
-};
-
-mod common;
+use crate::mock_calculator_program::MockCalculatorProgram;
 
 mod mock_calculator_program {
     use generic_pool_calculator_interface::{SetManagerAccounts, SET_MANAGER_IX_ACCOUNTS_LEN};
