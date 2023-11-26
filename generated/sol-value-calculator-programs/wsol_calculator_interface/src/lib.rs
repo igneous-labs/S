@@ -1,4 +1,4 @@
-solana_program::declare_id!("11111111111111111111111111111111");
+solana_program::declare_id!("wsoGmxQLSvwWpuaidCApxN5kEowLe2HLQLJhCQnj4bE");
 pub mod instructions;
 pub use instructions::*;
 pub mod errors;

@@ -20,7 +20,11 @@ pub fn process_instruction(
     if *program_id != spl_calculator_lib::program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-    match GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])? {
+
+    let ix = GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])?;
+    solana_program::msg!("{:?}", ix);
+
+    match ix {
         GenericPoolCalculatorProgramIx::LstToSol(args) => process_lst_to_sol(accounts, args),
         GenericPoolCalculatorProgramIx::SolToLst(args) => process_sol_to_lst(accounts, args),
         GenericPoolCalculatorProgramIx::UpdateLastUpgradeSlot(_args) => {
