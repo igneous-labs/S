@@ -239,6 +239,13 @@
       }
     }
   ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "PoolNotUpdated",
+      "msg": "SPL stake pool not yet updated for this epoch"
+    }
+  ],
   "metadata": {
     "origin": "shank",
     "address": "TH1S1DLoNLYCoNTA1NSERRoRANDCoP1EDTYPES11111"

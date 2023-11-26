@@ -1,12 +1,13 @@
 use generic_pool_calculator_interface::{LstToSolIxArgs, LstToSolKeys};
-use solana_program_test::BanksTransactionResultWithMetadata;
+use solana_program::clock::Clock;
+use solana_program_test::{BanksTransactionResultWithMetadata, ProgramTestContext};
 use solana_sdk::{
     signer::Signer, transaction::Transaction, transaction_context::TransactionReturnData,
 };
 use spl_calculator_lib::{
     account_resolvers::SplLstSolCommonRootAccounts, spl_lst_to_sol_ix, SplSolValCalc,
 };
-use test_utils::zero_padded_return_data;
+use test_utils::{zero_padded_return_data, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
 
@@ -23,7 +24,18 @@ async fn jito_basic() {
         spl_stake_pool_prog,
     } = jito_normal_program_test();
 
-    let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
+    let ctx = program_test.start_with_context().await;
+    ctx.set_sysvar(&Clock {
+        epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+        ..Default::default()
+    });
+
+    let ProgramTestContext {
+        mut banks_client,
+        last_blockhash,
+        payer,
+        ..
+    } = ctx;
 
     let root_accounts = SplLstSolCommonRootAccounts {
         spl_stake_pool: jito_stake_pool,
@@ -34,7 +46,7 @@ async fn jito_basic() {
 
     let ix = spl_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-    tx.sign(&[&payer], recent_blockhash);
+    tx.sign(&[&payer], last_blockhash);
 
     let BanksTransactionResultWithMetadata { result, metadata } = banks_client
         .process_transaction_with_metadata(tx)

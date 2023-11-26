@@ -18,3 +18,4 @@ spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
 
 [dev-dependencies]
 proptest = { workspace = true }
+test-utils = { path = "../../../test-utils" }

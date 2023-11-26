@@ -3,9 +3,14 @@ use generic_pool_calculator_lib::utils::{
     verify_no_stake_pool_prog_upgrade, VerifyNoStakePoolProgUpgradeArgs,
 };
 use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
-use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use solana_program::{
+    account_info::AccountInfo, clock::Clock, program_error::ProgramError, sysvar::Sysvar,
+};
 use spl_calculator_interface::SplStakePool;
-use spl_calculator_lib::{account_resolvers::SplLstSolCommonRootAccounts, SplSolValCalc};
+use spl_calculator_lib::{
+    account_resolvers::SplLstSolCommonRootAccounts, verify_pool_updated_for_this_epoch,
+    SplSolValCalc,
+};
 
 /// Assumes:
 /// - LstToSolAccounts/Keys and SolToLstAccounts/Keys are identical
@@ -26,6 +31,8 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<SplStakePoo
         stake_pool_prog_data: actual.pool_program_data,
         calculator_state: actual.state,
     })?;
+
+    verify_pool_updated_for_this_epoch(&stake_pool, &Clock::get()?)?;
 
     Ok(stake_pool)
 }

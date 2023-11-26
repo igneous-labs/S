@@ -12,3 +12,12 @@ workspace = true
 [dependencies.serde]
 optional = true
 workspace = true
+
+[dependencies.thiserror]
+workspace = true
+
+[dependencies.num-derive]
+workspace = true
+
+[dependencies.num-traits]
+workspace = true

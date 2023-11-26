@@ -4578,6 +4578,7 @@ dependencies = [
  "solana-readonly-account",
  "spl-stake-pool-keys",
  "spl_calculator_interface",
+ "test-utils",
 ]
 
 [[package]]
@@ -4769,8 +4770,11 @@ name = "spl_calculator_interface"
 version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
+ "num-derive 0.3.3",
+ "num-traits",
  "serde",
  "solana-program",
+ "thiserror",
 ]
 
 [[package]]
@@ -4963,6 +4967,7 @@ dependencies = [
 name = "test-utils"
 version = "1.0.0"
 dependencies = [
+ "proptest",
  "sanctum-macros",
  "serde",
  "serde_json",
