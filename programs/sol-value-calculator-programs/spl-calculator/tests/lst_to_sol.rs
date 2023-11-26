@@ -3,7 +3,9 @@ use solana_program_test::BanksTransactionResultWithMetadata;
 use solana_sdk::{
     signer::Signer, transaction::Transaction, transaction_context::TransactionReturnData,
 };
-use spl_calculator_lib::{account_resolvers::SplLstSolCommonRootAccounts, spl_lst_to_sol_ix};
+use spl_calculator_lib::{
+    account_resolvers::SplLstSolCommonRootAccounts, spl_lst_to_sol_ix, SplSolValCalc,
+};
 use test_utils::zero_padded_return_data;
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
@@ -28,7 +30,7 @@ async fn jito_basic() {
         spl_stake_pool_prog,
     };
     let (intermediate, _stake_pool) = root_accounts.resolve().unwrap();
-    let accounts: LstToSolKeys = intermediate.resolve().unwrap().into();
+    let accounts: LstToSolKeys = intermediate.resolve::<SplSolValCalc>().unwrap().into();
 
     let ix = spl_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));

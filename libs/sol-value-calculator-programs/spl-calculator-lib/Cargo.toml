@@ -15,3 +15,6 @@ solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 spl_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/spl_calculator_interface" }
 spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
+
+[dev-dependencies]
+proptest = { workspace = true }

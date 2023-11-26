@@ -5,8 +5,6 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 use spl_calculator_interface::{AccountType, SplStakePool};
 use spl_stake_pool_keys::spl_stake_pool_program;
 
-use crate::SplSolValCalc;
-
 pub struct SplLstSolCommonRootAccounts<
     S: KeyedAccount + ReadonlyAccountData + ReadonlyAccountOwner,
     Q: KeyedAccount + ReadonlyAccountData,
@@ -22,13 +20,8 @@ impl<
 {
     pub fn resolve(
         self,
-    ) -> Result<
-        (
-            LstSolCommonIntermediateAccounts<SplSolValCalc, Q>,
-            SplStakePool,
-        ),
-        GenericPoolCalculatorError,
-    > {
+    ) -> Result<(LstSolCommonIntermediateAccounts<Q>, SplStakePool), GenericPoolCalculatorError>
+    {
         if *self.spl_stake_pool_prog.key() != spl_stake_pool_program::ID {
             return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
@@ -45,7 +38,6 @@ impl<
                 lst: stake_pool.pool_mint,
                 pool_state: *self.spl_stake_pool.key(),
                 pool_program: self.spl_stake_pool_prog,
-                phantom: Default::default(),
             },
             stake_pool,
         ))

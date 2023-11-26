@@ -5,7 +5,7 @@ use generic_pool_calculator_lib::utils::{
 use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 use spl_calculator_interface::SplStakePool;
-use spl_calculator_lib::account_resolvers::SplLstSolCommonRootAccounts;
+use spl_calculator_lib::{account_resolvers::SplLstSolCommonRootAccounts, SplSolValCalc};
 
 /// Assumes:
 /// - LstToSolAccounts/Keys and SolToLstAccounts/Keys are identical
@@ -17,7 +17,7 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<SplStakePoo
         spl_stake_pool_prog: actual.pool_program,
     };
     let (intermediate, stake_pool) = root_keys.resolve()?;
-    let expected = intermediate.resolve()?.into();
+    let expected = intermediate.resolve::<SplSolValCalc>()?.into();
 
     lst_to_sol_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     // accounts should all be read-only, no need to verify_account_privileges
