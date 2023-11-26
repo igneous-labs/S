@@ -40,7 +40,6 @@ impl SolValueCalculator for SplStakePoolCalc {
         Ok(withdraw_lamports)
     }
 
-    /// TODO: make a prop-test for this: calc_sol_to_lst(calc_lst_to_sol(amt)) = amt
     fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<u64, ProgramError> {
         let pool = &self.0;
 
