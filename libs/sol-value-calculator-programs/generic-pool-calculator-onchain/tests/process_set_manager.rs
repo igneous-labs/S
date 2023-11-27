@@ -17,7 +17,7 @@ mod mock_calculator_program {
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
     use generic_pool_calculator_onchain::processor::process_set_manager_unchecked;
     use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
-    use spl_stake_pool_keys::spl_stake_pool_program;
+    use spl_stake_pool_keys::{spl_stake_pool_program, spl_stake_pool_program_progdata};
 
     sanctum_macros::declare_program_keys!(
         "8kbLzKfKo5gjbGQf2HmULGGTXQx6hnfYGJ8inL1zvVeL",
@@ -28,6 +28,7 @@ mod mock_calculator_program {
 
     impl GenericPoolSolValCalc for MockCalculatorProgram {
         const POOL_PROGRAM_ID: Pubkey = spl_stake_pool_program::ID;
+        const POOL_PROGRAM_PROGDATA_ID: Pubkey = spl_stake_pool_program_progdata::ID;
         const CALCULATOR_STATE_PDA: Pubkey = STATE_ID;
         const CALCULATOR_STATE_BUMP: u8 = STATE_BUMP;
         const ID: Pubkey = ID;

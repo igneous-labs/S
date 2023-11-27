@@ -28,3 +28,25 @@ impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateAccounts<Q> 
         })
     }
 }
+
+/// Struct that uses defined const for POOL_PROGRAM_PROGDATA
+/// so that it can be used without fetching POOL_PROGRAM
+///
+/// NB: This struct requires a impl-specific resolver to resolve to in order to derive
+/// lst from pool_state and check them
+pub struct LstSolCommonIntermediateKeys {
+    pub lst: Pubkey,
+    pub pool_state: Pubkey,
+}
+
+impl LstSolCommonIntermediateKeys {
+    pub fn resolve<P: GenericPoolSolValCalc>(self) -> LstSolCommonKeys {
+        LstSolCommonKeys {
+            lst: self.lst,
+            pool_state: self.pool_state,
+            state: P::CALCULATOR_STATE_PDA,
+            pool_program: P::POOL_PROGRAM_ID,
+            pool_program_data: P::POOL_PROGRAM_PROGDATA_ID,
+        }
+    }
+}

@@ -22,6 +22,9 @@ pub trait GenericPoolSolValCalc {
     /// Program ID of the stake pool program that the calculator program works for
     const POOL_PROGRAM_ID: Pubkey;
 
+    // Address of the stake pool program's executable data account
+    const POOL_PROGRAM_PROGDATA_ID: Pubkey;
+
     /// CalculatorState of the calculator program located at PDA ["state"]
     const CALCULATOR_STATE_PDA: Pubkey;
 
