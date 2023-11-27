@@ -12,10 +12,10 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 
 ### Data
 
-| Name         | Value                                     | Type |
-| ------------ | ----------------------------------------- | ---- |
-| discriminant | 0                                         | u8   |
-| lst_index    | index of the LST in `lst_states`          | u64  |
+| Name         | Value                            | Type |
+| ------------ | -------------------------------- | ---- |
+| discriminant | 0                                | u8   |
+| lst_index    | index of the LST in `lst_states` | u64  |
 
 ### Accounts
 
@@ -60,7 +60,7 @@ Swap to output LST from an exact amount of given input LST.
 | dst_lst                  | Mint of the LST being swapped to                                                                                                                                                              | R                | N            |
 | src_lst_acc              | LST token account being swapped from                                                                                                                                                          | W                | N            |
 | dst_lst_acc              | LST token account to swap to                                                                                                                                                                  | W                | N            |
-| protocol_fee_accumulator | Protocol fee accumulator token account                                                                                                                                                        | W                | N            |
+| protocol_fee_accumulator | Protocol fee accumulator token account for dst_lst                                                                                                                                            | W                | N            |
 | src_lst_token_program    | Source LST token program                                                                                                                                                                      | R                | N            |
 | dst_lst_token_program    | Destination LST token program                                                                                                                                                                 | R                | N            |
 | pool_state               | The pool's state singleton PDA                                                                                                                                                                | W                | N            |
@@ -79,9 +79,11 @@ Swap to output LST from an exact amount of given input LST.
 - Self CPI SyncSolValue for dst_lst
 - CPI src token's SOL value calculator program LstToSol to get SOL value of input amount
 - CPI pricing program PriceExactIn to get output SOL value
+- Apply protocol fees to fee amount = input SOL value - output SOL value
+- CPI dst token's SOL value calculator program SolToLst with protocol fees SOL value to get protocol fees amount
 - CPI dst token's SOL value calculator program SolToLst with output SOL value to get output token amount
 - Transfer input amount src tokens from src_lst_acc to src token reserves
-- Subtract and transfer protocol fees to protocol_fee_dest
+- Transfer protocol fees to protocol_fee_accumulator
 - Transfer remaining output dst tokens from dst token reserves to dst_lst_acc
 - Self CPI SyncSolValue for src_lst
 - Self CPI SyncSolValue for dst_lst
@@ -90,11 +92,16 @@ Swap to output LST from an exact amount of given input LST.
 
 Swap to an exact amount of output LST from input LST.
 
-Same as [SwapExactIn](#swapexactin-instruction), but discriminator = 2, amount is amount of dst tokens to receive and the core part goes like this instead:
+Same as [SwapExactIn](#swapexactin-instruction), but:
 
-- CPI dst token's SOL value calculator program LstToSol to get SOL value of output amount
-- CPI pricing program PriceExactOut to get input SOL value
-- CPI src token's SOL value calculator program SolToLst with input SOL value to get input token amount
+- discriminator = 2
+- amount is amount of dst tokens to receive
+- the core part goes like this instead:
+  - CPI dst token's SOL value calculator program LstToSol to get SOL value of output amount
+  - CPI pricing program PriceExactOut to get input SOL value
+  - CPI src token's SOL value calculator program SolToLst with input SOL value to get input token amount
+
+Note protocol fees are always levied on dst_lst
 
 ## AddLiquidity
 
@@ -183,10 +190,10 @@ Disable input for a LST to prepare for removal
 
 ### Data
 
-| Name         | Value                                 | Type |
-| ------------ | ------------------------------------- | ---- |
-| discriminant | 5                                     | u8   |
-| index        | index of lst in `lst_states`          | u64  |
+| Name         | Value                        | Type |
+| ------------ | ---------------------------- | ---- |
+| discriminant | 5                            | u8   |
+| index        | index of lst in `lst_states` | u64  |
 
 ### Accounts
 
@@ -203,10 +210,10 @@ Re-enable input for a LST
 
 ### Data
 
-| Name         | Value                                 | Type |
-| ------------ | ------------------------------------- | ---- |
-| discriminant | 6                                     | u8   |
-| index        | index of lst in `lst_states`          | u64  |
+| Name         | Value                        | Type |
+| ------------ | ---------------------------- | ---- |
+| discriminant | 6                            | u8   |
+| index        | index of lst in `lst_states` | u64  |
 
 ### Accounts
 
@@ -256,10 +263,10 @@ Remove a LST from the pool
 
 ### Data
 
-| Name         | Value                                 | Type |
-| ------------ | ------------------------------------- | ---- |
-| discriminant | 8                                     | u8   |
-| index        | index of lst in `lst_states`          | u64  |
+| Name         | Value                        | Type |
+| ------------ | ---------------------------- | ---- |
+| discriminant | 8                            | u8   |
+| index        | index of lst in `lst_states` | u64  |
 
 ### Accounts
 
@@ -288,10 +295,10 @@ Update the SOL value calculator program for a LST
 
 ### Data
 
-| Name         | Value                                 | Type |
-| ------------ | ------------------------------------- | ---- |
-| discriminant | 9                                     | u8   |
-| index        | index of lst in `lst_states`          | u64  |
+| Name         | Value                        | Type |
+| ------------ | ---------------------------- | ---- |
+| discriminant | 9                            | u8   |
+| index        | index of lst in `lst_states` | u64  |
 
 ### Accounts
 
@@ -300,7 +307,7 @@ Update the SOL value calculator program for a LST
 | admin               | The pool's admin                                                                                                                                         | R                | Y            |
 | lst                 | Mint of the LST to remove                                                                                                                                | R                | N            |
 | pool_state          | The pool's state singleton PDA                                                                                                                           | R                | N            |
-| pool_reserves       | LST reserves token account of the pool                                                                                                               | R                | N            |
+| pool_reserves       | LST reserves token account of the pool                                                                                                                   | R                | N            |
 | lst_states          | Dynamic list PDA of LstStates for each LST in the pool                                                                                                   | W                | N            |
 | lst_value_calc_accs | Accounts to invoke token's new SOL value calculator program LstToSol with. First account should be the new calculator program itself. Multiple Accounts. | ...              | ...          |
 
@@ -512,7 +519,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 
 | Account                 | Description                                                                                                                                                                                   | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
-| payer                   | Account paying the 1 lamport rent for RebalanceRecord                                                                                                                                     | W                | Y            |
+| payer                   | Account paying the 1 lamport rent for RebalanceRecord                                                                                                                                         | W                | Y            |
 | rebalance_authority     | The pool's rebalance authority                                                                                                                                                                | R                | Y            |
 | pool_state              | The pool's state singleton PDA                                                                                                                                                                | W                | N            |
 | lst_states              | Dynamic list PDA of LstStates for each LST in the pool                                                                                                                                        | W                | N            |
