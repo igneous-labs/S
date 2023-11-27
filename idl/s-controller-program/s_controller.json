@@ -1239,7 +1239,112 @@
       ]
     }
   ],
-  "types": [],
+  "types": [
+    {
+      "name": "PoolState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total_sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "trading_protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "lp_protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "is_disabled",
+            "type": "u8"
+          },
+          {
+            "name": "is_rebalancing",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "rebalancing_authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "protocol_fee_beneficiary",
+            "type": "publicKey"
+          },
+          {
+            "name": "pricing_program",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LstStateList",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lst_states",
+            "type": {
+              "vec": {
+                "defined": "LstState"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisablePoolAuthorityList",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "whitelisted_pubkeys",
+            "type": {
+              "vec": {
+                "defined": "publicKey"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RebalanceRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "dst_lst_index",
+            "type": "u64"
+          },
+          {
+            "name": "dst_lst_value_calc_accs",
+            "type": "u8"
+          },
+          {
+            "name": "dst_lst",
+            "type": "publicKey"
+          }
+        ]
+      }
+    }
+  ],
   "errors": [],
   "metadata": {
     "origin": "shank",
