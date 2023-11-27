@@ -23,6 +23,8 @@ mod mock_calculator_program {
     impl GenericPoolSolValCalc for MockCalculatorProgram {
         // unused
         const POOL_PROGRAM_ID: Pubkey = Pubkey::new_from_array([0; 32]);
+        // unused
+        const POOL_PROGRAM_PROGDATA_ID: Pubkey = Pubkey::new_from_array([0; 32]);
         const CALCULATOR_STATE_PDA: Pubkey = STATE_ID;
         const CALCULATOR_STATE_BUMP: u8 = STATE_BUMP;
         const ID: Pubkey = ID;
