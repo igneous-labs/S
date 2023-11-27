@@ -96,12 +96,12 @@ Same as [SwapExactIn](#swapexactin-instruction), but:
 
 - discriminator = 2
 - amount is amount of dst tokens to receive
-- protocol_fee_accumulator is for src_lst
 - the core part goes like this instead:
   - CPI dst token's SOL value calculator program LstToSol to get SOL value of output amount
   - CPI pricing program PriceExactOut to get input SOL value
   - CPI src token's SOL value calculator program SolToLst with input SOL value to get input token amount
-  - CPI src token's SOL value calculator program SolToLst with protocol fees SOL value to get protocol fees amount
+
+Note protocol fees are always levied on dst_lst
 
 ## AddLiquidity
 
