@@ -6,7 +6,7 @@ use solana_readonly_account::ReadonlyAccountData;
 /// Attempts to deserialize a program account and read the
 /// programdata_address contained within
 pub fn read_programdata_addr<D: ReadonlyAccountData>(
-    prog_acc: &D,
+    prog_acc: D,
 ) -> Result<Pubkey, GenericPoolCalculatorError> {
     let prog_bytes = &prog_acc.data();
     let prog: UpgradeableLoaderState = bincode::deserialize(prog_bytes)
@@ -25,7 +25,7 @@ pub fn read_programdata_addr<D: ReadonlyAccountData>(
 /// of a stake pool program program data account and return
 /// (last_upgrade_slot, upgrade_authority)
 pub fn read_stake_pool_progdata_meta<D: ReadonlyAccountData>(
-    stake_pool_prog_data_acc: &D,
+    stake_pool_prog_data_acc: D,
 ) -> Result<(u64, Option<Pubkey>), GenericPoolCalculatorError> {
     let data = stake_pool_prog_data_acc.data();
     let meta_slice = data
@@ -72,7 +72,7 @@ pub fn verify_no_stake_pool_prog_upgrade<D: ReadonlyAccountData, S: ReadonlyAcco
         calculator_state,
     }: VerifyNoStakePoolProgUpgradeArgs<D, S>,
 ) -> Result<(), GenericPoolCalculatorError> {
-    let (last_upgrade_slot, _upgrade_auth) = read_stake_pool_progdata_meta(&stake_pool_prog_data)?;
+    let (last_upgrade_slot, _upgrade_auth) = read_stake_pool_progdata_meta(stake_pool_prog_data)?;
     let calculator_state_acc_data = calculator_state.data();
     let calculator_state = try_calculator_state(&calculator_state_acc_data)?;
     if calculator_state.last_upgrade_slot == last_upgrade_slot {
