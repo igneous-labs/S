@@ -1,0 +1,8 @@
+[package]
+name = "wsol-keys"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+sanctum-macros = { workspace = true }
+solana-program = { workspace = true }

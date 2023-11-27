@@ -5831,6 +5831,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "wsol-calculator"
+version = "1.0.0"
+dependencies = [
+ "sanctum-onchain-utils",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "wsol-calculator-lib",
+ "wsol_calculator_interface",
+]
+
+[[package]]
+name = "wsol-calculator-lib"
+version = "1.0.0"
+dependencies = [
+ "sol-value-calculator-lib",
+ "solana-program",
+ "wsol-keys",
+ "wsol_calculator_interface",
+]
+
+[[package]]
+name = "wsol-keys"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "solana-program",
+]
+
+[[package]]
 name = "wsol_calculator_interface"
 version = "1.0.0"
 dependencies = [
