@@ -13,6 +13,8 @@ Sanctum S comprises three main on-chain component programs:
  - [SOL Value Calculator Programs](./docs/sol-value-calculator-programs/README.md)
  - [Pricing Programs](./docs/pricing-programs/README.md)
 
+ See the overview [here](./docs/README.md).
+
 ## Overview of User Authorities
 
 The authorities defined by the programs:
@@ -24,6 +26,6 @@ The authorities defined by the programs:
 | pricing manager | 1 | The manager of a pricing program |
 | user | N | The normal users (e.g. LPer, swappers) |
 
-## CLI Client for Admin
+## CLI Client
 
-Program intended to be used by the admin to manage the pool.
+Program intended to be used by the authorities to manage the pool.
