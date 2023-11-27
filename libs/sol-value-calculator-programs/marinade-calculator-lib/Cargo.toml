@@ -1,0 +1,13 @@
+[package]
+name = "marinade-calculator-lib"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
+marinade_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/marinade_calculator_interface" }
+marinade-keys = { path = "../../../keys/marinade-keys" }
+sanctum-macros = { workspace = true }
+sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
+solana-program = { workspace = true }

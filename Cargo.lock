@@ -2073,10 +2073,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "marinade-calculator-lib"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic_pool_calculator_interface",
+ "marinade-keys",
+ "marinade_calculator_interface",
+ "sanctum-macros",
+ "sol-value-calculator-lib",
+ "solana-program",
+]
+
+[[package]]
 name = "marinade-keys"
 version = "1.0.0"
 dependencies = [
  "sanctum-macros",
+ "solana-program",
+]
+
+[[package]]
+name = "marinade_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "serde",
  "solana-program",
 ]
 
