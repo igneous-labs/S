@@ -135,13 +135,13 @@
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
-          "name": "pool_src_reserves",
+          "name": "src_pool_reserves",
           "isMut": true,
           "isSigner": false,
           "desc": "Source LST reserves token account of the pool"
         },
         {
-          "name": "pool_dst_reserves",
+          "name": "dst_pool_reserves",
           "isMut": true,
           "isSigner": false,
           "desc": "Destination LST reserves token account of the pool"
@@ -242,13 +242,13 @@
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
-          "name": "pool_src_reserves",
+          "name": "src_pool_reserves",
           "isMut": true,
           "isSigner": false,
           "desc": "Source LST reserves token account of the pool"
         },
         {
-          "name": "pool_dst_reserves",
+          "name": "dst_pool_reserves",
           "isMut": true,
           "isSigner": false,
           "desc": "Destination LST reserves token account of the pool"
