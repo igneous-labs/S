@@ -7,11 +7,21 @@ use thiserror::Error;
 #[derive(Clone, Copy, Debug, Eq, Error, num_derive::FromPrimitive, PartialEq)]
 pub enum GenericPoolCalculatorError {
     #[error("stake pool program has been updated since last UpdateLastUpgradeSlot")]
-    UnexpectedProgramUpgrade = 0,
-    #[error("stake pool account type incorrect")]
-    IncorrectPoolAccountType = 1,
+    UnexpectedProgramUpgrade = 1000,
+    #[error("stake pool account type is wrong")]
+    WrongPoolAccountType = 1001,
     #[error("state already initialized")]
-    StateAlreadyInitialized = 2,
+    StateAlreadyInitialized = 1002,
+    #[error("calculator program is not for the given stake pool program")]
+    WrongPoolProgram = 1003,
+    #[error("address of CalculatorState PDA is wrong")]
+    WrongCalculatorStatePda = 1004,
+    #[error("Invalid calculator state data")]
+    InvalidCalculatorStateData = 1005,
+    #[error("Invalid stake pool program data")]
+    InvalidStakePoolProgramData = 1006,
+    #[error("Math error")]
+    MathError = 1007,
 }
 impl From<GenericPoolCalculatorError> for ProgramError {
     fn from(e: GenericPoolCalculatorError) -> Self {

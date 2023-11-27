@@ -1,0 +1,21 @@
+[package]
+name = "generic-pool-calculator-onchain"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+bytemuck = { workspace = true }
+generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
+generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
+solana-program = { workspace = true }
+
+[dev-dependencies]
+generic-pool-calculator-test-utils = { path = "../generic-pool-calculator-test-utils" }
+sanctum-macros = { workspace = true }
+solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
+solana-sdk = { workspace = true }
+spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
+test-utils = { path = "../../../test-utils" }
+tokio = { workspace = true }

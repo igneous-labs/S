@@ -1,0 +1,9 @@
+[package]
+name = "generic-pool-calculator-test-utils"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
