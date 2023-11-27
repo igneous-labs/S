@@ -8,6 +8,7 @@ In project root:
 solores \
     -o ./generated \
     -z PoolState \
+    -z LstState \
     -z LstStateList \
     -z DisablePoolAuthorityList \
     -z RebalanceRecord \

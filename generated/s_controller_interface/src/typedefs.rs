@@ -16,7 +16,8 @@ pub struct PoolState {
     pub protocol_fee_beneficiary: Pubkey,
     pub pricing_program: Pubkey,
 }
-#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq)]
+#[repr(C)]
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LstState {
     pub is_input_disabled: u8,
