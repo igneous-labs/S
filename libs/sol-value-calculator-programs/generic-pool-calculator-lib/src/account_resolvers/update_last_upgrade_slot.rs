@@ -40,3 +40,29 @@ impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountDat
         })
     }
 }
+
+/// Struct that uses defined const for POOL_PROGRAM_PROGDATA
+/// so that it can be used without fetching POOL_PROGRAM
+pub struct UpdateLastUpgradeSlotRootAccountsConst<S: KeyedAccount + ReadonlyAccountData> {
+    pub state: S,
+}
+
+impl<S: KeyedAccount + ReadonlyAccountData> UpdateLastUpgradeSlotRootAccountsConst<S> {
+    pub fn resolve<P: GenericPoolSolValCalc>(
+        self,
+    ) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {
+        if *self.state.key() != P::CALCULATOR_STATE_PDA {
+            return Err(GenericPoolCalculatorError::WrongCalculatorStatePda);
+        }
+
+        let state_bytes = &self.state.data();
+        let calc_state = try_calculator_state(state_bytes)?;
+
+        Ok(UpdateLastUpgradeSlotKeys {
+            manager: calc_state.manager,
+            state: P::CALCULATOR_STATE_PDA,
+            pool_program: P::POOL_PROGRAM_ID,
+            pool_program_data: P::POOL_PROGRAM_PROGDATA_ID,
+        })
+    }
+}
