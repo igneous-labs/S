@@ -8,7 +8,7 @@ use wsol_calculator_interface::{
     lst_to_sol_verify_account_keys, LstToSolAccounts, LstToSolIxArgs, SolToLstIxArgs,
     WsolCalculatorProgramIx,
 };
-use wsol_calculator_lib::{account_resolvers::LST_TO_SOL_KEYS, WsolSolCalc};
+use wsol_calculator_lib::{WsolSolCalc, LST_TO_SOL_KEYS};
 
 #[cfg(not(feature = "no-entrypoint"))]
 entrypoint!(process_instruction);

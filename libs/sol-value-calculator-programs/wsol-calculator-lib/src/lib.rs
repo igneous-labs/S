@@ -1,6 +1,8 @@
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
+pub use account_resolvers::*;
+
 pub mod program {
     pub const ID: solana_program::pubkey::Pubkey = wsol_calculator_interface::ID;
 }
@@ -17,7 +19,7 @@ impl SolValueCalculator for WsolSolCalc {
     }
 }
 
-pub mod account_resolvers {
+mod account_resolvers {
     use wsol_calculator_interface::{LstToSolKeys, SolToLstKeys};
 
     pub const LST_TO_SOL_KEYS: LstToSolKeys = LstToSolKeys {

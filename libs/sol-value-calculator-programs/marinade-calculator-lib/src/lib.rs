@@ -1,9 +1,13 @@
-mod calc;
-
-pub use calc::*;
 use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use marinade_keys::{marinade_program, marinade_program_progdata};
 use solana_program::pubkey::Pubkey;
+
+mod calc;
+mod instructions;
+
+pub use account_resolvers::*;
+pub use calc::*;
+pub use instructions::*;
 
 pub mod program {
     sanctum_macros::declare_program_keys!(
@@ -27,11 +31,11 @@ impl GenericPoolSolValCalc for MarinadeSolValCalc {
     const ID: Pubkey = program::ID;
 }
 
-pub mod account_resolvers {
+mod account_resolvers {
     use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
     use marinade_keys::{marinade_state, msol};
 
-    pub const LST_SOL_COMMON_INTERMEDIATE_KEYS: LstSolCommonIntermediateKeys =
+    pub const MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS: LstSolCommonIntermediateKeys =
         LstSolCommonIntermediateKeys {
             lst: msol::ID,
             pool_state: marinade_state::ID,
