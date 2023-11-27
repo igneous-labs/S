@@ -56,13 +56,12 @@ Given an input LST amount and its SOL value, calculate the output SOL value by:
 
 ##### Accounts
 
-| Account           | Description                   | Read/Write (R/W) | Signer (Y/N) |
-| ----------------- | ----------------------------- | ---------------- | ------------ |
-| pricing_authority | Pricing authority PDA         | R                | Y            |
-| lst_input         | Input LST token mint          | R                | N            |
-| lst_output        | Output LST token mint         | R                | N            |
-| fee_acc_input     | FeeAccount PDA for input LST  | R                | N            |
-| fee_acc_output    | FeeAccount PDA for output LST | R                | N            |
+| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ----------------------------- | ---------------- | ------------ |
+| lst_input      | Input LST token mint          | R                | N            |
+| lst_output     | Output LST token mint         | R                | N            |
+| fee_acc_input  | FeeAccount PDA for input LST  | R                | N            |
+| fee_acc_output | FeeAccount PDA for output LST | R                | N            |
 
 ##### Return Data
 
@@ -95,13 +94,12 @@ Given an output LST amount and its SOL value, calculate the input SOL value by:
 
 ##### Accounts
 
-| Account           | Description                   | Read/Write (R/W) | Signer (Y/N) |
-| ----------------- | ----------------------------- | ---------------- | ------------ |
-| pricing_authority | Pricing authority PDA         | R                | Y            |
-| lst_input         | Input LST token mint          | R                | N            |
-| lst_output        | Output LST token mint         | R                | N            |
-| fee_acc_input     | FeeAccount PDA for input LST  | R                | N            |
-| fee_acc_output    | FeeAccount PDA for output LST | R                | N            |
+| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ----------------------------- | ---------------- | ------------ |
+| lst_input      | Input LST token mint          | R                | N            |
+| lst_output     | Output LST token mint         | R                | N            |
+| fee_acc_input  | FeeAccount PDA for input LST  | R                | N            |
+| fee_acc_output | FeeAccount PDA for output LST | R                | N            |
 
 ##### Procedure
 
@@ -125,10 +123,9 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 ##### Accounts
 
-| Account           | Description           | Read/Write (R/W) | Signer (Y/N) |
-| ----------------- | --------------------- | ---------------- | ------------ |
-| pricing_authority | Pricing authority PDA | R                | Y            |
-| lst_input         | Input LST token mint  | R                | N            |
+| Account   | Description          | Read/Write (R/W) | Signer (Y/N) |
+| --------- | -------------------- | ---------------- | ------------ |
+| lst_input | Input LST token mint | R                | N            |
 
 ##### Procedure
 
@@ -152,11 +149,10 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 ##### Accounts
 
-| Account           | Description           | Read/Write (R/W) | Signer (Y/N) |
-| ----------------- | --------------------- | ---------------- | ------------ |
-| pricing_authority | Pricing authority PDA | R                | Y            |
-| lst_output        | Output LST token mint | R                | N            |
-| state             | Program state PDA     | R                | N            |
+| Account    | Description           | Read/Write (R/W) | Signer (Y/N) |
+| ---------- | --------------------- | ---------------- | ------------ |
+| lst_output | Output LST token mint | R                | N            |
+| state      | Program state PDA     | R                | N            |
 
 ##### Procedure
 
@@ -168,7 +164,7 @@ Only the current manager is authorized to execute.
 
 #### Init
 
-Initialize the program state. Can only be called once with hardcoded init authority.
+Permissionlessly initialize the program state. Can only be called once and sets manager to a hardcoded init manager.
 
 ##### Data
 
@@ -178,12 +174,11 @@ Initialize the program state. Can only be called once with hardcoded init author
 
 ##### Accounts
 
-| Account        | Description                                     | Read/Write (R/W) | Signer (Y/N) |
-| -------------- | ----------------------------------------------- | ---------------- | ------------ |
-| init_authority | The hardcoded init authority of pricing program | R                | Y            |
-| payer          | The account paying for ProgramState's rent      | W                | Y            |
-| state          | Program state PDA                               | W                | N            |
-| system_program | System program                                  | R                | N            |
+| Account        | Description                                | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------------ | ---------------- | ------------ |
+| payer          | The account paying for ProgramState's rent | W                | Y            |
+| state          | Program state PDA                          | W                | N            |
+| system_program | System program                             | R                | N            |
 
 #### SetManager
 
@@ -197,11 +192,11 @@ Update the manager authority of the pricing program.
 
 ##### Accounts
 
-| Account     | Description                       | Read/Write (R/W) | Signer (Y/N) |
-| ----------- | --------------------------------- | ---------------- | ------------ |
-| manager     | The program manager               | R                | Y            |
-| new_manager | The new program manager to set to | R                | N            |
-| state       | Program state PDA                 | W                | N            |
+| Account         | Description                       | Read/Write (R/W) | Signer (Y/N) |
+| --------------- | --------------------------------- | ---------------- | ------------ |
+| current_manager | The current program manager       | R                | Y            |
+| new_manager     | The new program manager to set to | R                | N            |
+| state           | Program state PDA                 | W                | N            |
 
 #### SetFee
 
@@ -235,7 +230,7 @@ Update the fees imposed for redeeming LP token for LST
 
 ##### Accounts
 
-| Account | Description                  | Read/Write (R/W) | Signer (Y/N) |
-| ------- | ---------------------------- | ---------------- | ------------ |
-| signer  | Authority of pricing program | R                | Y            |
-| state   | Program state PDA            | W                | N            |
+| Account | Description         | Read/Write (R/W) | Signer (Y/N) |
+| ------- | ------------------- | ---------------- | ------------ |
+| manager | The program manager | R                | Y            |
+| state   | Program state PDA   | W                | N            |
