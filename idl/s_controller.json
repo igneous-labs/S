@@ -1,0 +1,1330 @@
+{
+  "version": "1.0.0",
+  "name": "s_controller",
+  "instructions": [
+    {
+      "name": "SyncSolValue",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "lst_index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST to sync SOL value for"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "SwapExactIn",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "src_lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "dst_lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "pricing_accs",
+          "type": "u8"
+        },
+        {
+          "name": "src_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "dst_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Authority of src_lst_acc. User making the swap."
+        },
+        {
+          "name": "src_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped from"
+        },
+        {
+          "name": "dst_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped to"
+        },
+        {
+          "name": "src_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account being swapped from"
+        },
+        {
+          "name": "dst_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account to swapped to"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Protocol fee accumulator token account"
+        },
+        {
+          "name": "src_lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Source LST token program"
+        },
+        {
+          "name": "dst_lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Destination LST token program"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "src_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Source LST reserves token account of the pool"
+        },
+        {
+          "name": "dst_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Destination LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "SwapExactOut",
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      },
+      "args": [
+        {
+          "name": "src_lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "dst_lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "pricing_accs",
+          "type": "u8"
+        },
+        {
+          "name": "src_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "dst_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Authority of src_lst_acc. User making the swap."
+        },
+        {
+          "name": "src_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped from"
+        },
+        {
+          "name": "dst_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped to"
+        },
+        {
+          "name": "src_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account being swapped from"
+        },
+        {
+          "name": "dst_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account to swapped to"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Protocol fee accumulator token account"
+        },
+        {
+          "name": "src_lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": ""
+        },
+        {
+          "name": "dst_lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": ""
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "src_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Source LST reserves token account of the pool"
+        },
+        {
+          "name": "dst_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Destination LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "AddLiquidity",
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      },
+      "args": [
+        {
+          "name": "lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "pricing_accs",
+          "type": "u8"
+        },
+        {
+          "name": "lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Authority of src_lst_acc. User who's adding liquidity."
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST"
+        },
+        {
+          "name": "src_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account to add liquidity from"
+        },
+        {
+          "name": "dst_lp_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LP token account to mint new LP tokens to"
+        },
+        {
+          "name": "token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "RemoveLiquidity",
+      "discriminant": {
+        "type": "u8",
+        "value": 4
+      },
+      "args": [
+        {
+          "name": "lst_value_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "pricing_accs",
+          "type": "u8"
+        },
+        {
+          "name": "lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "Authority of lp_acc. User who's removing liquidity."
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST"
+        },
+        {
+          "name": "dst_lst_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST token account to redeem to"
+        },
+        {
+          "name": "src_lp_acc",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LP token account to burn LP tokens from"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Protocol fee accumulator token account"
+        },
+        {
+          "name": "token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "DisableLstInput",
+      "discriminant": {
+        "type": "u8",
+        "value": 5
+      },
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST to disable input for"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        }
+      ]
+    },
+    {
+      "name": "EnableLstInput",
+      "discriminant": {
+        "type": "u8",
+        "value": 6
+      },
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST to re-enable input for"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        }
+      ]
+    },
+    {
+      "name": "AddLst",
+      "discriminant": {
+        "type": "u8",
+        "value": 7
+      },
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Account paying the SOL rent for the new space and accounts"
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the new LST to add"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST reserves token account to create"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LST protocol fee accumulator token account to create"
+        },
+        {
+          "name": "protocol_fee_accumulator_auth",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The protocol fee accumulator token account authority PDA. PDA [\"protocol_fee\"]"
+        },
+        {
+          "name": "pool_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ]
+    },
+    {
+      "name": "RemoveLst",
+      "discriminant": {
+        "type": "u8",
+        "value": 8
+      },
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "refund_rent_to",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Account to refund SOL rent to"
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the new LST to remove"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LST reserves token account to destory"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LST protocol fee accumulator token account to destroy"
+        },
+        {
+          "name": "protocol_fee_accumulator_auth",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The protocol fee accumulator token account authority PDA. PDA [\"protocol_fee\"]"
+        },
+        {
+          "name": "pool_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ]
+    },
+    {
+      "name": "SetSolValueCalculator",
+      "discriminant": {
+        "type": "u8",
+        "value": 9
+      },
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the new LST to remove"
+        },
+        {
+          "name": "pool_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "pool_reserves",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "LST reserves token account of the pool"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        }
+      ]
+    },
+    {
+      "name": "SetAdmin",
+      "discriminant": {
+        "type": "u8",
+        "value": 10
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "current_admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's current admin"
+        },
+        {
+          "name": "new_admin",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's new admin"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "SetProtocolFee",
+      "discriminant": {
+        "type": "u8",
+        "value": 11
+      },
+      "args": [
+        {
+          "name": "new_protocol_fee_bps",
+          "type": "u16"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+
+    {
+      "name": "SetProtocolFeeBeneficiary",
+      "discriminant": {
+        "type": "u8",
+        "value": 12
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "current_beneficiary",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's current protocol fee beneficiary"
+        },
+        {
+          "name": "new_beneficiary",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's new protocol fee beneficiary"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "SetPricingProgram",
+      "discriminant": {
+        "type": "u8",
+        "value": 13
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "new_pricing_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's new pricing program"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "WithdrawProtocolFees",
+      "discriminant": {
+        "type": "u8",
+        "value": 14
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "protocol_fee_beneficiary",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's protocol fee beneficiary"
+        },
+        {
+          "name": "withdraw_to",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Token account to withdraw all accumulated protocol fees to"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The LST protocol fee accumulator token account to create"
+        },
+        {
+          "name": "protocol_fee_accumulator_auth",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The protocol fee accumulator token account authority PDA. PDA [\"protocol_fee\"]"
+        },
+        {
+          "name": "token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "AddDisablePoolAuthority",
+      "discriminant": {
+        "type": "u8",
+        "value": 15
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Account paying for additional rent for realloc"
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "new_authority",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The new disable pool authority to add"
+        },
+        {
+          "name": "disable_pool_authority_list",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's disable pool authority list singleton PDA"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ]
+    },
+    {
+      "name": "RemoveDisablePoolAuthority",
+      "discriminant": {
+        "type": "u8",
+        "value": 16
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "refund_rent_to",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account to refund SOL rent to after resizing"
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The authority to remove"
+        },
+        {
+          "name": "disable_pool_authority_list",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's disable pool authority list singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "DisablePool",
+      "discriminant": {
+        "type": "u8",
+        "value": 17
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin or a disable pool authority"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "disable_pool_authority_list",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's disable pool authority list singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "EnablePool",
+      "discriminant": {
+        "type": "u8",
+        "value": 18
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's admin"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "StartRebalance",
+      "discriminant": {
+        "type": "u8",
+        "value": 19
+      },
+      "args": [
+        {
+          "name": "src_lst_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "dst_lst_calc_accs",
+          "type": "u8"
+        },
+        {
+          "name": "src_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "dst_lst_index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Account paying the 1 lamport rent for RebalanceRecord"
+        },
+        {
+          "name": "rebalance_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's rebalance authority"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each lst in the pool"
+        },
+        {
+          "name": "rebalance_record",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The RebalanceRecord PDA"
+        },
+        {
+          "name": "src_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped from"
+        },
+        {
+          "name": "dst_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped to"
+        },
+        {
+          "name": "src_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Source LST reserves token account of the pool"
+        },
+        {
+          "name": "dst_pool_reserves",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Destination LST reserves token account of the pool"
+        },
+        {
+          "name": "withdraw_to",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Source LST token account to withdraw to"
+        },
+        {
+          "name": "instructions",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Instructions sysvar"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ]
+    },
+    {
+      "name": "EndRebalance",
+      "discriminant": {
+        "type": "u8",
+        "value": 20
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "refund_rent_to",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The account to refund the 1 lamport rent for RebalanceRecord"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each lst in the pool"
+        },
+        {
+          "name": "rebalance_record",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The RebalanceRecord PDA"
+        },
+        {
+          "name": "dst_lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST being swapped to"
+        },
+        {
+          "name": "dst_pool_reserves",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Destination LST reserves token account of the pool"
+        }
+      ]
+    },
+    {
+      "name": "SetRebalanceAuthority",
+      "discriminant": {
+        "type": "u8",
+        "value": 21
+      },
+      "args": [],
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's rebalance authority or admin"
+        },
+        {
+          "name": "new_rebalance_authority",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The new rebalance authority to set to"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        }
+      ]
+    },
+    {
+      "name": "Initialize",
+      "discriminant": {
+        "type": "u8",
+        "value": 22
+      },
+      "args": [
+        {
+          "name": "protocol_fee_bps",
+          "type": "u16"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Account paying for rent"
+        },
+        {
+          "name": "pool_state",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_states",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
+        },
+        {
+          "name": "disable_pool_authority_list",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The pool's disable pool authority list singleton PDA"
+        },
+        {
+          "name": "token_2022",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token 2022 program"
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "PoolState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total_sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "trading_protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "lp_protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "is_disabled",
+            "type": "u8"
+          },
+          {
+            "name": "is_rebalancing",
+            "type": "u8"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                1
+              ]
+            },
+            "attrs": [
+              "padding"
+            ]
+          },
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "rebalancing_authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "protocol_fee_beneficiary",
+            "type": "publicKey"
+          },
+          {
+            "name": "pricing_program",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LstState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "is_input_disabled",
+            "type": "u8"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                7
+              ]
+            },
+            "attrs": [
+              "padding"
+            ]
+          },
+          {
+            "name": "sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "token",
+            "type": "publicKey"
+          },
+          {
+            "name": "sol_value_calculator",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RebalanceRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "dst_lst_index",
+            "type": "u64"
+          },
+          {
+            "name": "dst_lst_value_calc_accs",
+            "type": "u8"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                7
+              ]
+            },
+            "attrs": [
+              "padding"
+            ]
+          },
+          {
+            "name": "dst_lst",
+            "type": "publicKey"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "metadata": {
+    "origin": "shank",
+    "address": "11111111111111111111111111111111"
+  }
+}

@@ -8,10 +8,26 @@ The development procedure of this repository follows "IDL-first" approach, the i
 
 ## On-chain Programs
 
-Sanctum S comprises three main on-chain component programs listed below.
+Sanctum S comprises three main on-chain component programs:
+ - [S Controller Program](./docs/s-controller-program/)
+ - [SOL Value Calculator Programs](./docs/sol-value-calculator-programs/)
+ - [Pricing Programs](./docs/pricing-programs/)
 
-### Controller Program
+ See the overview [here](./docs/).
 
-### SOL Value Calculator Programs
+## Overview of User Authorities
 
-### Pricing Programs
+The authorities defined by the programs:
+
+| name | count (1 / N)| description |
+| - | - | - |
+| admin | 1 | The pool's admin |
+| rebalancing authority | 1 | The authority that can rebalance the pool's token reserves |
+| disable authorities | N | The authority that can disable the pool's operation |
+| pricing manager | 1 | The authority that can manage pricing program's state |
+| protocol fee beneficiary | 1 | The authority that can receive protocol fee |
+| user | N | The normal users (e.g. LPer, swappers) |
+
+## CLI Client
+
+Program intended to be used by the authorities to manage the pool.

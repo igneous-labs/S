@@ -2,7 +2,8 @@
 resolver = "2"
 members = [
     "generated/sol-value-calculator-programs/*",
-    "generated/pricing-programs/*"
+    "generated/pricing-programs/*",
+    "generated/s_controller_interface"
 ]
 
 
