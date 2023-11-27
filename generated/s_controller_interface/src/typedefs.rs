@@ -16,6 +16,14 @@ pub struct PoolState {
     pub protocol_fee_beneficiary: Pubkey,
     pub pricing_program: Pubkey,
 }
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct LstState {
+    pub is_input_disabled: u8,
+    pub sol_value: u64,
+    pub token: Pubkey,
+    pub sol_value_calculator: Pubkey,
+}
 #[repr(C)]
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -26,7 +34,7 @@ pub struct LstStateList {
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DisablePoolAuthorityList {
-    pub whitelisted_pubkeys: Vec<publicKey>,
+    pub whitelisted_pubkeys: Vec<Pubkey>,
 }
 #[repr(C)]
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]

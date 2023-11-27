@@ -1289,6 +1289,30 @@
       }
     },
     {
+      "name": "LstState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "is_input_disabled",
+            "type": "u8"
+          },
+          {
+            "name": "sol_value",
+            "type": "u64"
+          },
+          {
+            "name": "token",
+            "type": "publicKey"
+          },
+          {
+            "name": "sol_value_calculator",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
       "name": "LstStateList",
       "type": {
         "kind": "struct",
@@ -1312,9 +1336,7 @@
           {
             "name": "whitelisted_pubkeys",
             "type": {
-              "vec": {
-                "defined": "publicKey"
-              }
+              "vec": "publicKey"
             }
           }
         ]
