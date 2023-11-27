@@ -22,8 +22,10 @@ The authorities defined by the programs:
 | name | count (1 / N)| description |
 | - | - | - |
 | admin | 1 | The pool's admin |
-| disable authorities | N | The pool's disable authority |
-| pricing manager | 1 | The manager of a pricing program |
+| rebalancing authority | 1 | The authority that can rebalance the pool's token reserves |
+| disable authorities | N | The authority that can disable the pool's operation |
+| pricing manager | 1 | The authority that can manage pricing program's state |
+| protocol fee beneficiary | 1 | The authority that can receive protocol fee |
 | user | N | The normal users (e.g. LPer, swappers) |
 
 ## CLI Client

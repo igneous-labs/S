@@ -2,6 +2,8 @@
 
 Controller program accounts schema and PDA definitions.
 
+Note that `PodBool` type is represented with `u8`.
+
 ## PoolState
 
 The pool state singleton is located at PDA ["state"].
