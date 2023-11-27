@@ -2,24 +2,22 @@
 
 Controller program's instructions.
 
-For more information about the pricing programs CPIs, see [interface doc](../docs/pricing-programs/interface.md)
+For more information about the pricing programs CPIs, see [interface doc](/docs/pricing-programs/)
 
-For more information about the SOL value calculator programs CPIs, see [interface doc](../docs/sol-value-calculator-programs/interface.md)
+For more information about the SOL value calculator programs CPIs, see [interface doc](/docs/sol-value-calculator-programs/)
 
-## Controller Program
-
-### SyncSolValue
+## SyncSolValue
 
 Permissionless crank to update and record the SOL value of one of the pool's LST reserves.
 
-#### Data
+### Data
 
 | Name         | Value                                     | Type |
 | ------------ | ----------------------------------------- | ---- |
 | discriminant | 0                                         | u8   |
 | lst_index    | index of the lst in pool_state.lst_states | u64  |
 
-#### Accounts
+### Accounts
 
 | Account             | Description                                                                                                                                                                               | Read/Write (R/W) | Signer (Y/N) |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -29,7 +27,7 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 | pool_reserves       | LST reserves token account of the pool                                                                                                                                                    | R                | N            |
 | lst_value_calc_accs | Accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Verify index
@@ -37,11 +35,11 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 - Update pool_state's sol_value by subtracting LST's old SOL value and adding newly returned SOL value
 - Record returned SOL value in pool_state
 
-### SwapExactIn
+## SwapExactIn
 
 Swap to output LST from an exact amount of given input LST.
 
-#### Data
+### Data
 
 | Name                    | Value                                                                                                                                                                                                     | Type |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
@@ -53,7 +51,7 @@ Swap to output LST from an exact amount of given input LST.
 | dst_lst_index           | index of dst_lst in pool_state.lst_states                                                                                                                                                                 | u64  |
 | amount                  | amount of src tokens to swap                                                                                                                                                                              | u64  |
 
-#### Accounts
+### Accounts
 
 | Account                  | Description                                                                                                                                                                                   | Read/Write (R/W) | Signer (Y/N) |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -73,7 +71,7 @@ Swap to output LST from an exact amount of given input LST.
 | dst_lst_value_calc_accs  | Accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | pricing_accs             | Accounts to invoke pricing program PriceExactIn with. First account should be the pricing program itself. Multiple Accounts.                                                                  | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for src_lst
@@ -88,7 +86,7 @@ Swap to output LST from an exact amount of given input LST.
 - Self CPI SyncSolValue for src_lst
 - Self CPI SyncSolValue for dst_lst
 
-### SwapExactOut
+## SwapExactOut
 
 Swap to an exact amount of output LST from input LST.
 
@@ -98,11 +96,11 @@ Same as [SwapExactIn](#swapexactin-instruction), but discriminator = 2, amount i
 - CPI pricing program PriceExactOut to get input SOL value
 - CPI src token's SOL value calculator program SolToLst with input SOL value to get input token amount
 
-### AddLiquidity
+## AddLiquidity
 
 Add single-LST liquidity to the pool.
 
-#### Data
+### Data
 
 | Name                | Value                                                                                                                                                                                              | Type |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
@@ -112,7 +110,7 @@ Add single-LST liquidity to the pool.
 | lst_index           | index of lst in pool_state.lst_states                                                                                                                                                              | u64  |
 | amount              | amount of tokens to add as liquidity                                                                                                                                                               | u64  |
 
-#### Accounts
+### Accounts
 
 | Account             | Description                                                                                                                                                                               | Read/Write (R/W) | Signer (Y/N) |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -127,7 +125,7 @@ Add single-LST liquidity to the pool.
 | lst_value_calc_accs | Accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | pricing_accs        | Accounts to invoke pricing program PriceLpTokensToMint with. First account should be the pricing program itself. Multiple Accounts.                                                       | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for LST
@@ -138,11 +136,11 @@ Add single-LST liquidity to the pool.
 - Mint LP tokens proportional to SOL value of LP tokens to mint to dst_lp_token_acc
 - Self CPI SyncSolValue for LST
 
-### RemoveLiquidity
+## RemoveLiquidity
 
 Remove single-LST liquidity from the pool.
 
-#### Data
+### Data
 
 | Name                | Value                                                                                                                                                                                             | Type |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
@@ -152,7 +150,7 @@ Remove single-LST liquidity from the pool.
 | lst_index           | index of lst in pool_state.lst_states                                                                                                                                                             | u64  |
 | amount              | amount of LP tokens to burn and redeem                                                                                                                                                            | u64  |
 
-#### Accounts
+### Accounts
 
 | Account                  | Description                                                                                                                                                                               | Read/Write (R/W) | Signer (Y/N) |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -168,7 +166,7 @@ Remove single-LST liquidity from the pool.
 | lst_value_calc_accs      | Accounts to invoke token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | pricing_accs             | Accounts to invoke pricing program PriceLpTokensToRedeem with. First account should be the pricing program itself. Multiple Accounts.                                                     | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Self CPI SyncSolValue for LST
@@ -179,18 +177,18 @@ Remove single-LST liquidity from the pool.
 - Transfer remaining LST due to dst_acc
 - Self CPI SyncSolValue for LST
 
-### DisableLstInput
+## DisableLstInput
 
 Disable input for a LST to prepare for removal
 
-#### Data
+### Data
 
 | Name         | Value                                 | Type |
 | ------------ | ------------------------------------- | ---- |
 | discriminant | 5                                     | u8   |
 | index        | index of lst in pool_state.lst_states | u64  |
 
-#### Accounts
+### Accounts
 
 | Account    | Description                                            | Read/Write (R/W) | Signer (Y/N) |
 | ---------- | ------------------------------------------------------ | ---------------- | ------------ |
@@ -199,18 +197,18 @@ Disable input for a LST to prepare for removal
 | pool_state | The pool's state singleton PDA                         | W                | N            |
 | lst_states | Dynamic list PDA of LstStates for each LST in the pool | W                | N            |
 
-### EnableLstInput
+## EnableLstInput
 
 Re-enable input for a LST
 
-#### Data
+### Data
 
 | Name         | Value                                 | Type |
 | ------------ | ------------------------------------- | ---- |
 | discriminant | 6                                     | u8   |
 | index        | index of lst in pool_state.lst_states | u64  |
 
-#### Accounts
+### Accounts
 
 | Account    | Description                                            | Read/Write (R/W) | Signer (Y/N) |
 | ---------- | ------------------------------------------------------ | ---------------- | ------------ |
@@ -219,17 +217,17 @@ Re-enable input for a LST
 | pool_state | The pool's state singleton PDA                         | W                | N            |
 | lst_states | Dynamic list PDA of LstStates for each LST in the pool | W                | N            |
 
-### AddLst
+## AddLst
 
 Add a LST to the pool
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 7     | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                       | Description                                                                    | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------------- | ------------------------------------------------------------------------------ | ---------------- | ------------ |
@@ -244,7 +242,7 @@ Add a LST to the pool
 | lst_states                    | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
 | system_program                | System program                                                                 | R                | N            |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Create reserves token account
@@ -252,18 +250,18 @@ Add a LST to the pool
 - Reallocate additional space for an additional LstState on pool_state.lst_states
 - Write initial SOL value = 0 and sol_value_calculator program
 
-### RemoveLst
+## RemoveLst
 
 Remove a LST from the pool
 
-#### Data
+### Data
 
 | Name         | Value                                 | Type |
 | ------------ | ------------------------------------- | ---- |
 | discriminant | 8                                     | u8   |
 | index        | index of lst in pool_state.lst_states | u64  |
 
-#### Accounts
+### Accounts
 
 | Account                       | Description                                                                    | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------------- | ------------------------------------------------------------------------------ | ---------------- | ------------ |
@@ -277,25 +275,25 @@ Remove a LST from the pool
 | lst_states                    | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
 | system_program                | System program                                                                 | R                | N            |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Delete reserves token account
 - Delete protocol_fee_accumulator token account
 - Remove LstState from list and reallocate to smaller space
 
-### SetSolValueCalculator
+## SetSolValueCalculator
 
 Update the SOL value calculator program for a LST
 
-#### Data
+### Data
 
 | Name         | Value                                 | Type |
 | ------------ | ------------------------------------- | ---- |
 | discriminant | 9                                     | u8   |
 | index        | index of lst in pool_state.lst_states | u64  |
 
-#### Accounts
+### Accounts
 
 | Account             | Description                                                                                                                                              | Read/Write (R/W) | Signer (Y/N) |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -306,22 +304,22 @@ Update the SOL value calculator program for a LST
 | lst_states          | Dynamic list PDA of LstStates for each LST in the pool                                                                                                   | W                | N            |
 | lst_value_calc_accs | Accounts to invoke token's new SOL value calculator program LstToSol with. First account should be the new calculator program itself. Multiple Accounts. | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Overwrite sol_value_calculator in pool_state.lst_states
 - Self CPI SyncSolValue
 
-### SetAdmin
+## SetAdmin
 
 Updates the admin authority pubkey of the pool
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 10    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account       | Description                    | Read/Write (R/W) | Signer (Y/N) |
 | ------------- | ------------------------------ | ---------------- | ------------ |
@@ -329,35 +327,35 @@ Updates the admin authority pubkey of the pool
 | new_admin     | The pool's new admin           | R                | N            |
 | pool_state    | The pool's state singleton PDA | W                | N            |
 
-### SetProtocolFee
+## SetProtocolFee
 
 Updates the protocol fee rate of the pool
 
-#### Data
+### Data
 
 | Name                 | Value | Type |
 | -------------------- | ----- | ---- |
 | discriminant         | 11    | u8   |
 | new_protocol_fee_bps | -     | u16  |
 
-#### Accounts
+### Accounts
 
 | Account    | Description                    | Read/Write (R/W) | Signer (Y/N) |
 | ---------- | ------------------------------ | ---------------- | ------------ |
 | admin      | The pool's admin               | R                | Y            |
 | pool_state | The pool's state singleton PDA | W                | N            |
 
-### SetProtocolFeeBeneficiary
+## SetProtocolFeeBeneficiary
 
 Updates the pool's protocol fee beneficiary
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 12    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account             | Description                                 | Read/Write (R/W) | Signer (Y/N) |
 | ------------------- | ------------------------------------------- | ---------------- | ------------ |
@@ -365,17 +363,17 @@ Updates the pool's protocol fee beneficiary
 | new_beneficiary     | The pool's new protocol fee beneficiary     | R                | N            |
 | pool_state          | The pool's state singleton PDA              | W                | N            |
 
-### SetPricingProgram
+## SetPricingProgram
 
 Updates the pool's pricing program.
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 13    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account             | Description                    | Read/Write (R/W) | Signer (Y/N) |
 | ------------------- | ------------------------------ | ---------------- | ------------ |
@@ -383,18 +381,18 @@ Updates the pool's pricing program.
 | new_pricing_program | The pool's new pricing program | R                | N            |
 | pool_state          | The pool's state singleton PDA | W                | N            |
 
-### WithdrawProtocolFees
+## WithdrawProtocolFees
 
 Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is authorized to call this.
 
-#### Data
+### Data
 
 | Name         | Value                     | Type |
 | ------------ | ------------------------- | ---- |
 | discriminant | 14                        | u8   |
 | amount       | amount of LST to withdraw | u64  |
 
-#### Accounts
+### Accounts
 
 | Account                       | Description                                                                    | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------------- | ------------------------------------------------------------------------------ | ---------------- | ------------ |
@@ -405,17 +403,17 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 | token_program                 | Token program                                                                  | R                | N            |
 | pool_state                    | The pool's state singleton PDA                                                 | W                | N            |
 
-### AddDisablePoolAuthority
+## AddDisablePoolAuthority
 
 Add a disable pool authority
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 15    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                     | Description                                          | Read/Write (R/W) | Signer (Y/N) |
 | --------------------------- | ---------------------------------------------------- | ---------------- | ------------ |
@@ -425,21 +423,21 @@ Add a disable pool authority
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N            |
 | system_program              | System program                                       | R                | N            |
 
-#### Procedure
+### Procedure
 
 - realloc and extend disable_pool_authority_list, and write new_authority in
 
-### RemoveDisablePoolAuthority
+## RemoveDisablePoolAuthority
 
 Remove a disable pool authority
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 16    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                     | Description                                          | Read/Write (R/W) | Signer (Y/N)                     |
 | --------------------------- | ---------------------------------------------------- | ---------------- | -------------------------------- |
@@ -448,21 +446,21 @@ Remove a disable pool authority
 | authority                   | The authority to remove                              | R                | Y if admin signature missing     |
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N                                |
 
-#### Procedure
+### Procedure
 
 - rewrite array and resize list down
 
-### DisablePool
+## DisablePool
 
 Disable functionality of the entire pool.
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 17    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                     | Description                                                                                | Read/Write (R/W) | Signer (Y/N) |
 | --------------------------- | ------------------------------------------------------------------------------------------ | ---------------- | ------------ |
@@ -470,36 +468,36 @@ Disable functionality of the entire pool.
 | pool_state                  | The pool's state singleton PDA                                                             | W                | N            |
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA. Optional if authority = pool's admin | R                | N            |
 
-#### Procedure
+### Procedure
 
 - set bool flag on pool_state
 
-### EnablePool
+## EnablePool
 
 Re-enable functionality of the entire pool.
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 18    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account    | Description                    | Read/Write (R/W) | Signer (Y/N) |
 | ---------- | ------------------------------ | ---------------- | ------------ |
 | admin      | The pool's admin               | R                | Y            |
 | pool_state | The pool's state singleton PDA | W                | N            |
 
-#### Procedure
+### Procedure
 
 - unset bool flag on pool_state
 
-### StartRebalance
+## StartRebalance
 
 Start a flash rebalancing procedure to rebalance from one LST type into another without causing a decrease in pool SOL value
 
-#### Data
+### Data
 
 | Name                    | Value                                                                                                                                                                                                     | Type |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
@@ -510,7 +508,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | dst_lst_index           | index of dst_lst in pool_state.lst_states                                                                                                                                                                 | u64  |
 | amount                  | amount of from_lst tokens to flash withdraw to rebalance                                                                                                                                                  | u64  |
 
-#### Accounts
+### Accounts
 
 | Account                 | Description                                                                                                                                                                                   | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -529,7 +527,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | src_lst_value_calc_accs | Accounts to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | dst_lst_value_calc_accs | Accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Verify input is not disabled for dst_lst
@@ -541,17 +539,17 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 - Initialize rebalance_record with sol_value = the difference between pool's total SOL value before and after the second SyncSolValue for src_lst
 - Set is_rebalancing = true
 
-### EndRebalance
+## EndRebalance
 
 End a flash rebalancing procedure after returning the funds to the pool
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 20    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                 | Description                                                                                                                                                                                   | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -563,7 +561,7 @@ End a flash rebalancing procedure after returning the funds to the pool
 | dst_pool_reserves       | Destination LST reserves token account of the pool                                                                                                                                            | R                | N            |
 | dst_lst_value_calc_accs | Accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Verify pool is rebalancing and not disabled
 - Set is_rebalancing = false
@@ -571,17 +569,17 @@ End a flash rebalancing procedure after returning the funds to the pool
 - Verify increase in pool's SOL value after self CPI >= amount recorded in rebalance_record
 - Close rebalance_record to refund_rent_to
 
-### SetRebalanceAuthority
+## SetRebalanceAuthority
 
 Set a new rebalance authority for the pool.
 
-#### Data
+### Data
 
 | Name         | Value | Type |
 | ------------ | ----- | ---- |
 | discriminant | 21    | u8   |
 
-#### Accounts
+### Accounts
 
 | Account                 | Description                             | Read/Write (R/W) | Signer (Y/N) |
 | ----------------------- | --------------------------------------- | ---------------- | ------------ |
@@ -589,18 +587,18 @@ Set a new rebalance authority for the pool.
 | new_rebalance_authority | The new rebalance authority to set to   | R                | N            |
 | pool_state              | The pool's state singleton PDA          | W                | N            |
 
-### Initialize
+## Initialize
 
 Initialize the pool. Can only be called once.
 
-#### Data
+### Data
 
 | Name             | Value                | Type |
 | ---------------- | -------------------- | ---- |
 | discriminant     | 22                   | u8   |
 | protocol_fee_bps | initial protocol fee | u16  |
 
-#### Accounts
+### Accounts
 
 | Account                     | Description                                                                           | Read/Write (R/W) | Signer (Y/N) |
 | --------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------ |
@@ -612,7 +610,7 @@ Initialize the pool. Can only be called once.
 | system_program              | System program                                                                        | R                | N            |
 | remaining_accounts          | accounts required to initialize the LP token and transfer fee and metadata extensions | ...              | ...          |
 
-#### Procedure
+### Procedure
 
 - Set all state fields - admin, rebalance_authority, protocol_fee_beneficiary etc to hardcoded defaults
 - Create the LP token
