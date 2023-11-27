@@ -71,7 +71,7 @@
         {
           "name": "amount",
           "type": "u64"
-        },
+        }
       ],
       "accounts": [
         {
@@ -145,7 +145,7 @@
           "isMut": true,
           "isSigner": false,
           "desc": "Destination LST reserves token account of the pool"
-        },
+        }
       ]
     },
     {
@@ -178,7 +178,7 @@
         {
           "name": "amount",
           "type": "u64"
-        },
+        }
       ],
       "accounts": [
         {
@@ -252,7 +252,7 @@
           "isMut": true,
           "isSigner": false,
           "desc": "Destination LST reserves token account of the pool"
-        },
+        }
       ]
     },
     {
@@ -277,7 +277,7 @@
         {
           "name": "amount",
           "type": "u64"
-        },
+        }
       ],
       "accounts": [
         {
@@ -352,7 +352,7 @@
         {
           "name": "amount",
           "type": "u64"
-        },
+        }
       ],
       "accounts": [
         {
@@ -1036,7 +1036,7 @@
         {
           "name": "amount",
           "type": "u64"
-        },
+        }
       ],
       "accounts": [
         {
@@ -1237,7 +1237,7 @@
           "desc": "System program"
         }
       ]
-    },
+    }
   ],
   "types": [],
   "errors": [],
