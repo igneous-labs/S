@@ -24,7 +24,6 @@ pub enum SControllerProgramIx {
     SetProtocolFeeBeneficiary(SetProtocolFeeBeneficiaryIxArgs),
     SetPricingProgram(SetPricingProgramIxArgs),
     WithdrawProtocolFees(WithdrawProtocolFeesIxArgs),
-    WithdrawProtocolFees(WithdrawProtocolFeesIxArgs),
     AddDisablePoolAuthority(AddDisablePoolAuthorityIxArgs),
     RemoveDisablePoolAuthority(RemoveDisablePoolAuthorityIxArgs),
     DisablePool(DisablePoolIxArgs),
@@ -91,10 +90,6 @@ impl BorshSerialize for SControllerProgramIx {
             }
             Self::SetPricingProgram(args) => {
                 SET_PRICING_PROGRAM_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::WithdrawProtocolFees(args) => {
-                WITHDRAW_PROTOCOL_FEES_IX_DISCM.serialize(writer)?;
                 args.serialize(writer)
             }
             Self::WithdrawProtocolFees(args) => {
@@ -171,9 +166,6 @@ impl SControllerProgramIx {
             )),
             SET_PRICING_PROGRAM_IX_DISCM => Ok(Self::SetPricingProgram(
                 SetPricingProgramIxArgs::deserialize(buf)?,
-            )),
-            WITHDRAW_PROTOCOL_FEES_IX_DISCM => Ok(Self::WithdrawProtocolFees(
-                WithdrawProtocolFeesIxArgs::deserialize(buf)?,
             )),
             WITHDRAW_PROTOCOL_FEES_IX_DISCM => Ok(Self::WithdrawProtocolFees(
                 WithdrawProtocolFeesIxArgs::deserialize(buf)?,
@@ -3219,218 +3211,6 @@ pub fn withdraw_protocol_fees_verify_account_privileges<'me, 'info>(
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.withdraw_to,
-        accounts.protocol_fee_accumulator,
-        accounts.protocol_fee_accumulator_auth,
-        accounts.pool_state,
-    ] {
-        if !should_be_writable.is_writable {
-            return Err((should_be_writable, ProgramError::InvalidAccountData));
-        }
-    }
-    for should_be_signer in [accounts.protocol_fee_beneficiary] {
-        if !should_be_signer.is_signer {
-            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
-        }
-    }
-    Ok(())
-}
-pub const WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN: usize = 6;
-#[derive(Copy, Clone, Debug)]
-pub struct WithdrawProtocolFeesAccounts<'me, 'info> {
-    ///The pool's protocol fee beneficiary
-    pub protocol_fee_beneficiary: &'me AccountInfo<'info>,
-    ///Token account to withdraw all accumulated protocol fees to
-    pub withdraw_to_acc: &'me AccountInfo<'info>,
-    ///The LST protocol fee accumulator token account to create
-    pub protocol_fee_accumulator: &'me AccountInfo<'info>,
-    ///The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"]
-    pub protocol_fee_accumulator_auth: &'me AccountInfo<'info>,
-    ///Token program
-    pub token_program: &'me AccountInfo<'info>,
-    ///The pool's state singleton PDA
-    pub pool_state: &'me AccountInfo<'info>,
-}
-#[derive(Copy, Clone, Debug)]
-pub struct WithdrawProtocolFeesKeys {
-    ///The pool's protocol fee beneficiary
-    pub protocol_fee_beneficiary: Pubkey,
-    ///Token account to withdraw all accumulated protocol fees to
-    pub withdraw_to_acc: Pubkey,
-    ///The LST protocol fee accumulator token account to create
-    pub protocol_fee_accumulator: Pubkey,
-    ///The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"]
-    pub protocol_fee_accumulator_auth: Pubkey,
-    ///Token program
-    pub token_program: Pubkey,
-    ///The pool's state singleton PDA
-    pub pool_state: Pubkey,
-}
-impl From<&WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
-    fn from(accounts: &WithdrawProtocolFeesAccounts) -> Self {
-        Self {
-            protocol_fee_beneficiary: *accounts.protocol_fee_beneficiary.key,
-            withdraw_to_acc: *accounts.withdraw_to_acc.key,
-            protocol_fee_accumulator: *accounts.protocol_fee_accumulator.key,
-            protocol_fee_accumulator_auth: *accounts.protocol_fee_accumulator_auth.key,
-            token_program: *accounts.token_program.key,
-            pool_state: *accounts.pool_state.key,
-        }
-    }
-}
-impl From<&WithdrawProtocolFeesKeys> for [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] {
-    fn from(keys: &WithdrawProtocolFeesKeys) -> Self {
-        [
-            AccountMeta::new_readonly(keys.protocol_fee_beneficiary, true),
-            AccountMeta::new(keys.withdraw_to_acc, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new(keys.protocol_fee_accumulator_auth, false),
-            AccountMeta::new_readonly(keys.token_program, false),
-            AccountMeta::new(keys.pool_state, false),
-        ]
-    }
-}
-impl From<[Pubkey; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]> for WithdrawProtocolFeesKeys {
-    fn from(pubkeys: [Pubkey; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]) -> Self {
-        Self {
-            protocol_fee_beneficiary: pubkeys[0],
-            withdraw_to_acc: pubkeys[1],
-            protocol_fee_accumulator: pubkeys[2],
-            protocol_fee_accumulator_auth: pubkeys[3],
-            token_program: pubkeys[4],
-            pool_state: pubkeys[5],
-        }
-    }
-}
-impl<'info> From<&WithdrawProtocolFeesAccounts<'_, 'info>>
-    for [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]
-{
-    fn from(accounts: &WithdrawProtocolFeesAccounts<'_, 'info>) -> Self {
-        [
-            accounts.protocol_fee_beneficiary.clone(),
-            accounts.withdraw_to_acc.clone(),
-            accounts.protocol_fee_accumulator.clone(),
-            accounts.protocol_fee_accumulator_auth.clone(),
-            accounts.token_program.clone(),
-            accounts.pool_state.clone(),
-        ]
-    }
-}
-impl<'me, 'info> From<&'me [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]>
-    for WithdrawProtocolFeesAccounts<'me, 'info>
-{
-    fn from(arr: &'me [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]) -> Self {
-        Self {
-            protocol_fee_beneficiary: &arr[0],
-            withdraw_to_acc: &arr[1],
-            protocol_fee_accumulator: &arr[2],
-            protocol_fee_accumulator_auth: &arr[3],
-            token_program: &arr[4],
-            pool_state: &arr[5],
-        }
-    }
-}
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct WithdrawProtocolFeesIxArgs {
-    pub amount: u64,
-}
-#[derive(Clone, Debug, PartialEq)]
-pub struct WithdrawProtocolFeesIxData(pub WithdrawProtocolFeesIxArgs);
-pub const WITHDRAW_PROTOCOL_FEES_IX_DISCM: u8 = 14u8;
-impl From<WithdrawProtocolFeesIxArgs> for WithdrawProtocolFeesIxData {
-    fn from(args: WithdrawProtocolFeesIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for WithdrawProtocolFeesIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[WITHDRAW_PROTOCOL_FEES_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
-impl WithdrawProtocolFeesIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
-        if maybe_discm != WITHDRAW_PROTOCOL_FEES_IX_DISCM {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!(
-                    "discm does not match. Expected: {:?}. Received: {:?}",
-                    WITHDRAW_PROTOCOL_FEES_IX_DISCM, maybe_discm
-                ),
-            ));
-        }
-        Ok(Self(WithdrawProtocolFeesIxArgs::deserialize(buf)?))
-    }
-}
-pub fn withdraw_protocol_fees_ix<
-    K: Into<WithdrawProtocolFeesKeys>,
-    A: Into<WithdrawProtocolFeesIxArgs>,
->(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
-    let keys: WithdrawProtocolFeesKeys = accounts.into();
-    let metas: [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: WithdrawProtocolFeesIxArgs = args.into();
-    let data: WithdrawProtocolFeesIxData = args_full.into();
-    Ok(Instruction {
-        program_id: crate::ID,
-        accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
-    })
-}
-pub fn withdraw_protocol_fees_invoke<'info, A: Into<WithdrawProtocolFeesIxArgs>>(
-    accounts: &WithdrawProtocolFeesAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = withdraw_protocol_fees_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke(&ix, &account_info)
-}
-pub fn withdraw_protocol_fees_invoke_signed<'info, A: Into<WithdrawProtocolFeesIxArgs>>(
-    accounts: &WithdrawProtocolFeesAccounts<'_, 'info>,
-    args: A,
-    seeds: &[&[&[u8]]],
-) -> ProgramResult {
-    let ix = withdraw_protocol_fees_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
-}
-pub fn withdraw_protocol_fees_verify_account_keys(
-    accounts: &WithdrawProtocolFeesAccounts<'_, '_>,
-    keys: &WithdrawProtocolFeesKeys,
-) -> Result<(), (Pubkey, Pubkey)> {
-    for (actual, expected) in [
-        (
-            accounts.protocol_fee_beneficiary.key,
-            &keys.protocol_fee_beneficiary,
-        ),
-        (accounts.withdraw_to_acc.key, &keys.withdraw_to_acc),
-        (
-            accounts.protocol_fee_accumulator.key,
-            &keys.protocol_fee_accumulator,
-        ),
-        (
-            accounts.protocol_fee_accumulator_auth.key,
-            &keys.protocol_fee_accumulator_auth,
-        ),
-        (accounts.token_program.key, &keys.token_program),
-        (accounts.pool_state.key, &keys.pool_state),
-    ] {
-        if actual != expected {
-            return Err((*actual, *expected));
-        }
-    }
-    Ok(())
-}
-pub fn withdraw_protocol_fees_verify_account_privileges<'me, 'info>(
-    accounts: &WithdrawProtocolFeesAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [
-        accounts.withdraw_to_acc,
         accounts.protocol_fee_accumulator,
         accounts.protocol_fee_accumulator_auth,
         accounts.pool_state,
