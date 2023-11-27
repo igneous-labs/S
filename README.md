@@ -9,11 +9,11 @@ The development procedure of this repository follows "IDL-first" approach, the i
 ## On-chain Programs
 
 Sanctum S comprises three main on-chain component programs:
- - [S Controller Program](./docs/s-controller-program/README.md)
- - [SOL Value Calculator Programs](./docs/sol-value-calculator-programs/README.md)
- - [Pricing Programs](./docs/pricing-programs/README.md)
+ - [S Controller Program](./docs/s-controller-program/)
+ - [SOL Value Calculator Programs](./docs/sol-value-calculator-programs/)
+ - [Pricing Programs](./docs/pricing-programs/)
 
- See the overview [here](./docs/README.md).
+ See the overview [here](./docs/).
 
 ## Overview of User Authorities
 
