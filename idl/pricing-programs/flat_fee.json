@@ -20,12 +20,6 @@
       ],
       "accounts": [
         {
-          "name": "pricing_authority",
-          "isMut": false,
-          "isSigner": true,
-          "desc": "Pricing authority PDA"
-        },
-        {
           "name": "lst_input",
           "isMut": false,
           "isSigner": false,
@@ -68,12 +62,6 @@
         }
       ],
       "accounts": [
-        {
-          "name": "pricing_authority",
-          "isMut": false,
-          "isSigner": true,
-          "desc": "Pricing authority PDA"
-        },
         {
           "name": "lst_input",
           "isMut": false,
@@ -118,12 +106,6 @@
       ],
       "accounts": [
         {
-          "name": "pricing_authority",
-          "isMut": false,
-          "isSigner": true,
-          "desc": "Pricing authority PDA"
-        },
-        {
           "name": "lst_input",
           "isMut": false,
           "isSigner": false,
@@ -148,12 +130,6 @@
         }
       ],
       "accounts": [
-        {
-          "name": "pricing_authority",
-          "isMut": false,
-          "isSigner": true,
-          "desc": "Pricing authority PDA"
-        },
         {
           "name": "lst_output",
           "isMut": false,
@@ -235,10 +211,10 @@
       "args": [],
       "accounts": [
         {
-          "name": "manager",
+          "name": "current_manager",
           "isMut": false,
           "isSigner": true,
-          "desc": "The program manager"
+          "desc": "The current program manager"
         },
         {
           "name": "new_manager",
@@ -262,12 +238,6 @@
       },
       "args": [],
       "accounts": [
-        {
-          "name": "init_authority",
-          "isMut": false,
-          "isSigner": true,
-          "desc": "The hardcoded init authority of pricing program"
-        },
         {
           "name": "payer",
           "isMut": true,

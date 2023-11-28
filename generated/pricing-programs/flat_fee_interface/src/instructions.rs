@@ -85,11 +85,9 @@ impl FlatFeeProgramIx {
         }
     }
 }
-pub const PRICE_EXACT_IN_IX_ACCOUNTS_LEN: usize = 5;
+pub const PRICE_EXACT_IN_IX_ACCOUNTS_LEN: usize = 4;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactInAccounts<'me, 'info> {
-    ///Pricing authority PDA
-    pub pricing_authority: &'me AccountInfo<'info>,
     ///Input LST token mint
     pub lst_input: &'me AccountInfo<'info>,
     ///Output LST token mint
@@ -101,8 +99,6 @@ pub struct PriceExactInAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactInKeys {
-    ///Pricing authority PDA
-    pub pricing_authority: Pubkey,
     ///Input LST token mint
     pub lst_input: Pubkey,
     ///Output LST token mint
@@ -115,7 +111,6 @@ pub struct PriceExactInKeys {
 impl From<&PriceExactInAccounts<'_, '_>> for PriceExactInKeys {
     fn from(accounts: &PriceExactInAccounts) -> Self {
         Self {
-            pricing_authority: *accounts.pricing_authority.key,
             lst_input: *accounts.lst_input.key,
             lst_output: *accounts.lst_output.key,
             fee_acc_input: *accounts.fee_acc_input.key,
@@ -126,7 +121,6 @@ impl From<&PriceExactInAccounts<'_, '_>> for PriceExactInKeys {
 impl From<&PriceExactInKeys> for [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] {
     fn from(keys: &PriceExactInKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.pricing_authority, true),
             AccountMeta::new_readonly(keys.lst_input, false),
             AccountMeta::new_readonly(keys.lst_output, false),
             AccountMeta::new_readonly(keys.fee_acc_input, false),
@@ -137,11 +131,10 @@ impl From<&PriceExactInKeys> for [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] {
 impl From<[Pubkey; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]> for PriceExactInKeys {
     fn from(pubkeys: [Pubkey; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: pubkeys[0],
-            lst_input: pubkeys[1],
-            lst_output: pubkeys[2],
-            fee_acc_input: pubkeys[3],
-            fee_acc_output: pubkeys[4],
+            lst_input: pubkeys[0],
+            lst_output: pubkeys[1],
+            fee_acc_input: pubkeys[2],
+            fee_acc_output: pubkeys[3],
         }
     }
 }
@@ -150,7 +143,6 @@ impl<'info> From<&PriceExactInAccounts<'_, 'info>>
 {
     fn from(accounts: &PriceExactInAccounts<'_, 'info>) -> Self {
         [
-            accounts.pricing_authority.clone(),
             accounts.lst_input.clone(),
             accounts.lst_output.clone(),
             accounts.fee_acc_input.clone(),
@@ -163,11 +155,10 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]>
 {
     fn from(arr: &'me [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: &arr[0],
-            lst_input: &arr[1],
-            lst_output: &arr[2],
-            fee_acc_input: &arr[3],
-            fee_acc_output: &arr[4],
+            lst_input: &arr[0],
+            lst_output: &arr[1],
+            fee_acc_input: &arr[2],
+            fee_acc_output: &arr[3],
         }
     }
 }
@@ -242,7 +233,6 @@ pub fn price_exact_in_verify_account_keys(
     keys: &PriceExactInKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.pricing_authority.key, &keys.pricing_authority),
         (accounts.lst_input.key, &keys.lst_input),
         (accounts.lst_output.key, &keys.lst_output),
         (accounts.fee_acc_input.key, &keys.fee_acc_input),
@@ -254,21 +244,15 @@ pub fn price_exact_in_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_exact_in_verify_account_privileges<'me, 'info>(
     accounts: &PriceExactInAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_signer in [accounts.pricing_authority] {
-        if !should_be_signer.is_signer {
-            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
-        }
-    }
     Ok(())
 }
-pub const PRICE_EXACT_OUT_IX_ACCOUNTS_LEN: usize = 5;
+pub const PRICE_EXACT_OUT_IX_ACCOUNTS_LEN: usize = 4;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactOutAccounts<'me, 'info> {
-    ///Pricing authority PDA
-    pub pricing_authority: &'me AccountInfo<'info>,
     ///Input LST token mint
     pub lst_input: &'me AccountInfo<'info>,
     ///Output LST token mint
@@ -280,8 +264,6 @@ pub struct PriceExactOutAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactOutKeys {
-    ///Pricing authority PDA
-    pub pricing_authority: Pubkey,
     ///Input LST token mint
     pub lst_input: Pubkey,
     ///Output LST token mint
@@ -294,7 +276,6 @@ pub struct PriceExactOutKeys {
 impl From<&PriceExactOutAccounts<'_, '_>> for PriceExactOutKeys {
     fn from(accounts: &PriceExactOutAccounts) -> Self {
         Self {
-            pricing_authority: *accounts.pricing_authority.key,
             lst_input: *accounts.lst_input.key,
             lst_output: *accounts.lst_output.key,
             fee_acc_input: *accounts.fee_acc_input.key,
@@ -305,7 +286,6 @@ impl From<&PriceExactOutAccounts<'_, '_>> for PriceExactOutKeys {
 impl From<&PriceExactOutKeys> for [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] {
     fn from(keys: &PriceExactOutKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.pricing_authority, true),
             AccountMeta::new_readonly(keys.lst_input, false),
             AccountMeta::new_readonly(keys.lst_output, false),
             AccountMeta::new_readonly(keys.fee_acc_input, false),
@@ -316,11 +296,10 @@ impl From<&PriceExactOutKeys> for [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]
 impl From<[Pubkey; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]> for PriceExactOutKeys {
     fn from(pubkeys: [Pubkey; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: pubkeys[0],
-            lst_input: pubkeys[1],
-            lst_output: pubkeys[2],
-            fee_acc_input: pubkeys[3],
-            fee_acc_output: pubkeys[4],
+            lst_input: pubkeys[0],
+            lst_output: pubkeys[1],
+            fee_acc_input: pubkeys[2],
+            fee_acc_output: pubkeys[3],
         }
     }
 }
@@ -329,7 +308,6 @@ impl<'info> From<&PriceExactOutAccounts<'_, 'info>>
 {
     fn from(accounts: &PriceExactOutAccounts<'_, 'info>) -> Self {
         [
-            accounts.pricing_authority.clone(),
             accounts.lst_input.clone(),
             accounts.lst_output.clone(),
             accounts.fee_acc_input.clone(),
@@ -342,11 +320,10 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]
 {
     fn from(arr: &'me [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: &arr[0],
-            lst_input: &arr[1],
-            lst_output: &arr[2],
-            fee_acc_input: &arr[3],
-            fee_acc_output: &arr[4],
+            lst_input: &arr[0],
+            lst_output: &arr[1],
+            fee_acc_input: &arr[2],
+            fee_acc_output: &arr[3],
         }
     }
 }
@@ -421,7 +398,6 @@ pub fn price_exact_out_verify_account_keys(
     keys: &PriceExactOutKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.pricing_authority.key, &keys.pricing_authority),
         (accounts.lst_input.key, &keys.lst_input),
         (accounts.lst_output.key, &keys.lst_output),
         (accounts.fee_acc_input.key, &keys.fee_acc_input),
@@ -433,52 +409,39 @@ pub fn price_exact_out_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_exact_out_verify_account_privileges<'me, 'info>(
     accounts: &PriceExactOutAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_signer in [accounts.pricing_authority] {
-        if !should_be_signer.is_signer {
-            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
-        }
-    }
     Ok(())
 }
-pub const PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN: usize = 2;
+pub const PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN: usize = 1;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceLpTokensToMintAccounts<'me, 'info> {
-    ///Pricing authority PDA
-    pub pricing_authority: &'me AccountInfo<'info>,
     ///Input LST token mint
     pub lst_input: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct PriceLpTokensToMintKeys {
-    ///Pricing authority PDA
-    pub pricing_authority: Pubkey,
     ///Input LST token mint
     pub lst_input: Pubkey,
 }
 impl From<&PriceLpTokensToMintAccounts<'_, '_>> for PriceLpTokensToMintKeys {
     fn from(accounts: &PriceLpTokensToMintAccounts) -> Self {
         Self {
-            pricing_authority: *accounts.pricing_authority.key,
             lst_input: *accounts.lst_input.key,
         }
     }
 }
 impl From<&PriceLpTokensToMintKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] {
     fn from(keys: &PriceLpTokensToMintKeys) -> Self {
-        [
-            AccountMeta::new_readonly(keys.pricing_authority, true),
-            AccountMeta::new_readonly(keys.lst_input, false),
-        ]
+        [AccountMeta::new_readonly(keys.lst_input, false)]
     }
 }
 impl From<[Pubkey; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]> for PriceLpTokensToMintKeys {
     fn from(pubkeys: [Pubkey; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: pubkeys[0],
-            lst_input: pubkeys[1],
+            lst_input: pubkeys[0],
         }
     }
 }
@@ -486,20 +449,14 @@ impl<'info> From<&PriceLpTokensToMintAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]
 {
     fn from(accounts: &PriceLpTokensToMintAccounts<'_, 'info>) -> Self {
-        [
-            accounts.pricing_authority.clone(),
-            accounts.lst_input.clone(),
-        ]
+        [accounts.lst_input.clone()]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]>
     for PriceLpTokensToMintAccounts<'me, 'info>
 {
     fn from(arr: &'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]) -> Self {
-        Self {
-            pricing_authority: &arr[0],
-            lst_input: &arr[1],
-        }
+        Self { lst_input: &arr[0] }
     }
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
@@ -577,31 +534,22 @@ pub fn price_lp_tokens_to_mint_verify_account_keys(
     accounts: &PriceLpTokensToMintAccounts<'_, '_>,
     keys: &PriceLpTokensToMintKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
-    for (actual, expected) in [
-        (accounts.pricing_authority.key, &keys.pricing_authority),
-        (accounts.lst_input.key, &keys.lst_input),
-    ] {
+    for (actual, expected) in [(accounts.lst_input.key, &keys.lst_input)] {
         if actual != expected {
             return Err((*actual, *expected));
         }
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_lp_tokens_to_mint_verify_account_privileges<'me, 'info>(
     accounts: &PriceLpTokensToMintAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_signer in [accounts.pricing_authority] {
-        if !should_be_signer.is_signer {
-            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
-        }
-    }
     Ok(())
 }
-pub const PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN: usize = 3;
+pub const PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN: usize = 2;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceLpTokensToRedeemAccounts<'me, 'info> {
-    ///Pricing authority PDA
-    pub pricing_authority: &'me AccountInfo<'info>,
     ///Output LST token mint
     pub lst_output: &'me AccountInfo<'info>,
     ///Program state PDA
@@ -609,8 +557,6 @@ pub struct PriceLpTokensToRedeemAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct PriceLpTokensToRedeemKeys {
-    ///Pricing authority PDA
-    pub pricing_authority: Pubkey,
     ///Output LST token mint
     pub lst_output: Pubkey,
     ///Program state PDA
@@ -619,7 +565,6 @@ pub struct PriceLpTokensToRedeemKeys {
 impl From<&PriceLpTokensToRedeemAccounts<'_, '_>> for PriceLpTokensToRedeemKeys {
     fn from(accounts: &PriceLpTokensToRedeemAccounts) -> Self {
         Self {
-            pricing_authority: *accounts.pricing_authority.key,
             lst_output: *accounts.lst_output.key,
             state: *accounts.state.key,
         }
@@ -628,7 +573,6 @@ impl From<&PriceLpTokensToRedeemAccounts<'_, '_>> for PriceLpTokensToRedeemKeys 
 impl From<&PriceLpTokensToRedeemKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] {
     fn from(keys: &PriceLpTokensToRedeemKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.pricing_authority, true),
             AccountMeta::new_readonly(keys.lst_output, false),
             AccountMeta::new_readonly(keys.state, false),
         ]
@@ -637,9 +581,8 @@ impl From<&PriceLpTokensToRedeemKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_REDEE
 impl From<[Pubkey; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]> for PriceLpTokensToRedeemKeys {
     fn from(pubkeys: [Pubkey; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: pubkeys[0],
-            lst_output: pubkeys[1],
-            state: pubkeys[2],
+            lst_output: pubkeys[0],
+            state: pubkeys[1],
         }
     }
 }
@@ -647,11 +590,7 @@ impl<'info> From<&PriceLpTokensToRedeemAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]
 {
     fn from(accounts: &PriceLpTokensToRedeemAccounts<'_, 'info>) -> Self {
-        [
-            accounts.pricing_authority.clone(),
-            accounts.lst_output.clone(),
-            accounts.state.clone(),
-        ]
+        [accounts.lst_output.clone(), accounts.state.clone()]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]>
@@ -659,9 +598,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACC
 {
     fn from(arr: &'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            pricing_authority: &arr[0],
-            lst_output: &arr[1],
-            state: &arr[2],
+            lst_output: &arr[0],
+            state: &arr[1],
         }
     }
 }
@@ -741,7 +679,6 @@ pub fn price_lp_tokens_to_redeem_verify_account_keys(
     keys: &PriceLpTokensToRedeemKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.pricing_authority.key, &keys.pricing_authority),
         (accounts.lst_output.key, &keys.lst_output),
         (accounts.state.key, &keys.state),
     ] {
@@ -751,14 +688,10 @@ pub fn price_lp_tokens_to_redeem_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_lp_tokens_to_redeem_verify_account_privileges<'me, 'info>(
     accounts: &PriceLpTokensToRedeemAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_signer in [accounts.pricing_authority] {
-        if !should_be_signer.is_signer {
-            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
-        }
-    }
     Ok(())
 }
 pub const SET_LP_WITHDRAWAL_FEE_IX_ACCOUNTS_LEN: usize = 2;
@@ -1066,8 +999,8 @@ pub fn set_fee_verify_account_privileges<'me, 'info>(
 pub const SET_MANAGER_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct SetManagerAccounts<'me, 'info> {
-    ///The program manager
-    pub manager: &'me AccountInfo<'info>,
+    ///The current program manager
+    pub current_manager: &'me AccountInfo<'info>,
     ///The new program manager to set to
     pub new_manager: &'me AccountInfo<'info>,
     ///The program state PDA
@@ -1075,8 +1008,8 @@ pub struct SetManagerAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct SetManagerKeys {
-    ///The program manager
-    pub manager: Pubkey,
+    ///The current program manager
+    pub current_manager: Pubkey,
     ///The new program manager to set to
     pub new_manager: Pubkey,
     ///The program state PDA
@@ -1085,7 +1018,7 @@ pub struct SetManagerKeys {
 impl From<&SetManagerAccounts<'_, '_>> for SetManagerKeys {
     fn from(accounts: &SetManagerAccounts) -> Self {
         Self {
-            manager: *accounts.manager.key,
+            current_manager: *accounts.current_manager.key,
             new_manager: *accounts.new_manager.key,
             state: *accounts.state.key,
         }
@@ -1094,7 +1027,7 @@ impl From<&SetManagerAccounts<'_, '_>> for SetManagerKeys {
 impl From<&SetManagerKeys> for [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] {
     fn from(keys: &SetManagerKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.manager, true),
+            AccountMeta::new_readonly(keys.current_manager, true),
             AccountMeta::new_readonly(keys.new_manager, false),
             AccountMeta::new(keys.state, false),
         ]
@@ -1103,7 +1036,7 @@ impl From<&SetManagerKeys> for [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] {
 impl From<[Pubkey; SET_MANAGER_IX_ACCOUNTS_LEN]> for SetManagerKeys {
     fn from(pubkeys: [Pubkey; SET_MANAGER_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            manager: pubkeys[0],
+            current_manager: pubkeys[0],
             new_manager: pubkeys[1],
             state: pubkeys[2],
         }
@@ -1114,7 +1047,7 @@ impl<'info> From<&SetManagerAccounts<'_, 'info>>
 {
     fn from(accounts: &SetManagerAccounts<'_, 'info>) -> Self {
         [
-            accounts.manager.clone(),
+            accounts.current_manager.clone(),
             accounts.new_manager.clone(),
             accounts.state.clone(),
         ]
@@ -1125,7 +1058,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN]>
 {
     fn from(arr: &'me [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            manager: &arr[0],
+            current_manager: &arr[0],
             new_manager: &arr[1],
             state: &arr[2],
         }
@@ -1199,7 +1132,7 @@ pub fn set_manager_verify_account_keys(
     keys: &SetManagerKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.manager.key, &keys.manager),
+        (accounts.current_manager.key, &keys.current_manager),
         (accounts.new_manager.key, &keys.new_manager),
         (accounts.state.key, &keys.state),
     ] {
@@ -1217,18 +1150,16 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.manager] {
+    for should_be_signer in [accounts.current_manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
     Ok(())
 }
-pub const INIT_IX_ACCOUNTS_LEN: usize = 4;
+pub const INIT_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
-    ///The hardcoded init authority of pricing program
-    pub init_authority: &'me AccountInfo<'info>,
     ///The account paying for ProgramState's rent
     pub payer: &'me AccountInfo<'info>,
     ///Program state PDA
@@ -1238,8 +1169,6 @@ pub struct InitAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct InitKeys {
-    ///The hardcoded init authority of pricing program
-    pub init_authority: Pubkey,
     ///The account paying for ProgramState's rent
     pub payer: Pubkey,
     ///Program state PDA
@@ -1250,7 +1179,6 @@ pub struct InitKeys {
 impl From<&InitAccounts<'_, '_>> for InitKeys {
     fn from(accounts: &InitAccounts) -> Self {
         Self {
-            init_authority: *accounts.init_authority.key,
             payer: *accounts.payer.key,
             state: *accounts.state.key,
             system_program: *accounts.system_program.key,
@@ -1260,7 +1188,6 @@ impl From<&InitAccounts<'_, '_>> for InitKeys {
 impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
     fn from(keys: &InitKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.init_authority, true),
             AccountMeta::new(keys.payer, true),
             AccountMeta::new(keys.state, false),
             AccountMeta::new_readonly(keys.system_program, false),
@@ -1270,17 +1197,15 @@ impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
 impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
     fn from(pubkeys: [Pubkey; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            init_authority: pubkeys[0],
-            payer: pubkeys[1],
-            state: pubkeys[2],
-            system_program: pubkeys[3],
+            payer: pubkeys[0],
+            state: pubkeys[1],
+            system_program: pubkeys[2],
         }
     }
 }
 impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
     fn from(accounts: &InitAccounts<'_, 'info>) -> Self {
         [
-            accounts.init_authority.clone(),
             accounts.payer.clone(),
             accounts.state.clone(),
             accounts.system_program.clone(),
@@ -1292,10 +1217,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
 {
     fn from(arr: &'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            init_authority: &arr[0],
-            payer: &arr[1],
-            state: &arr[2],
-            system_program: &arr[3],
+            payer: &arr[0],
+            state: &arr[1],
+            system_program: &arr[2],
         }
     }
 }
@@ -1367,7 +1291,6 @@ pub fn init_verify_account_keys(
     keys: &InitKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.init_authority.key, &keys.init_authority),
         (accounts.payer.key, &keys.payer),
         (accounts.state.key, &keys.state),
         (accounts.system_program.key, &keys.system_program),
@@ -1386,7 +1309,7 @@ pub fn init_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.init_authority, accounts.payer] {
+    for should_be_signer in [accounts.payer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
