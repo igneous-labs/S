@@ -11,3 +11,7 @@ marinade-keys = { path = "../../../keys/marinade-keys" }
 sanctum-macros = { workspace = true }
 sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
 solana-program = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+test-utils = { path = "../../../test-utils" }

@@ -24,7 +24,7 @@ x < d(y + 1) / n
 x < dy/n + d/n
 
 d/n <= 1,
-x = ceil(dy/n) is a possible candidate, error at most +1 if RHS doesnt hold
+x = ceil(dy/n) is a possible candidate, error at most 1 if RHS doesnt hold
 
 When RHS doesn't hold:
 Let r = dy%n, p be unknown

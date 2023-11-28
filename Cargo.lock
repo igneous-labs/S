@@ -2103,9 +2103,11 @@ dependencies = [
  "generic_pool_calculator_interface",
  "marinade-keys",
  "marinade_calculator_interface",
+ "proptest",
  "sanctum-macros",
  "sol-value-calculator-lib",
  "solana-program",
+ "test-utils",
 ]
 
 [[package]]
