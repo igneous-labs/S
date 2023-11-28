@@ -1350,6 +1350,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "flat-fee"
+version = "0.1.0"
+
+[[package]]
+name = "flat-fee-lib"
+version = "0.1.0"
+
+[[package]]
 name = "flat_fee_interface"
 version = "1.0.0"
 dependencies = [

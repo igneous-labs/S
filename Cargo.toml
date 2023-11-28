@@ -5,8 +5,10 @@ members = [
     "generated/s_controller_interface",
     "generated/sol-value-calculator-programs/*",
     "keys/*",
+    "libs/pricing-programs/*",
     "libs/sanctum-onchain-utils",
     "libs/sol-value-calculator-programs/*",
+    "programs/pricing-programs/*",
     "programs/sol-value-calculator-programs/*",
     "test-utils"
 ]
