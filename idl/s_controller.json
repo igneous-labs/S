@@ -1221,14 +1221,9 @@
           {
             "name": "padding",
             "type": {
-              "array": [
-                "u8",
-                1
-              ]
+              "array": ["u8", 1]
             },
-            "attrs": [
-              "padding"
-            ]
+            "attrs": ["padding"]
           },
           {
             "name": "admin",
@@ -1261,14 +1256,9 @@
           {
             "name": "padding",
             "type": {
-              "array": [
-                "u8",
-                7
-              ]
+              "array": ["u8", 7]
             },
-            "attrs": [
-              "padding"
-            ]
+            "attrs": ["padding"]
           },
           {
             "name": "sol_value",
@@ -1305,14 +1295,9 @@
           {
             "name": "padding",
             "type": {
-              "array": [
-                "u8",
-                7
-              ]
+              "array": ["u8", 7]
             },
-            "attrs": [
-              "padding"
-            ]
+            "attrs": ["padding"]
           },
           {
             "name": "dst_lst",
@@ -1325,6 +1310,6 @@
   "errors": [],
   "metadata": {
     "origin": "shank",
-    "address": "11111111111111111111111111111111"
+    "address": "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv"
   }
 }

@@ -12,26 +12,26 @@ The pool state singleton is located at PDA ["state"].
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name                     | Value                                                                                                    | Type       |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------- |
-| total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                                   | u64        |
-| trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                                      | u16        |
-| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                                             | u16        |
-| version                  | incrementing counter representing schema version number. Starts at 1                                     | u8         |
-| is_disabled              | true if all functionality of the pool has been disabled by DisablePool                                   | PodBool    |
-| is_rebalancing           | true if a rebalance is currently occuring                                                                | PodBool    |
-| admin                    | The admin pubkey authorized to perform all admin actions                                                 | Pubkey     |
-| rebalance_authority      | The pubkey authorized to rebalance                                                                       | Pubkey     |
-| protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees                    | Pubkey     |
-| pricing_program          | Address of pricing program used by pool                                                                  | Pubkey     |
+| Name                     | Value                                                                                 | Type    |
+| ------------------------ | ------------------------------------------------------------------------------------- | ------- |
+| total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                | u64     |
+| trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                   | u16     |
+| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                          | u16     |
+| version                  | incrementing counter representing schema version number. Starts at 1                  | u8      |
+| is_disabled              | true if all functionality of the pool has been disabled by DisablePool                | PodBool |
+| is_rebalancing           | true if a rebalance is currently occuring                                             | PodBool |
+| admin                    | The admin pubkey authorized to perform all admin actions                              | Pubkey  |
+| rebalance_authority      | The pubkey authorized to rebalance                                                    | Pubkey  |
+| protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey  |
+| pricing_program          | Address of pricing program used by pool                                               | Pubkey  |
 
 ## LstStateList
 
 ### Schema
 
-| Name                     | Value                                                                                                    | Type       |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------- |
-| lst_states               | Dynamic list of LstStates for each LST in the pool                                                       | LstState[] |
+| Name       | Value                                              | Type       |
+| ---------- | -------------------------------------------------- | ---------- |
+| lst_states | Dynamic list of LstStates for each LST in the pool | LstState[] |
 
 #### LstState Schema
 
@@ -77,4 +77,4 @@ For each LST, the LST reserve is located at the associated token address (ATA) o
 
 ## Protocol Fee Accumulators
 
-For each LST, protocol fees are accumulated at the associated token address (ATA) of PDA ["protocol_fee"]
+For each LST, protocol fees are accumulated at the associated token address (ATA) of PDA ["protocol-fee"]
