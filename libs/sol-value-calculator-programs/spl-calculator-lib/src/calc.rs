@@ -1,5 +1,4 @@
-use generic_pool_calculator_interface::GenericPoolCalculatorError;
-use generic_pool_calculator_lib::utils::checked_div_ceil;
+use generic_pool_calculator_lib::{U64FeeFloor, U64RatioFloor};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
@@ -7,16 +6,43 @@ use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
 #[derive(Debug, Clone)]
 pub struct SplStakePoolCalc(pub SplStakePool);
 
-pub fn verify_pool_updated_for_this_epoch(
-    SplStakePool {
-        last_update_epoch, ..
-    }: &SplStakePool,
-    clock: &Clock,
-) -> Result<(), SplCalculatorError> {
-    if *last_update_epoch == clock.epoch {
-        Ok(())
-    } else {
-        Err(SplCalculatorError::PoolNotUpdated)
+impl SplStakePoolCalc {
+    pub const fn verify_pool_updated_for_this_epoch(
+        &self,
+        clock: &Clock,
+    ) -> Result<(), SplCalculatorError> {
+        if self.0.last_update_epoch == clock.epoch {
+            Ok(())
+        } else {
+            Err(SplCalculatorError::PoolNotUpdated)
+        }
+    }
+
+    pub const fn lst_to_lamports_ratio(&self) -> U64RatioFloor<u64, u64> {
+        let SplStakePool {
+            total_lamports,
+            pool_token_supply,
+            ..
+        } = self.0;
+        U64RatioFloor {
+            num: total_lamports,
+            denom: pool_token_supply,
+        }
+    }
+
+    pub const fn stake_withdrawal_fee(&self) -> U64FeeFloor<u64, u64> {
+        let SplStakePool {
+            stake_withdrawal_fee,
+            ..
+        } = &self.0;
+        let Fee {
+            denominator,
+            numerator,
+        } = stake_withdrawal_fee;
+        U64FeeFloor {
+            fee_num: *numerator,
+            fee_denom: *denominator,
+        }
     }
 }
 
@@ -26,91 +52,16 @@ pub fn verify_pool_updated_for_this_epoch(
 /// - stake pool has been updated for this epoch
 impl SolValueCalculator for SplStakePoolCalc {
     fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<u64, ProgramError> {
-        let pool = &self.0;
-
-        // Copied from:
-        // https://github.com/solana-labs/solana-program-library/blob/52db94edb5571309dd7e5472c530ff56bcc30ae5/stake-pool/program/src/processor.rs#L3169-L3184
-        let pool_tokens_fee = apply_fee(&pool.stake_withdrawal_fee, pool_tokens)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
-        let pool_tokens_burnt = pool_tokens
-            .checked_sub(pool_tokens_fee)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
-        let withdraw_lamports = calc_lamports_withdraw_amount(pool, pool_tokens_burnt)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let pool_tokens_burnt = self.stake_withdrawal_fee().apply(pool_tokens)?;
+        let withdraw_lamports = self.lst_to_lamports_ratio().apply(pool_tokens_burnt)?;
         Ok(withdraw_lamports)
     }
 
     fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<u64, ProgramError> {
-        let pool = &self.0;
-
-        let pool_tokens_burnt = calc_pool_tokens_burnt(pool, withdraw_lamports)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
-        let pool_tokens = reverse_fee(&pool.stake_withdrawal_fee, pool_tokens_burnt)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let pool_tokens_burnt = self.lst_to_lamports_ratio().reverse(withdraw_lamports)?;
+        let pool_tokens = self.stake_withdrawal_fee().reverse(pool_tokens_burnt)?;
         Ok(pool_tokens)
     }
-}
-
-/// Copied from:
-/// https://github.com/solana-labs/solana-program-library/blob/52db94edb5571309dd7e5472c530ff56bcc30ae5/stake-pool/program/src/state.rs#L941
-/// Returns the amount to collect in fees (amt * numerator / denominator)
-pub fn apply_fee(fee: &Fee, amt: u64) -> Option<u64> {
-    if fee.denominator == 0 {
-        return Some(0);
-    }
-    let res = (amt as u128)
-        .checked_mul(fee.numerator as u128)?
-        .checked_div(fee.denominator as u128)?;
-    res.try_into().ok()
-}
-
-/// Inverse of [`apply_fee`], returns the amount before fees
-pub fn reverse_fee(fee: &Fee, amt_after_deduct_fee: u64) -> Option<u64> {
-    if fee.denominator == 0 || fee.numerator == 0 {
-        return Some(amt_after_deduct_fee);
-    }
-    let res = (amt_after_deduct_fee as u128)
-        .checked_mul(fee.denominator as u128)?
-        .checked_div(fee.denominator.checked_sub(fee.numerator)? as u128)?;
-    res.try_into().ok()
-}
-
-/// Copied from:
-/// https://github.com/solana-labs/solana-program-library/blob/52db94edb5571309dd7e5472c530ff56bcc30ae5/stake-pool/program/src/state.rs#L178
-pub fn calc_lamports_withdraw_amount(
-    SplStakePool {
-        total_lamports,
-        pool_token_supply,
-        ..
-    }: &SplStakePool,
-    pool_tokens: u64,
-) -> Option<u64> {
-    let numerator = (pool_tokens as u128).checked_mul(*total_lamports as u128)?;
-    let denominator = *pool_token_supply as u128;
-    if numerator < denominator || denominator == 0 {
-        Some(0)
-    } else {
-        u64::try_from(numerator.checked_div(denominator)?).ok()
-    }
-}
-
-/// Inverse of [`calc_lamports_withdraw_amount`]
-pub fn calc_pool_tokens_burnt(
-    SplStakePool {
-        total_lamports,
-        pool_token_supply,
-        ..
-    }: &SplStakePool,
-    withdraw_lamports: u64,
-) -> Option<u64> {
-    if *total_lamports == 0 {
-        return Some(0);
-    }
-    let pool_tokens_burnt = checked_div_ceil(
-        (withdraw_lamports as u128).checked_mul(*pool_token_supply as u128)?,
-        *total_lamports as u128,
-    )?;
-    pool_tokens_burnt.try_into().ok()
 }
 
 #[cfg(test)]
@@ -118,7 +69,6 @@ mod tests {
     use super::*;
     use proptest::prelude::*;
     use spl_calculator_interface::{AccountType, FutureEpochFee, Lockup};
-    use test_utils::prop_assert_diff_at_most;
 
     prop_compose! {
         fn fee_rate_lte_one()
@@ -126,15 +76,6 @@ mod tests {
             (numerator in 0..=denominator, denominator in Just(denominator)) -> Fee {
                 Fee { denominator, numerator }
             }
-    }
-
-    proptest! {
-        #[test]
-        fn fee_round_trip(amt: u64, fee in fee_rate_lte_one()) {
-            let after = reverse_fee(&fee, amt - apply_fee(&fee, amt).unwrap()).unwrap();
-            // TODO: fix math and determine suitable threshold
-            prop_assert_diff_at_most!(after, amt, 5000);
-        }
     }
 
     prop_compose! {
@@ -193,9 +134,9 @@ mod tests {
     proptest! {
         #[test]
         fn lst_sol_round_trip((pool_tokens, calc) in spl_stake_pool_and_lst_amount()) {
-            let after = calc.calc_sol_to_lst(calc.calc_lst_to_sol(pool_tokens).unwrap()).unwrap();
-            // TODO: fix math and determine suitable threshold
-            prop_assert_diff_at_most!(after, pool_tokens, 10_000);
+            let withdraw_lamports = calc.calc_lst_to_sol(pool_tokens).unwrap();
+            let withdraw_lamports_after = calc.calc_lst_to_sol(calc.calc_sol_to_lst(withdraw_lamports).unwrap()).unwrap();
+            prop_assert_eq!(withdraw_lamports, withdraw_lamports_after)
         }
     }
 }

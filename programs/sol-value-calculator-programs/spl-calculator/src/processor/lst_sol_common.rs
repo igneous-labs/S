@@ -6,14 +6,13 @@ use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, program_error::ProgramError, sysvar::Sysvar,
 };
-use spl_calculator_interface::SplStakePool;
-use spl_calculator_lib::{
-    verify_pool_updated_for_this_epoch, SplLstSolCommonRootAccounts, SplSolValCalc,
-};
+use spl_calculator_lib::{SplLstSolCommonRootAccounts, SplSolValCalc, SplStakePoolCalc};
 
 /// Assumes:
 /// - LstToSolAccounts/Keys and SolToLstAccounts/Keys are identical
-pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<SplStakePool, ProgramError> {
+pub fn verify_lst_sol_common(
+    accounts: &[AccountInfo<'_>],
+) -> Result<SplStakePoolCalc, ProgramError> {
     let actual: LstToSolAccounts = load_accounts(accounts)?;
 
     let root_keys = SplLstSolCommonRootAccounts {
@@ -31,7 +30,8 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<SplStakePoo
         calculator_state: actual.state,
     })?;
 
-    verify_pool_updated_for_this_epoch(&stake_pool, &Clock::get()?)?;
+    let calc = SplStakePoolCalc(stake_pool);
+    calc.verify_pool_updated_for_this_epoch(&Clock::get()?)?;
 
-    Ok(stake_pool)
+    Ok(calc)
 }

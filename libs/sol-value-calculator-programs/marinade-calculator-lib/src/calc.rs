@@ -51,7 +51,7 @@ impl SolValueCalculator for MarinadeStateCalc {
         Ok(lamports_for_user)
     }
 
-    fn calc_sol_to_lst(&self, _lamports_amount: u64) -> Result<u64, ProgramError> {
+    fn calc_sol_to_lst(&self, _lamports_for_user: u64) -> Result<u64, ProgramError> {
         todo!()
     }
 }

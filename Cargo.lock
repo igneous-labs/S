@@ -1494,9 +1494,11 @@ dependencies = [
  "bincode",
  "bytemuck",
  "generic_pool_calculator_interface",
+ "proptest",
  "solana-program",
  "solana-readonly-account",
  "static_assertions",
+ "test-utils",
 ]
 
 [[package]]
