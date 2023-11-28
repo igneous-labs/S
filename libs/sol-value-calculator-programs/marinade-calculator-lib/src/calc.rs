@@ -1,6 +1,6 @@
 use generic_pool_calculator_interface::GenericPoolCalculatorError;
 use generic_pool_calculator_lib::{U64FeeFloor, U64RatioFloor};
-use marinade_calculator_interface::MarinadeState;
+use marinade_calculator_interface::{MarinadeCalculatorError, MarinadeState};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
@@ -13,6 +13,14 @@ pub const MAX_BP_CENTS: u32 = 1_000_000;
 /// https://github.com/marinade-finance/liquid-staking-program/blob/26147376b75d8c971963da458623e646f2795e15/programs/marinade-finance/src/state/mod.rs#L96
 /// TODO: check disabled
 impl MarinadeStateCalc {
+    pub const fn verify_marinade_not_paused(&self) -> Result<(), MarinadeCalculatorError> {
+        if self.0.paused {
+            Err(MarinadeCalculatorError::MarinadePaused)
+        } else {
+            Ok(())
+        }
+    }
+
     pub const fn total_cooling_down(&self) -> u64 {
         self.0.stake_system.delayed_unstake_cooling_down + self.0.emergency_cooling_down
     }

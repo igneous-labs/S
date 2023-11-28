@@ -367,6 +367,13 @@
       }
     }
   ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "MarinadePaused",
+      "msg": "Marinade program is currently paused"
+    }
+  ],
   "metadata": {
     "origin": "shank",
     "address": "TH1S1DLoNLYCoNTA1NSERRoRANDCoP1EDTYPES11111"
