@@ -4649,7 +4649,6 @@ dependencies = [
  "solana-readonly-account",
  "spl-stake-pool-keys",
  "spl_calculator_interface",
- "test-utils",
 ]
 
 [[package]]
