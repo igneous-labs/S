@@ -11,7 +11,7 @@
       "args": [
         {
           "name": "lst_index",
-          "type": "u64"
+          "type": "u32"
         }
       ],
       "accounts": [
@@ -62,11 +62,11 @@
         },
         {
           "name": "src_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "dst_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "amount",
@@ -169,11 +169,11 @@
         },
         {
           "name": "src_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "dst_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "amount",
@@ -272,7 +272,7 @@
         },
         {
           "name": "lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "amount",
@@ -347,7 +347,7 @@
         },
         {
           "name": "lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "amount",
@@ -420,7 +420,7 @@
       "args": [
         {
           "name": "index",
-          "type": "u64"
+          "type": "u32"
         }
       ],
       "accounts": [
@@ -459,7 +459,7 @@
       "args": [
         {
           "name": "index",
-          "type": "u64"
+          "type": "u32"
         }
       ],
       "accounts": [
@@ -567,7 +567,7 @@
       "args": [
         {
           "name": "index",
-          "type": "u64"
+          "type": "u32"
         }
       ],
       "accounts": [
@@ -636,7 +636,7 @@
       "args": [
         {
           "name": "index",
-          "type": "u64"
+          "type": "u32"
         }
       ],
       "accounts": [
@@ -976,11 +976,11 @@
         },
         {
           "name": "src_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "dst_lst_index",
-          "type": "u64"
+          "type": "u32"
         },
         {
           "name": "amount",

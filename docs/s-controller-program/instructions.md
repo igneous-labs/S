@@ -15,7 +15,7 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 | Name         | Value                            | Type |
 | ------------ | -------------------------------- | ---- |
 | discriminant | 0                                | u8   |
-| lst_index    | index of the LST in `lst_states` | u64  |
+| lst_index    | index of the LST in `lst_states` | u32  |
 
 ### Accounts
 
@@ -47,8 +47,8 @@ Swap to output LST from an exact amount of given input LST.
 | src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself             | u8   |
 | pricing_accs            | number of accounts following to invoke pricing program PriceExactIn with, including the program itself                                                                                                    | u8   |
-| src_lst_index           | index of src_lst in `lst_states`                                                                                                                                                                          | u64  |
-| dst_lst_index           | index of dst_lst in `lst_states`                                                                                                                                                                          | u64  |
+| src_lst_index           | index of src_lst in `lst_states`                                                                                                                                                                          | u32  |
+| dst_lst_index           | index of dst_lst in `lst_states`                                                                                                                                                                          | u32  |
 | amount                  | amount of src tokens to swap                                                                                                                                                                              | u64  |
 
 ### Accounts
@@ -114,7 +114,7 @@ Add single-LST liquidity to the pool.
 | discriminant        | 3                                                                                                                                                                                                  | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. | u8   |
 | pricing_accs        | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself                                                                                      | u8   |
-| lst_index           | index of lst in `lst_states`                                                                                                                                                                       | u64  |
+| lst_index           | index of lst in `lst_states`                                                                                                                                                                       | u32  |
 | amount              | amount of tokens to add as liquidity                                                                                                                                                               | u64  |
 
 ### Accounts
@@ -154,7 +154,7 @@ Remove single-LST liquidity from the pool.
 | discriminant        | 4                                                                                                                                                                                                 | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
 | pricing_accs        | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself                                                                                     | u8   |
-| lst_index           | index of lst in `lst_states`                                                                                                                                                                      | u64  |
+| lst_index           | index of lst in `lst_states`                                                                                                                                                                      | u32  |
 | amount              | amount of LP tokens to burn and redeem                                                                                                                                                            | u64  |
 
 ### Accounts
@@ -193,7 +193,7 @@ Disable input for a LST to prepare for removal
 | Name         | Value                        | Type |
 | ------------ | ---------------------------- | ---- |
 | discriminant | 5                            | u8   |
-| index        | index of lst in `lst_states` | u64  |
+| index        | index of lst in `lst_states` | u32  |
 
 ### Accounts
 
@@ -213,7 +213,7 @@ Re-enable input for a LST
 | Name         | Value                        | Type |
 | ------------ | ---------------------------- | ---- |
 | discriminant | 6                            | u8   |
-| index        | index of lst in `lst_states` | u64  |
+| index        | index of lst in `lst_states` | u32  |
 
 ### Accounts
 
@@ -266,7 +266,7 @@ Remove a LST from the pool
 | Name         | Value                        | Type |
 | ------------ | ---------------------------- | ---- |
 | discriminant | 8                            | u8   |
-| index        | index of lst in `lst_states` | u64  |
+| index        | index of lst in `lst_states` | u32  |
 
 ### Accounts
 
@@ -298,7 +298,7 @@ Update the SOL value calculator program for a LST
 | Name         | Value                        | Type |
 | ------------ | ---------------------------- | ---- |
 | discriminant | 9                            | u8   |
-| index        | index of lst in `lst_states` | u64  |
+| index        | index of lst in `lst_states` | u32  |
 
 ### Accounts
 
@@ -511,8 +511,8 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | discriminant            | 19                                                                                                                                                                                                        | u8   |
 | src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself             | u8   |
-| src_lst_index           | index of src_lst in `lst_states`                                                                                                                                                                          | u64  |
-| dst_lst_index           | index of dst_lst in `lst_states`                                                                                                                                                                          | u64  |
+| src_lst_index           | index of src_lst in `lst_states`                                                                                                                                                                          | u32  |
+| dst_lst_index           | index of dst_lst in `lst_states`                                                                                                                                                                          | u32  |
 | amount                  | amount of from_lst tokens to flash withdraw to rebalance                                                                                                                                                  | u64  |
 
 ### Accounts
