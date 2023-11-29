@@ -1,0 +1,9 @@
+[package]
+name = "s-controller-lib"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+s_controller_interface = { path = "../../generated/s_controller_interface" }
+sanctum-macros = { workspace = true }
+solana-program = { workspace = true }
