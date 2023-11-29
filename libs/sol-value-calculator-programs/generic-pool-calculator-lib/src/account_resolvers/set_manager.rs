@@ -4,12 +4,12 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{utils::try_calculator_state, GenericPoolSolValCalc};
 
-pub struct SetManagerRootAccounts<S: KeyedAccount + ReadonlyAccountData> {
+pub struct SetManagerFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub new_manager: Pubkey,
     pub state: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> SetManagerRootAccounts<S> {
+impl<S: KeyedAccount + ReadonlyAccountData> SetManagerFreeArgs<S> {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<SetManagerKeys, GenericPoolCalculatorError> {

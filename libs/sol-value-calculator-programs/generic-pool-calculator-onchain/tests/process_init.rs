@@ -1,7 +1,5 @@
 use generic_pool_calculator_interface::{init_ix, InitIxArgs};
-use generic_pool_calculator_lib::{
-    account_resolvers::InitRootAccounts, utils::try_calculator_state,
-};
+use generic_pool_calculator_lib::{account_resolvers::InitFreeArgs, utils::try_calculator_state};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signer::Signer, transaction::Transaction};
 
@@ -51,14 +49,10 @@ async fn init_basic() {
         processor!(mock_calculator_program::process_instruction),
     );
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
-    let root_accounts = InitRootAccounts {
+    let free_args = InitFreeArgs {
         payer: payer.pubkey(),
     };
-    let mut ix = init_ix(
-        root_accounts.resolve::<MockCalculatorProgram>(),
-        InitIxArgs {},
-    )
-    .unwrap();
+    let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>(), InitIxArgs {}).unwrap();
     ix.program_id = mock_calculator_program::ID;
 
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));

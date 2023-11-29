@@ -2,7 +2,7 @@ use generic_pool_calculator_interface::{
     init_verify_account_keys, init_verify_account_privileges, InitAccounts, InitKeys,
 };
 use generic_pool_calculator_lib::{
-    account_resolvers::InitRootAccounts, utils::try_calculator_state_mut, GenericPoolSolValCalc,
+    account_resolvers::InitFreeArgs, utils::try_calculator_state_mut, GenericPoolSolValCalc,
     CALCULATOR_STATE_SEED, CALCULATOR_STATE_SIZE,
 };
 use sanctum_onchain_utils::{
@@ -45,7 +45,7 @@ pub fn verify_init<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<InitAccounts<'me, 'info>, ProgramError> {
     let actual: InitAccounts = load_accounts(accounts)?;
 
-    let root_keys = InitRootAccounts {
+    let root_keys = InitFreeArgs {
         payer: *actual.payer.key,
     };
     let expected: InitKeys = root_keys.resolve::<P>();
