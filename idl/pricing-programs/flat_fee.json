@@ -304,6 +304,11 @@
   "errors": [
     {
       "code": 0,
+      "name": "InvalidProgramStateData",
+      "msg": "Invalid program state data"
+    },
+    {
+      "code": 1,
       "name": "UnsupportedLstMint",
       "msg": "FeeAccount is not initialized for the given LST mint"
     }
