@@ -37,5 +37,5 @@ pub struct RebalanceRecord {
     pub dst_lst_index: u64,
     pub dst_lst_value_calc_accs: u8,
     pub padding: [u8; 7],
-    pub dst_lst: Pubkey,
+    pub dst_lst_mint: Pubkey,
 }

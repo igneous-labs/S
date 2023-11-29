@@ -50,7 +50,7 @@ impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
         .map_err(|_e| SControllerError::InvalidReserves)?;
 
         Ok(SyncSolValueKeys {
-            lst: *mint,
+            lst_mint: *mint,
             pool_state: STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             pool_reserves,

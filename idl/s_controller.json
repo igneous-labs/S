@@ -16,7 +16,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to sync SOL value for"
@@ -81,13 +81,13 @@
           "desc": "Authority of src_lst_acc. User making the swap."
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -188,13 +188,13 @@
           "desc": "Authority of src_lst_acc. User making the swap."
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -287,7 +287,7 @@
           "desc": "Authority of src_lst_acc. User who's adding liquidity."
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST"
@@ -362,7 +362,7 @@
           "desc": "Authority of lp_acc. User who's removing liquidity."
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST"
@@ -431,7 +431,7 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to disable input for"
@@ -470,7 +470,7 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to re-enable input for"
@@ -515,7 +515,7 @@
           "desc": "Account paying the SOL rent for the new space and accounts"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the new LST to add"
@@ -584,7 +584,7 @@
           "desc": "Account to refund SOL rent to"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the new LST to remove"
@@ -647,10 +647,10 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Mint of the new LST to remove"
+          "desc": "Mint of the LST to set SOL value calculator for"
         },
         {
           "name": "pool_state",
@@ -1019,13 +1019,13 @@
           "desc": "The RebalanceRecord PDA"
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -1095,7 +1095,7 @@
           "desc": "The RebalanceRecord PDA"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -1308,7 +1308,7 @@
             "attrs": ["padding"]
           },
           {
-            "name": "dst_lst",
+            "name": "dst_lst_mint",
             "type": "publicKey"
           }
         ]

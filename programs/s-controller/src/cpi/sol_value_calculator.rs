@@ -127,7 +127,7 @@ pub trait GetLstMintAccountInfo<'me, 'info> {
 
 impl<'me, 'info> GetLstMintAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
     fn get_lst_mint_account_info(&self) -> &'me AccountInfo<'info> {
-        self.lst
+        self.lst_mint
     }
 }
 
