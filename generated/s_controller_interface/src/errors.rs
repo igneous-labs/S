@@ -14,6 +14,12 @@ pub enum SControllerError {
     InvalidDisablePoolAuthorityListData = 2,
     #[error("Invalid rebalance record data")]
     InvalidRebalanceRecordData = 3,
+    #[error("Math error")]
+    MathError = 4,
+    #[error("Pool is currently rebalancing")]
+    PoolRebalancing = 5,
+    #[error("Pool is currently disabled")]
+    PoolDisabled = 6,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

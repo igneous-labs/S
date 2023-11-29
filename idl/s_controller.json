@@ -1327,6 +1327,21 @@
       "code": 3,
       "name": "InvalidRebalanceRecordData",
       "msg": "Invalid rebalance record data"
+    },
+    {
+      "code": 4,
+      "name": "MathError",
+      "msg": "Math error"
+    },
+    {
+      "code": 5,
+      "name": "PoolRebalancing",
+      "msg": "Pool is currently rebalancing"
+    },
+    {
+      "code": 6,
+      "name": "PoolDisabled",
+      "msg": "Pool is currently disabled"
     }
   ],
   "metadata": {
