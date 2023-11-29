@@ -3,11 +3,11 @@ use solana_program::pubkey::Pubkey;
 
 use crate::program;
 
-pub struct SetLpWithdrawalFeeRootAccounts {
+pub struct SetLpWithdrawalFeeFreeArgs {
     pub manager: Pubkey,
 }
 
-impl SetLpWithdrawalFeeRootAccounts {
+impl SetLpWithdrawalFeeFreeArgs {
     pub fn resolve(self) -> SetLpWithdrawalFeeKeys {
         SetLpWithdrawalFeeKeys {
             manager: self.manager,
