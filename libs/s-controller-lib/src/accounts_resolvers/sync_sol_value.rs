@@ -1,7 +1,5 @@
 use s_controller_interface::{LstState, SControllerError, SyncSolValueKeys};
-use sanctum_utils::associated_token::{
-    create_ata_address_with_program_id, CreateAtaAddressWithProgramIdArgs,
-};
+use sanctum_utils::associated_token::{create_ata_address, CreateAtaAddressArgs};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -41,7 +39,7 @@ impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
 
         let token_program = self.lst_mint.owner();
 
-        let pool_reserves = create_ata_address_with_program_id(CreateAtaAddressWithProgramIdArgs {
+        let pool_reserves = create_ata_address(CreateAtaAddressArgs {
             wallet: STATE_ID,
             mint: *mint,
             token_program: *token_program,

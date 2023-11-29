@@ -1,7 +1,7 @@
 use solana_program::pubkey::{Pubkey, PubkeyError};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CreateAtaAddressWithProgramIdArgs {
+pub struct CreateAtaAddressArgs {
     pub wallet: Pubkey,
     pub mint: Pubkey,
     pub token_program: Pubkey,
@@ -10,13 +10,13 @@ pub struct CreateAtaAddressWithProgramIdArgs {
 
 /// spl-associated-token-account only exports the find_program_address version.
 /// This uses create_program_address with a known bump to reduce compute used
-pub fn create_ata_address_with_program_id(
-    CreateAtaAddressWithProgramIdArgs {
+pub fn create_ata_address(
+    CreateAtaAddressArgs {
         wallet,
         mint,
         token_program,
         bump,
-    }: CreateAtaAddressWithProgramIdArgs,
+    }: CreateAtaAddressArgs,
 ) -> Result<Pubkey, PubkeyError> {
     Pubkey::create_program_address(
         &[
