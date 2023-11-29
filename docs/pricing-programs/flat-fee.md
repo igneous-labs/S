@@ -176,7 +176,7 @@ Permissionlessly initialize the program state. Can only be called once and sets 
 
 | Account        | Description                                | Read/Write (R/W) | Signer (Y/N) |
 | -------------- | ------------------------------------------ | ---------------- | ------------ |
-| payer          | The account paying for ProgramState's rent | W                | Y            |
+| payer          | Account paying for ProgramState's rent     | W                | Y            |
 | state          | Program state PDA                          | W                | N            |
 | system_program | System program                             | R                | N            |
 
@@ -198,7 +198,7 @@ Update the manager authority of the pricing program.
 | new_manager     | The new program manager to set to | R                | N            |
 | state           | Program state PDA                 | W                | N            |
 
-#### SetFee
+#### AddLst
 
 Update the fees for given type of pricing action.
 
@@ -207,6 +207,46 @@ Update the fees for given type of pricing action.
 | Name         | Value                                                       | Type |
 | ------------ | ----------------------------------------------------------- | ---- |
 | discriminant | 253                                                         | u8   |
+| input_fee    | Fee in bips to impose when the token type is used as input  | i16  |
+| output_fee   | Fee in bips to impose when the token type is used as output | i16  |
+
+##### Accounts
+
+| Account        | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------ | ---------------- | ------------ |
+| manager        | The program manager                  | R                | Y            |
+| payer          | Account paying for FeeAccount's rent | R                | Y            |
+| fee_acc        | FeeAccount PDA to modify             | W                | N            |
+| system_program | System program                       | R                | N            |
+
+#### RemoveLst
+
+Update the fees for given type of pricing action.
+
+##### Data
+
+| Name         | Value                                                       | Type |
+| ------------ | ----------------------------------------------------------- | ---- |
+| discriminant | 252                                                         | u8   |
+
+##### Accounts
+
+| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ----------------------------- | ---------------- | ------------ |
+| manager        | The program manager           | R                | Y            |
+| refund_rent_to | Account to refund SOL rent to | R                | Y            |
+| fee_acc        | FeeAccount PDA to modify      | W                | N            |
+| system_program | System program                | R                | N            |
+
+#### SetLstFee
+
+Update the fees for given type of pricing action.
+
+##### Data
+
+| Name         | Value                                                       | Type |
+| ------------ | ----------------------------------------------------------- | ---- |
+| discriminant | 251                                                         | u8   |
 | input_fee    | Fee in bips to impose when the token type is used as input  | i16  |
 | output_fee   | Fee in bips to impose when the token type is used as output | i16  |
 
@@ -225,7 +265,7 @@ Update the fees imposed for redeeming LP token for LST
 
 | Name              | Value                                                 | Type |
 | ----------------- | ----------------------------------------------------- | ---- |
-| discriminant      | 252                                                   | u8   |
+| discriminant      | 250                                                   | u8   |
 | lp_withdrawal_fee | Fee in bips to impose when redeeming LP token for LST | u16  |
 
 ##### Accounts
