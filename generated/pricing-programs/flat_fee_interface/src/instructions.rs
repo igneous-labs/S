@@ -14,7 +14,9 @@ pub enum FlatFeeProgramIx {
     PriceLpTokensToMint(PriceLpTokensToMintIxArgs),
     PriceLpTokensToRedeem(PriceLpTokensToRedeemIxArgs),
     SetLpWithdrawalFee(SetLpWithdrawalFeeIxArgs),
-    SetFee(SetFeeIxArgs),
+    SetLstFee(SetLstFeeIxArgs),
+    RemoveLst(RemoveLstIxArgs),
+    AddLst(AddLstIxArgs),
     SetManager(SetManagerIxArgs),
     Init(InitIxArgs),
 }
@@ -41,8 +43,16 @@ impl BorshSerialize for FlatFeeProgramIx {
                 SET_LP_WITHDRAWAL_FEE_IX_DISCM.serialize(writer)?;
                 args.serialize(writer)
             }
-            Self::SetFee(args) => {
-                SET_FEE_IX_DISCM.serialize(writer)?;
+            Self::SetLstFee(args) => {
+                SET_LST_FEE_IX_DISCM.serialize(writer)?;
+                args.serialize(writer)
+            }
+            Self::RemoveLst(args) => {
+                REMOVE_LST_IX_DISCM.serialize(writer)?;
+                args.serialize(writer)
+            }
+            Self::AddLst(args) => {
+                ADD_LST_IX_DISCM.serialize(writer)?;
                 args.serialize(writer)
             }
             Self::SetManager(args) => {
@@ -75,7 +85,9 @@ impl FlatFeeProgramIx {
             SET_LP_WITHDRAWAL_FEE_IX_DISCM => Ok(Self::SetLpWithdrawalFee(
                 SetLpWithdrawalFeeIxArgs::deserialize(buf)?,
             )),
-            SET_FEE_IX_DISCM => Ok(Self::SetFee(SetFeeIxArgs::deserialize(buf)?)),
+            SET_LST_FEE_IX_DISCM => Ok(Self::SetLstFee(SetLstFeeIxArgs::deserialize(buf)?)),
+            REMOVE_LST_IX_DISCM => Ok(Self::RemoveLst(RemoveLstIxArgs::deserialize(buf)?)),
+            ADD_LST_IX_DISCM => Ok(Self::AddLst(AddLstIxArgs::deserialize(buf)?)),
             SET_MANAGER_IX_DISCM => Ok(Self::SetManager(SetManagerIxArgs::deserialize(buf)?)),
             INIT_IX_DISCM => Ok(Self::Init(InitIxArgs::deserialize(buf)?)),
             _ => Err(std::io::Error::new(
@@ -757,7 +769,7 @@ pub struct SetLpWithdrawalFeeIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetLpWithdrawalFeeIxData(pub SetLpWithdrawalFeeIxArgs);
-pub const SET_LP_WITHDRAWAL_FEE_IX_DISCM: u8 = 252u8;
+pub const SET_LP_WITHDRAWAL_FEE_IX_DISCM: u8 = 250u8;
 impl From<SetLpWithdrawalFeeIxArgs> for SetLpWithdrawalFeeIxData {
     fn from(args: SetLpWithdrawalFeeIxArgs) -> Self {
         Self(args)
@@ -847,54 +859,56 @@ pub fn set_lp_withdrawal_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const SET_FEE_IX_ACCOUNTS_LEN: usize = 2;
+pub const SET_LST_FEE_IX_ACCOUNTS_LEN: usize = 2;
 #[derive(Copy, Clone, Debug)]
-pub struct SetFeeAccounts<'me, 'info> {
+pub struct SetLstFeeAccounts<'me, 'info> {
     ///The program manager
     pub manager: &'me AccountInfo<'info>,
     ///FeeAccount PDA to modify
     pub fee_acc: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
-pub struct SetFeeKeys {
+pub struct SetLstFeeKeys {
     ///The program manager
     pub manager: Pubkey,
     ///FeeAccount PDA to modify
     pub fee_acc: Pubkey,
 }
-impl From<&SetFeeAccounts<'_, '_>> for SetFeeKeys {
-    fn from(accounts: &SetFeeAccounts) -> Self {
+impl From<&SetLstFeeAccounts<'_, '_>> for SetLstFeeKeys {
+    fn from(accounts: &SetLstFeeAccounts) -> Self {
         Self {
             manager: *accounts.manager.key,
             fee_acc: *accounts.fee_acc.key,
         }
     }
 }
-impl From<&SetFeeKeys> for [AccountMeta; SET_FEE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetFeeKeys) -> Self {
+impl From<&SetLstFeeKeys> for [AccountMeta; SET_LST_FEE_IX_ACCOUNTS_LEN] {
+    fn from(keys: &SetLstFeeKeys) -> Self {
         [
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.fee_acc, false),
         ]
     }
 }
-impl From<[Pubkey; SET_FEE_IX_ACCOUNTS_LEN]> for SetFeeKeys {
-    fn from(pubkeys: [Pubkey; SET_FEE_IX_ACCOUNTS_LEN]) -> Self {
+impl From<[Pubkey; SET_LST_FEE_IX_ACCOUNTS_LEN]> for SetLstFeeKeys {
+    fn from(pubkeys: [Pubkey; SET_LST_FEE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             manager: pubkeys[0],
             fee_acc: pubkeys[1],
         }
     }
 }
-impl<'info> From<&SetFeeAccounts<'_, 'info>> for [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN] {
-    fn from(accounts: &SetFeeAccounts<'_, 'info>) -> Self {
+impl<'info> From<&SetLstFeeAccounts<'_, 'info>>
+    for [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]
+{
+    fn from(accounts: &SetLstFeeAccounts<'_, 'info>) -> Self {
         [accounts.manager.clone(), accounts.fee_acc.clone()]
     }
 }
-impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN]>
-    for SetFeeAccounts<'me, 'info>
+impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]>
+    for SetLstFeeAccounts<'me, 'info>
 {
-    fn from(arr: &'me [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN]) -> Self {
+    fn from(arr: &'me [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             manager: &arr[0],
             fee_acc: &arr[1],
@@ -903,73 +917,73 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN]>
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetFeeIxArgs {
+pub struct SetLstFeeIxArgs {
     pub input_fee: i16,
     pub output_fee: i16,
 }
 #[derive(Clone, Debug, PartialEq)]
-pub struct SetFeeIxData(pub SetFeeIxArgs);
-pub const SET_FEE_IX_DISCM: u8 = 253u8;
-impl From<SetFeeIxArgs> for SetFeeIxData {
-    fn from(args: SetFeeIxArgs) -> Self {
+pub struct SetLstFeeIxData(pub SetLstFeeIxArgs);
+pub const SET_LST_FEE_IX_DISCM: u8 = 251u8;
+impl From<SetLstFeeIxArgs> for SetLstFeeIxData {
+    fn from(args: SetLstFeeIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SetFeeIxData {
+impl BorshSerialize for SetLstFeeIxData {
     fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_FEE_IX_DISCM])?;
+        writer.write_all(&[SET_LST_FEE_IX_DISCM])?;
         self.0.serialize(writer)
     }
 }
-impl SetFeeIxData {
+impl SetLstFeeIxData {
     pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         let maybe_discm = u8::deserialize(buf)?;
-        if maybe_discm != SET_FEE_IX_DISCM {
+        if maybe_discm != SET_LST_FEE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!(
                     "discm does not match. Expected: {:?}. Received: {:?}",
-                    SET_FEE_IX_DISCM, maybe_discm
+                    SET_LST_FEE_IX_DISCM, maybe_discm
                 ),
             ));
         }
-        Ok(Self(SetFeeIxArgs::deserialize(buf)?))
+        Ok(Self(SetLstFeeIxArgs::deserialize(buf)?))
     }
 }
-pub fn set_fee_ix<K: Into<SetFeeKeys>, A: Into<SetFeeIxArgs>>(
+pub fn set_lst_fee_ix<K: Into<SetLstFeeKeys>, A: Into<SetLstFeeIxArgs>>(
     accounts: K,
     args: A,
 ) -> std::io::Result<Instruction> {
-    let keys: SetFeeKeys = accounts.into();
-    let metas: [AccountMeta; SET_FEE_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetFeeIxArgs = args.into();
-    let data: SetFeeIxData = args_full.into();
+    let keys: SetLstFeeKeys = accounts.into();
+    let metas: [AccountMeta; SET_LST_FEE_IX_ACCOUNTS_LEN] = (&keys).into();
+    let args_full: SetLstFeeIxArgs = args.into();
+    let data: SetLstFeeIxData = args_full.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn set_fee_invoke<'info, A: Into<SetFeeIxArgs>>(
-    accounts: &SetFeeAccounts<'_, 'info>,
+pub fn set_lst_fee_invoke<'info, A: Into<SetLstFeeIxArgs>>(
+    accounts: &SetLstFeeAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
-    let ix = set_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN] = accounts.into();
+    let ix = set_lst_fee_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_fee_invoke_signed<'info, A: Into<SetFeeIxArgs>>(
-    accounts: &SetFeeAccounts<'_, 'info>,
+pub fn set_lst_fee_invoke_signed<'info, A: Into<SetLstFeeIxArgs>>(
+    accounts: &SetLstFeeAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_FEE_IX_ACCOUNTS_LEN] = accounts.into();
+    let ix = set_lst_fee_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
-pub fn set_fee_verify_account_keys(
-    accounts: &SetFeeAccounts<'_, '_>,
-    keys: &SetFeeKeys,
+pub fn set_lst_fee_verify_account_keys(
+    accounts: &SetLstFeeAccounts<'_, '_>,
+    keys: &SetLstFeeKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.manager.key, &keys.manager),
@@ -981,8 +995,8 @@ pub fn set_fee_verify_account_keys(
     }
     Ok(())
 }
-pub fn set_fee_verify_account_privileges<'me, 'info>(
-    accounts: &SetFeeAccounts<'me, 'info>,
+pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
+    accounts: &SetLstFeeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.fee_acc] {
         if !should_be_writable.is_writable {
@@ -990,6 +1004,349 @@ pub fn set_fee_verify_account_privileges<'me, 'info>(
         }
     }
     for should_be_signer in [accounts.manager] {
+        if !should_be_signer.is_signer {
+            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
+        }
+    }
+    Ok(())
+}
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 4;
+#[derive(Copy, Clone, Debug)]
+pub struct RemoveLstAccounts<'me, 'info> {
+    ///The program manager
+    pub manager: &'me AccountInfo<'info>,
+    ///Account to refund SOL rent to
+    pub refund_rent_to: &'me AccountInfo<'info>,
+    ///FeeAccount PDA to be created
+    pub fee_acc: &'me AccountInfo<'info>,
+    ///System program
+    pub system_program: &'me AccountInfo<'info>,
+}
+#[derive(Copy, Clone, Debug)]
+pub struct RemoveLstKeys {
+    ///The program manager
+    pub manager: Pubkey,
+    ///Account to refund SOL rent to
+    pub refund_rent_to: Pubkey,
+    ///FeeAccount PDA to be created
+    pub fee_acc: Pubkey,
+    ///System program
+    pub system_program: Pubkey,
+}
+impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
+    fn from(accounts: &RemoveLstAccounts) -> Self {
+        Self {
+            manager: *accounts.manager.key,
+            refund_rent_to: *accounts.refund_rent_to.key,
+            fee_acc: *accounts.fee_acc.key,
+            system_program: *accounts.system_program.key,
+        }
+    }
+}
+impl From<&RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
+    fn from(keys: &RemoveLstKeys) -> Self {
+        [
+            AccountMeta::new_readonly(keys.manager, true),
+            AccountMeta::new(keys.refund_rent_to, true),
+            AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.system_program, false),
+        ]
+    }
+}
+impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
+    fn from(pubkeys: [Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]) -> Self {
+        Self {
+            manager: pubkeys[0],
+            refund_rent_to: pubkeys[1],
+            fee_acc: pubkeys[2],
+            system_program: pubkeys[3],
+        }
+    }
+}
+impl<'info> From<&RemoveLstAccounts<'_, 'info>>
+    for [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]
+{
+    fn from(accounts: &RemoveLstAccounts<'_, 'info>) -> Self {
+        [
+            accounts.manager.clone(),
+            accounts.refund_rent_to.clone(),
+            accounts.fee_acc.clone(),
+            accounts.system_program.clone(),
+        ]
+    }
+}
+impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
+    for RemoveLstAccounts<'me, 'info>
+{
+    fn from(arr: &'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]) -> Self {
+        Self {
+            manager: &arr[0],
+            refund_rent_to: &arr[1],
+            fee_acc: &arr[2],
+            system_program: &arr[3],
+        }
+    }
+}
+#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RemoveLstIxArgs {}
+#[derive(Clone, Debug, PartialEq)]
+pub struct RemoveLstIxData(pub RemoveLstIxArgs);
+pub const REMOVE_LST_IX_DISCM: u8 = 252u8;
+impl From<RemoveLstIxArgs> for RemoveLstIxData {
+    fn from(args: RemoveLstIxArgs) -> Self {
+        Self(args)
+    }
+}
+impl BorshSerialize for RemoveLstIxData {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(&[REMOVE_LST_IX_DISCM])?;
+        self.0.serialize(writer)
+    }
+}
+impl RemoveLstIxData {
+    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
+        let maybe_discm = u8::deserialize(buf)?;
+        if maybe_discm != REMOVE_LST_IX_DISCM {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!(
+                    "discm does not match. Expected: {:?}. Received: {:?}",
+                    REMOVE_LST_IX_DISCM, maybe_discm
+                ),
+            ));
+        }
+        Ok(Self(RemoveLstIxArgs::deserialize(buf)?))
+    }
+}
+pub fn remove_lst_ix<K: Into<RemoveLstKeys>, A: Into<RemoveLstIxArgs>>(
+    accounts: K,
+    args: A,
+) -> std::io::Result<Instruction> {
+    let keys: RemoveLstKeys = accounts.into();
+    let metas: [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] = (&keys).into();
+    let args_full: RemoveLstIxArgs = args.into();
+    let data: RemoveLstIxData = args_full.into();
+    Ok(Instruction {
+        program_id: crate::ID,
+        accounts: Vec::from(metas),
+        data: data.try_to_vec()?,
+    })
+}
+pub fn remove_lst_invoke<'info, A: Into<RemoveLstIxArgs>>(
+    accounts: &RemoveLstAccounts<'_, 'info>,
+    args: A,
+) -> ProgramResult {
+    let ix = remove_lst_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN] = accounts.into();
+    invoke(&ix, &account_info)
+}
+pub fn remove_lst_invoke_signed<'info, A: Into<RemoveLstIxArgs>>(
+    accounts: &RemoveLstAccounts<'_, 'info>,
+    args: A,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    let ix = remove_lst_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN] = accounts.into();
+    invoke_signed(&ix, &account_info, seeds)
+}
+pub fn remove_lst_verify_account_keys(
+    accounts: &RemoveLstAccounts<'_, '_>,
+    keys: &RemoveLstKeys,
+) -> Result<(), (Pubkey, Pubkey)> {
+    for (actual, expected) in [
+        (accounts.manager.key, &keys.manager),
+        (accounts.refund_rent_to.key, &keys.refund_rent_to),
+        (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.system_program.key, &keys.system_program),
+    ] {
+        if actual != expected {
+            return Err((*actual, *expected));
+        }
+    }
+    Ok(())
+}
+pub fn remove_lst_verify_account_privileges<'me, 'info>(
+    accounts: &RemoveLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    for should_be_writable in [accounts.refund_rent_to, accounts.fee_acc] {
+        if !should_be_writable.is_writable {
+            return Err((should_be_writable, ProgramError::InvalidAccountData));
+        }
+    }
+    for should_be_signer in [accounts.manager, accounts.refund_rent_to] {
+        if !should_be_signer.is_signer {
+            return Err((should_be_signer, ProgramError::MissingRequiredSignature));
+        }
+    }
+    Ok(())
+}
+pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 4;
+#[derive(Copy, Clone, Debug)]
+pub struct AddLstAccounts<'me, 'info> {
+    ///The program manager
+    pub manager: &'me AccountInfo<'info>,
+    ///Account paying for FeeAccount's rent
+    pub payer: &'me AccountInfo<'info>,
+    ///FeeAccount PDA to be created
+    pub fee_acc: &'me AccountInfo<'info>,
+    ///System program
+    pub system_program: &'me AccountInfo<'info>,
+}
+#[derive(Copy, Clone, Debug)]
+pub struct AddLstKeys {
+    ///The program manager
+    pub manager: Pubkey,
+    ///Account paying for FeeAccount's rent
+    pub payer: Pubkey,
+    ///FeeAccount PDA to be created
+    pub fee_acc: Pubkey,
+    ///System program
+    pub system_program: Pubkey,
+}
+impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
+    fn from(accounts: &AddLstAccounts) -> Self {
+        Self {
+            manager: *accounts.manager.key,
+            payer: *accounts.payer.key,
+            fee_acc: *accounts.fee_acc.key,
+            system_program: *accounts.system_program.key,
+        }
+    }
+}
+impl From<&AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
+    fn from(keys: &AddLstKeys) -> Self {
+        [
+            AccountMeta::new_readonly(keys.manager, true),
+            AccountMeta::new(keys.payer, true),
+            AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.system_program, false),
+        ]
+    }
+}
+impl From<[Pubkey; ADD_LST_IX_ACCOUNTS_LEN]> for AddLstKeys {
+    fn from(pubkeys: [Pubkey; ADD_LST_IX_ACCOUNTS_LEN]) -> Self {
+        Self {
+            manager: pubkeys[0],
+            payer: pubkeys[1],
+            fee_acc: pubkeys[2],
+            system_program: pubkeys[3],
+        }
+    }
+}
+impl<'info> From<&AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] {
+    fn from(accounts: &AddLstAccounts<'_, 'info>) -> Self {
+        [
+            accounts.manager.clone(),
+            accounts.payer.clone(),
+            accounts.fee_acc.clone(),
+            accounts.system_program.clone(),
+        ]
+    }
+}
+impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]>
+    for AddLstAccounts<'me, 'info>
+{
+    fn from(arr: &'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]) -> Self {
+        Self {
+            manager: &arr[0],
+            payer: &arr[1],
+            fee_acc: &arr[2],
+            system_program: &arr[3],
+        }
+    }
+}
+#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AddLstIxArgs {
+    pub input_fee: i16,
+    pub output_fee: i16,
+}
+#[derive(Clone, Debug, PartialEq)]
+pub struct AddLstIxData(pub AddLstIxArgs);
+pub const ADD_LST_IX_DISCM: u8 = 253u8;
+impl From<AddLstIxArgs> for AddLstIxData {
+    fn from(args: AddLstIxArgs) -> Self {
+        Self(args)
+    }
+}
+impl BorshSerialize for AddLstIxData {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        writer.write_all(&[ADD_LST_IX_DISCM])?;
+        self.0.serialize(writer)
+    }
+}
+impl AddLstIxData {
+    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
+        let maybe_discm = u8::deserialize(buf)?;
+        if maybe_discm != ADD_LST_IX_DISCM {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!(
+                    "discm does not match. Expected: {:?}. Received: {:?}",
+                    ADD_LST_IX_DISCM, maybe_discm
+                ),
+            ));
+        }
+        Ok(Self(AddLstIxArgs::deserialize(buf)?))
+    }
+}
+pub fn add_lst_ix<K: Into<AddLstKeys>, A: Into<AddLstIxArgs>>(
+    accounts: K,
+    args: A,
+) -> std::io::Result<Instruction> {
+    let keys: AddLstKeys = accounts.into();
+    let metas: [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] = (&keys).into();
+    let args_full: AddLstIxArgs = args.into();
+    let data: AddLstIxData = args_full.into();
+    Ok(Instruction {
+        program_id: crate::ID,
+        accounts: Vec::from(metas),
+        data: data.try_to_vec()?,
+    })
+}
+pub fn add_lst_invoke<'info, A: Into<AddLstIxArgs>>(
+    accounts: &AddLstAccounts<'_, 'info>,
+    args: A,
+) -> ProgramResult {
+    let ix = add_lst_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
+    invoke(&ix, &account_info)
+}
+pub fn add_lst_invoke_signed<'info, A: Into<AddLstIxArgs>>(
+    accounts: &AddLstAccounts<'_, 'info>,
+    args: A,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    let ix = add_lst_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
+    invoke_signed(&ix, &account_info, seeds)
+}
+pub fn add_lst_verify_account_keys(
+    accounts: &AddLstAccounts<'_, '_>,
+    keys: &AddLstKeys,
+) -> Result<(), (Pubkey, Pubkey)> {
+    for (actual, expected) in [
+        (accounts.manager.key, &keys.manager),
+        (accounts.payer.key, &keys.payer),
+        (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.system_program.key, &keys.system_program),
+    ] {
+        if actual != expected {
+            return Err((*actual, *expected));
+        }
+    }
+    Ok(())
+}
+pub fn add_lst_verify_account_privileges<'me, 'info>(
+    accounts: &AddLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    for should_be_writable in [accounts.payer, accounts.fee_acc] {
+        if !should_be_writable.is_writable {
+            return Err((should_be_writable, ProgramError::InvalidAccountData));
+        }
+    }
+    for should_be_signer in [accounts.manager, accounts.payer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
@@ -1160,7 +1517,7 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
 pub const INIT_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct InitAccounts<'me, 'info> {
-    ///The account paying for ProgramState's rent
+    ///Account paying for ProgramState's rent
     pub payer: &'me AccountInfo<'info>,
     ///Program state PDA
     pub state: &'me AccountInfo<'info>,
@@ -1169,7 +1526,7 @@ pub struct InitAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct InitKeys {
-    ///The account paying for ProgramState's rent
+    ///Account paying for ProgramState's rent
     pub payer: Pubkey,
     ///Program state PDA
     pub state: Pubkey,
