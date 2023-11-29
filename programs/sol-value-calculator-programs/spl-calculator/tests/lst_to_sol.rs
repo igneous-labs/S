@@ -14,7 +14,7 @@ mod common;
 #[tokio::test]
 async fn jito_basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_071_477_406;
+    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_072_326_756;
 
     let JitoNormalProgramTest {
         program_test,

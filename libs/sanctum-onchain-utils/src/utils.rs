@@ -9,9 +9,10 @@ pub fn load_accounts<'a, 'info, A, const LEN: usize>(
 where
     &'a [AccountInfo<'info>; LEN]: Into<A>,
 {
-    let accounts_arr: &[AccountInfo; LEN] = accounts_slice
-        .try_into()
-        .map_err(|_e| ProgramError::NotEnoughAccountKeys)?;
+    let subslice = accounts_slice
+        .get(..LEN)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
+    let accounts_arr: &[AccountInfo; LEN] = subslice.try_into().unwrap();
     Ok(accounts_arr.into())
 }
 

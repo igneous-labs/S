@@ -3220,12 +3220,25 @@ name = "s-controller"
 version = "1.0.0"
 dependencies = [
  "borsh 0.9.3",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "marinade-calculator",
+ "marinade-calculator-lib",
+ "marinade-keys",
  "s-controller-lib",
  "s_controller_interface",
  "sanctum-onchain-utils",
  "sanctum-utils",
  "sol_value_calculator_interface",
  "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "spl-calculator",
+ "spl-calculator-lib",
+ "spl-token",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -5091,6 +5104,7 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-token",
 ]
 
 [[package]]

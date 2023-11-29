@@ -3,11 +3,15 @@ use static_assertions::const_assert_eq;
 
 mod accounts_resolvers;
 mod accounts_serde;
+mod instructions;
+mod pda;
 mod state;
 mod u8bool;
 
 pub use accounts_resolvers::*;
 pub use accounts_serde::*;
+pub use instructions::*;
+pub use pda::*;
 pub use state::*;
 pub use u8bool::*;
 

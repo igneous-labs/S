@@ -4,7 +4,7 @@ use s_controller_interface::{
     sync_sol_value_verify_account_keys, sync_sol_value_verify_account_privileges,
     SyncSolValueAccounts,
 };
-use s_controller_lib::{try_pool_state, SyncSolValueFreeAccounts};
+use s_controller_lib::{try_pool_state, SyncSolValueFreeArgs};
 use sanctum_onchain_utils::utils::{
     log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
@@ -16,7 +16,7 @@ pub fn verify_sync_sol_value_accounts<'a, 'info, I: TryInto<usize>>(
     actual: SyncSolValueAccounts<'a, 'info>,
     lst_index: I,
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {
-    let free_accounts = SyncSolValueFreeAccounts {
+    let free_accounts = SyncSolValueFreeArgs {
         lst_index,
         lst_state_list: actual.lst_state_list,
         lst_mint: actual.lst_mint,
