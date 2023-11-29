@@ -21,7 +21,7 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeFloor<N, D> {
             .ok_or(GenericPoolCalculatorError::MathError)
     }
 
-    /// Returns a possible amount that was fed into self.apply_floor()
+    /// Returns a possible amount that was fed into self.apply()
     ///
     /// Returns `amt_after_apply` if fee_num == 0 || fee_denom == 0
     ///

@@ -1307,7 +1307,28 @@
       }
     }
   ],
-  "errors": [],
+  "errors": [
+    {
+      "code": 0,
+      "name": "InvalidPoolStateData",
+      "msg": "Invalid pool state data"
+    },
+    {
+      "code": 1,
+      "name": "InvalidLstStateListData",
+      "msg": "Invalid lst state data"
+    },
+    {
+      "code": 2,
+      "name": "InvalidDisablePoolAuthorityListData",
+      "msg": "Invalid disable pool authority list data"
+    },
+    {
+      "code": 3,
+      "name": "InvalidRebalanceRecordData",
+      "msg": "Invalid rebalance record data"
+    }
+  ],
   "metadata": {
     "origin": "shank",
     "address": "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv"

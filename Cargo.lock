@@ -3228,9 +3228,11 @@ dependencies = [
 name = "s-controller-lib"
 version = "1.0.0"
 dependencies = [
+ "bytemuck",
  "s_controller_interface",
  "sanctum-macros",
  "solana-program",
+ "static_assertions",
 ]
 
 [[package]]

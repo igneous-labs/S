@@ -5,7 +5,16 @@ use solana_program::{
 };
 use thiserror::Error;
 #[derive(Clone, Copy, Debug, Eq, Error, num_derive::FromPrimitive, PartialEq)]
-pub enum SControllerError {}
+pub enum SControllerError {
+    #[error("Invalid pool state data")]
+    InvalidPoolStateData = 0,
+    #[error("Invalid lst state data")]
+    InvalidLstStateListData = 1,
+    #[error("Invalid disable pool authority list data")]
+    InvalidDisablePoolAuthorityListData = 2,
+    #[error("Invalid rebalance record data")]
+    InvalidRebalanceRecordData = 3,
+}
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
         ProgramError::Custom(e as u32)

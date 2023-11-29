@@ -9,8 +9,6 @@ solores \
     -o ./generated \
     -z PoolState \
     -z LstState \
-    -z LstStateList \
-    -z DisablePoolAuthorityList \
     -z RebalanceRecord \
     --solana-program-vers "workspace=true" \
     --borsh-vers "workspace=true" \
