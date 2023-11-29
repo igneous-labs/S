@@ -31,9 +31,9 @@ The LST state list singleton is located at PDA ["lst-state-list"].
 
 ### Schema
 
-| Name       | Value                                              | Type       |
-| ---------- | -------------------------------------------------- | ---------- |
-| lst_states | Dynamic list of LstStates for each LST in the pool | LstState[] |
+| Name           | Value                                              | Type       |
+| -------------- | -------------------------------------------------- | ---------- |
+| lst_state_list | Dynamic list of LstStates for each LST in the pool | LstState[] |
 
 #### LstState Schema
 
@@ -71,7 +71,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Name                    | Value                                                                                                                                                                                         | Type   |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | sol_value               | SOL value of the LST tokens withdrawn to be rebalanced                                                                                                                                        | u64    |
-| dst_lst_index           | index of dst_lst in PoolState.lst_states                                                                                                                                                      | u64    |
+| dst_lst_index           | index of dst_lst in PoolState.lst_state_list                                                                                                                                                  | u64    |
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8     |
 | dst_lst                 | token mint of the LST being rebalanced to                                                                                                                                                     | Pubkey |
 

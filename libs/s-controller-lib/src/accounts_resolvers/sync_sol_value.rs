@@ -52,7 +52,7 @@ impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
         Ok(SyncSolValueKeys {
             lst: *mint,
             pool_state: STATE_ID,
-            lst_states: LST_STATE_LIST_ID,
+            lst_state_list: LST_STATE_LIST_ID,
             pool_reserves,
         })
     }

@@ -137,6 +137,6 @@ pub trait GetLstStateListAccountInfo<'me, 'info> {
 
 impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
     fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
-        self.lst_states
+        self.lst_state_list
     }
 }

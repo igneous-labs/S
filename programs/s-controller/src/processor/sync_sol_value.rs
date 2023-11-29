@@ -20,7 +20,7 @@ pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs
 pub fn sync_sol_value_unchecked<'a, 'info>(
     SyncSolValueAccounts {
         pool_state,
-        lst_states,
+        lst_state_list,
         pool_reserves,
         ..
     }: SyncSolValueAccounts<'a, 'info>,
@@ -33,7 +33,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
     let mut pool_state_bytes = pool_state.try_borrow_mut_data()?;
     let pool_state = try_pool_state_mut(&mut pool_state_bytes)?;
 
-    let mut lst_state_list_bytes = lst_states.try_borrow_mut_data()?;
+    let mut lst_state_list_bytes = lst_state_list.try_borrow_mut_data()?;
     let lst_state_list = try_lst_state_list_mut(&mut lst_state_list_bytes)?;
     let lst_state = &mut lst_state_list[lst_index];
 

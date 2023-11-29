@@ -19,7 +19,7 @@ pub fn verify_sync_sol_value_accounts<'a, 'info, I: TryInto<usize>>(
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {
     let free_accounts = SyncSolValueFreeAccounts {
         lst_index,
-        lst_state_list: actual.lst_states,
+        lst_state_list: actual.lst_state_list,
         lst_mint: actual.lst,
     };
     let expected = free_accounts.resolve()?;
