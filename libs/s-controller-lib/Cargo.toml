@@ -7,5 +7,7 @@ edition = "2021"
 bytemuck = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 sanctum-macros = { workspace = true }
+sanctum-utils = { path = "../sanctum-utils" }
 solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
 static_assertions = { workspace = true }

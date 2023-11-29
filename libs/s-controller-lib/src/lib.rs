@@ -40,6 +40,7 @@ pub mod program {
         "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv",
         [
             ("state", b"state"),
+            ("lst-state-list", b"lst-state-list"),
             (
                 "disable-pool-authority-list",
                 b"disable-pool-authority-list"

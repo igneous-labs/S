@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "name": "sol_value_calculator",
+  "instructions": [
+    {
+      "name": "LstToSol",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LST mint"
+        }
+      ]
+    },
+    {
+      "name": "SolToLst",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "lst",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LST mint"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "TH1S1SNoTAVAL1DPUBKEYUSETHE1MPLS1D1NSTEAD11"
+  }
+}

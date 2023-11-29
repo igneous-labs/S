@@ -13,6 +13,10 @@ crate-type = ["cdylib", "lib"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
+borsh = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 s-controller-lib = { path = "../../libs/s-controller-lib" }
+sanctum-utils = { path = "../../libs/sanctum-utils" }
+sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
+sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }

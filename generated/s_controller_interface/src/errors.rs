@@ -20,6 +20,14 @@ pub enum SControllerError {
     PoolRebalancing = 5,
     #[error("Pool is currently disabled")]
     PoolDisabled = 6,
+    #[error("LST with given index does not exist")]
+    InvalidLstIndex = 7,
+    #[error("Invalid LST reserves account")]
+    InvalidReserves = 8,
+    #[error("Incorrect SOL value calculator program")]
+    IncorrectSolValueCalculator = 9,
+    #[error("Faulty SOL value calculator program")]
+    FaultySolValueCalculator = 10,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

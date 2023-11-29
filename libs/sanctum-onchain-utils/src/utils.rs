@@ -1,4 +1,7 @@
-use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
+use solana_program::{
+    account_info::AccountInfo, instruction::AccountMeta, msg, program_error::ProgramError,
+    pubkey::Pubkey,
+};
 
 pub fn load_accounts<'a, 'info, A, const LEN: usize>(
     accounts_slice: &'a [AccountInfo<'info>],
@@ -20,4 +23,20 @@ pub fn log_and_return_wrong_acc_err((actual, expected): (Pubkey, Pubkey)) -> Pro
 pub fn log_and_return_acc_privilege_err((info, err): (&AccountInfo, ProgramError)) -> ProgramError {
     msg!("Writable/signer privilege escalated for: {}", info.key);
     err
+}
+
+// idk why this isnt a util fn in solana-program
+pub fn account_info_to_account_meta(
+    AccountInfo {
+        key,
+        is_signer,
+        is_writable,
+        ..
+    }: &AccountInfo,
+) -> AccountMeta {
+    AccountMeta {
+        pubkey: **key,
+        is_signer: *is_signer,
+        is_writable: *is_writable,
+    }
 }

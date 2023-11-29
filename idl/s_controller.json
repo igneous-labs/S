@@ -1254,9 +1254,17 @@
             "type": "u8"
           },
           {
+            "name": "reserves_bump",
+            "type": "u8"
+          },
+          {
+            "name": "protocol_fee_accumulator_bump",
+            "type": "u8"
+          },
+          {
             "name": "padding",
             "type": {
-              "array": ["u8", 7]
+              "array": ["u8", 5]
             },
             "attrs": ["padding"]
           },
@@ -1265,7 +1273,7 @@
             "type": "u64"
           },
           {
-            "name": "token",
+            "name": "mint",
             "type": "publicKey"
           },
           {
@@ -1342,6 +1350,26 @@
       "code": 6,
       "name": "PoolDisabled",
       "msg": "Pool is currently disabled"
+    },
+    {
+      "code": 7,
+      "name": "InvalidLstIndex",
+      "msg": "LST with given index does not exist"
+    },
+    {
+      "code": 8,
+      "name": "InvalidReserves",
+      "msg": "Invalid LST reserves account"
+    },
+    {
+      "code": 9,
+      "name": "IncorrectSolValueCalculator",
+      "msg": "Incorrect SOL value calculator program"
+    },
+    {
+      "code": 10,
+      "name": "FaultySolValueCalculator",
+      "msg": "Faulty SOL value calculator program"
     }
   ],
   "metadata": {
