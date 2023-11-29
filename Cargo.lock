@@ -1356,6 +1356,17 @@ version = "0.1.0"
 [[package]]
 name = "flat-fee-lib"
 version = "0.1.0"
+dependencies = [
+ "borsh 0.9.3",
+ "bytemuck",
+ "flat_fee_interface",
+ "proptest",
+ "sanctum-macros",
+ "solana-program",
+ "solana-readonly-account",
+ "static_assertions",
+ "test-utils",
+]
 
 [[package]]
 name = "flat_fee_interface"
