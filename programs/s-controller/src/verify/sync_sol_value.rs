@@ -12,7 +12,6 @@ use solana_program::program_error::ProgramError;
 
 use super::verify_not_rebalancing_and_not_disabled;
 
-/// exported for use by other instruction processors
 pub fn verify_sync_sol_value_accounts<'a, 'info, I: TryInto<usize>>(
     actual: SyncSolValueAccounts<'a, 'info>,
     lst_index: I,

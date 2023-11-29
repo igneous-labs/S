@@ -12,7 +12,7 @@ use crate::{cpi::SolValueCalculatorCpi, verify::verify_sync_sol_value_accounts};
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
-    sync_sol_value_unchecked(accounts, cpi, args.lst_index as usize)?;
+    sync_sol_value_unchecked(&accounts, cpi, args.lst_index as usize)?;
     Ok(())
 }
 
@@ -23,7 +23,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
         lst_state_list,
         pool_reserves,
         ..
-    }: SyncSolValueAccounts<'a, 'info>,
+    }: &SyncSolValueAccounts<'a, 'info>,
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {

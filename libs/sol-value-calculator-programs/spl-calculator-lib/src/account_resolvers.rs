@@ -1,7 +1,7 @@
 use borsh::BorshDeserialize;
 use generic_pool_calculator_interface::GenericPoolCalculatorError;
 use generic_pool_calculator_lib::account_resolvers::{
-    LstSolCommonIntermediateAccounts, LstSolCommonIntermediateKeys,
+    LstSolCommonIntermediateArgs, LstSolCommonIntermediateKeys,
 };
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 use spl_calculator_interface::{AccountType, SplStakePool};
@@ -36,14 +36,13 @@ impl<
 {
     pub fn resolve(
         self,
-    ) -> Result<(LstSolCommonIntermediateAccounts<Q>, SplStakePool), GenericPoolCalculatorError>
-    {
+    ) -> Result<(LstSolCommonIntermediateArgs<Q>, SplStakePool), GenericPoolCalculatorError> {
         if *self.spl_stake_pool_prog.key() != spl_stake_pool_program::ID {
             return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
         let stake_pool = deserialize_spl_stake_pool_checked(&self.spl_stake_pool)?;
         Ok((
-            LstSolCommonIntermediateAccounts {
+            LstSolCommonIntermediateArgs {
                 lst: stake_pool.pool_mint,
                 pool_state: *self.spl_stake_pool.key(),
                 pool_program: self.spl_stake_pool_prog,

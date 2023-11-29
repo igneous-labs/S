@@ -6,13 +6,13 @@ use crate::{utils::read_programdata_addr, GenericPoolSolValCalc, LstSolCommonKey
 
 /// NB: This struct requires a impl-specific resolver to resolve to in order to derive
 /// lst from pool_state and check them
-pub struct LstSolCommonIntermediateAccounts<Q: KeyedAccount + ReadonlyAccountData> {
+pub struct LstSolCommonIntermediateArgs<Q: KeyedAccount + ReadonlyAccountData> {
     pub lst: Pubkey,
     pub pool_state: Pubkey,
     pub pool_program: Q,
 }
 
-impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateAccounts<Q> {
+impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateArgs<Q> {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<LstSolCommonKeys, GenericPoolCalculatorError> {
