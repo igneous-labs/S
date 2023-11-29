@@ -40,7 +40,7 @@ pub struct LstSolCommonIntermediateKeys {
 }
 
 impl LstSolCommonIntermediateKeys {
-    pub fn resolve<P: GenericPoolSolValCalc>(self) -> LstSolCommonKeys {
+    pub const fn resolve<P: GenericPoolSolValCalc>(self) -> LstSolCommonKeys {
         LstSolCommonKeys {
             lst: self.lst,
             pool_state: self.pool_state,

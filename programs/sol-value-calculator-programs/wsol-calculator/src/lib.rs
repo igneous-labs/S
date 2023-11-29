@@ -8,7 +8,7 @@ use wsol_calculator_interface::{
     lst_to_sol_verify_account_keys, LstToSolAccounts, LstToSolIxArgs, SolToLstIxArgs,
     WsolCalculatorProgramIx,
 };
-use wsol_calculator_lib::{account_resolvers::LST_TO_SOL_KEYS, WsolSolCalc};
+use wsol_calculator_lib::{WsolSolCalc, WSOL_LST_TO_SOL_KEYS};
 
 #[cfg(not(feature = "no-entrypoint"))]
 entrypoint!(process_instruction);
@@ -24,7 +24,7 @@ pub fn process_instruction(
 
     // Assumes account interfaces of the 2 instructions are the same
     let accounts: LstToSolAccounts = load_accounts(accounts)?;
-    lst_to_sol_verify_account_keys(&accounts, &LST_TO_SOL_KEYS)
+    lst_to_sol_verify_account_keys(&accounts, &WSOL_LST_TO_SOL_KEYS)
         .map_err(log_and_return_wrong_acc_err)?;
     // accounts should all be read-only, no need to verify_account_privileges
 

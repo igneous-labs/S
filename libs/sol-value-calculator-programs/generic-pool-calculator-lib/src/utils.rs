@@ -81,13 +81,3 @@ pub fn verify_no_stake_pool_prog_upgrade<D: ReadonlyAccountData, S: ReadonlyAcco
         Err(GenericPoolCalculatorError::UnexpectedProgramUpgrade)
     }
 }
-
-pub fn checked_div_ceil(divident: u128, divisor: u128) -> Option<u128> {
-    let quot = divident.checked_div(divisor)?;
-    let rem = divident.checked_rem(divisor)?;
-    if rem == 0 {
-        Some(quot)
-    } else {
-        quot.checked_add(1)
-    }
-}
