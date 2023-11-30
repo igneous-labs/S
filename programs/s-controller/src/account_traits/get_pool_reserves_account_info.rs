@@ -1,0 +1,32 @@
+use s_controller_interface::SyncSolValueAccounts;
+use solana_program::account_info::AccountInfo;
+
+use super::{DstLstPoolReservesOf, GetSrcDstLstPoolReservesAccountInfo, SrcLstPoolReservesOf};
+
+pub trait GetPoolReservesAccountInfo<'me, 'info> {
+    fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info>;
+}
+
+impl<'me, 'info> GetPoolReservesAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
+    fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info> {
+        self.pool_reserves
+    }
+}
+
+impl<'a, 'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for SrcLstPoolReservesOf<'a, A>
+where
+    A: GetSrcDstLstPoolReservesAccountInfo<'me, 'info>,
+{
+    fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info> {
+        self.0.get_src_lst_pool_reserves()
+    }
+}
+
+impl<'a, 'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for DstLstPoolReservesOf<'a, A>
+where
+    A: GetSrcDstLstPoolReservesAccountInfo<'me, 'info>,
+{
+    fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info> {
+        self.0.get_dst_lst_pool_reserves()
+    }
+}

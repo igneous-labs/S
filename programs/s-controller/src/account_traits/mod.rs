@@ -2,8 +2,12 @@
 
 mod get_lst_mint_account_info;
 mod get_lst_state_list_account_info;
+mod get_pool_reserves_account_info;
+mod get_pool_state_account_info;
 mod src_dst_lst;
 
 pub use get_lst_mint_account_info::*;
 pub use get_lst_state_list_account_info::*;
+pub use get_pool_reserves_account_info::*;
+pub use get_pool_state_account_info::*;
 pub use src_dst_lst::*;

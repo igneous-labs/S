@@ -14,7 +14,13 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::{cpi::SolValueCalculatorCpi, verify::verify_not_rebalancing_and_not_disabled};
+use crate::{
+    account_traits::{
+        GetLstStateListAccountInfo, GetPoolReservesAccountInfo, GetPoolStateAccountInfo,
+    },
+    cpi::SolValueCalculatorCpi,
+    verify::verify_not_rebalancing_and_not_disabled,
+};
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
@@ -23,23 +29,28 @@ pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors
-pub fn sync_sol_value_unchecked<'a, 'info>(
-    SyncSolValueAccounts {
-        pool_state,
-        lst_state_list,
-        pool_reserves,
-        ..
-    }: &SyncSolValueAccounts<'a, 'info>,
+pub fn sync_sol_value_unchecked<
+    'a,
+    'info,
+    A: GetPoolReservesAccountInfo<'a, 'info>
+        + GetPoolStateAccountInfo<'a, 'info>
+        + GetLstStateListAccountInfo<'a, 'info>,
+>(
+    accounts: &A,
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {
-    let lst_balance = token_account_balance(pool_reserves)?;
+    let lst_balance = token_account_balance(accounts.get_pool_reserves_account_info())?;
     let returned_sol_value = cpi.invoke_lst_to_sol(lst_balance)?;
 
-    let mut pool_state_bytes = pool_state.try_borrow_mut_data()?;
+    let mut pool_state_bytes = accounts
+        .get_pool_state_account_info()
+        .try_borrow_mut_data()?;
     let pool_state = try_pool_state_mut(&mut pool_state_bytes)?;
 
-    let mut lst_state_list_bytes = lst_state_list.try_borrow_mut_data()?;
+    let mut lst_state_list_bytes = accounts
+        .get_lst_state_list_account_info()
+        .try_borrow_mut_data()?;
     let lst_state_list = try_lst_state_list_mut(&mut lst_state_list_bytes)?;
     let lst_state = &mut lst_state_list[lst_index];
 
