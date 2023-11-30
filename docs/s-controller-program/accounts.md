@@ -68,12 +68,10 @@ Transient hot potato account that records data about the current rebalancing. PD
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name                    | Value                                                                                                                                                                                         | Type   |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| sol_value               | SOL value of the LST tokens withdrawn to be rebalanced                                                                                                                                        | u64    |
-| dst_lst_index           | index of dst_lst in PoolState.lst_state_list                                                                                                                                                  | u64    |
-| dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8     |
-| dst_lst_mint            | token mint of the LST being rebalanced to                                                                                                                                                     | Pubkey |
+| Name                | Value                                                                           | Type |
+| ------------------- | ------------------------------------------------------------------------------- | ---- |
+| old_total_sol_value | total SOL value of the pool before the funds for rebalance were transferred out | u64  |
+| dst_lst_index       | index of dst_lst in PoolState.lst_state_list                                    | u32  |
 
 ## LST Reserves
 

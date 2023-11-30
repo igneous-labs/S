@@ -1,27 +1,98 @@
 use s_controller_interface::{
     start_rebalance_verify_account_keys, start_rebalance_verify_account_privileges,
-    SControllerError, StartRebalanceAccounts, StartRebalanceIxArgs,
+    SControllerError, StartRebalanceAccounts, StartRebalanceIxArgs, END_REBALANCE_IX_DISCM,
     START_REBALANCE_IX_ACCOUNTS_LEN,
 };
-use s_controller_lib::{try_lst_state_list, try_pool_state, StartRebalanceFreeArgs};
-use sanctum_onchain_utils::utils::{
-    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+use s_controller_lib::{
+    pool_state_total_sol_value,
+    program::{REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED, STATE_BUMP, STATE_SEED},
+    try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
+    StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
+};
+use sanctum_onchain_utils::{
+    system_program::{create_hot_potato_pda, CreateAccountAccounts, CreateAccountArgs},
+    token_program::{transfer_tokens_signed, TransferAccounts},
+    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
+    instruction::Instruction,
+    program_error::ProgramError,
+    sysvar::instructions::{load_current_index_checked, load_instruction_at_checked},
 };
 
 use crate::{
-    account_traits::{DstLstMintOf, SrcLstMintOf},
+    account_traits::{DstLstMintOf, DstLstPoolReservesOf, SrcLstMintOf, SrcLstPoolReservesOf},
     cpi::{SolValueCalculatorCpi, SrcDstLstSolValueCalculatorCpis},
     verify::{verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled},
 };
+
+use super::sync_sol_value_unchecked;
 
 pub fn process_start_rebalance(
     accounts: &[AccountInfo],
     args: StartRebalanceIxArgs,
 ) -> ProgramResult {
-    let _todo = verify_start_rebalance(accounts, &args)?;
+    let (
+        accounts,
+        SrcDstLstSolValueCalculatorCpis {
+            src_lst: src_lst_cpi,
+            dst_lst: dst_lst_cpi,
+        },
+    ) = verify_start_rebalance(accounts, &args)?;
+
+    sync_sol_value_unchecked(
+        &SrcLstPoolReservesOf(&accounts),
+        src_lst_cpi,
+        args.src_lst_index as usize,
+    )?;
+    sync_sol_value_unchecked(
+        &DstLstPoolReservesOf(&accounts),
+        dst_lst_cpi,
+        args.dst_lst_index as usize,
+    )?;
+
+    let old_total_sol_value = pool_state_total_sol_value(accounts.pool_state)?;
+
+    transfer_tokens_signed(
+        TransferAccounts {
+            token_program: accounts.src_lst_token_program,
+            from: accounts.src_pool_reserves,
+            to: accounts.withdraw_to,
+            authority: accounts.pool_state,
+        },
+        args.amount,
+        &[&[STATE_SEED, &[STATE_BUMP]]],
+    )?;
+
+    sync_sol_value_unchecked(
+        &SrcLstPoolReservesOf(&accounts),
+        src_lst_cpi,
+        args.src_lst_index as usize,
+    )?;
+
+    create_hot_potato_pda(
+        CreateAccountAccounts {
+            from: accounts.payer,
+            to: accounts.rebalance_record,
+        },
+        CreateAccountArgs {
+            space: REBALANCE_RECORD_SIZE,
+            owner: s_controller_lib::program::ID,
+        },
+        &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
+    )?;
+
+    let mut rebalance_record_data = accounts.rebalance_record.try_borrow_mut_data()?;
+    let rebalance_record = try_rebalance_record_mut(&mut rebalance_record_data)?;
+    rebalance_record.dst_lst_index = args.dst_lst_index;
+    rebalance_record.old_total_sol_value = old_total_sol_value;
+
+    let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
+    let pool_state = try_pool_state_mut(&mut pool_state_data)?;
+    U8BoolMut(&mut pool_state.is_rebalancing).set_true();
+
     Ok(())
 }
 
@@ -88,7 +159,7 @@ fn verify_start_rebalance<'a, 'info>(
     )?;
     dst_lst_cpi.verify_correct_sol_value_calculator_program(&actual, *dst_lst_index)?;
 
-    // TODO: check ix sysvar
+    verify_has_succeeding_end_rebalance_ix(actual.instructions)?;
 
     Ok((
         actual,
@@ -97,4 +168,34 @@ fn verify_start_rebalance<'a, 'info>(
             dst_lst: dst_lst_cpi,
         },
     ))
+}
+
+fn verify_has_succeeding_end_rebalance_ix(
+    instructions_sysvar: &AccountInfo,
+) -> Result<(), ProgramError> {
+    let current_idx: usize = load_current_index_checked(instructions_sysvar)?.into();
+    let mut next_ix_idx = current_idx + 1;
+    loop {
+        let next_ix = load_instruction_at_checked(next_ix_idx, instructions_sysvar)
+            .map_err(|_| SControllerError::NoSucceedingEndRebalance)?;
+        if is_end_rebalance_ix(&next_ix) {
+            break;
+        }
+        next_ix_idx += 1;
+    }
+    Ok(())
+}
+
+fn is_end_rebalance_ix(ix: &Instruction) -> bool {
+    let discm = match ix.data.first() {
+        Some(d) => d,
+        None => return false,
+    };
+    if *discm != END_REBALANCE_IX_DISCM {
+        return false;
+    }
+    if ix.program_id != s_controller_lib::program::ID {
+        return false;
+    }
+    true
 }

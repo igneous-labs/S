@@ -16,6 +16,7 @@ use crate::account_traits::{GetLstMintAccountInfo, GetLstStateListAccountInfo};
 
 use super::get_le_u64_return_data;
 
+#[derive(Clone, Copy, Debug)]
 pub struct SolValueCalculatorCpi<'me, 'info> {
     /// The SOL value calculator program to invoke
     pub program: &'me AccountInfo<'info>,

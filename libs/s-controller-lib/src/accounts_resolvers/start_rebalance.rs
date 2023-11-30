@@ -60,7 +60,7 @@ impl<
 
         Ok(StartRebalanceKeys {
             payer: self.payer,
-            rebalance_authority: pool_state.rebalancing_authority,
+            rebalance_authority: pool_state.rebalance_authority,
             pool_state: STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             rebalance_record: REBALANCE_RECORD_ID,
@@ -71,6 +71,7 @@ impl<
             withdraw_to: self.withdraw_to,
             instructions: sysvar::instructions::ID,
             system_program: system_program::ID,
+            src_lst_token_program: *self.src_lst_mint.owner(),
         })
     }
 }
@@ -123,7 +124,7 @@ impl<
         Ok((
             StartRebalanceKeys {
                 payer: self.payer,
-                rebalance_authority: pool_state.rebalancing_authority,
+                rebalance_authority: pool_state.rebalance_authority,
                 pool_state: STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
                 rebalance_record: REBALANCE_RECORD_ID,
@@ -134,6 +135,7 @@ impl<
                 withdraw_to: self.withdraw_to,
                 instructions: sysvar::instructions::ID,
                 system_program: system_program::ID,
+                src_lst_token_program: *self.src_lst_mint.owner(),
             },
             SrcDstLstIndexes {
                 src_lst_index,

@@ -7,9 +7,11 @@ pub trait GetSrcDstLstMintAccountInfo<'me, 'info> {
 }
 
 /// For use with GetLstMintAccountInfo
+#[derive(Debug, Clone, Copy)]
 pub struct SrcLstMintOf<'a, A>(pub &'a A);
 
 /// For use with GetLstMintAccountInfo
+#[derive(Debug, Clone, Copy)]
 pub struct DstLstMintOf<'a, A>(pub &'a A);
 
 impl<'me, 'info> GetSrcDstLstMintAccountInfo<'me, 'info> for StartRebalanceAccounts<'me, 'info> {
@@ -28,9 +30,11 @@ pub trait GetSrcDstLstPoolReservesAccountInfo<'me, 'info> {
 }
 
 /// For use with GetPoolReservesAccountInfo
+#[derive(Debug, Clone, Copy)]
 pub struct SrcLstPoolReservesOf<'a, A>(pub &'a A);
 
 /// For use with GetPoolReservesAccountInfo
+#[derive(Debug, Clone, Copy)]
 pub struct DstLstPoolReservesOf<'a, A>(pub &'a A);
 
 impl<'me, 'info> GetSrcDstLstPoolReservesAccountInfo<'me, 'info>

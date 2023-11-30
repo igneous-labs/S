@@ -3293,6 +3293,7 @@ name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
  "solana-program",
+ "spl-token",
 ]
 
 [[package]]

@@ -32,10 +32,10 @@ const_assert_eq!(std::mem::size_of::<LstState>(), LST_STATE_SIZE);
 pub const LST_STATE_ALIGN: usize = 8;
 const_assert_eq!(std::mem::align_of::<LstState>(), LST_STATE_ALIGN);
 
-pub const REBALANCE_RECORD_STATE_SIZE: usize = 56;
+pub const REBALANCE_RECORD_SIZE: usize = 16;
 const_assert_eq!(
     std::mem::size_of::<RebalanceRecord>(),
-    REBALANCE_RECORD_STATE_SIZE
+    REBALANCE_RECORD_SIZE
 );
 pub const REBALANCE_RECORD_ALIGN: usize = 8;
 const_assert_eq!(

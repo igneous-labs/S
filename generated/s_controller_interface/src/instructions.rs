@@ -3914,7 +3914,7 @@ pub fn enable_pool_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const START_REBALANCE_IX_ACCOUNTS_LEN: usize = 12;
+pub const START_REBALANCE_IX_ACCOUNTS_LEN: usize = 13;
 #[derive(Copy, Clone, Debug)]
 pub struct StartRebalanceAccounts<'me, 'info> {
     ///Account paying the 1 lamport rent for RebalanceRecord
@@ -3941,6 +3941,8 @@ pub struct StartRebalanceAccounts<'me, 'info> {
     pub instructions: &'me AccountInfo<'info>,
     ///System program
     pub system_program: &'me AccountInfo<'info>,
+    ///Source LST token program
+    pub src_lst_token_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct StartRebalanceKeys {
@@ -3968,6 +3970,8 @@ pub struct StartRebalanceKeys {
     pub instructions: Pubkey,
     ///System program
     pub system_program: Pubkey,
+    ///Source LST token program
+    pub src_lst_token_program: Pubkey,
 }
 impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
     fn from(accounts: &StartRebalanceAccounts) -> Self {
@@ -3984,6 +3988,7 @@ impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
             withdraw_to: *accounts.withdraw_to.key,
             instructions: *accounts.instructions.key,
             system_program: *accounts.system_program.key,
+            src_lst_token_program: *accounts.src_lst_token_program.key,
         }
     }
 }
@@ -4002,6 +4007,7 @@ impl From<&StartRebalanceKeys> for [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN
             AccountMeta::new(keys.withdraw_to, false),
             AccountMeta::new_readonly(keys.instructions, false),
             AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta::new_readonly(keys.src_lst_token_program, false),
         ]
     }
 }
@@ -4020,6 +4026,7 @@ impl From<[Pubkey; START_REBALANCE_IX_ACCOUNTS_LEN]> for StartRebalanceKeys {
             withdraw_to: pubkeys[9],
             instructions: pubkeys[10],
             system_program: pubkeys[11],
+            src_lst_token_program: pubkeys[12],
         }
     }
 }
@@ -4040,6 +4047,7 @@ impl<'info> From<&StartRebalanceAccounts<'_, 'info>>
             accounts.withdraw_to.clone(),
             accounts.instructions.clone(),
             accounts.system_program.clone(),
+            accounts.src_lst_token_program.clone(),
         ]
     }
 }
@@ -4060,6 +4068,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
             withdraw_to: &arr[9],
             instructions: &arr[10],
             system_program: &arr[11],
+            src_lst_token_program: &arr[12],
         }
     }
 }
@@ -4148,6 +4157,10 @@ pub fn start_rebalance_verify_account_keys(
         (accounts.withdraw_to.key, &keys.withdraw_to),
         (accounts.instructions.key, &keys.instructions),
         (accounts.system_program.key, &keys.system_program),
+        (
+            accounts.src_lst_token_program.key,
+            &keys.src_lst_token_program,
+        ),
     ] {
         if actual != expected {
             return Err((*actual, *expected));

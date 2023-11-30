@@ -34,6 +34,8 @@ pub enum SControllerError {
     IncorrectPoolState = 12,
     #[error("Input is currently disabled for this LST")]
     LstInputDisabled = 13,
+    #[error("No succeeding EndRebalance instruction found")]
+    NoSucceedingEndRebalance = 14,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
