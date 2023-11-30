@@ -1380,6 +1380,11 @@
       "code": 12,
       "name": "IncorrectPoolState",
       "msg": "Incorrect pool state account"
+    },
+    {
+      "code": 13,
+      "name": "LstInputDisabled",
+      "msg": "Input is currently disabled for this LST"
     }
   ],
   "metadata": {

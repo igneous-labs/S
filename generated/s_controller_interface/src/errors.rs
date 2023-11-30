@@ -32,6 +32,8 @@ pub enum SControllerError {
     IncorrectLstStateList = 11,
     #[error("Incorrect pool state account")]
     IncorrectPoolState = 12,
+    #[error("Input is currently disabled for this LST")]
+    LstInputDisabled = 13,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
