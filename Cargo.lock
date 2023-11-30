@@ -1351,7 +1351,12 @@ dependencies = [
 
 [[package]]
 name = "flat-fee"
-version = "0.1.0"
+version = "1.0.0"
+dependencies = [
+ "flat-fee-lib",
+ "flat_fee_interface",
+ "solana-program",
+]
 
 [[package]]
 name = "flat-fee-lib"

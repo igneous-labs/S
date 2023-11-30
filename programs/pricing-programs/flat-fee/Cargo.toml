@@ -1,8 +1,18 @@
 [package]
 name = "flat-fee"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+no-entrypoint = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
+flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
+flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib" }
+solana-program = { workspace = true }
