@@ -16,7 +16,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "The LST mint"
@@ -61,7 +61,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "The LST mint"

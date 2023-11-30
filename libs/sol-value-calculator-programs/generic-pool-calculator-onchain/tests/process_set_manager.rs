@@ -1,6 +1,6 @@
 use generic_pool_calculator_interface::{set_manager_ix, SetManagerIxArgs};
 use generic_pool_calculator_lib::{
-    account_resolvers::SetManagerRootAccounts, utils::try_calculator_state,
+    account_resolvers::SetManagerFreeArgs, utils::try_calculator_state,
 };
 use generic_pool_calculator_test_utils::{
     mock_calculator_state_account, MockCalculatorStateAccountArgs,
@@ -68,7 +68,7 @@ async fn set_manager_basic() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let root_accounts = SetManagerRootAccounts {
+    let free_args = SetManagerFreeArgs {
         new_manager,
         state: KeyedReadonlyAccount {
             key: mock_calculator_program::STATE_ID,
@@ -76,7 +76,7 @@ async fn set_manager_basic() {
         },
     };
     let mut ix = set_manager_ix(
-        root_accounts.resolve::<MockCalculatorProgram>().unwrap(),
+        free_args.resolve::<MockCalculatorProgram>().unwrap(),
         SetManagerIxArgs {},
     )
     .unwrap();

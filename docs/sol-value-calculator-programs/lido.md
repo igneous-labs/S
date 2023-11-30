@@ -33,7 +33,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account           | Description                           | Read/Write (R/W) | Signer (Y/N) |
 | ----------------- | ------------------------------------- | ---------------- | ------------ |
-| lst               | See interface                         | R                | N            |
+| lst_mint          | See interface                         | R                | N            |
 | state             | The LidoCalculatorState singleton PDA | R                | N            |
 | lido_state        | The lido state account                | R                | N            |
 | lido_program      | lido program                          | R                | N            |
@@ -54,7 +54,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account           | Description                           | Read/Write (R/W) | Signer (Y/N) |
 | ----------------- | ------------------------------------- | ---------------- | ------------ |
-| lst               | See interface                         | R                | N            |
+| lst_mint          | See interface                         | R                | N            |
 | state             | The LidoCalculatorState singleton PDA | R                | N            |
 | lido_state        | The lido state account                | R                | N            |
 | lido_program      | lido program                          | R                | N            |

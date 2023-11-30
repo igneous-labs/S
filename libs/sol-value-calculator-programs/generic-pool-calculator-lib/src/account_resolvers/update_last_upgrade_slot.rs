@@ -6,7 +6,7 @@ use crate::{
     GenericPoolSolValCalc,
 };
 
-pub struct UpdateLastUpgradeSlotRootAccounts<
+pub struct UpdateLastUpgradeSlotFreeArgs<
     S: KeyedAccount + ReadonlyAccountData,
     Q: KeyedAccount + ReadonlyAccountData,
 > {
@@ -15,7 +15,7 @@ pub struct UpdateLastUpgradeSlotRootAccounts<
 }
 
 impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountData>
-    UpdateLastUpgradeSlotRootAccounts<S, Q>
+    UpdateLastUpgradeSlotFreeArgs<S, Q>
 {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
@@ -43,11 +43,11 @@ impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountDat
 
 /// Struct that uses defined const for POOL_PROGRAM_PROGDATA
 /// so that it can be used without fetching POOL_PROGRAM
-pub struct UpdateLastUpgradeSlotRootAccountsConst<S: KeyedAccount + ReadonlyAccountData> {
+pub struct UpdateLastUpgradeSlotFreeArgsConst<S: KeyedAccount + ReadonlyAccountData> {
     pub state: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> UpdateLastUpgradeSlotRootAccountsConst<S> {
+impl<S: KeyedAccount + ReadonlyAccountData> UpdateLastUpgradeSlotFreeArgsConst<S> {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {

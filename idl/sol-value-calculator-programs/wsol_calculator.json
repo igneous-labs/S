@@ -16,7 +16,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "wSOL mint"
@@ -37,7 +37,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "wSOL mint"

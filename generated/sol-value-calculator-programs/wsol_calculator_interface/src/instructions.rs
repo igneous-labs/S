@@ -43,42 +43,44 @@ pub const LST_TO_SOL_IX_ACCOUNTS_LEN: usize = 1;
 #[derive(Copy, Clone, Debug)]
 pub struct LstToSolAccounts<'me, 'info> {
     ///wSOL mint
-    pub lst: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct LstToSolKeys {
     ///wSOL mint
-    pub lst: Pubkey,
+    pub lst_mint: Pubkey,
 }
 impl From<&LstToSolAccounts<'_, '_>> for LstToSolKeys {
     fn from(accounts: &LstToSolAccounts) -> Self {
         Self {
-            lst: *accounts.lst.key,
+            lst_mint: *accounts.lst_mint.key,
         }
     }
 }
 impl From<&LstToSolKeys> for [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
     fn from(keys: &LstToSolKeys) -> Self {
-        [AccountMeta::new_readonly(keys.lst, false)]
+        [AccountMeta::new_readonly(keys.lst_mint, false)]
     }
 }
 impl From<[Pubkey; LST_TO_SOL_IX_ACCOUNTS_LEN]> for LstToSolKeys {
     fn from(pubkeys: [Pubkey; LST_TO_SOL_IX_ACCOUNTS_LEN]) -> Self {
-        Self { lst: pubkeys[0] }
+        Self {
+            lst_mint: pubkeys[0],
+        }
     }
 }
 impl<'info> From<&LstToSolAccounts<'_, 'info>>
     for [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]
 {
     fn from(accounts: &LstToSolAccounts<'_, 'info>) -> Self {
-        [accounts.lst.clone()]
+        [accounts.lst_mint.clone()]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]>
     for LstToSolAccounts<'me, 'info>
 {
     fn from(arr: &'me [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]) -> Self {
-        Self { lst: &arr[0] }
+        Self { lst_mint: &arr[0] }
     }
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
@@ -150,7 +152,7 @@ pub fn lst_to_sol_verify_account_keys(
     accounts: &LstToSolAccounts<'_, '_>,
     keys: &LstToSolKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
-    for (actual, expected) in [(accounts.lst.key, &keys.lst)] {
+    for (actual, expected) in [(accounts.lst_mint.key, &keys.lst_mint)] {
         if actual != expected {
             return Err((*actual, *expected));
         }
@@ -167,42 +169,44 @@ pub const SOL_TO_LST_IX_ACCOUNTS_LEN: usize = 1;
 #[derive(Copy, Clone, Debug)]
 pub struct SolToLstAccounts<'me, 'info> {
     ///wSOL mint
-    pub lst: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct SolToLstKeys {
     ///wSOL mint
-    pub lst: Pubkey,
+    pub lst_mint: Pubkey,
 }
 impl From<&SolToLstAccounts<'_, '_>> for SolToLstKeys {
     fn from(accounts: &SolToLstAccounts) -> Self {
         Self {
-            lst: *accounts.lst.key,
+            lst_mint: *accounts.lst_mint.key,
         }
     }
 }
 impl From<&SolToLstKeys> for [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] {
     fn from(keys: &SolToLstKeys) -> Self {
-        [AccountMeta::new_readonly(keys.lst, false)]
+        [AccountMeta::new_readonly(keys.lst_mint, false)]
     }
 }
 impl From<[Pubkey; SOL_TO_LST_IX_ACCOUNTS_LEN]> for SolToLstKeys {
     fn from(pubkeys: [Pubkey; SOL_TO_LST_IX_ACCOUNTS_LEN]) -> Self {
-        Self { lst: pubkeys[0] }
+        Self {
+            lst_mint: pubkeys[0],
+        }
     }
 }
 impl<'info> From<&SolToLstAccounts<'_, 'info>>
     for [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]
 {
     fn from(accounts: &SolToLstAccounts<'_, 'info>) -> Self {
-        [accounts.lst.clone()]
+        [accounts.lst_mint.clone()]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]>
     for SolToLstAccounts<'me, 'info>
 {
     fn from(arr: &'me [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]) -> Self {
-        Self { lst: &arr[0] }
+        Self { lst_mint: &arr[0] }
     }
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
@@ -274,7 +278,7 @@ pub fn sol_to_lst_verify_account_keys(
     accounts: &SolToLstAccounts<'_, '_>,
     keys: &SolToLstKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
-    for (actual, expected) in [(accounts.lst.key, &keys.lst)] {
+    for (actual, expected) in [(accounts.lst_mint.key, &keys.lst_mint)] {
         if actual != expected {
             return Err((*actual, *expected));
         }

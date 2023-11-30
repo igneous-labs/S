@@ -1,7 +1,7 @@
 use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
 use sol_value_calculator_onchain::{process_lst_to_sol_unchecked, process_sol_to_lst_unchecked};
 use solana_program::{
-    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     pubkey::Pubkey,
 };
 use wsol_calculator_interface::{
@@ -11,7 +11,7 @@ use wsol_calculator_interface::{
 use wsol_calculator_lib::{WsolSolCalc, WSOL_LST_TO_SOL_KEYS};
 
 #[cfg(not(feature = "no-entrypoint"))]
-entrypoint!(process_instruction);
+solana_program::entrypoint!(process_instruction);
 
 pub fn process_instruction(
     program_id: &Pubkey,

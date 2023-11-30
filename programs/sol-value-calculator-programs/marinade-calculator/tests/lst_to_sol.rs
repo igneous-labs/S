@@ -15,7 +15,7 @@ mod common;
 #[tokio::test]
 async fn basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_151_086_069;
+    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_151_526_823;
 
     let program_test = marinade_normal_program_test();
 

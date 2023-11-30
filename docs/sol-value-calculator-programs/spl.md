@@ -38,7 +38,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account          | Description                          | Read/Write (R/W) | Signer (Y/N) |
 | ---------------- | ------------------------------------ | ---------------- | ------------ |
-| lst              | See interface                        | R                | N            |
+| lst_mint         | See interface                        | R                | N            |
 | state            | The SplCalculatorState singleton PDA | R                | N            |
 | stake_pool       | The main stake pool account          | R                | N            |
 | spl_program      | spl program                          | R                | N            |
@@ -60,7 +60,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account          | Description                          | Read/Write (R/W) | Signer (Y/N) |
 | ---------------- | ------------------------------------ | ---------------- | ------------ |
-| lst              | See interface                        | R                | N            |
+| lst_mint         | See interface                        | R                | N            |
 | state            | The SplCalculatorState singleton PDA | R                | N            |
 | stake_pool       | The main stake pool account          | R                | N            |
 | spl_program      | spl program                          | R                | N            |

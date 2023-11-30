@@ -3,8 +3,7 @@ use generic_pool_calculator_interface::{
     SetManagerKeys,
 };
 use generic_pool_calculator_lib::{
-    account_resolvers::SetManagerRootAccounts, utils::try_calculator_state_mut,
-    GenericPoolSolValCalc,
+    account_resolvers::SetManagerFreeArgs, utils::try_calculator_state_mut, GenericPoolSolValCalc,
 };
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -30,7 +29,7 @@ pub fn verify_set_manager<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<SetManagerAccounts<'me, 'info>, ProgramError> {
     let actual: SetManagerAccounts = load_accounts(accounts)?;
 
-    let root_keys = SetManagerRootAccounts {
+    let root_keys = SetManagerFreeArgs {
         new_manager: *actual.new_manager.key,
         state: actual.state,
     };

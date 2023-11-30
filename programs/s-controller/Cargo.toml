@@ -13,6 +13,25 @@ crate-type = ["cdylib", "lib"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
+borsh = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 s-controller-lib = { path = "../../libs/s-controller-lib" }
+sanctum-utils = { path = "../../libs/sanctum-utils" }
+sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
+sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }
+
+[dev-dependencies]
+generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+solana-sdk = { workspace = true }
+marinade-calculator = { path = "../sol-value-calculator-programs/marinade-calculator", features = ["no-entrypoint"] }
+marinade-calculator-lib = { path = "../../libs/sol-value-calculator-programs/marinade-calculator-lib" }
+marinade-keys = { path = "../../keys/marinade-keys" }
+spl-calculator = { path = "../sol-value-calculator-programs/spl-calculator", features = ["no-entrypoint"] }
+spl-calculator-lib = { path = "../../libs/sol-value-calculator-programs/spl-calculator-lib" }
+spl-token = { workspace = true, features = ["no-entrypoint"] }
+test-utils = { path = "../../test-utils" }
+tokio = { workspace = true }

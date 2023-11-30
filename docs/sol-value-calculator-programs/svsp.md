@@ -33,7 +33,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account           | Description                           | Read/Write (R/W) | Signer (Y/N) |
 | ----------------- | ------------------------------------- | ---------------- | ------------ |
-| lst               | See interface                         | R                | N            |
+| lst_mint          | See interface                         | R                | N            |
 | state             | The SvspCalculatorState singleton PDA | R                | N            |
 | pool              | The SVSP pool account                 | R                | N            |
 | svsp_program      | SVSP program                          | R                | N            |
@@ -54,7 +54,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account           | Description                           | Read/Write (R/W) | Signer (Y/N) |
 | ----------------- | ------------------------------------- | ---------------- | ------------ |
-| lst               | See interface                         | R                | N            |
+| lst_mint          | See interface                         | R                | N            |
 | state             | The SvspCalculatorState singleton PDA | R                | N            |
 | pool              | The SVSP pool account                 | R                | N            |
 | svsp_program      | SVSP program                          | R                | N            |
