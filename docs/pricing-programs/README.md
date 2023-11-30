@@ -22,9 +22,8 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
-| lst_output | output LST token mint | R | N |
+| input_lst_mint | Mint of the input LST | R | N |
+| output_lst_mint | Mint of the output LST | R | N |
 | remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 #### Return Data
@@ -42,7 +41,7 @@ Given an output LST amount and its SOL value, calculate the input SOL value.
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 1 | u8 |
-| amount | amount of input LST | u64 |
+| amount | amount of the input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
 
 #### Accounts
@@ -51,9 +50,8 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
-| lst_output | output LST token mint | R | N |
+| input_lst_mint | Mint of the input LST | R | N |
+| output_lst_mint | Mint of the output LST | R | N |
 | remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 #### Return Data
@@ -71,7 +69,7 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 1 | u8 |
-| amount | amount of input LST | u64 |
+| amount | amount of the input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
 
 #### Return Data
@@ -86,8 +84,7 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| pricing_authority | PDA for pricing authorization | R | Y |
-| lst_input | input LST token mint | R | N |
+| input_lst_mint | Mint of the input LST | R | N |
 | remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 ### PriceLpTokensToRedeem
@@ -99,7 +96,7 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | Name | Value | Type |
 | -- | -- | -- |
 | discriminant | 1 | u8 |
-| amount | amount of input LST | u64 |
+| amount | amount of the input LST | u64 |
 | sol_value | SOL value of amount input LST | u64 |
 
 #### Return Data
@@ -114,8 +111,7 @@ Varies with each pricing program. Should include controller program's pricing pr
 
 | Account | Description | Read/Write (R/W) | Signer (Y/N) |
 | -- | -- | -- | -- |
-| pricing_authority | PDA for pricing authorization | R | Y |
-| lst_output | output LST token mint | R | N |
+| output_lst_mint | Mint of the output LST | R | N |
 | remaining_accounts | Any remaining accounts the program needs. Varies with each pricing program. | ... | ... |
 
 #### Procedure
