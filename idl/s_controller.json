@@ -1370,6 +1370,16 @@
       "code": 10,
       "name": "FaultySolValueCalculator",
       "msg": "Faulty SOL value calculator program"
+    },
+    {
+      "code": 11,
+      "name": "IncorrectLstStateList",
+      "msg": "Incorrect LST state list account"
+    },
+    {
+      "code": 12,
+      "name": "IncorrectPoolState",
+      "msg": "Incorrect pool state account"
     }
   ],
   "metadata": {

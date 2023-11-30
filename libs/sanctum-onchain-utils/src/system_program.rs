@@ -30,3 +30,16 @@ pub fn create_pda(
     let ix = create_account(from.key, to.key, lamports, space_u64, &owner);
     invoke_signed(&ix, &[from.clone(), to.clone()], signer_seeds)
 }
+
+pub fn create_hot_potato_pda(
+    CreateAccountAccounts { from, to }: CreateAccountAccounts,
+    CreateAccountArgs { space, owner }: CreateAccountArgs,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let space_u64: u64 = space
+        .try_into()
+        .map_err(|_e| ProgramError::InvalidArgument)?;
+    let lamports = 1;
+    let ix = create_account(from.key, to.key, lamports, space_u64, &owner);
+    invoke_signed(&ix, &[from.clone(), to.clone()], signer_seeds)
+}

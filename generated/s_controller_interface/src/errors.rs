@@ -28,6 +28,10 @@ pub enum SControllerError {
     IncorrectSolValueCalculator = 9,
     #[error("Faulty SOL value calculator program")]
     FaultySolValueCalculator = 10,
+    #[error("Incorrect LST state list account")]
+    IncorrectLstStateList = 11,
+    #[error("Incorrect pool state account")]
+    IncorrectPoolState = 12,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
