@@ -1362,6 +1362,7 @@ dependencies = [
  "flat_fee_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-onchain-utils",
  "solana-program",
  "solana-readonly-account",
  "static_assertions",

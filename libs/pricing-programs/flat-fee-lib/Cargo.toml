@@ -10,6 +10,7 @@ borsh = { workspace = true }
 bytemuck = { workspace = true }
 flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
 sanctum-macros = { workspace = true }
+sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 static_assertions = { workspace = true }
