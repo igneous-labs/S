@@ -273,7 +273,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN]>
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SyncSolValueIxArgs {
-    pub lst_index: u64,
+    pub lst_index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SyncSolValueIxData(pub SyncSolValueIxArgs);
@@ -516,8 +516,8 @@ pub struct SwapExactInIxArgs {
     pub src_lst_value_calc_accs: u8,
     pub dst_lst_value_calc_accs: u8,
     pub pricing_accs: u8,
-    pub src_lst_index: u64,
-    pub dst_lst_index: u64,
+    pub src_lst_index: u32,
+    pub dst_lst_index: u32,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -791,8 +791,8 @@ pub struct SwapExactOutIxArgs {
     pub src_lst_value_calc_accs: u8,
     pub dst_lst_value_calc_accs: u8,
     pub pricing_accs: u8,
-    pub src_lst_index: u64,
-    pub dst_lst_index: u64,
+    pub src_lst_index: u32,
+    pub dst_lst_index: u32,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -1029,7 +1029,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
 pub struct AddLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub pricing_accs: u8,
-    pub lst_index: u64,
+    pub lst_index: u32,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -1260,7 +1260,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
 pub struct RemoveLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub pricing_accs: u8,
-    pub lst_index: u64,
+    pub lst_index: u32,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -1449,7 +1449,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; DISABLE_LST_INPUT_IX_ACCOUNTS_LE
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DisableLstInputIxArgs {
-    pub index: u64,
+    pub index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct DisableLstInputIxData(pub DisableLstInputIxArgs);
@@ -1622,7 +1622,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EnableLstInputIxArgs {
-    pub index: u64,
+    pub index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct EnableLstInputIxData(pub EnableLstInputIxArgs);
@@ -2073,7 +2073,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveLstIxArgs {
-    pub index: u64,
+    pub index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLstIxData(pub RemoveLstIxArgs);
@@ -2272,7 +2272,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_SOL_VALUE_CALCULATOR_IX_ACCO
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetSolValueCalculatorIxArgs {
-    pub index: u64,
+    pub index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetSolValueCalculatorIxData(pub SetSolValueCalculatorIxArgs);
@@ -4072,8 +4072,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
 pub struct StartRebalanceIxArgs {
     pub src_lst_calc_accs: u8,
     pub dst_lst_calc_accs: u8,
-    pub src_lst_index: u64,
-    pub dst_lst_index: u64,
+    pub src_lst_index: u32,
+    pub dst_lst_index: u32,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]

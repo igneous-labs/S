@@ -2,11 +2,11 @@ use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use solana_program::pubkey::Pubkey;
 use spl_stake_pool_keys::{spl_stake_pool_program, spl_stake_pool_program_progdata};
 
+mod account_resolvers;
 mod calc;
 mod instructions;
 
-pub mod account_resolvers;
-
+pub use account_resolvers::*;
 pub use calc::*;
 pub use instructions::*;
 

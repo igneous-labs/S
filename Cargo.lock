@@ -1513,9 +1513,11 @@ dependencies = [
  "bincode",
  "bytemuck",
  "generic_pool_calculator_interface",
+ "proptest",
  "solana-program",
  "solana-readonly-account",
  "static_assertions",
+ "test-utils",
 ]
 
 [[package]]
@@ -2089,6 +2091,62 @@ checksum = "57d27b317e207b10f69f5e75494119e391a96f48861ae870d1da6edac98ca900"
 dependencies = [
  "cc",
  "libc",
+]
+
+[[package]]
+name = "marinade-calculator"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "marinade-calculator-lib",
+ "marinade_calculator_interface",
+ "sanctum-onchain-utils",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "marinade-calculator-lib"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic_pool_calculator_interface",
+ "marinade-keys",
+ "marinade_calculator_interface",
+ "proptest",
+ "sanctum-macros",
+ "sol-value-calculator-lib",
+ "solana-program",
+ "test-utils",
+]
+
+[[package]]
+name = "marinade-keys"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "solana-program",
+]
+
+[[package]]
+name = "marinade_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "num-derive 0.3.3",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
 ]
 
 [[package]]
@@ -3175,6 +3233,24 @@ name = "ryu"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
+
+[[package]]
+name = "s-controller"
+version = "1.0.0"
+dependencies = [
+ "s-controller-lib",
+ "s_controller_interface",
+ "solana-program",
+]
+
+[[package]]
+name = "s-controller-lib"
+version = "1.0.0"
+dependencies = [
+ "s_controller_interface",
+ "sanctum-macros",
+ "solana-program",
+]
 
 [[package]]
 name = "s_controller_interface"
@@ -4610,7 +4686,6 @@ dependencies = [
  "solana-readonly-account",
  "spl-stake-pool-keys",
  "spl_calculator_interface",
- "test-utils",
 ]
 
 [[package]]

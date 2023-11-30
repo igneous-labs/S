@@ -1,0 +1,381 @@
+{
+  "version": "1.0.0",
+  "name": "marinade_calculator",
+  "types": [
+    {
+      "name": "MarinadeState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "discriminant",
+            "type": "u64"
+          },
+          {
+            "name": "msolMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "adminAuthority",
+            "type": "publicKey"
+          },
+          {
+            "name": "operationalSolAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "treasuryMsolAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "reserveBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "msolMintAuthorityBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "rentExemptForTokenAcc",
+            "type": "u64"
+          },
+          {
+            "name": "rewardFee",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "stakeSystem",
+            "type": {
+              "defined": "StakeSystem"
+            }
+          },
+          {
+            "name": "validatorSystem",
+            "type": {
+              "defined": "ValidatorSystem"
+            }
+          },
+          {
+            "name": "liqPool",
+            "type": {
+              "defined": "LiqPool"
+            }
+          },
+          {
+            "name": "availableReserveBalance",
+            "type": "u64"
+          },
+          {
+            "name": "msolSupply",
+            "type": "u64"
+          },
+          {
+            "name": "msolPrice",
+            "type": "u64"
+          },
+          {
+            "name": "circulatingTicketCount",
+            "docs": ["count tickets for delayed-unstake"],
+            "type": "u64"
+          },
+          {
+            "name": "circulatingTicketBalance",
+            "docs": [
+              "total lamports amount of generated and not claimed yet tickets"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lentFromReserve",
+            "type": "u64"
+          },
+          {
+            "name": "minDeposit",
+            "type": "u64"
+          },
+          {
+            "name": "minWithdraw",
+            "type": "u64"
+          },
+          {
+            "name": "stakingSolCap",
+            "type": "u64"
+          },
+          {
+            "name": "emergencyCoolingDown",
+            "type": "u64"
+          },
+          {
+            "name": "pauseAuthority",
+            "docs": ["emergency pause"],
+            "type": "publicKey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "delayedUnstakeFee",
+            "type": {
+              "defined": "FeeCents"
+            }
+          },
+          {
+            "name": "withdrawStakeAccountFee",
+            "type": {
+              "defined": "FeeCents"
+            }
+          },
+          {
+            "name": "withdrawStakeAccountEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "lastStakeMoveEpoch",
+            "type": "u64"
+          },
+          {
+            "name": "stakeMoved",
+            "type": "u64"
+          },
+          {
+            "name": "maxStakeMovedPerEpoch",
+            "type": {
+              "defined": "Fee"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Fee",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeCents",
+      "docs": [
+        "FeeCents, same as Fee but / 1_000_000 instead of 10_000",
+        "1 FeeCent = 0.0001%, 10_000 FeeCent = 1%, 1_000_000 FeeCent = 100%"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bpCents",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiqPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "lpMintAuthorityBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "solLegBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "msolLegAuthorityBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "msolLeg",
+            "type": "publicKey"
+          },
+          {
+            "name": "lpLiquidityTarget",
+            "docs": [
+              "Liquidity target. If the Liquidity reach this amount, the fee reaches lp_min_discount_fee"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lpMaxFee",
+            "docs": ["Liquidity pool max fee"],
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "lpMinFee",
+            "docs": ["SOL/mSOL Liquidity pool min fee"],
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "treasuryCut",
+            "docs": ["Treasury cut"],
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "lpSupply",
+            "type": "u64"
+          },
+          {
+            "name": "lentFromSolLeg",
+            "type": "u64"
+          },
+          {
+            "name": "liquiditySolCap",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "List",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "publicKey"
+          },
+          {
+            "name": "itemSize",
+            "type": "u32"
+          },
+          {
+            "name": "count",
+            "type": "u32"
+          },
+          {
+            "name": "reserved1",
+            "type": "publicKey"
+          },
+          {
+            "name": "reserved2",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakeList",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "StakeSystem",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stakeList",
+            "type": {
+              "defined": "List"
+            }
+          },
+          {
+            "name": "delayedUnstakeCoolingDown",
+            "type": "u64"
+          },
+          {
+            "name": "stakeDepositBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "stakeWithdrawBumpSeed",
+            "type": "u8"
+          },
+          {
+            "name": "slotsForStakeDelta",
+            "docs": [
+              "set by admin, how much slots before the end of the epoch, stake-delta can start"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lastStakeDeltaEpoch",
+            "docs": [
+              "Marks the start of stake-delta operations, meaning that if somebody starts a delayed-unstake ticket",
+              "after this var is set with epoch_num the ticket will have epoch_created = current_epoch+1",
+              "(the user must wait one more epoch, because their unstake-delta will be execute in this epoch)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "minStake",
+            "type": "u64"
+          },
+          {
+            "name": "extraStakeDeltaRuns",
+            "docs": [
+              "can be set by validator-manager-auth to allow a second run of stake-delta to stake late stakers in the last minute of the epoch",
+              "so we maximize user's rewards"
+            ],
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatorSystem",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "validatorList",
+            "type": {
+              "defined": "List"
+            }
+          },
+          {
+            "name": "managerAuthority",
+            "type": "publicKey"
+          },
+          {
+            "name": "totalValidatorScore",
+            "type": "u32"
+          },
+          {
+            "name": "totalActiveBalance",
+            "docs": ["sum of all active lamports staked"],
+            "type": "u64"
+          },
+          {
+            "name": "autoAddValidatorEnabled",
+            "docs": ["DEPRECATED, no longer used"],
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "MarinadePaused",
+      "msg": "Marinade program is currently paused"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "TH1S1DLoNLYCoNTA1NSERRoRANDCoP1EDTYPES11111"
+  }
+}

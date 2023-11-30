@@ -8,7 +8,9 @@ members = [
     "libs/pricing-programs/*",
     "libs/sanctum-onchain-utils",
     "libs/sol-value-calculator-programs/*",
+    "libs/s-controller-lib",
     "programs/pricing-programs/*",
+    "programs/s-controller",
     "programs/sol-value-calculator-programs/*",
     "test-utils"
 ]

@@ -10,3 +10,7 @@ generic_pool_calculator_interface = { path = "../../../generated/sol-value-calcu
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 static_assertions = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+test-utils = { path = "../../../test-utils" }

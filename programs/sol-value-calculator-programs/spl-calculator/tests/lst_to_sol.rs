@@ -4,9 +4,7 @@ use solana_program_test::{BanksTransactionResultWithMetadata, ProgramTestContext
 use solana_sdk::{
     signer::Signer, transaction::Transaction, transaction_context::TransactionReturnData,
 };
-use spl_calculator_lib::{
-    account_resolvers::SplLstSolCommonRootAccounts, spl_lst_to_sol_ix, SplSolValCalc,
-};
+use spl_calculator_lib::{spl_lst_to_sol_ix, SplLstSolCommonRootAccounts, SplSolValCalc};
 use test_utils::{zero_padded_return_data, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
