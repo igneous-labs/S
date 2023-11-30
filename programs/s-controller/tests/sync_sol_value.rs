@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
@@ -11,6 +8,10 @@ use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
 use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
+
+mod common;
+
+use common::*;
 
 #[tokio::test]
 async fn basic() {

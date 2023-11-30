@@ -21,8 +21,9 @@ pub use utils::*;
 /// Adds the spl sol value calculator program, a mock calculator state
 /// and the spl stake pool program to a ProgramTest
 pub fn add_spl_progs(mut program_test: ProgramTest) -> ProgramTest {
+    // name must match <name>.so filename
     program_test.add_program(
-        "spl_sol_value_calculator",
+        "spl_calculator",
         spl_calculator_lib::program::ID,
         processor!(spl_calculator::entrypoint::process_instruction),
     );
@@ -41,8 +42,9 @@ pub fn add_spl_progs(mut program_test: ProgramTest) -> ProgramTest {
 /// Adds the marinade sol value calculator program, a mock calculator state
 /// and the marinade program to a ProgramTest
 pub fn add_marinade_progs(mut program_test: ProgramTest) -> ProgramTest {
+    // name must match <name>.so filename
     program_test.add_program(
-        "marinade_sol_value_calculator",
+        "marinade_calculator",
         marinade_calculator_lib::program::ID,
         processor!(marinade_calculator::entrypoint::process_instruction),
     );
@@ -98,6 +100,7 @@ pub fn jito_marinade_program_test(
 ) -> ProgramTest {
     let mut program_test = ProgramTest::default();
 
+    // name must match <name>.so filename
     program_test.add_program(
         "s_controller",
         s_controller_lib::program::ID,
@@ -114,11 +117,13 @@ pub fn jito_marinade_program_test(
                 mint: jitosol::ID,
                 sol_value: jitosol_sol_value,
                 reserves_amt: jitosol_reserves,
+                sol_value_calculator: spl_calculator_lib::program::ID,
             },
             MockLstStateArgs {
                 mint: msol::ID,
                 sol_value: msol_sol_value,
                 reserves_amt: msol_reserves,
+                sol_value_calculator: marinade_calculator_lib::program::ID,
             },
         ],
     );

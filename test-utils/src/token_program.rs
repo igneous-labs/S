@@ -7,7 +7,6 @@ pub struct MockTokenAccountArgs {
     pub mint: Pubkey,
     pub authority: Pubkey,
     pub amount: u64,
-    pub is_native: bool,
 }
 
 pub fn mock_token_account(
@@ -15,9 +14,9 @@ pub fn mock_token_account(
         mint,
         authority,
         amount,
-        is_native,
     }: MockTokenAccountArgs,
 ) -> Account {
+    let is_native = mint == spl_token::native_mint::ID;
     let token_account = spl_token::state::Account {
         mint,
         owner: authority,

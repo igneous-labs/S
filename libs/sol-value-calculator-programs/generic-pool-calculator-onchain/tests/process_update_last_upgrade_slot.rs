@@ -55,6 +55,7 @@ async fn update_last_upgrade_slot_basic() {
     let manager = Keypair::new();
 
     let mut program_test = ProgramTest::default();
+    program_test.prefer_bpf(false);
     program_test.add_program(
         "mock_calculator_program",
         mock_calculator_program::ID,
