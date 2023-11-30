@@ -1,6 +1,6 @@
 use generic_pool_calculator_interface::GenericPoolCalculatorProgramIx;
 use solana_program::{
-    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     pubkey::Pubkey,
 };
 
@@ -10,7 +10,7 @@ use crate::processor::{
 };
 
 #[cfg(not(feature = "no-entrypoint"))]
-entrypoint!(process_instruction);
+solana_program::entrypoint!(process_instruction);
 
 pub fn process_instruction(
     program_id: &Pubkey,

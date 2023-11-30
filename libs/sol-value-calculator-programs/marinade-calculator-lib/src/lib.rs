@@ -37,7 +37,7 @@ mod account_resolvers {
 
     pub const MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS: LstSolCommonIntermediateKeys =
         LstSolCommonIntermediateKeys {
-            lst: msol::ID,
+            lst_mint: msol::ID,
             pool_state: marinade_state::ID,
         };
 }

@@ -6,13 +6,13 @@ use crate::{utils::read_programdata_addr, GenericPoolSolValCalc, LstSolCommonKey
 
 /// NB: This struct requires a impl-specific resolver to resolve to in order to derive
 /// lst from pool_state and check them
-pub struct LstSolCommonIntermediateAccounts<Q: KeyedAccount + ReadonlyAccountData> {
-    pub lst: Pubkey,
+pub struct LstSolCommonIntermediateArgs<Q: KeyedAccount + ReadonlyAccountData> {
+    pub lst_mint: Pubkey,
     pub pool_state: Pubkey,
     pub pool_program: Q,
 }
 
-impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateAccounts<Q> {
+impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateArgs<Q> {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<LstSolCommonKeys, GenericPoolCalculatorError> {
@@ -20,7 +20,7 @@ impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateAccounts<Q> 
             return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
         Ok(LstSolCommonKeys {
-            lst: self.lst,
+            lst_mint: self.lst_mint,
             pool_state: self.pool_state,
             state: P::CALCULATOR_STATE_PDA,
             pool_program: P::POOL_PROGRAM_ID,
@@ -35,14 +35,14 @@ impl<Q: KeyedAccount + ReadonlyAccountData> LstSolCommonIntermediateAccounts<Q> 
 /// NB: This struct requires a impl-specific resolver to resolve to in order to derive
 /// lst from pool_state and check them
 pub struct LstSolCommonIntermediateKeys {
-    pub lst: Pubkey,
+    pub lst_mint: Pubkey,
     pub pool_state: Pubkey,
 }
 
 impl LstSolCommonIntermediateKeys {
     pub const fn resolve<P: GenericPoolSolValCalc>(self) -> LstSolCommonKeys {
         LstSolCommonKeys {
-            lst: self.lst,
+            lst_mint: self.lst_mint,
             pool_state: self.pool_state,
             state: P::CALCULATOR_STATE_PDA,
             pool_program: P::POOL_PROGRAM_ID,

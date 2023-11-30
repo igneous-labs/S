@@ -12,8 +12,10 @@ pub use calc::*;
 pub use lst_sol_common::*;
 
 pub const CALCULATOR_STATE_SEED: &[u8] = b"state";
-pub const CALCULATOR_STATE_SIZE: usize = 40;
 
+// std::mem::size_of is a const fn so we dont technically need this
+// but this assert helps guard against unexpected size changes
+pub const CALCULATOR_STATE_SIZE: usize = 40;
 const_assert_eq!(
     std::mem::size_of::<CalculatorState>(),
     CALCULATOR_STATE_SIZE

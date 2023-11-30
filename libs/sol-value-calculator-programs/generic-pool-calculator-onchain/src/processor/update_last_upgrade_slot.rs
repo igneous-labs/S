@@ -4,7 +4,7 @@ use generic_pool_calculator_interface::{
     UpdateLastUpgradeSlotKeys,
 };
 use generic_pool_calculator_lib::{
-    account_resolvers::UpdateLastUpgradeSlotRootAccounts,
+    account_resolvers::UpdateLastUpgradeSlotFreeArgs,
     utils::{read_stake_pool_progdata_meta, try_calculator_state_mut},
     GenericPoolSolValCalc,
 };
@@ -34,7 +34,7 @@ pub fn verify_update_last_upgrade_slot<'me, 'info, P: GenericPoolSolValCalc>(
 ) -> Result<UpdateLastUpgradeSlotAccounts<'me, 'info>, ProgramError> {
     let actual: UpdateLastUpgradeSlotAccounts = load_accounts(accounts)?;
 
-    let root_keys = UpdateLastUpgradeSlotRootAccounts {
+    let root_keys = UpdateLastUpgradeSlotFreeArgs {
         pool_program: actual.pool_program,
         state: actual.state,
     };

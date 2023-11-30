@@ -12,23 +12,23 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 0 | u8 |
-| amount | amount of LSTs | u64 |
+| Name         | Value          | Type |
+| ------------ | -------------- | ---- |
+| discriminant | 0              | u8   |
+| amount       | amount of LSTs | u64  |
 
 #### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| lst | Token mint of the lst | R | N |
-| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ... | ... |
+| Account            | Description                                                                        | Read/Write (R/W) | Signer (Y/N) |
+| ------------------ | ---------------------------------------------------------------------------------- | ---------------- | ------------ |
+| lst_mint           | Token mint of the lst                                                              | R                | N            |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ...              | ...          |
 
 #### Return Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| result | the calculated SOL value | u64 |
+| Name   | Value                    | Type |
+| ------ | ------------------------ | ---- |
+| result | the calculated SOL value | u64  |
 
 ### SolToLst
 
@@ -40,20 +40,20 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| discriminant | 1 | u8 |
-| amount | amount of SOL | u64 |
+| Name         | Value         | Type |
+| ------------ | ------------- | ---- |
+| discriminant | 1             | u8   |
+| amount       | amount of SOL | u64  |
 
 #### Accounts
 
-| Account | Description | Read/Write (R/W) | Signer (Y/N) |
-| -- | -- | -- | -- |
-| lst | Token mint of the lst | R | N |
-| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ... | ... |
+| Account            | Description                                                                        | Read/Write (R/W) | Signer (Y/N) |
+| ------------------ | ---------------------------------------------------------------------------------- | ---------------- | ------------ |
+| lst_mint           | Token mint of the lst                                                              | R                | N            |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ...              | ...          |
 
 #### Return Data
 
-| Name | Value | Type |
-| -- | -- | -- |
-| result | the calculated LST amount | u64 |
+| Name   | Value                     | Type |
+| ------ | ------------------------- | ---- |
+| result | the calculated LST amount | u64  |
