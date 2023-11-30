@@ -15,7 +15,6 @@ pub struct JitoNormalProgramTest {
 
 pub fn jito_normal_program_test() -> JitoNormalProgramTest {
     let mut program_test = ProgramTest::default();
-    program_test.prefer_bpf(false);
     program_test.add_program(
         "spl_sol_value_calculator",
         spl_calculator_lib::program::ID,

@@ -52,7 +52,6 @@ async fn set_manager_basic() {
     let new_manager = Pubkey::new_unique();
 
     let mut program_test = ProgramTest::default();
-    program_test.prefer_bpf(false);
     program_test.add_program(
         "mock_calculator_program",
         mock_calculator_program::ID,

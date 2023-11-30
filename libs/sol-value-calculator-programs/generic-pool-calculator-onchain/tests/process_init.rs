@@ -42,7 +42,6 @@ mod mock_calculator_program {
 #[tokio::test]
 async fn init_basic() {
     let mut program_test = ProgramTest::default();
-    program_test.prefer_bpf(false);
     program_test.add_program(
         "mock_calculator_program",
         mock_calculator_program::ID,
