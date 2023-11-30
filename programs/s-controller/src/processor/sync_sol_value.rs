@@ -59,7 +59,7 @@ fn verify_sync_sol_value<'a, 'info>(
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    let cpi = SolValueCalculatorCpi::from_accounts(&actual, accounts_suffix_slice)?;
+    let cpi = SolValueCalculatorCpi::from_ix_accounts(&actual, accounts_suffix_slice)?;
     cpi.verify_correct_sol_value_calculator_program(&actual, *lst_index)?;
 
     Ok((actual, cpi))

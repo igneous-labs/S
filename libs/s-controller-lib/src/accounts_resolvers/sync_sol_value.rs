@@ -7,16 +7,17 @@ use crate::{
     try_lst_state_list,
 };
 
-pub struct SyncSolValueFreeArgs<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
-{
+pub struct SyncSolValueFreeArgs<
+    I: TryInto<usize>,
+    L: ReadonlyAccountData,
+    M: ReadonlyAccountOwner + KeyedAccount,
+> {
     pub lst_index: I,
     pub lst_state_list: L,
-
-    /// Only used to get the mint's owner program to derive ATA
     pub lst_mint: M,
 }
 
-impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
+impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
     SyncSolValueFreeArgs<I, L, M>
 {
     pub fn resolve(self) -> Result<SyncSolValueKeys, SControllerError> {
@@ -29,6 +30,9 @@ impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner>
             .map_err(|_e| SControllerError::InvalidLstIndex)?;
 
         let lst_state = list.get(i).ok_or(SControllerError::InvalidLstIndex)?;
+        if *self.lst_mint.key() != lst_state.mint {
+            return Err(SControllerError::InvalidLstIndex);
+        }
         let pool_reserves = create_pool_reserves_address(lst_state, self.lst_mint)?;
 
         Ok(SyncSolValueKeys {
