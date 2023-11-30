@@ -20,28 +20,28 @@
       ],
       "accounts": [
         {
-          "name": "lst_input",
+          "name": "input_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Input LST token mint"
+          "desc": "Mint of the input LST"
         },
         {
-          "name": "lst_output",
+          "name": "output_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Output LST token mint"
+          "desc": "Mint of the output LST"
         },
         {
-          "name": "fee_acc_input",
+          "name": "input_fee_acc",
           "isMut": false,
           "isSigner": false,
-          "desc": "FeeAccount PDA for input LST"
+          "desc": "FeeAccount PDA for the input LST"
         },
         {
-          "name": "fee_acc_output",
+          "name": "output_fee_acc",
           "isMut": false,
           "isSigner": false,
-          "desc": "FeeAccount PDA for output LST"
+          "desc": "FeeAccount PDA for the output LST"
         }
       ]
     },
@@ -63,28 +63,28 @@
       ],
       "accounts": [
         {
-          "name": "lst_input",
+          "name": "input_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Input LST token mint"
+          "desc": "Mint of the input LST"
         },
         {
-          "name": "lst_output",
+          "name": "output_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Output LST token mint"
+          "desc": "Mint of the output LST"
         },
         {
-          "name": "fee_acc_input",
+          "name": "input_fee_acc",
           "isMut": false,
           "isSigner": false,
-          "desc": "FeeAccount PDA for input LST"
+          "desc": "FeeAccount PDA for the input LST"
         },
         {
-          "name": "fee_acc_output",
+          "name": "output_fee_acc",
           "isMut": false,
           "isSigner": false,
-          "desc": "FeeAccount PDA for output LST"
+          "desc": "FeeAccount PDA for the output LST"
         }
       ]
     },
@@ -106,10 +106,10 @@
       ],
       "accounts": [
         {
-          "name": "lst_input",
+          "name": "input_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Input LST token mint"
+          "desc": "Mint of the input LST"
         }
       ]
     },
@@ -131,10 +131,10 @@
       ],
       "accounts": [
         {
-          "name": "lst_output",
+          "name": "output_lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Output LST token mint"
+          "desc": "Mint of the output LST"
         },
         {
           "name": "state",
@@ -152,7 +152,7 @@
       },
       "args": [
         {
-          "name": "lp_withdrawal_fee",
+          "name": "lp_withdrawal_fee_bps",
           "type": "u16"
         }
       ],
@@ -179,11 +179,11 @@
       },
       "args": [
         {
-          "name": "input_fee",
+          "name": "input_fee_bps",
           "type": "i16"
         },
         {
-          "name": "output_fee",
+          "name": "output_fee_bps",
           "type": "i16"
         }
       ],
@@ -244,11 +244,11 @@
       },
       "args": [
         {
-          "name": "input_fee",
+          "name": "input_fee_bps",
           "type": "i16"
         },
         {
-          "name": "output_fee",
+          "name": "output_fee_bps",
           "type": "i16"
         }
       ],
@@ -347,7 +347,7 @@
             "type": "publicKey"
           },
           {
-            "name": "lp_withdrawal_fee",
+            "name": "lp_withdrawal_fee_bps",
             "type": "u16"
           }
         ]
@@ -367,11 +367,11 @@
             "type": "u8"
           },
           {
-            "name": "input_fee",
+            "name": "input_fee_bps",
             "type": "i16"
           },
           {
-            "name": "output_fee",
+            "name": "output_fee_bps",
             "type": "i16"
           }
         ]
