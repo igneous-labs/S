@@ -217,6 +217,7 @@ Update the fees for given type of pricing action.
 | manager        | The program manager                  | R                | Y            |
 | payer          | Account paying for FeeAccount's rent | R                | Y            |
 | fee_acc        | FeeAccount PDA to modify             | W                | N            |
+| state          | Program state PDA                    | R                | N            |
 | system_program | System program                       | R                | N            |
 
 #### RemoveLst
@@ -236,6 +237,7 @@ Update the fees for given type of pricing action.
 | manager        | The program manager           | R                | Y            |
 | refund_rent_to | Account to refund SOL rent to | R                | Y            |
 | fee_acc        | FeeAccount PDA to modify      | W                | N            |
+| state          | Program state PDA             | R                | N            |
 | system_program | System program                | R                | N            |
 
 #### SetLstFee
@@ -256,6 +258,7 @@ Update the fees for given type of pricing action.
 | ------- | ------------------------ | ---------------- | ------------ |
 | manager | The program manager      | R                | Y            |
 | fee_acc | FeeAccount PDA to modify | W                | N            |
+| state   | Program state PDA        | R                | N            |
 
 #### SetLpWithdrawalFee
 

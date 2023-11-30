@@ -2,7 +2,7 @@ use flat_fee_interface::{AddLstKeys, FlatFeeError, ProgramState};
 use solana_program::{pubkey::Pubkey, system_program};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
-use crate::{pda::FeeAccountFindPdaArgs, utils::try_program_state};
+use crate::{pda::FeeAccountFindPdaArgs, program, utils::try_program_state};
 
 pub struct AddLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub payer: Pubkey,
@@ -20,10 +20,13 @@ impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
         };
         let (fee_acc, _bump) = find_pda_args.get_fee_account_address_and_bump_seed();
 
+        // TODO: verify
+
         Ok(AddLstKeys {
             manager: state.manager,
             payer: self.payer,
             fee_acc,
+            state: program::STATE_ID,
             system_program: system_program::ID,
         })
     }

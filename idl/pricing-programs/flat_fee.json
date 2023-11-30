@@ -199,6 +199,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "FeeAccount PDA to modify"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The program state PDA"
         }
       ]
     },
@@ -227,6 +233,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "FeeAccount PDA to be created"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The program state PDA"
         },
         {
           "name": "system_program",
@@ -270,6 +282,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "FeeAccount PDA to be created"
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The program state PDA"
         },
         {
           "name": "system_program",

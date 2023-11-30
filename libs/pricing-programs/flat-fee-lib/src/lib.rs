@@ -1,5 +1,6 @@
 pub mod account_resolvers;
 pub mod pda;
+pub mod processor;
 mod utils;
 
 pub mod program {
