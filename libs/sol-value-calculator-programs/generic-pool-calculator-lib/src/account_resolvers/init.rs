@@ -3,11 +3,11 @@ use solana_program::{pubkey::Pubkey, system_program};
 
 use crate::GenericPoolSolValCalc;
 
-pub struct InitRootAccounts {
+pub struct InitFreeArgs {
     pub payer: Pubkey,
 }
 
-impl InitRootAccounts {
+impl InitFreeArgs {
     pub fn resolve<P: GenericPoolSolValCalc>(self) -> InitKeys {
         InitKeys {
             payer: self.payer,

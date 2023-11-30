@@ -27,22 +27,26 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 ## LstStateList
 
+The LST state list singleton is located at PDA ["lst-state-list"].
+
 ### Schema
 
-| Name       | Value                                              | Type       |
-| ---------- | -------------------------------------------------- | ---------- |
-| lst_states | Dynamic list of LstStates for each LST in the pool | LstState[] |
+| Name           | Value                                              | Type       |
+| -------------- | -------------------------------------------------- | ---------- |
+| lst_state_list | Dynamic list of LstStates for each LST in the pool | LstState[] |
 
 #### LstState Schema
 
 The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name                 | Value                                                                  | Type    |
-| -------------------- | ---------------------------------------------------------------------- | ------- |
-| is_input_disabled    | Flag indicating if inputs for this LST are disabled                    | PodBool |
-| sol_value            | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64     |
-| token                | The LST's mint                                                         | Pubkey  |
-| sol_value_calculator | The LST's SOL value calculator program                                 | Pubkey  |
+| Name                          | Value                                                                  | Type    |
+| ----------------------------- | ---------------------------------------------------------------------- | ------- |
+| is_input_disabled             | Flag indicating if inputs for this LST are disabled                    | PodBool |
+| reserves_bump                 | bump seed of this LST's reserves ATA                                   | u8      |
+| protocol_fee_accumulator_bump | bump seed of this LST's protocol fee accumulator ATA                   | u8      |
+| sol_value                     | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64     |
+| mint                          | The LST's mint                                                         | Pubkey  |
+| sol_value_calculator          | The LST's SOL value calculator program                                 | Pubkey  |
 
 ## DisablePoolAuthorityList
 
@@ -67,9 +71,9 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | Name                    | Value                                                                                                                                                                                         | Type   |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | sol_value               | SOL value of the LST tokens withdrawn to be rebalanced                                                                                                                                        | u64    |
-| dst_lst_index           | index of dst_lst in PoolState.lst_states                                                                                                                                                      | u64    |
+| dst_lst_index           | index of dst_lst in PoolState.lst_state_list                                                                                                                                                  | u64    |
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8     |
-| dst_lst                 | token mint of the LST being rebalanced to                                                                                                                                                     | Pubkey |
+| dst_lst_mint            | token mint of the LST being rebalanced to                                                                                                                                                     | Pubkey |
 
 ## LST Reserves
 

@@ -1,6 +1,6 @@
 use generic_pool_calculator_interface::{update_last_upgrade_slot_ix, UpdateLastUpgradeSlotIxArgs};
 use generic_pool_calculator_lib::{
-    account_resolvers::UpdateLastUpgradeSlotRootAccounts, utils::try_calculator_state,
+    account_resolvers::UpdateLastUpgradeSlotFreeArgs, utils::try_calculator_state,
 };
 use generic_pool_calculator_test_utils::{
     mock_calculator_state_account, MockCalculatorStateAccountArgs,
@@ -76,7 +76,7 @@ async fn update_last_upgrade_slot_basic() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let root_accounts = UpdateLastUpgradeSlotRootAccounts {
+    let free_args = UpdateLastUpgradeSlotFreeArgs {
         state: KeyedReadonlyAccount {
             key: mock_calculator_program::STATE_ID,
             account: mock_state,
@@ -87,7 +87,7 @@ async fn update_last_upgrade_slot_basic() {
         },
     };
     let mut ix = update_last_upgrade_slot_ix(
-        root_accounts.resolve::<MockCalculatorProgram>().unwrap(),
+        free_args.resolve::<MockCalculatorProgram>().unwrap(),
         UpdateLastUpgradeSlotIxArgs {},
     )
     .unwrap();

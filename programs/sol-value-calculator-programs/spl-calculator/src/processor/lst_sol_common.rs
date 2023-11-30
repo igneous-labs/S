@@ -6,7 +6,7 @@ use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, program_error::ProgramError, sysvar::Sysvar,
 };
-use spl_calculator_lib::{SplLstSolCommonRootAccounts, SplSolValCalc, SplStakePoolCalc};
+use spl_calculator_lib::{SplLstSolCommonFreeArgs, SplSolValCalc, SplStakePoolCalc};
 
 /// Assumes:
 /// - LstToSolAccounts/Keys and SolToLstAccounts/Keys are identical
@@ -15,7 +15,7 @@ pub fn verify_lst_sol_common(
 ) -> Result<SplStakePoolCalc, ProgramError> {
     let actual: LstToSolAccounts = load_accounts(accounts)?;
 
-    let root_keys = SplLstSolCommonRootAccounts {
+    let root_keys = SplLstSolCommonFreeArgs {
         spl_stake_pool: actual.pool_state,
         spl_stake_pool_prog: actual.pool_program,
     };

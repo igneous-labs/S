@@ -13,3 +13,4 @@ solana-program = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 solana-program-test = { workspace = true }
+spl-token = { workspace = true, features = ["no-entrypoint"] }

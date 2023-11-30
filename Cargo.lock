@@ -3243,18 +3243,39 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 name = "s-controller"
 version = "1.0.0"
 dependencies = [
+ "borsh 0.9.3",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "marinade-calculator",
+ "marinade-calculator-lib",
+ "marinade-keys",
  "s-controller-lib",
  "s_controller_interface",
+ "sanctum-onchain-utils",
+ "sanctum-utils",
+ "sol_value_calculator_interface",
  "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "spl-calculator",
+ "spl-calculator-lib",
+ "spl-token",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
 name = "s-controller-lib"
 version = "1.0.0"
 dependencies = [
+ "bytemuck",
  "s_controller_interface",
  "sanctum-macros",
+ "sanctum-utils",
  "solana-program",
+ "solana-readonly-account",
+ "static_assertions",
 ]
 
 [[package]]
@@ -3296,6 +3317,16 @@ name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
  "solana-program",
+]
+
+[[package]]
+name = "sanctum-utils"
+version = "1.0.0"
+dependencies = [
+ "solana-program",
+ "solana-readonly-account",
+ "spl-associated-token-account",
+ "spl-token",
 ]
 
 [[package]]
@@ -3590,6 +3621,15 @@ name = "sol-value-calculator-onchain"
 version = "1.0.0"
 dependencies = [
  "sol-value-calculator-lib",
+ "solana-program",
+]
+
+[[package]]
+name = "sol_value_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "serde",
  "solana-program",
 ]
 
@@ -5088,6 +5128,7 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-token",
 ]
 
 [[package]]

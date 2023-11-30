@@ -1,0 +1,10 @@
+[package]
+name = "sanctum-utils"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
+spl-associated-token-account = { workspace = true, features = ["no-entrypoint"] }
+spl-token = { workspace = true, features = ["no-entrypoint"] }

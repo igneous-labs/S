@@ -16,7 +16,7 @@
       ],
       "accounts": [
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to sync SOL value for"
@@ -28,7 +28,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -81,13 +81,13 @@
           "desc": "Authority of src_lst_acc. User making the swap."
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -129,7 +129,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -188,13 +188,13 @@
           "desc": "Authority of src_lst_acc. User making the swap."
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -236,7 +236,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -287,7 +287,7 @@
           "desc": "Authority of src_lst_acc. User who's adding liquidity."
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST"
@@ -317,7 +317,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -362,7 +362,7 @@
           "desc": "Authority of lp_acc. User who's removing liquidity."
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST"
@@ -398,7 +398,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -431,7 +431,7 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to disable input for"
@@ -443,7 +443,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -470,7 +470,7 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST to re-enable input for"
@@ -482,7 +482,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -515,7 +515,7 @@
           "desc": "Account paying the SOL rent for the new space and accounts"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the new LST to add"
@@ -545,7 +545,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -584,7 +584,7 @@
           "desc": "Account to refund SOL rent to"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the new LST to remove"
@@ -614,7 +614,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -647,10 +647,10 @@
           "desc": "The pool's admin"
         },
         {
-          "name": "lst",
+          "name": "lst_mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Mint of the new LST to remove"
+          "desc": "Mint of the LST to set SOL value calculator for"
         },
         {
           "name": "pool_state",
@@ -665,7 +665,7 @@
           "desc": "LST reserves token account of the pool"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -1007,7 +1007,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each lst in the pool"
@@ -1019,13 +1019,13 @@
           "desc": "The RebalanceRecord PDA"
         },
         {
-          "name": "src_lst",
+          "name": "src_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped from"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -1083,7 +1083,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each lst in the pool"
@@ -1095,7 +1095,7 @@
           "desc": "The RebalanceRecord PDA"
         },
         {
-          "name": "dst_lst",
+          "name": "dst_lst_mint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint of the LST being swapped to"
@@ -1162,7 +1162,7 @@
           "desc": "The pool's state singleton PDA"
         },
         {
-          "name": "lst_states",
+          "name": "lst_state_list",
           "isMut": true,
           "isSigner": false,
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
@@ -1254,9 +1254,17 @@
             "type": "u8"
           },
           {
+            "name": "reserves_bump",
+            "type": "u8"
+          },
+          {
+            "name": "protocol_fee_accumulator_bump",
+            "type": "u8"
+          },
+          {
             "name": "padding",
             "type": {
-              "array": ["u8", 7]
+              "array": ["u8", 5]
             },
             "attrs": ["padding"]
           },
@@ -1265,7 +1273,7 @@
             "type": "u64"
           },
           {
-            "name": "token",
+            "name": "mint",
             "type": "publicKey"
           },
           {
@@ -1300,14 +1308,70 @@
             "attrs": ["padding"]
           },
           {
-            "name": "dst_lst",
+            "name": "dst_lst_mint",
             "type": "publicKey"
           }
         ]
       }
     }
   ],
-  "errors": [],
+  "errors": [
+    {
+      "code": 0,
+      "name": "InvalidPoolStateData",
+      "msg": "Invalid pool state data"
+    },
+    {
+      "code": 1,
+      "name": "InvalidLstStateListData",
+      "msg": "Invalid lst state data"
+    },
+    {
+      "code": 2,
+      "name": "InvalidDisablePoolAuthorityListData",
+      "msg": "Invalid disable pool authority list data"
+    },
+    {
+      "code": 3,
+      "name": "InvalidRebalanceRecordData",
+      "msg": "Invalid rebalance record data"
+    },
+    {
+      "code": 4,
+      "name": "MathError",
+      "msg": "Math error"
+    },
+    {
+      "code": 5,
+      "name": "PoolRebalancing",
+      "msg": "Pool is currently rebalancing"
+    },
+    {
+      "code": 6,
+      "name": "PoolDisabled",
+      "msg": "Pool is currently disabled"
+    },
+    {
+      "code": 7,
+      "name": "InvalidLstIndex",
+      "msg": "LST with given index does not exist"
+    },
+    {
+      "code": 8,
+      "name": "InvalidReserves",
+      "msg": "Invalid LST reserves account"
+    },
+    {
+      "code": 9,
+      "name": "IncorrectSolValueCalculator",
+      "msg": "Incorrect SOL value calculator program"
+    },
+    {
+      "code": 10,
+      "name": "FaultySolValueCalculator",
+      "msg": "Faulty SOL value calculator program"
+    }
+  ],
   "metadata": {
     "origin": "shank",
     "address": "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv"

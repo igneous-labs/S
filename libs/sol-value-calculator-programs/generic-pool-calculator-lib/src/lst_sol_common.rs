@@ -7,7 +7,7 @@ use solana_program::{account_info::AccountInfo, pubkey::Pubkey};
 
 pub struct LstSolCommonAccounts<'me, 'info> {
     ///The LST mint
-    pub lst: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
     ///The CalculatorState PDA
     pub state: &'me AccountInfo<'info>,
     ///The main stake pool state account
@@ -21,7 +21,7 @@ pub struct LstSolCommonAccounts<'me, 'info> {
 impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for LstToSolAccounts<'me, 'info> {
     fn from(
         LstSolCommonAccounts {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -29,7 +29,7 @@ impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for LstToSolAccounts<'me
         }: LstSolCommonAccounts<'me, 'info>,
     ) -> Self {
         Self {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -41,7 +41,7 @@ impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for LstToSolAccounts<'me
 impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for SolToLstAccounts<'me, 'info> {
     fn from(
         LstSolCommonAccounts {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -49,7 +49,7 @@ impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for SolToLstAccounts<'me
         }: LstSolCommonAccounts<'me, 'info>,
     ) -> Self {
         Self {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -60,7 +60,7 @@ impl<'me, 'info> From<LstSolCommonAccounts<'me, 'info>> for SolToLstAccounts<'me
 
 pub struct LstSolCommonKeys {
     ///The LST mint
-    pub lst: Pubkey,
+    pub lst_mint: Pubkey,
     ///The CalculatorState PDA
     pub state: Pubkey,
     ///The main stake pool state account
@@ -74,7 +74,7 @@ pub struct LstSolCommonKeys {
 impl From<LstSolCommonKeys> for LstToSolKeys {
     fn from(
         LstSolCommonKeys {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -82,7 +82,7 @@ impl From<LstSolCommonKeys> for LstToSolKeys {
         }: LstSolCommonKeys,
     ) -> Self {
         Self {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -94,7 +94,7 @@ impl From<LstSolCommonKeys> for LstToSolKeys {
 impl From<LstSolCommonKeys> for SolToLstKeys {
     fn from(
         LstSolCommonKeys {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
@@ -102,7 +102,7 @@ impl From<LstSolCommonKeys> for SolToLstKeys {
         }: LstSolCommonKeys,
     ) -> Self {
         Self {
-            lst,
+            lst_mint,
             state,
             pool_state,
             pool_program,
