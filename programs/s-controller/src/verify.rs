@@ -3,7 +3,7 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
 use s_controller_lib::U8Bool;
 
-pub fn verify_not_rebalancing_and_not_disabled(
+pub const fn verify_not_rebalancing_and_not_disabled(
     pool_state: &PoolState,
 ) -> Result<(), SControllerError> {
     if U8Bool(pool_state.is_rebalancing).is_true() {
@@ -15,7 +15,7 @@ pub fn verify_not_rebalancing_and_not_disabled(
     Ok(())
 }
 
-pub fn verify_lst_input_not_disabled(lst_state: &LstState) -> Result<(), SControllerError> {
+pub const fn verify_lst_input_not_disabled(lst_state: &LstState) -> Result<(), SControllerError> {
     if U8Bool(lst_state.is_input_disabled).is_true() {
         return Err(SControllerError::LstInputDisabled);
     }

@@ -1,4 +1,4 @@
-use s_controller_interface::SyncSolValueAccounts;
+use s_controller_interface::{EndRebalanceAccounts, SyncSolValueAccounts};
 use solana_program::account_info::AccountInfo;
 
 use super::{DstLstPoolReservesOf, GetSrcDstLstPoolReservesAccountInfo, SrcLstPoolReservesOf};
@@ -10,6 +10,12 @@ pub trait GetPoolReservesAccountInfo<'me, 'info> {
 impl<'me, 'info> GetPoolReservesAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
     fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info> {
         self.pool_reserves
+    }
+}
+
+impl<'me, 'info> GetPoolReservesAccountInfo<'me, 'info> for EndRebalanceAccounts<'me, 'info> {
+    fn get_pool_reserves_account_info(&self) -> &'me AccountInfo<'info> {
+        self.dst_pool_reserves
     }
 }
 

@@ -474,6 +474,7 @@ Disable functionality of the entire pool.
 
 ### Procedure
 
+- verify pool not rebalancing
 - set bool flag on pool_state
 
 ## EnablePool
@@ -567,7 +568,7 @@ End a flash rebalancing procedure after returning the funds to the pool
 
 ### Procedure
 
-- Verify pool is rebalancing and not disabled
+- Verify pool is rebalancing
 - Set is_rebalancing = false
 - Self CPI SyncSolValue for dst_lst
 - Verify increase in pool's SOL value after self CPI >= amount recorded in rebalance_record

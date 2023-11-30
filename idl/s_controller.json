@@ -1368,6 +1368,21 @@
       "code": 14,
       "name": "NoSucceedingEndRebalance",
       "msg": "No succeeding EndRebalance instruction found"
+    },
+    {
+      "code": 15,
+      "name": "IncorrectRebalanceRecord",
+      "msg": "Incorrect rebalance record account"
+    },
+    {
+      "code": 16,
+      "name": "PoolNotRebalancing",
+      "msg": "Pool is not currently rebalancing"
+    },
+    {
+      "code": 17,
+      "name": "PoolWouldLoseSolValue",
+      "msg": "Cannot allow loss of SOL value for pool"
     }
   ],
   "metadata": {

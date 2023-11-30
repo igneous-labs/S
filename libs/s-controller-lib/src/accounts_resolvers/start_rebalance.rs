@@ -9,6 +9,7 @@ use crate::{
     SrcDstLstIndexes,
 };
 
+#[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceFreeArgs<
     SI: TryInto<usize>,
     DI: TryInto<usize>,
@@ -49,11 +50,13 @@ impl<
 
         let src_lst_state =
             try_match_lst_mint_on_list(*self.src_lst_mint.key(), list, self.src_lst_index)?;
-        let src_pool_reserves = create_pool_reserves_address(src_lst_state, &self.src_lst_mint)?;
+        let src_pool_reserves =
+            create_pool_reserves_address(src_lst_state, *self.src_lst_mint.owner())?;
 
         let dst_lst_state =
             try_match_lst_mint_on_list(*self.dst_lst_mint.key(), list, self.dst_lst_index)?;
-        let dst_pool_reserves = create_pool_reserves_address(dst_lst_state, &self.dst_lst_mint)?;
+        let dst_pool_reserves =
+            create_pool_reserves_address(dst_lst_state, *self.dst_lst_mint.owner())?;
 
         let pool_state_acc_data = self.pool_state.data();
         let pool_state = try_pool_state(&pool_state_acc_data)?;
@@ -78,6 +81,7 @@ impl<
 
 /// Iterates through lst_state_list to find the lst indexes.
 /// Suitable for use on client side
+#[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceByMintsFreeArgs<
     SM: ReadonlyAccountOwner + KeyedAccount,
     DM: ReadonlyAccountOwner + KeyedAccount,
@@ -112,11 +116,13 @@ impl<
 
         let (src_lst_index, src_lst_state) =
             try_find_lst_mint_on_list(*self.src_lst_mint.key(), list)?;
-        let src_pool_reserves = create_pool_reserves_address(src_lst_state, &self.src_lst_mint)?;
+        let src_pool_reserves =
+            create_pool_reserves_address(src_lst_state, *self.src_lst_mint.owner())?;
 
         let (dst_lst_index, dst_lst_state) =
             try_find_lst_mint_on_list(*self.dst_lst_mint.key(), list)?;
-        let dst_pool_reserves = create_pool_reserves_address(dst_lst_state, &self.dst_lst_mint)?;
+        let dst_pool_reserves =
+            create_pool_reserves_address(dst_lst_state, *self.dst_lst_mint.owner())?;
 
         let pool_state_acc_data = self.pool_state.data();
         let pool_state = try_pool_state(&pool_state_acc_data)?;
