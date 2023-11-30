@@ -7,7 +7,7 @@ use crate::{pda::FeeAccountFindPdaArgs, utils::try_program_state};
 pub struct RemoveLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub refund_rent_to: Pubkey,
     pub state: S,
-    pub lst: Pubkey,
+    pub lst_mint: Pubkey,
 }
 
 impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstFreeArgs<S> {
@@ -15,7 +15,9 @@ impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstFreeArgs<S> {
         let bytes = &self.state.data();
         let state: &ProgramState = try_program_state(bytes)?;
 
-        let find_pda_args = FeeAccountFindPdaArgs { lst: self.lst };
+        let find_pda_args = FeeAccountFindPdaArgs {
+            lst_mint: self.lst_mint,
+        };
         let (fee_acc, _bump) = find_pda_args.get_fee_account_address_and_bump_seed();
 
         Ok(RemoveLstKeys {
