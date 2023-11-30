@@ -515,7 +515,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SWAP_EXACT_IN_IX_ACCOUNTS_LEN]>
 pub struct SwapExactInIxArgs {
     pub src_lst_value_calc_accs: u8,
     pub dst_lst_value_calc_accs: u8,
-    pub pricing_accs: u8,
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
     pub amount: u64,
@@ -790,7 +789,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN]>
 pub struct SwapExactOutIxArgs {
     pub src_lst_value_calc_accs: u8,
     pub dst_lst_value_calc_accs: u8,
-    pub pricing_accs: u8,
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
     pub amount: u64,
@@ -1028,7 +1026,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AddLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
-    pub pricing_accs: u8,
     pub lst_index: u32,
     pub amount: u64,
 }
@@ -1259,7 +1256,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
-    pub pricing_accs: u8,
     pub lst_index: u32,
     pub amount: u64,
 }
@@ -4071,7 +4067,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StartRebalanceIxArgs {
     pub src_lst_calc_accs: u8,
-    pub dst_lst_calc_accs: u8,
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
     pub amount: u64,

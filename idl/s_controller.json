@@ -57,10 +57,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "src_lst_index",
           "type": "u32"
         },
@@ -164,10 +160,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "src_lst_index",
           "type": "u32"
         },
@@ -267,10 +259,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "lst_index",
           "type": "u32"
         },
@@ -339,10 +327,6 @@
       "args": [
         {
           "name": "lst_value_calc_accs",
-          "type": "u8"
-        },
-        {
-          "name": "pricing_accs",
           "type": "u8"
         },
         {
@@ -968,10 +952,6 @@
       "args": [
         {
           "name": "src_lst_calc_accs",
-          "type": "u8"
-        },
-        {
-          "name": "dst_lst_calc_accs",
           "type": "u8"
         },
         {
