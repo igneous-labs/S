@@ -861,13 +861,15 @@ pub fn set_lp_withdrawal_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const SET_LST_FEE_IX_ACCOUNTS_LEN: usize = 2;
+pub const SET_LST_FEE_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct SetLstFeeAccounts<'me, 'info> {
     ///The program manager
     pub manager: &'me AccountInfo<'info>,
     ///FeeAccount PDA to modify
     pub fee_acc: &'me AccountInfo<'info>,
+    ///The program state PDA
+    pub state: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct SetLstFeeKeys {
@@ -875,12 +877,15 @@ pub struct SetLstFeeKeys {
     pub manager: Pubkey,
     ///FeeAccount PDA to modify
     pub fee_acc: Pubkey,
+    ///The program state PDA
+    pub state: Pubkey,
 }
 impl From<&SetLstFeeAccounts<'_, '_>> for SetLstFeeKeys {
     fn from(accounts: &SetLstFeeAccounts) -> Self {
         Self {
             manager: *accounts.manager.key,
             fee_acc: *accounts.fee_acc.key,
+            state: *accounts.state.key,
         }
     }
 }
@@ -889,6 +894,7 @@ impl From<&SetLstFeeKeys> for [AccountMeta; SET_LST_FEE_IX_ACCOUNTS_LEN] {
         [
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.state, false),
         ]
     }
 }
@@ -897,6 +903,7 @@ impl From<[Pubkey; SET_LST_FEE_IX_ACCOUNTS_LEN]> for SetLstFeeKeys {
         Self {
             manager: pubkeys[0],
             fee_acc: pubkeys[1],
+            state: pubkeys[2],
         }
     }
 }
@@ -904,7 +911,11 @@ impl<'info> From<&SetLstFeeAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]
 {
     fn from(accounts: &SetLstFeeAccounts<'_, 'info>) -> Self {
-        [accounts.manager.clone(), accounts.fee_acc.clone()]
+        [
+            accounts.manager.clone(),
+            accounts.fee_acc.clone(),
+            accounts.state.clone(),
+        ]
     }
 }
 impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]>
@@ -914,6 +925,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN]>
         Self {
             manager: &arr[0],
             fee_acc: &arr[1],
+            state: &arr[2],
         }
     }
 }
@@ -990,6 +1002,7 @@ pub fn set_lst_fee_verify_account_keys(
     for (actual, expected) in [
         (accounts.manager.key, &keys.manager),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.state.key, &keys.state),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -1012,7 +1025,7 @@ pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 4;
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstAccounts<'me, 'info> {
     ///The program manager
@@ -1021,6 +1034,8 @@ pub struct RemoveLstAccounts<'me, 'info> {
     pub refund_rent_to: &'me AccountInfo<'info>,
     ///FeeAccount PDA to be created
     pub fee_acc: &'me AccountInfo<'info>,
+    ///The program state PDA
+    pub state: &'me AccountInfo<'info>,
     ///System program
     pub system_program: &'me AccountInfo<'info>,
 }
@@ -1032,6 +1047,8 @@ pub struct RemoveLstKeys {
     pub refund_rent_to: Pubkey,
     ///FeeAccount PDA to be created
     pub fee_acc: Pubkey,
+    ///The program state PDA
+    pub state: Pubkey,
     ///System program
     pub system_program: Pubkey,
 }
@@ -1041,6 +1058,7 @@ impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
             manager: *accounts.manager.key,
             refund_rent_to: *accounts.refund_rent_to.key,
             fee_acc: *accounts.fee_acc.key,
+            state: *accounts.state.key,
             system_program: *accounts.system_program.key,
         }
     }
@@ -1051,6 +1069,7 @@ impl From<&RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.refund_rent_to, true),
             AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.state, false),
             AccountMeta::new_readonly(keys.system_program, false),
         ]
     }
@@ -1061,7 +1080,8 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
             manager: pubkeys[0],
             refund_rent_to: pubkeys[1],
             fee_acc: pubkeys[2],
-            system_program: pubkeys[3],
+            state: pubkeys[3],
+            system_program: pubkeys[4],
         }
     }
 }
@@ -1073,6 +1093,7 @@ impl<'info> From<&RemoveLstAccounts<'_, 'info>>
             accounts.manager.clone(),
             accounts.refund_rent_to.clone(),
             accounts.fee_acc.clone(),
+            accounts.state.clone(),
             accounts.system_program.clone(),
         ]
     }
@@ -1085,7 +1106,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
             manager: &arr[0],
             refund_rent_to: &arr[1],
             fee_acc: &arr[2],
-            system_program: &arr[3],
+            state: &arr[3],
+            system_program: &arr[4],
         }
     }
 }
@@ -1160,6 +1182,7 @@ pub fn remove_lst_verify_account_keys(
         (accounts.manager.key, &keys.manager),
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.state.key, &keys.state),
         (accounts.system_program.key, &keys.system_program),
     ] {
         if actual != expected {
@@ -1183,7 +1206,7 @@ pub fn remove_lst_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 4;
+pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct AddLstAccounts<'me, 'info> {
     ///The program manager
@@ -1192,6 +1215,8 @@ pub struct AddLstAccounts<'me, 'info> {
     pub payer: &'me AccountInfo<'info>,
     ///FeeAccount PDA to be created
     pub fee_acc: &'me AccountInfo<'info>,
+    ///The program state PDA
+    pub state: &'me AccountInfo<'info>,
     ///System program
     pub system_program: &'me AccountInfo<'info>,
 }
@@ -1203,6 +1228,8 @@ pub struct AddLstKeys {
     pub payer: Pubkey,
     ///FeeAccount PDA to be created
     pub fee_acc: Pubkey,
+    ///The program state PDA
+    pub state: Pubkey,
     ///System program
     pub system_program: Pubkey,
 }
@@ -1212,6 +1239,7 @@ impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
             manager: *accounts.manager.key,
             payer: *accounts.payer.key,
             fee_acc: *accounts.fee_acc.key,
+            state: *accounts.state.key,
             system_program: *accounts.system_program.key,
         }
     }
@@ -1222,6 +1250,7 @@ impl From<&AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.payer, true),
             AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.state, false),
             AccountMeta::new_readonly(keys.system_program, false),
         ]
     }
@@ -1232,7 +1261,8 @@ impl From<[Pubkey; ADD_LST_IX_ACCOUNTS_LEN]> for AddLstKeys {
             manager: pubkeys[0],
             payer: pubkeys[1],
             fee_acc: pubkeys[2],
-            system_program: pubkeys[3],
+            state: pubkeys[3],
+            system_program: pubkeys[4],
         }
     }
 }
@@ -1242,6 +1272,7 @@ impl<'info> From<&AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX
             accounts.manager.clone(),
             accounts.payer.clone(),
             accounts.fee_acc.clone(),
+            accounts.state.clone(),
             accounts.system_program.clone(),
         ]
     }
@@ -1254,7 +1285,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]>
             manager: &arr[0],
             payer: &arr[1],
             fee_acc: &arr[2],
-            system_program: &arr[3],
+            state: &arr[3],
+            system_program: &arr[4],
         }
     }
 }
@@ -1332,6 +1364,7 @@ pub fn add_lst_verify_account_keys(
         (accounts.manager.key, &keys.manager),
         (accounts.payer.key, &keys.payer),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.state.key, &keys.state),
         (accounts.system_program.key, &keys.system_program),
     ] {
         if actual != expected {
