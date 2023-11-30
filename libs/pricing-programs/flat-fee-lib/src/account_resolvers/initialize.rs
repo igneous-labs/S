@@ -1,15 +1,15 @@
-use flat_fee_interface::InitKeys;
+use flat_fee_interface::InitializeKeys;
 use solana_program::{pubkey::Pubkey, system_program};
 
 use crate::program;
 
-pub struct InitFreeArgs {
+pub struct InitializeFreeArgs {
     pub payer: Pubkey,
 }
 
-impl InitFreeArgs {
-    pub fn resolve(&self) -> InitKeys {
-        InitKeys {
+impl InitializeFreeArgs {
+    pub fn resolve(&self) -> InitializeKeys {
+        InitializeKeys {
             payer: self.payer,
             state: program::STATE_ID,
             system_program: system_program::ID,

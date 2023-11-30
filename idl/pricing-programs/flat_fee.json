@@ -308,7 +308,7 @@
       ]
     },
     {
-      "name": "Init",
+      "name": "Initialize",
       "discriminant": {
         "type": "u8",
         "value": 255

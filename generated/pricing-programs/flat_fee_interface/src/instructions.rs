@@ -18,7 +18,7 @@ pub enum FlatFeeProgramIx {
     RemoveLst(RemoveLstIxArgs),
     AddLst(AddLstIxArgs),
     SetManager(SetManagerIxArgs),
-    Init(InitIxArgs),
+    Initialize(InitializeIxArgs),
 }
 impl BorshSerialize for FlatFeeProgramIx {
     fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -59,8 +59,8 @@ impl BorshSerialize for FlatFeeProgramIx {
                 SET_MANAGER_IX_DISCM.serialize(writer)?;
                 args.serialize(writer)
             }
-            Self::Init(args) => {
-                INIT_IX_DISCM.serialize(writer)?;
+            Self::Initialize(args) => {
+                INITIALIZE_IX_DISCM.serialize(writer)?;
                 args.serialize(writer)
             }
         }
@@ -89,7 +89,7 @@ impl FlatFeeProgramIx {
             REMOVE_LST_IX_DISCM => Ok(Self::RemoveLst(RemoveLstIxArgs::deserialize(buf)?)),
             ADD_LST_IX_DISCM => Ok(Self::AddLst(AddLstIxArgs::deserialize(buf)?)),
             SET_MANAGER_IX_DISCM => Ok(Self::SetManager(SetManagerIxArgs::deserialize(buf)?)),
-            INIT_IX_DISCM => Ok(Self::Init(InitIxArgs::deserialize(buf)?)),
+            INITIALIZE_IX_DISCM => Ok(Self::Initialize(InitializeIxArgs::deserialize(buf)?)),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("discm {:?} not found", maybe_discm),
@@ -1516,9 +1516,9 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const INIT_IX_ACCOUNTS_LEN: usize = 3;
+pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
-pub struct InitAccounts<'me, 'info> {
+pub struct InitializeAccounts<'me, 'info> {
     ///Account paying for ProgramState's rent
     pub payer: &'me AccountInfo<'info>,
     ///Program state PDA
@@ -1527,7 +1527,7 @@ pub struct InitAccounts<'me, 'info> {
     pub system_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
-pub struct InitKeys {
+pub struct InitializeKeys {
     ///Account paying for ProgramState's rent
     pub payer: Pubkey,
     ///Program state PDA
@@ -1535,8 +1535,8 @@ pub struct InitKeys {
     ///System program
     pub system_program: Pubkey,
 }
-impl From<&InitAccounts<'_, '_>> for InitKeys {
-    fn from(accounts: &InitAccounts) -> Self {
+impl From<&InitializeAccounts<'_, '_>> for InitializeKeys {
+    fn from(accounts: &InitializeAccounts) -> Self {
         Self {
             payer: *accounts.payer.key,
             state: *accounts.state.key,
@@ -1544,8 +1544,8 @@ impl From<&InitAccounts<'_, '_>> for InitKeys {
         }
     }
 }
-impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &InitKeys) -> Self {
+impl From<&InitializeKeys> for [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] {
+    fn from(keys: &InitializeKeys) -> Self {
         [
             AccountMeta::new(keys.payer, true),
             AccountMeta::new(keys.state, false),
@@ -1553,8 +1553,8 @@ impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
         ]
     }
 }
-impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
-    fn from(pubkeys: [Pubkey; INIT_IX_ACCOUNTS_LEN]) -> Self {
+impl From<[Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]> for InitializeKeys {
+    fn from(pubkeys: [Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             payer: pubkeys[0],
             state: pubkeys[1],
@@ -1562,8 +1562,10 @@ impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
         }
     }
 }
-impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
-    fn from(accounts: &InitAccounts<'_, 'info>) -> Self {
+impl<'info> From<&InitializeAccounts<'_, 'info>>
+    for [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]
+{
+    fn from(accounts: &InitializeAccounts<'_, 'info>) -> Self {
         [
             accounts.payer.clone(),
             accounts.state.clone(),
@@ -1571,10 +1573,10 @@ impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCO
         ]
     }
 }
-impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
-    for InitAccounts<'me, 'info>
+impl<'me, 'info> From<&'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]>
+    for InitializeAccounts<'me, 'info>
 {
-    fn from(arr: &'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]) -> Self {
+    fn from(arr: &'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             payer: &arr[0],
             state: &arr[1],
@@ -1584,70 +1586,70 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InitIxArgs {}
+pub struct InitializeIxArgs {}
 #[derive(Clone, Debug, PartialEq)]
-pub struct InitIxData(pub InitIxArgs);
-pub const INIT_IX_DISCM: u8 = 255u8;
-impl From<InitIxArgs> for InitIxData {
-    fn from(args: InitIxArgs) -> Self {
+pub struct InitializeIxData(pub InitializeIxArgs);
+pub const INITIALIZE_IX_DISCM: u8 = 255u8;
+impl From<InitializeIxArgs> for InitializeIxData {
+    fn from(args: InitializeIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for InitIxData {
+impl BorshSerialize for InitializeIxData {
     fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[INIT_IX_DISCM])?;
+        writer.write_all(&[INITIALIZE_IX_DISCM])?;
         self.0.serialize(writer)
     }
 }
-impl InitIxData {
+impl InitializeIxData {
     pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         let maybe_discm = u8::deserialize(buf)?;
-        if maybe_discm != INIT_IX_DISCM {
+        if maybe_discm != INITIALIZE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!(
                     "discm does not match. Expected: {:?}. Received: {:?}",
-                    INIT_IX_DISCM, maybe_discm
+                    INITIALIZE_IX_DISCM, maybe_discm
                 ),
             ));
         }
-        Ok(Self(InitIxArgs::deserialize(buf)?))
+        Ok(Self(InitializeIxArgs::deserialize(buf)?))
     }
 }
-pub fn init_ix<K: Into<InitKeys>, A: Into<InitIxArgs>>(
+pub fn initialize_ix<K: Into<InitializeKeys>, A: Into<InitializeIxArgs>>(
     accounts: K,
     args: A,
 ) -> std::io::Result<Instruction> {
-    let keys: InitKeys = accounts.into();
-    let metas: [AccountMeta; INIT_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: InitIxArgs = args.into();
-    let data: InitIxData = args_full.into();
+    let keys: InitializeKeys = accounts.into();
+    let metas: [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] = (&keys).into();
+    let args_full: InitializeIxArgs = args.into();
+    let data: InitializeIxData = args_full.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn init_invoke<'info, A: Into<InitIxArgs>>(
-    accounts: &InitAccounts<'_, 'info>,
+pub fn initialize_invoke<'info, A: Into<InitializeIxArgs>>(
+    accounts: &InitializeAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
-    let ix = init_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] = accounts.into();
+    let ix = initialize_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn init_invoke_signed<'info, A: Into<InitIxArgs>>(
-    accounts: &InitAccounts<'_, 'info>,
+pub fn initialize_invoke_signed<'info, A: Into<InitializeIxArgs>>(
+    accounts: &InitializeAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = init_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] = accounts.into();
+    let ix = initialize_ix(accounts, args)?;
+    let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
-pub fn init_verify_account_keys(
-    accounts: &InitAccounts<'_, '_>,
-    keys: &InitKeys,
+pub fn initialize_verify_account_keys(
+    accounts: &InitializeAccounts<'_, '_>,
+    keys: &InitializeKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
@@ -1660,8 +1662,8 @@ pub fn init_verify_account_keys(
     }
     Ok(())
 }
-pub fn init_verify_account_privileges<'me, 'info>(
-    accounts: &InitAccounts<'me, 'info>,
+pub fn initialize_verify_account_privileges<'me, 'info>(
+    accounts: &InitializeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.state] {
         if !should_be_writable.is_writable {

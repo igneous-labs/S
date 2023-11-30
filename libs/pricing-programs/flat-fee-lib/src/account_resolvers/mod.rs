@@ -1,5 +1,5 @@
 mod add_lst;
-mod init;
+mod initialize;
 mod price_exact_in;
 mod price_exact_out;
 mod price_lp_tokens_to_mint;
@@ -10,7 +10,7 @@ mod set_lst_fee;
 mod set_manager;
 
 pub use add_lst::*;
-pub use init::*;
+pub use initialize::*;
 pub use price_exact_in::*;
 pub use price_exact_out::*;
 pub use price_lp_tokens_to_mint::*;

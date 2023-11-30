@@ -162,7 +162,7 @@ Regardless of how the price is calculated, the pricing program should guarantee 
 
 Only the current manager is authorized to execute.
 
-#### Init
+#### Initialize
 
 Permissionlessly initialize the program state. Can only be called once and sets manager to a hardcoded init manager.
 
