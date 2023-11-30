@@ -19,7 +19,7 @@ pub struct SolValueCalculatorCpi<'me, 'info> {
     pub program: &'me AccountInfo<'info>,
 
     /// The mint of the LST that the calculator program works for
-    pub lst: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
 
     /// Remaining accounts required by the SOL value calculator program
     pub remaining_accounts: &'me [AccountInfo<'info>],
@@ -40,7 +40,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
             .ok_or(ProgramError::NotEnoughAccountKeys)?;
         Ok(Self {
             program,
-            lst: ix_accounts.get_lst_mint_account_info(),
+            lst_mint: ix_accounts.get_lst_mint_account_info(),
             remaining_accounts: accounts_suffix_slice
                 .get(1..)
                 .ok_or(ProgramError::NotEnoughAccountKeys)?,
@@ -91,15 +91,15 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
 
     fn create_account_info_slice(self) -> Vec<AccountInfo<'info>> {
         let Self {
-            lst,
+            lst_mint,
             remaining_accounts,
             ..
         } = self;
-        [&[lst.clone()], remaining_accounts].concat()
+        [&[lst_mint.clone()], remaining_accounts].concat()
     }
 
     fn create_account_metas(&self) -> Vec<AccountMeta> {
-        let mut res = vec![AccountMeta::new_readonly(*self.lst.key, false)];
+        let mut res = vec![AccountMeta::new_readonly(*self.lst_mint.key, false)];
         for r in self.remaining_accounts.iter() {
             res.push(account_info_to_account_meta(r));
         }

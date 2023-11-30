@@ -43,7 +43,7 @@ impl<
         let stake_pool = deserialize_spl_stake_pool_checked(&self.spl_stake_pool)?;
         Ok((
             LstSolCommonIntermediateArgs {
-                lst: stake_pool.pool_mint,
+                lst_mint: stake_pool.pool_mint,
                 pool_state: *self.spl_stake_pool.key(),
                 pool_program: self.spl_stake_pool_prog,
             },
@@ -64,7 +64,7 @@ impl<S: KeyedAccount + ReadonlyAccountData + ReadonlyAccountOwner> SplLstSolComm
     pub fn resolve(self) -> Result<LstSolCommonIntermediateKeys, GenericPoolCalculatorError> {
         let stake_pool = deserialize_spl_stake_pool_checked(&self.spl_stake_pool)?;
         Ok(LstSolCommonIntermediateKeys {
-            lst: stake_pool.pool_mint,
+            lst_mint: stake_pool.pool_mint,
             pool_state: *self.spl_stake_pool.key(),
         })
     }

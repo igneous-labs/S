@@ -33,7 +33,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account               | Description                               | Read/Write (R/W) | Signer (Y/N) |
 | --------------------- | ----------------------------------------- | ---------------- | ------------ |
-| lst                   | See interface                             | R                | N            |
+| lst_mint              | See interface                             | R                | N            |
 | state                 | The MarinadeCalculatorState singleton PDA | R                | N            |
 | marinade_state        | The marinade state account                | R                | N            |
 | marinade_program      | marinade program                          | R                | N            |
@@ -54,7 +54,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 | Account               | Description                               | Read/Write (R/W) | Signer (Y/N) |
 | --------------------- | ----------------------------------------- | ---------------- | ------------ |
-| lst                   | See interface                             | R                | N            |
+| lst_mint              | See interface                             | R                | N            |
 | state                 | The MarinadeCalculatorState singleton PDA | R                | N            |
 | marinade_state        | The marinade state account                | R                | N            |
 | marinade_program      | marinade program                          | R                | N            |

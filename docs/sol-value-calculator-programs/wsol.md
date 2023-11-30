@@ -12,24 +12,24 @@ Basically a no-op
 
 ##### Accounts
 
-| Account | Description   | Read/Write (R/W) | Signer (Y/N) |
-| ------- | ------------- | ---------------- | ------------ |
-| lst     | See interface | R                | N            |
+| Account  | Description   | Read/Write (R/W) | Signer (Y/N) |
+| -------- | ------------- | ---------------- | ------------ |
+| lst_mint | See interface | R                | N            |
 
 ##### Procedure
 
-- Verify lst = wrapped SOL mint address
+- Verify lst_mint = wrapped SOL mint address
 - Return passed in amount
 
 #### SolToLst
 
 ##### Accounts
 
-| Account | Description   | Read/Write (R/W) | Signer (Y/N) |
-| ------- | ------------- | ---------------- | ------------ |
-| lst     | See interface | R                | N            |
+| Account  | Description   | Read/Write (R/W) | Signer (Y/N) |
+| -------- | ------------- | ---------------- | ------------ |
+| lst_mint | See interface | R                | N            |
 
 ##### Procedure
 
-- Verify lst = wrapped SOL mint address
+- Verify lst_mint = wrapped SOL mint address
 - Return passed in amount
