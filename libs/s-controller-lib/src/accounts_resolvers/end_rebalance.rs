@@ -67,11 +67,16 @@ pub struct EndRebalanceFromStartRebalanceKeys<'a>(pub &'a StartRebalanceKeys);
 
 impl<'a> EndRebalanceFromStartRebalanceKeys<'a> {
     pub fn resolve(self) -> EndRebalanceKeys {
-        let Self(keys) = self;
+        let Self(StartRebalanceKeys {
+            payer,
+            dst_lst_mint,
+            dst_pool_reserves,
+            ..
+        }) = self;
         EndRebalanceKeys {
-            refund_rent_to: keys.payer,
-            dst_lst_mint: keys.dst_lst_mint,
-            dst_pool_reserves: keys.dst_pool_reserves,
+            refund_rent_to: *payer,
+            dst_lst_mint: *dst_lst_mint,
+            dst_pool_reserves: *dst_pool_reserves,
             pool_state: STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             rebalance_record: REBALANCE_RECORD_ID,
