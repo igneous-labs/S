@@ -3255,6 +3255,7 @@ dependencies = [
  "solana-program",
  "solana-readonly-account",
  "spl-token-2022",
+ "spl-token-metadata-interface",
  "static_assertions",
 ]
 

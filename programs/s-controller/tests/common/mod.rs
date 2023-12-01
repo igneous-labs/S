@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use generic_pool_calculator_test_utils::{
     program_test_add_mock_calculator_state, ProgramTestAddMockCalculatorStateArgs,
 };

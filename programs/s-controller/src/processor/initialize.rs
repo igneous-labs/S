@@ -3,6 +3,7 @@ use s_controller_interface::{
     PoolState,
 };
 use s_controller_lib::{
+    initial_token_metadata_size,
     program::{STATE_BUMP, STATE_SEED},
     try_pool_state_mut, InitializeFreeArgs, CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS,
     DEFAULT_LP_TOKEN_METADATA_NAME, DEFAULT_LP_TOKEN_METADATA_SYMBOL,
@@ -19,7 +20,8 @@ use sanctum_onchain_utils::{
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, rent::Rent,
+    sysvar::Sysvar,
 };
 use spl_token_2022::{extension::ExtensionType, native_mint, state::Mint};
 
@@ -34,6 +36,7 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         CreateAccountArgs {
             space: POOL_STATE_SIZE,
             owner: s_controller_lib::program::ID,
+            lamports: None,
         },
         &[&[
             s_controller_lib::program::STATE_SEED,
@@ -41,28 +44,35 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         ]],
     )?;
 
-    let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
-    let pool_state = try_pool_state_mut(&mut pool_state_data)?;
-    *pool_state = PoolState {
-        total_sol_value: 0,
-        trading_protocol_fee_bps: DEFAULT_TRADING_PROTOCOL_FEE_BPS,
-        lp_protocol_fee_bps: DEFAULT_LP_PROTOCOL_FEE_BPS,
-        version: CURRENT_PROGRAM_VERS,
-        is_disabled: 0,
-        is_rebalancing: 0,
-        padding: [0],
-        admin: *accounts.authority.key,
-        rebalance_authority: *accounts.authority.key,
-        protocol_fee_beneficiary: *accounts.authority.key,
-        pricing_program: DEFAULT_PRICING_PROGRAM,
-        lp_token_mint: *accounts.lp_token_mint.key,
-    };
+    // need to drop borrow of pool_state before mint initialization CPIs
+    {
+        let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
+        let pool_state = try_pool_state_mut(&mut pool_state_data)?;
+        *pool_state = PoolState {
+            total_sol_value: 0,
+            trading_protocol_fee_bps: DEFAULT_TRADING_PROTOCOL_FEE_BPS,
+            lp_protocol_fee_bps: DEFAULT_LP_PROTOCOL_FEE_BPS,
+            version: CURRENT_PROGRAM_VERS,
+            is_disabled: 0,
+            is_rebalancing: 0,
+            padding: [0],
+            admin: *accounts.authority.key,
+            rebalance_authority: *accounts.authority.key,
+            protocol_fee_beneficiary: *accounts.authority.key,
+            pricing_program: DEFAULT_PRICING_PROGRAM,
+            lp_token_mint: *accounts.lp_token_mint.key,
+        };
+    }
 
     let mint_size = ExtensionType::try_calculate_account_len::<Mint>(&[
         ExtensionType::TransferFeeConfig,
         ExtensionType::MetadataPointer,
-        ExtensionType::TokenMetadata,
     ])?;
+    // TokenMetadata is variable len
+    // Must not pre-allocate space or intialize_mint2() will fail.
+    // Must let initialize_mint_token_metadata_signed() realloc the space,
+    // but must provide the appropriate number of rent_exempt lamports.
+
     create_blank_account(
         CreateAccountAccounts {
             from: accounts.payer,
@@ -71,6 +81,9 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         CreateAccountArgs {
             space: mint_size,
             owner: spl_token_2022::ID,
+            lamports: Some(
+                Rent::get()?.minimum_balance(mint_size + initial_token_metadata_size()?),
+            ),
         },
     )?;
 

@@ -28,6 +28,7 @@ pub fn process_init_unchecked<P: GenericPoolSolValCalc>(
         CreateAccountArgs {
             space: CALCULATOR_STATE_SIZE,
             owner: P::ID,
+            lamports: None,
         },
         &[&[CALCULATOR_STATE_SEED, &[P::CALCULATOR_STATE_BUMP]]],
     )?;

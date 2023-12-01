@@ -15,4 +15,5 @@ sanctum-utils = { path = "../sanctum-utils" }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
+spl-token-metadata-interface = { workspace = true }
 static_assertions = { workspace = true }

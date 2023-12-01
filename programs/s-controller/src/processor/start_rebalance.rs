@@ -10,7 +10,7 @@ use s_controller_lib::{
     StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
 use sanctum_onchain_utils::{
-    system_program::{create_hot_potato_pda, CreateAccountAccounts, CreateAccountArgs},
+    system_program::{create_hot_potato_pda, CreateAccountAccounts, CreateHotPotatoArgs},
     token_program::{transfer_tokens_signed, TransferAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
@@ -77,7 +77,7 @@ pub fn process_start_rebalance(
             from: accounts.payer,
             to: accounts.rebalance_record,
         },
-        CreateAccountArgs {
+        CreateHotPotatoArgs {
             space: REBALANCE_RECORD_SIZE,
             owner: s_controller_lib::program::ID,
         },
