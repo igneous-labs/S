@@ -1,5 +1,8 @@
 use solana_program::{
-    account_info::AccountInfo, program::invoke, program_error::ProgramError, pubkey::Pubkey,
+    account_info::AccountInfo,
+    program::{invoke, invoke_signed},
+    program_error::ProgramError,
+    pubkey::Pubkey,
 };
 use spl_token_metadata_interface::instruction::Initialize;
 
@@ -55,30 +58,65 @@ pub fn initialize_transfer_fee_config(
     invoke(&ix, &[mint.clone()])
 }
 
+pub struct InitializeMintTokenMetadataAccounts<'me, 'info> {
+    pub mint: &'me AccountInfo<'info>,
+    pub update_authority: &'me AccountInfo<'info>,
+    pub mint_authority: &'me AccountInfo<'info>,
+}
+
 pub struct InitializeMintTokenMetadataArgs {
     pub initial_metadata: Initialize,
-    pub update_authority: Pubkey,
-    pub mint_authority: Pubkey,
 }
 
 /// Initialize token metadata stored in mint with TokenMetadata extension
-pub fn initialize_mint_token_metadata(
-    mint: &AccountInfo,
-    InitializeMintTokenMetadataArgs {
-        initial_metadata: Initialize { name, symbol, uri },
+pub fn initialize_mint_token_metadata_signed(
+    InitializeMintTokenMetadataAccounts {
+        mint,
         update_authority,
         mint_authority,
-    }: InitializeMintTokenMetadataArgs,
+    }: InitializeMintTokenMetadataAccounts,
+    Initialize { name, symbol, uri }: Initialize,
+    signer_seeds: &[&[&[u8]]],
 ) -> Result<(), ProgramError> {
     let ix = spl_token_metadata_interface::instruction::initialize(
         &spl_token_2022::ID,
         mint.key,
-        &update_authority,
+        update_authority.key,
         mint.key,
-        &mint_authority,
+        mint_authority.key,
         name,
         symbol,
         uri,
     );
+    invoke_signed(
+        &ix,
+        &[
+            mint.clone(),
+            update_authority.clone(),
+            mint.clone(),
+            mint_authority.clone(),
+        ],
+        signer_seeds,
+    )
+}
+
+pub struct InitializeMetadataPointerArgs {
+    pub authority: Option<Pubkey>,
+    pub metadata_address: Option<Pubkey>,
+}
+
+pub fn initialize_metadata_pointer(
+    mint: &AccountInfo,
+    InitializeMetadataPointerArgs {
+        authority,
+        metadata_address,
+    }: InitializeMetadataPointerArgs,
+) -> Result<(), ProgramError> {
+    let ix = spl_token_2022::extension::metadata_pointer::instruction::initialize(
+        &spl_token_2022::ID,
+        mint.key,
+        authority,
+        metadata_address,
+    )?;
     invoke(&ix, &[mint.clone()])
 }

@@ -3,7 +3,8 @@ use s_controller_interface::{
     PoolState,
 };
 use s_controller_lib::{
-    try_pool_state_mut, InitializeFreeArgs, DEFAULT_LP_PROTOCOL_FEE_BPS,
+    program::{STATE_BUMP, STATE_SEED},
+    try_pool_state_mut, InitializeFreeArgs, CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS,
     DEFAULT_LP_TOKEN_METADATA_NAME, DEFAULT_LP_TOKEN_METADATA_SYMBOL,
     DEFAULT_LP_TOKEN_METADATA_URI, DEFAULT_MAXIMUM_TRANSFER_FEE, DEFAULT_PRICING_PROGRAM,
     DEFAULT_TRADING_PROTOCOL_FEE_BPS, DEFAULT_TRANSFER_FEE_BPS, POOL_STATE_SIZE,
@@ -11,8 +12,9 @@ use s_controller_lib::{
 use sanctum_onchain_utils::{
     system_program::{create_blank_account, create_pda, CreateAccountAccounts, CreateAccountArgs},
     token_2022::{
-        initialize_mint2, initialize_mint_token_metadata, initialize_transfer_fee_config,
-        InitializeMint2Args, InitializeMintTokenMetadataArgs, InitializeTransferFeeConfigArgs,
+        initialize_metadata_pointer, initialize_mint2, initialize_mint_token_metadata_signed,
+        initialize_transfer_fee_config, InitializeMetadataPointerArgs, InitializeMint2Args,
+        InitializeMintTokenMetadataAccounts, InitializeTransferFeeConfigArgs,
     },
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
@@ -45,7 +47,7 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         total_sol_value: 0,
         trading_protocol_fee_bps: DEFAULT_TRADING_PROTOCOL_FEE_BPS,
         lp_protocol_fee_bps: DEFAULT_LP_PROTOCOL_FEE_BPS,
-        version: 1,
+        version: CURRENT_PROGRAM_VERS,
         is_disabled: 0,
         is_rebalancing: 0,
         padding: [0],
@@ -58,8 +60,8 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
 
     let mint_size = ExtensionType::try_calculate_account_len::<Mint>(&[
         ExtensionType::TransferFeeConfig,
-        ExtensionType::TokenMetadata,
         ExtensionType::MetadataPointer,
+        ExtensionType::TokenMetadata,
     ])?;
     create_blank_account(
         CreateAccountAccounts {
@@ -81,20 +83,14 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
             maximum_fee: DEFAULT_MAXIMUM_TRANSFER_FEE,
         },
     )?;
-    initialize_mint_token_metadata(
+    initialize_metadata_pointer(
         accounts.lp_token_mint,
-        InitializeMintTokenMetadataArgs {
-            initial_metadata: spl_token_metadata_interface::instruction::Initialize {
-                name: DEFAULT_LP_TOKEN_METADATA_NAME.to_owned(),
-                symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.to_owned(),
-                uri: DEFAULT_LP_TOKEN_METADATA_URI.to_owned(),
-            },
-            update_authority: *accounts.authority.key,
-            mint_authority: *accounts.pool_state.key,
+        InitializeMetadataPointerArgs {
+            authority: Some(*accounts.authority.key),
+            metadata_address: Some(*accounts.lp_token_mint.key),
         },
     )?;
-    // TODO: METADATA POINTER
-
+    // must initialize mint before token metadata
     initialize_mint2(
         accounts.lp_token_mint,
         InitializeMint2Args {
@@ -102,6 +98,19 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
             mint_authority: *accounts.pool_state.key,
             freeze_authority: Some(*accounts.pool_state.key),
         },
+    )?;
+    initialize_mint_token_metadata_signed(
+        InitializeMintTokenMetadataAccounts {
+            mint: accounts.lp_token_mint,
+            update_authority: accounts.authority,
+            mint_authority: accounts.pool_state,
+        },
+        spl_token_metadata_interface::instruction::Initialize {
+            name: DEFAULT_LP_TOKEN_METADATA_NAME.to_owned(),
+            symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.to_owned(),
+            uri: DEFAULT_LP_TOKEN_METADATA_URI.to_owned(),
+        },
+        &[&[STATE_SEED, &[STATE_BUMP]]],
     )
 }
 

@@ -11,6 +11,8 @@ pub mod initial_authority {
 
 pub const BPS_DENOMINATOR: u16 = 10_000;
 
+pub const CURRENT_PROGRAM_VERS: u8 = 1;
+
 /// 10% of trading fees
 pub const DEFAULT_TRADING_PROTOCOL_FEE_BPS: u16 = 1_000;
 
