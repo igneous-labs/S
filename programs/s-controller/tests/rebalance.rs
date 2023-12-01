@@ -1,14 +1,15 @@
+use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS};
 use marinade_keys::msol;
 use s_controller_lib::{
     end_rebalance_ix_full,
     program::{LST_STATE_LIST_ID, REBALANCE_RECORD_ID, STATE_ID},
     start_rebalance_ix_full, try_lst_state_list, try_pool_state,
-    EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcKeys,
+    EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcAccounts,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxArgsFull, U8Bool,
 };
 use sanctum_utils::token::TransferKeys;
-use solana_program::{clock::Clock, pubkey::Pubkey};
+use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
@@ -90,11 +91,15 @@ async fn basic() {
             .unwrap()
             .resolve::<SplSolValCalc>()
             .into();
+    let jito_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
+        (&jito_sol_val_calc_keys).into();
 
-    let msol_val_calc_keys: generic_pool_calculator_interface::LstToSolKeys =
+    let marinade_sol_val_calc_keys: generic_pool_calculator_interface::LstToSolKeys =
         MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
             .resolve::<MarinadeSolValCalc>()
             .into();
+    let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
+        (&marinade_sol_val_calc_keys).into();
 
     let args = StartRebalanceByMintsFreeArgs {
         payer: payer.pubkey(),
@@ -132,11 +137,11 @@ async fn basic() {
             dst_lst_index: dst_lst_index.try_into().unwrap(),
             amount: JITOSOL_WITHDRAW_AMT,
         },
-        SrcDstLstSolValueCalcKeys {
+        SrcDstLstSolValueCalcAccounts {
             src_lst_calculator_program_id: spl_calculator_lib::program::ID,
             dst_lst_calculator_program_id: marinade_calculator_lib::program::ID,
-            src_lst_keys: &jito_sol_val_calc_keys,
-            dst_lst_keys: &msol_val_calc_keys,
+            src_lst_calculator_accounts: &jito_sol_val_calc_accounts,
+            dst_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
     )
     .unwrap();
@@ -151,7 +156,7 @@ async fn basic() {
     .unwrap();
     let end_rebalance_ix = end_rebalance_ix_full(
         end_rebalance_keys,
-        &msol_val_calc_keys,
+        &marinade_sol_val_calc_accounts,
         marinade_calculator_lib::program::ID,
     )
     .unwrap();

@@ -1,8 +1,9 @@
+use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
-use solana_program::clock::Clock;
+use solana_program::{clock::Clock, instruction::AccountMeta};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
@@ -62,11 +63,13 @@ async fn basic() {
             .unwrap()
             .resolve::<SplSolValCalc>()
             .into();
+    let jito_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
+        (&jito_sol_val_calc_keys).into();
 
     let ix = sync_sol_value_ix_full(
         keys,
         ix_args,
-        &jito_sol_val_calc_keys,
+        &jito_sol_val_calc_accounts,
         spl_calculator_lib::program::ID,
     )
     .unwrap();

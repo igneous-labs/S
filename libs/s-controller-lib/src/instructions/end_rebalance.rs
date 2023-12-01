@@ -4,22 +4,19 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use super::utils::ix_extend_with_sol_value_calculator_accounts;
+use super::utils::{ix_extend_with_sol_value_calculator_accounts, try_from_int_err_to_io_err};
 
-pub fn end_rebalance_ix_full<
-    K: Into<EndRebalanceKeys>,
-    D: Into<[AccountMeta; N]>,
-    const N: usize,
->(
+pub fn end_rebalance_ix_full<K: Into<EndRebalanceKeys>>(
     accounts: K,
-    dst_lst_calculator_keys: D,
+    dst_lst_calculator_accounts: &[AccountMeta],
     dst_lst_calculator_program_id: Pubkey,
 ) -> std::io::Result<Instruction> {
     let mut ix = end_rebalance_ix(accounts, EndRebalanceIxArgs {})?;
     ix_extend_with_sol_value_calculator_accounts(
         &mut ix,
-        dst_lst_calculator_keys,
+        dst_lst_calculator_accounts,
         dst_lst_calculator_program_id,
-    );
+    )
+    .map_err(try_from_int_err_to_io_err)?;
     Ok(ix)
 }

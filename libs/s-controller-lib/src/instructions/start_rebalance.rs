@@ -2,9 +2,12 @@ use borsh::BorshSerialize;
 use s_controller_interface::{
     start_rebalance_ix, StartRebalanceIxArgs, StartRebalanceIxData, StartRebalanceKeys,
 };
-use solana_program::instruction::{AccountMeta, Instruction};
+use solana_program::instruction::Instruction;
 
-use super::{ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstSolValueCalcKeys};
+use super::{
+    ix_extend_with_src_dst_sol_value_calculator_accounts, try_from_int_err_to_io_err,
+    SrcDstLstSolValueCalcAccounts,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceIxArgsFull {
@@ -13,20 +16,14 @@ pub struct StartRebalanceIxArgsFull {
     pub amount: u64,
 }
 
-pub fn start_rebalance_ix_full<
-    K: Into<StartRebalanceKeys>,
-    SK: Into<[AccountMeta; SN]>,
-    const SN: usize,
-    DK: Into<[AccountMeta; DN]>,
-    const DN: usize,
->(
+pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
     accounts: K,
     StartRebalanceIxArgsFull {
         src_lst_index,
         dst_lst_index,
         amount,
     }: StartRebalanceIxArgsFull,
-    sol_val_calc_keys: SrcDstLstSolValueCalcKeys<SK, SN, DK, DN>,
+    sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
 ) -> std::io::Result<Instruction> {
     let mut ix = start_rebalance_ix(
         accounts,
@@ -38,7 +35,8 @@ pub fn start_rebalance_ix_full<
         },
     )?;
     let extend_count =
-        ix_extend_with_src_dst_sol_value_calculator_accounts(&mut ix, sol_val_calc_keys);
+        ix_extend_with_src_dst_sol_value_calculator_accounts(&mut ix, sol_val_calc_keys)
+            .map_err(try_from_int_err_to_io_err)?;
     // TODO: better way to update src_lst_calc_accs than double serialization here
     let mut overwrite = &mut ix.data[..];
     StartRebalanceIxData(StartRebalanceIxArgs {
