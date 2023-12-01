@@ -8,9 +8,9 @@ use test_utils::{AddAccount, MARINADE_PROG_LAST_UPDATED_SLOT};
 
 pub fn marinade_normal_program_test() -> ProgramTest {
     let mut program_test = ProgramTest::default();
-    program_test.prefer_bpf(false);
+    // name must match <name>.so filename
     program_test.add_program(
-        "marinade_sol_value_calculator",
+        "marinade_calculator",
         marinade_calculator_lib::program::ID,
         processor!(marinade_calculator::entrypoint::process_instruction),
     );

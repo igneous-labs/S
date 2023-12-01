@@ -16,7 +16,7 @@ pub const DEFAULT_POOL_STATE: PoolState = PoolState {
     is_rebalancing: 0,
     padding: [0u8; 1],
     admin: Pubkey::new_from_array([0u8; 32]),
-    rebalancing_authority: Pubkey::new_from_array([0u8; 32]),
+    rebalance_authority: Pubkey::new_from_array([0u8; 32]),
     protocol_fee_beneficiary: Pubkey::new_from_array([0u8; 32]),
     pricing_program: Pubkey::new_from_array([0u8; 32]),
 };

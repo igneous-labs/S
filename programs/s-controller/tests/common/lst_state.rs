@@ -12,6 +12,7 @@ use super::banks_client_get_account;
 #[derive(Clone, Copy, Debug)]
 pub struct MockLstStateArgs {
     pub mint: Pubkey,
+    pub sol_value_calculator: Pubkey,
     pub sol_value: u64,
     pub reserves_amt: u64,
 }
@@ -28,6 +29,7 @@ pub struct MockLstStateRet {
 pub fn mock_lst_state(
     MockLstStateArgs {
         mint,
+        sol_value_calculator,
         sol_value,
         reserves_amt,
     }: MockLstStateArgs,
@@ -49,13 +51,12 @@ pub fn mock_lst_state(
         reserves_bump,
         protocol_fee_accumulator_bump,
         padding: Default::default(),
-        sol_value_calculator: spl_calculator_lib::program::ID,
+        sol_value_calculator,
     };
     let reserves_account = mock_token_account(MockTokenAccountArgs {
         mint,
         authority: s_controller_lib::program::STATE_ID,
         amount: reserves_amt,
-        is_native: mint == spl_token::native_mint::ID,
     });
     MockLstStateRet {
         lst_state,

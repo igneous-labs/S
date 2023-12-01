@@ -28,6 +28,20 @@ pub enum SControllerError {
     IncorrectSolValueCalculator = 9,
     #[error("Faulty SOL value calculator program")]
     FaultySolValueCalculator = 10,
+    #[error("Incorrect LST state list account")]
+    IncorrectLstStateList = 11,
+    #[error("Incorrect pool state account")]
+    IncorrectPoolState = 12,
+    #[error("Input is currently disabled for this LST")]
+    LstInputDisabled = 13,
+    #[error("No succeeding EndRebalance instruction found")]
+    NoSucceedingEndRebalance = 14,
+    #[error("Incorrect rebalance record account")]
+    IncorrectRebalanceRecord = 15,
+    #[error("Pool is not currently rebalancing")]
+    PoolNotRebalancing = 16,
+    #[error("Cannot allow loss of SOL value for pool")]
+    PoolWouldLoseSolValue = 17,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

@@ -46,7 +46,6 @@ Swap to output LST from an exact amount of given input LST.
 | discriminant            | 1                                                                                                                                                                                                         | u8   |
 | src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself             | u8   |
-| pricing_accs            | number of accounts following to invoke pricing program PriceExactIn with, including the program itself                                                                                                    | u8   |
 | src_lst_index           | index of src_lst in `lst_state_list`                                                                                                                                                                      | u32  |
 | dst_lst_index           | index of dst_lst in `lst_state_list`                                                                                                                                                                      | u32  |
 | amount                  | amount of src tokens to swap                                                                                                                                                                              | u64  |
@@ -113,7 +112,6 @@ Add single-LST liquidity to the pool.
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | discriminant        | 3                                                                                                                                                                                                  | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. | u8   |
-| pricing_accs        | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself                                                                                      | u8   |
 | lst_index           | index of lst in `lst_state_list`                                                                                                                                                                   | u32  |
 | amount              | amount of tokens to add as liquidity                                                                                                                                                               | u64  |
 
@@ -153,7 +151,6 @@ Remove single-LST liquidity from the pool.
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | discriminant        | 4                                                                                                                                                                                                 | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
-| pricing_accs        | number of accounts following to invoke pricing program PriceLpTokensToMint with, including the program itself                                                                                     | u8   |
 | lst_index           | index of lst in `lst_state_list`                                                                                                                                                                  | u32  |
 | amount              | amount of LP tokens to burn and redeem                                                                                                                                                            | u64  |
 
@@ -477,6 +474,7 @@ Disable functionality of the entire pool.
 
 ### Procedure
 
+- verify pool not rebalancing
 - set bool flag on pool_state
 
 ## EnablePool
@@ -510,7 +508,6 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | discriminant            | 19                                                                                                                                                                                                        | u8   |
 | src_lst_value_calc_accs | number of accounts following dst_lst_acc to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
-| dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself             | u8   |
 | src_lst_index           | index of src_lst in `lst_state_list`                                                                                                                                                                      | u32  |
 | dst_lst_index           | index of dst_lst in `lst_state_list`                                                                                                                                                                      | u32  |
 | amount                  | amount of from_lst tokens to flash withdraw to rebalance                                                                                                                                                  | u64  |
@@ -531,6 +528,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 | withdraw_to             | Source LST token account to withdraw to                                                                                                                                                       | W                | N            |
 | instructions            | Instructions sysvar                                                                                                                                                                           | R                | N            |
 | system_program          | System program                                                                                                                                                                                | R                | N            |
+| src_lst_token_program   | Source LST token program                                                                                                                                                                      | R                | N            |
 | src_lst_value_calc_accs | Accounts to invoke src token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 | dst_lst_value_calc_accs | Accounts to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
 
@@ -570,7 +568,7 @@ End a flash rebalancing procedure after returning the funds to the pool
 
 ### Procedure
 
-- Verify pool is rebalancing and not disabled
+- Verify pool is rebalancing
 - Set is_rebalancing = false
 - Self CPI SyncSolValue for dst_lst
 - Verify increase in pool's SOL value after self CPI >= amount recorded in rebalance_record

@@ -1,4 +1,7 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
+use solana_readonly_account::ReadonlyAccountData;
+
+use crate::try_pool_state;
 
 pub fn sync_sol_value_with_retval(
     pool_state: &mut PoolState,
@@ -16,4 +19,14 @@ pub fn sync_sol_value_with_retval(
     lst_state.sol_value = returned_sol_value;
 
     Ok(())
+}
+
+/// TODO: confirm that theres an issue with borrowing account data across CPI boundaries
+/// otherwise there isnt really a need for this fn
+pub fn pool_state_total_sol_value<D: ReadonlyAccountData>(
+    pool_state: D,
+) -> Result<u64, SControllerError> {
+    let bytes = pool_state.data();
+    let deser = try_pool_state(&bytes)?;
+    Ok(deser.total_sol_value)
 }

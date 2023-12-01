@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+borsh = { workspace = true }
 bytemuck = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 sanctum-macros = { workspace = true }

@@ -1,4 +1,3 @@
-use generic_pool_calculator_interface::GenericPoolCalculatorError;
 use generic_pool_calculator_lib::{U64FeeFloor, U64RatioFloor};
 use marinade_calculator_interface::{MarinadeCalculatorError, MarinadeState};
 use sol_value_calculator_lib::SolValueCalculator;
@@ -48,15 +47,6 @@ impl MarinadeStateCalc {
             fee_num: self.0.delayed_unstake_fee.bp_cents,
             fee_denom: MAX_BP_CENTS,
         }
-    }
-
-    pub fn msol_to_sol(&self, msol_amount: u64) -> Result<u64, GenericPoolCalculatorError> {
-        if self.0.msol_supply == 0 {
-            return Ok(0);
-        }
-        let res = (msol_amount as u128 * self.total_virtual_staked_lamports() as u128)
-            / self.0.msol_supply as u128;
-        u64::try_from(res).map_err(|_e| GenericPoolCalculatorError::MathError)
     }
 }
 

@@ -57,10 +57,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "src_lst_index",
           "type": "u32"
         },
@@ -164,10 +160,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "src_lst_index",
           "type": "u32"
         },
@@ -267,10 +259,6 @@
           "type": "u8"
         },
         {
-          "name": "pricing_accs",
-          "type": "u8"
-        },
-        {
           "name": "lst_index",
           "type": "u32"
         },
@@ -339,10 +327,6 @@
       "args": [
         {
           "name": "lst_value_calc_accs",
-          "type": "u8"
-        },
-        {
-          "name": "pricing_accs",
           "type": "u8"
         },
         {
@@ -971,10 +955,6 @@
           "type": "u8"
         },
         {
-          "name": "dst_lst_calc_accs",
-          "type": "u8"
-        },
-        {
           "name": "src_lst_index",
           "type": "u32"
         },
@@ -1059,6 +1039,12 @@
           "isMut": false,
           "isSigner": false,
           "desc": "System program"
+        },
+        {
+          "name": "src_lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Source LST token program"
         }
       ]
     },
@@ -1230,7 +1216,7 @@
             "type": "publicKey"
           },
           {
-            "name": "rebalancing_authority",
+            "name": "rebalance_authority",
             "type": "publicKey"
           },
           {
@@ -1289,27 +1275,19 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "sol_value",
+            "name": "old_total_sol_value",
             "type": "u64"
-          },
-          {
-            "name": "dst_lst_index",
-            "type": "u64"
-          },
-          {
-            "name": "dst_lst_value_calc_accs",
-            "type": "u8"
           },
           {
             "name": "padding",
             "type": {
-              "array": ["u8", 7]
+              "array": ["u8", 4]
             },
             "attrs": ["padding"]
           },
           {
-            "name": "dst_lst_mint",
-            "type": "publicKey"
+            "name": "dst_lst_index",
+            "type": "u32"
           }
         ]
       }
@@ -1370,6 +1348,41 @@
       "code": 10,
       "name": "FaultySolValueCalculator",
       "msg": "Faulty SOL value calculator program"
+    },
+    {
+      "code": 11,
+      "name": "IncorrectLstStateList",
+      "msg": "Incorrect LST state list account"
+    },
+    {
+      "code": 12,
+      "name": "IncorrectPoolState",
+      "msg": "Incorrect pool state account"
+    },
+    {
+      "code": 13,
+      "name": "LstInputDisabled",
+      "msg": "Input is currently disabled for this LST"
+    },
+    {
+      "code": 14,
+      "name": "NoSucceedingEndRebalance",
+      "msg": "No succeeding EndRebalance instruction found"
+    },
+    {
+      "code": 15,
+      "name": "IncorrectRebalanceRecord",
+      "msg": "Incorrect rebalance record account"
+    },
+    {
+      "code": 16,
+      "name": "PoolNotRebalancing",
+      "msg": "Pool is not currently rebalancing"
+    },
+    {
+      "code": 17,
+      "name": "PoolWouldLoseSolValue",
+      "msg": "Cannot allow loss of SOL value for pool"
     }
   ],
   "metadata": {
