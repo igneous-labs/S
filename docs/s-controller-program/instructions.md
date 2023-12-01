@@ -123,7 +123,9 @@ Add single-LST liquidity to the pool.
 | lst_mint            | Mint of the LST                                                                                                                                                                           | R                | N            |
 | src_lst_acc         | LST token account to add liquidity from                                                                                                                                                   | W                | N            |
 | dst_lp_acc          | LP token account to mint new LP tokens to                                                                                                                                                 | W                | N            |
-| token_program       | Token program                                                                                                                                                                             | R                | N            |
+| lp_token_mint       | LP token mint                                                                                                                                                                             | W                | N            |
+| token_program       | LST's token program                                                                                                                                                                       | R                | N            |
+| token_2022          | Token 2022 program for use with LP token mint                                                                                                                                             | R                | N            |
 | pool_state          | The pool's state singleton PDA                                                                                                                                                            | W                | N            |
 | lst_state_list      | Dynamic list PDA of LstStates for each LST in the pool                                                                                                                                    | W                | N            |
 | pool_reserves       | LST reserves token account of the pool                                                                                                                                                    | W                | N            |
@@ -162,8 +164,10 @@ Remove single-LST liquidity from the pool.
 | lst_mint                 | Mint of the LST                                                                                                                                                                           | R                | N            |
 | dst_lst_acc              | LST token account to redeem to                                                                                                                                                            | W                | N            |
 | src_lp_acc               | LP token account to burn LP tokens from                                                                                                                                                   | W                | N            |
+| lp_token_mint            | LP token mint                                                                                                                                                                             | W                | N            |
 | protocol_fee_accumulator | Protocol fee accumulator token account                                                                                                                                                    | W                | N            |
-| token_program            | Token program                                                                                                                                                                             | R                | N            |
+| token_program            | LST's token program                                                                                                                                                                       | R                | N            |
+| token_2022               | Token 2022 program for use with LP token mint                                                                                                                                             | R                | N            |
 | pool_state               | The pool's state singleton PDA                                                                                                                                                            | W                | N            |
 | lst_state_list           | Dynamic list PDA of LstStates for each LST in the pool                                                                                                                                    | W                | N            |
 | pool_reserves            | LST reserves token account of the pool                                                                                                                                                    | W                | N            |
@@ -598,24 +602,35 @@ Initialize the pool. Can only be called once.
 
 ### Data
 
-| Name             | Value                | Type |
-| ---------------- | -------------------- | ---- |
-| discriminant     | 22                   | u8   |
-| protocol_fee_bps | initial protocol fee | u16  |
+| Name         | Value | Type |
+| ------------ | ----- | ---- |
+| discriminant | 22    | u8   |
 
 ### Accounts
 
-| Account                     | Description                                                                           | Read/Write (R/W) | Signer (Y/N) |
-| --------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------ |
-| payer                       | Account paying for rent                                                               | W                | Y            |
-| pool_state                  | The pool's state singleton PDA                                                        | W                | N            |
-| lst_state_list              | Dynamic list PDA of LstStates for each LST in the pool                                | W                | N            |
-| disable_pool_authority_list | The pool's disable pool authority list singleton PDA                                  | W                | N            |
-| token_2022                  | Token 2022 program                                                                    | R                | N            |
-| system_program              | System program                                                                        | R                | N            |
-| remaining_accounts          | accounts required to initialize the LP token and transfer fee and metadata extensions | ...              | ...          |
+| Account        | Description                                            | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------------------------ | ---------------- | ------------ |
+| payer          | Account paying for rent                                | W                | Y            |
+| authority      | The hardcoded pubkey allowed to initialize the pool    | R                | Y            |
+| pool_state     | The pool's state singleton PDA                         | W                | N            |
+| lst_state_list | Dynamic list PDA of LstStates for each LST in the pool | W                | N            |
+| lp_token_mint  | The LP token mint to create                            | W                | Y            |
+| token_2022     | Token 2022 program                                     | R                | N            |
+| system_program | System program                                         | R                | N            |
 
 ### Procedure
 
-- Set all state fields - admin, rebalance_authority, protocol_fee_beneficiary etc to hardcoded defaults
 - Create the LP token
+- Set to hardcoded defaults:
+  - pool_state.trading_protocol_fee_bps
+  - pool_state.lp_protocol_fee_bps
+  - pool_state.pricing_program
+  - LP token mint transfer fee parameters
+  - LP token metadata
+- Set to authority:
+  - pool_state.admin
+  - pool_state.rebalance_authority
+  - pool_state.protocol_fee_beneficiary
+  - LP token mint transfer_fee_config_authority
+  - LP token mint withdraw_withheld_authority
+  - LP token metadata update authority

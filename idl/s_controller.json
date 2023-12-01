@@ -293,10 +293,22 @@
           "desc": "LP token account to mint new LP tokens to"
         },
         {
+          "name": "lp_token_mint",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LP token mint"
+        },
+        {
           "name": "token_program",
           "isMut": false,
           "isSigner": false,
           "desc": "Token program"
+        },
+        {
+          "name": "token_2022",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token 2022 program for use with LP token mint"
         },
         {
           "name": "pool_state",
@@ -364,6 +376,12 @@
           "desc": "LP token account to burn LP tokens from"
         },
         {
+          "name": "lp_token_mint",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "LP token mint"
+        },
+        {
           "name": "protocol_fee_accumulator",
           "isMut": true,
           "isSigner": false,
@@ -374,6 +392,12 @@
           "isMut": false,
           "isSigner": false,
           "desc": "Token program"
+        },
+        {
+          "name": "token_2022",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token 2022 program for use with LP token mint"
         },
         {
           "name": "pool_state",
@@ -1142,6 +1166,12 @@
           "desc": "Account paying for rent"
         },
         {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The hardcoded pubkey allowed to initialize the pool"
+        },
+        {
           "name": "pool_state",
           "isMut": true,
           "isSigner": false,
@@ -1154,10 +1184,10 @@
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
-          "name": "disable_pool_authority_list",
+          "name": "lp_token_mint",
           "isMut": true,
-          "isSigner": false,
-          "desc": "The pool's disable pool authority list singleton PDA"
+          "isSigner": true,
+          "desc": "The LP token mint to create"
         },
         {
           "name": "token_2022",
