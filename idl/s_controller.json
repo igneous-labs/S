@@ -299,10 +299,10 @@
           "desc": "LP token mint"
         },
         {
-          "name": "token_program",
+          "name": "lst_token_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "Token program"
+          "desc": "LST's token program"
         },
         {
           "name": "token_2022",
@@ -388,10 +388,10 @@
           "desc": "Protocol fee accumulator token account"
         },
         {
-          "name": "token_program",
+          "name": "lst_token_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "Token program"
+          "desc": "LST's token program"
         },
         {
           "name": "token_2022",
