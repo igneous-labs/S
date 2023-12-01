@@ -1206,7 +1206,7 @@ pub fn remove_lst_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 5;
+pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 6;
 #[derive(Copy, Clone, Debug)]
 pub struct AddLstAccounts<'me, 'info> {
     ///The program manager
@@ -1215,6 +1215,8 @@ pub struct AddLstAccounts<'me, 'info> {
     pub payer: &'me AccountInfo<'info>,
     ///FeeAccount PDA to be created
     pub fee_acc: &'me AccountInfo<'info>,
+    ///Mint of the LST
+    pub lst_mint: &'me AccountInfo<'info>,
     ///The program state PDA
     pub state: &'me AccountInfo<'info>,
     ///System program
@@ -1228,6 +1230,8 @@ pub struct AddLstKeys {
     pub payer: Pubkey,
     ///FeeAccount PDA to be created
     pub fee_acc: Pubkey,
+    ///Mint of the LST
+    pub lst_mint: Pubkey,
     ///The program state PDA
     pub state: Pubkey,
     ///System program
@@ -1239,6 +1243,7 @@ impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
             manager: *accounts.manager.key,
             payer: *accounts.payer.key,
             fee_acc: *accounts.fee_acc.key,
+            lst_mint: *accounts.lst_mint.key,
             state: *accounts.state.key,
             system_program: *accounts.system_program.key,
         }
@@ -1250,6 +1255,7 @@ impl From<&AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new_readonly(keys.manager, true),
             AccountMeta::new(keys.payer, true),
             AccountMeta::new(keys.fee_acc, false),
+            AccountMeta::new_readonly(keys.lst_mint, false),
             AccountMeta::new_readonly(keys.state, false),
             AccountMeta::new_readonly(keys.system_program, false),
         ]
@@ -1261,8 +1267,9 @@ impl From<[Pubkey; ADD_LST_IX_ACCOUNTS_LEN]> for AddLstKeys {
             manager: pubkeys[0],
             payer: pubkeys[1],
             fee_acc: pubkeys[2],
-            state: pubkeys[3],
-            system_program: pubkeys[4],
+            lst_mint: pubkeys[3],
+            state: pubkeys[4],
+            system_program: pubkeys[5],
         }
     }
 }
@@ -1272,6 +1279,7 @@ impl<'info> From<&AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX
             accounts.manager.clone(),
             accounts.payer.clone(),
             accounts.fee_acc.clone(),
+            accounts.lst_mint.clone(),
             accounts.state.clone(),
             accounts.system_program.clone(),
         ]
@@ -1285,8 +1293,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]>
             manager: &arr[0],
             payer: &arr[1],
             fee_acc: &arr[2],
-            state: &arr[3],
-            system_program: &arr[4],
+            lst_mint: &arr[3],
+            state: &arr[4],
+            system_program: &arr[5],
         }
     }
 }
@@ -1364,6 +1373,7 @@ pub fn add_lst_verify_account_keys(
         (accounts.manager.key, &keys.manager),
         (accounts.payer.key, &keys.payer),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.lst_mint.key, &keys.lst_mint),
         (accounts.state.key, &keys.state),
         (accounts.system_program.key, &keys.system_program),
     ] {

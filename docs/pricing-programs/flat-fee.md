@@ -216,7 +216,8 @@ Update the fees for given type of pricing action.
 | -------------- | ------------------------------------ | ---------------- | ------------ |
 | manager        | The program manager                  | R                | Y            |
 | payer          | Account paying for FeeAccount's rent | R                | Y            |
-| fee_acc        | FeeAccount PDA to modify             | W                | N            |
+| fee_acc        | FeeAccount PDA to create             | W                | N            |
+| lst_mint       | Mint of the LST                      | R                | N            |
 | state          | Program state PDA                    | R                | N            |
 | system_program | System program                       | R                | N            |
 

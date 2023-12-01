@@ -284,6 +284,12 @@
           "desc": "FeeAccount PDA to be created"
         },
         {
+          "name": "lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST"
+        },
+        {
           "name": "state",
           "isMut": false,
           "isSigner": false,

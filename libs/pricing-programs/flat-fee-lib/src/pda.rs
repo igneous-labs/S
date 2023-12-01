@@ -3,6 +3,7 @@ use solana_program::pubkey::{Pubkey, PubkeyError};
 use crate::program;
 
 const FEE_ACCOUNT_SEED_PREFIX: &[u8] = b"fee";
+pub const FEE_ACCOUNT_SIZE: usize = 0; // TODO
 
 pub struct FeeAccountFindPdaArgs {
     pub lst_mint: Pubkey,
@@ -18,14 +19,26 @@ impl FeeAccountFindPdaArgs {
     }
 }
 
+impl From<FeeAccountFindPdaArgs> for FeeAccountCreatePdaArgs {
+    fn from(find_pda_args: FeeAccountFindPdaArgs) -> Self {
+        let (_, bump) = find_pda_args.get_fee_account_address_and_bump_seed();
+
+        Self {
+            find_pda_args,
+            bump: [bump],
+        }
+    }
+}
+
 pub struct FeeAccountCreatePdaArgs {
-    pub find: FeeAccountFindPdaArgs,
+    pub find_pda_args: FeeAccountFindPdaArgs,
     pub bump: [u8; 1],
 }
 
 impl FeeAccountCreatePdaArgs {
     pub fn to_signer_seeds(&self) -> [&[u8]; 3] {
-        let [prefix, lst_mint] = self.find.to_seed();
+        let [prefix, lst_mint] = self.find_pda_args.to_seed();
+
         [prefix, lst_mint, &self.bump]
     }
 
