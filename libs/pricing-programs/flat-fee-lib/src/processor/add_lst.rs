@@ -17,34 +17,21 @@ use crate::{
 };
 
 pub fn process_add_lst_unchecked(
-    accounts: AddLstAccounts,
-    input_fee_bps: i16,
-    output_fee_bps: i16,
-) -> ProgramResult {
-    let find_pda_args = FeeAccountFindPdaArgs {
-        lst_mint: *accounts.lst_mint.key,
-    };
-    process_add_lst_with_bump_unchecked(
-        accounts,
-        find_pda_args.into(),
-        input_fee_bps,
-        output_fee_bps,
-    )
-}
-
-pub fn process_add_lst_with_bump_unchecked(
     AddLstAccounts {
         manager: _,
         payer,
         fee_acc,
-        lst_mint: _,
+        lst_mint,
         state: _,
         system_program: _,
     }: AddLstAccounts,
-    create_pda_args: FeeAccountCreatePdaArgs,
     input_fee_bps: i16,
     output_fee_bps: i16,
 ) -> ProgramResult {
+    let create_pda_args: FeeAccountCreatePdaArgs = FeeAccountFindPdaArgs {
+        lst_mint: *lst_mint.key,
+    }
+    .into();
     create_pda(
         CreateAccountAccounts {
             from: payer,
@@ -85,5 +72,3 @@ pub fn verify_add_lst<'me, 'info>(
 
     Ok(actual)
 }
-
-// TODO: add cases for when you know bump

@@ -18,7 +18,6 @@ impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
         let find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.lst_mint,
         };
-        // TODO: create_pda_args?
         let (fee_acc, _bump) = find_pda_args.get_fee_account_address_and_bump_seed();
 
         Ok(AddLstKeys {
@@ -31,5 +30,3 @@ impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
         })
     }
 }
-
-// TODO: add cases when you know bump
