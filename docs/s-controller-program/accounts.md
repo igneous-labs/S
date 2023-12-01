@@ -80,3 +80,7 @@ For each LST, the LST reserve is located at the associated token address (ATA) o
 ## Protocol Fee Accumulators
 
 For each LST, protocol fees are accumulated at the associated token address (ATA) of PDA ["protocol-fee"]
+
+## LP token mint
+
+The LP token mint is a token 2022 mint with mint authority = PoolState PDA

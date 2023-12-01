@@ -909,7 +909,7 @@ pub fn swap_exact_out_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 8;
+pub const ADD_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 10;
 #[derive(Copy, Clone, Debug)]
 pub struct AddLiquidityAccounts<'me, 'info> {
     ///Authority of src_lst_acc. User who's adding liquidity.
@@ -920,8 +920,12 @@ pub struct AddLiquidityAccounts<'me, 'info> {
     pub src_lst_acc: &'me AccountInfo<'info>,
     ///LP token account to mint new LP tokens to
     pub dst_lp_acc: &'me AccountInfo<'info>,
-    ///Token program
-    pub token_program: &'me AccountInfo<'info>,
+    ///LP token mint
+    pub lp_token_mint: &'me AccountInfo<'info>,
+    ///LST's token program
+    pub lst_token_program: &'me AccountInfo<'info>,
+    ///Token 2022 program for use with LP token mint
+    pub token_2022: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///Dynamic list PDA of LstStates for each LST in the pool
@@ -939,8 +943,12 @@ pub struct AddLiquidityKeys {
     pub src_lst_acc: Pubkey,
     ///LP token account to mint new LP tokens to
     pub dst_lp_acc: Pubkey,
-    ///Token program
-    pub token_program: Pubkey,
+    ///LP token mint
+    pub lp_token_mint: Pubkey,
+    ///LST's token program
+    pub lst_token_program: Pubkey,
+    ///Token 2022 program for use with LP token mint
+    pub token_2022: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///Dynamic list PDA of LstStates for each LST in the pool
@@ -955,7 +963,9 @@ impl From<&AddLiquidityAccounts<'_, '_>> for AddLiquidityKeys {
             lst_mint: *accounts.lst_mint.key,
             src_lst_acc: *accounts.src_lst_acc.key,
             dst_lp_acc: *accounts.dst_lp_acc.key,
-            token_program: *accounts.token_program.key,
+            lp_token_mint: *accounts.lp_token_mint.key,
+            lst_token_program: *accounts.lst_token_program.key,
+            token_2022: *accounts.token_2022.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
             pool_reserves: *accounts.pool_reserves.key,
@@ -969,7 +979,9 @@ impl From<&AddLiquidityKeys> for [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] {
             AccountMeta::new_readonly(keys.lst_mint, false),
             AccountMeta::new(keys.src_lst_acc, false),
             AccountMeta::new(keys.dst_lp_acc, false),
-            AccountMeta::new_readonly(keys.token_program, false),
+            AccountMeta::new(keys.lp_token_mint, false),
+            AccountMeta::new_readonly(keys.lst_token_program, false),
+            AccountMeta::new_readonly(keys.token_2022, false),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
             AccountMeta::new(keys.pool_reserves, false),
@@ -983,10 +995,12 @@ impl From<[Pubkey; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]> for AddLiquidityKeys {
             lst_mint: pubkeys[1],
             src_lst_acc: pubkeys[2],
             dst_lp_acc: pubkeys[3],
-            token_program: pubkeys[4],
-            pool_state: pubkeys[5],
-            lst_state_list: pubkeys[6],
-            pool_reserves: pubkeys[7],
+            lp_token_mint: pubkeys[4],
+            lst_token_program: pubkeys[5],
+            token_2022: pubkeys[6],
+            pool_state: pubkeys[7],
+            lst_state_list: pubkeys[8],
+            pool_reserves: pubkeys[9],
         }
     }
 }
@@ -999,7 +1013,9 @@ impl<'info> From<&AddLiquidityAccounts<'_, 'info>>
             accounts.lst_mint.clone(),
             accounts.src_lst_acc.clone(),
             accounts.dst_lp_acc.clone(),
-            accounts.token_program.clone(),
+            accounts.lp_token_mint.clone(),
+            accounts.lst_token_program.clone(),
+            accounts.token_2022.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
             accounts.pool_reserves.clone(),
@@ -1015,10 +1031,12 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
             lst_mint: &arr[1],
             src_lst_acc: &arr[2],
             dst_lp_acc: &arr[3],
-            token_program: &arr[4],
-            pool_state: &arr[5],
-            lst_state_list: &arr[6],
-            pool_reserves: &arr[7],
+            lp_token_mint: &arr[4],
+            lst_token_program: &arr[5],
+            token_2022: &arr[6],
+            pool_state: &arr[7],
+            lst_state_list: &arr[8],
+            pool_reserves: &arr[9],
         }
     }
 }
@@ -1098,7 +1116,9 @@ pub fn add_liquidity_verify_account_keys(
         (accounts.lst_mint.key, &keys.lst_mint),
         (accounts.src_lst_acc.key, &keys.src_lst_acc),
         (accounts.dst_lp_acc.key, &keys.dst_lp_acc),
-        (accounts.token_program.key, &keys.token_program),
+        (accounts.lp_token_mint.key, &keys.lp_token_mint),
+        (accounts.lst_token_program.key, &keys.lst_token_program),
+        (accounts.token_2022.key, &keys.token_2022),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
         (accounts.pool_reserves.key, &keys.pool_reserves),
@@ -1115,6 +1135,7 @@ pub fn add_liquidity_verify_account_privileges<'me, 'info>(
     for should_be_writable in [
         accounts.src_lst_acc,
         accounts.dst_lp_acc,
+        accounts.lp_token_mint,
         accounts.pool_state,
         accounts.lst_state_list,
         accounts.pool_reserves,
@@ -1130,7 +1151,7 @@ pub fn add_liquidity_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 9;
+pub const REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 11;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLiquidityAccounts<'me, 'info> {
     ///Authority of lp_acc. User who's removing liquidity.
@@ -1141,10 +1162,14 @@ pub struct RemoveLiquidityAccounts<'me, 'info> {
     pub dst_lst_acc: &'me AccountInfo<'info>,
     ///LP token account to burn LP tokens from
     pub src_lp_acc: &'me AccountInfo<'info>,
+    ///LP token mint
+    pub lp_token_mint: &'me AccountInfo<'info>,
     ///Protocol fee accumulator token account
     pub protocol_fee_accumulator: &'me AccountInfo<'info>,
-    ///Token program
-    pub token_program: &'me AccountInfo<'info>,
+    ///LST's token program
+    pub lst_token_program: &'me AccountInfo<'info>,
+    ///Token 2022 program for use with LP token mint
+    pub token_2022: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///Dynamic list PDA of LstStates for each LST in the pool
@@ -1162,10 +1187,14 @@ pub struct RemoveLiquidityKeys {
     pub dst_lst_acc: Pubkey,
     ///LP token account to burn LP tokens from
     pub src_lp_acc: Pubkey,
+    ///LP token mint
+    pub lp_token_mint: Pubkey,
     ///Protocol fee accumulator token account
     pub protocol_fee_accumulator: Pubkey,
-    ///Token program
-    pub token_program: Pubkey,
+    ///LST's token program
+    pub lst_token_program: Pubkey,
+    ///Token 2022 program for use with LP token mint
+    pub token_2022: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///Dynamic list PDA of LstStates for each LST in the pool
@@ -1180,8 +1209,10 @@ impl From<&RemoveLiquidityAccounts<'_, '_>> for RemoveLiquidityKeys {
             lst_mint: *accounts.lst_mint.key,
             dst_lst_acc: *accounts.dst_lst_acc.key,
             src_lp_acc: *accounts.src_lp_acc.key,
+            lp_token_mint: *accounts.lp_token_mint.key,
             protocol_fee_accumulator: *accounts.protocol_fee_accumulator.key,
-            token_program: *accounts.token_program.key,
+            lst_token_program: *accounts.lst_token_program.key,
+            token_2022: *accounts.token_2022.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
             pool_reserves: *accounts.pool_reserves.key,
@@ -1195,8 +1226,10 @@ impl From<&RemoveLiquidityKeys> for [AccountMeta; REMOVE_LIQUIDITY_IX_ACCOUNTS_L
             AccountMeta::new_readonly(keys.lst_mint, false),
             AccountMeta::new(keys.dst_lst_acc, false),
             AccountMeta::new(keys.src_lp_acc, false),
+            AccountMeta::new(keys.lp_token_mint, false),
             AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new_readonly(keys.token_program, false),
+            AccountMeta::new_readonly(keys.lst_token_program, false),
+            AccountMeta::new_readonly(keys.token_2022, false),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
             AccountMeta::new(keys.pool_reserves, false),
@@ -1210,11 +1243,13 @@ impl From<[Pubkey; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN]> for RemoveLiquidityKeys {
             lst_mint: pubkeys[1],
             dst_lst_acc: pubkeys[2],
             src_lp_acc: pubkeys[3],
-            protocol_fee_accumulator: pubkeys[4],
-            token_program: pubkeys[5],
-            pool_state: pubkeys[6],
-            lst_state_list: pubkeys[7],
-            pool_reserves: pubkeys[8],
+            lp_token_mint: pubkeys[4],
+            protocol_fee_accumulator: pubkeys[5],
+            lst_token_program: pubkeys[6],
+            token_2022: pubkeys[7],
+            pool_state: pubkeys[8],
+            lst_state_list: pubkeys[9],
+            pool_reserves: pubkeys[10],
         }
     }
 }
@@ -1227,8 +1262,10 @@ impl<'info> From<&RemoveLiquidityAccounts<'_, 'info>>
             accounts.lst_mint.clone(),
             accounts.dst_lst_acc.clone(),
             accounts.src_lp_acc.clone(),
+            accounts.lp_token_mint.clone(),
             accounts.protocol_fee_accumulator.clone(),
-            accounts.token_program.clone(),
+            accounts.lst_token_program.clone(),
+            accounts.token_2022.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
             accounts.pool_reserves.clone(),
@@ -1244,11 +1281,13 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
             lst_mint: &arr[1],
             dst_lst_acc: &arr[2],
             src_lp_acc: &arr[3],
-            protocol_fee_accumulator: &arr[4],
-            token_program: &arr[5],
-            pool_state: &arr[6],
-            lst_state_list: &arr[7],
-            pool_reserves: &arr[8],
+            lp_token_mint: &arr[4],
+            protocol_fee_accumulator: &arr[5],
+            lst_token_program: &arr[6],
+            token_2022: &arr[7],
+            pool_state: &arr[8],
+            lst_state_list: &arr[9],
+            pool_reserves: &arr[10],
         }
     }
 }
@@ -1328,11 +1367,13 @@ pub fn remove_liquidity_verify_account_keys(
         (accounts.lst_mint.key, &keys.lst_mint),
         (accounts.dst_lst_acc.key, &keys.dst_lst_acc),
         (accounts.src_lp_acc.key, &keys.src_lp_acc),
+        (accounts.lp_token_mint.key, &keys.lp_token_mint),
         (
             accounts.protocol_fee_accumulator.key,
             &keys.protocol_fee_accumulator,
         ),
-        (accounts.token_program.key, &keys.token_program),
+        (accounts.lst_token_program.key, &keys.lst_token_program),
+        (accounts.token_2022.key, &keys.token_2022),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
         (accounts.pool_reserves.key, &keys.pool_reserves),
@@ -1349,6 +1390,7 @@ pub fn remove_liquidity_verify_account_privileges<'me, 'info>(
     for should_be_writable in [
         accounts.dst_lst_acc,
         accounts.src_lp_acc,
+        accounts.lp_token_mint,
         accounts.protocol_fee_accumulator,
         accounts.pool_state,
         accounts.lst_state_list,
@@ -4551,17 +4593,19 @@ pub fn set_rebalance_authority_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 6;
+pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 7;
 #[derive(Copy, Clone, Debug)]
 pub struct InitializeAccounts<'me, 'info> {
     ///Account paying for rent
     pub payer: &'me AccountInfo<'info>,
+    ///The hardcoded pubkey allowed to initialize the pool
+    pub authority: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: &'me AccountInfo<'info>,
-    ///The pool's disable pool authority list singleton PDA
-    pub disable_pool_authority_list: &'me AccountInfo<'info>,
+    ///The LP token mint to create
+    pub lp_token_mint: &'me AccountInfo<'info>,
     ///Token 2022 program
     pub token_2022: &'me AccountInfo<'info>,
     ///System program
@@ -4571,12 +4615,14 @@ pub struct InitializeAccounts<'me, 'info> {
 pub struct InitializeKeys {
     ///Account paying for rent
     pub payer: Pubkey,
+    ///The hardcoded pubkey allowed to initialize the pool
+    pub authority: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: Pubkey,
-    ///The pool's disable pool authority list singleton PDA
-    pub disable_pool_authority_list: Pubkey,
+    ///The LP token mint to create
+    pub lp_token_mint: Pubkey,
     ///Token 2022 program
     pub token_2022: Pubkey,
     ///System program
@@ -4586,9 +4632,10 @@ impl From<&InitializeAccounts<'_, '_>> for InitializeKeys {
     fn from(accounts: &InitializeAccounts) -> Self {
         Self {
             payer: *accounts.payer.key,
+            authority: *accounts.authority.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
-            disable_pool_authority_list: *accounts.disable_pool_authority_list.key,
+            lp_token_mint: *accounts.lp_token_mint.key,
             token_2022: *accounts.token_2022.key,
             system_program: *accounts.system_program.key,
         }
@@ -4598,9 +4645,10 @@ impl From<&InitializeKeys> for [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] {
     fn from(keys: &InitializeKeys) -> Self {
         [
             AccountMeta::new(keys.payer, true),
+            AccountMeta::new_readonly(keys.authority, true),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.disable_pool_authority_list, false),
+            AccountMeta::new(keys.lp_token_mint, true),
             AccountMeta::new_readonly(keys.token_2022, false),
             AccountMeta::new_readonly(keys.system_program, false),
         ]
@@ -4610,11 +4658,12 @@ impl From<[Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]> for InitializeKeys {
     fn from(pubkeys: [Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             payer: pubkeys[0],
-            pool_state: pubkeys[1],
-            lst_state_list: pubkeys[2],
-            disable_pool_authority_list: pubkeys[3],
-            token_2022: pubkeys[4],
-            system_program: pubkeys[5],
+            authority: pubkeys[1],
+            pool_state: pubkeys[2],
+            lst_state_list: pubkeys[3],
+            lp_token_mint: pubkeys[4],
+            token_2022: pubkeys[5],
+            system_program: pubkeys[6],
         }
     }
 }
@@ -4624,9 +4673,10 @@ impl<'info> From<&InitializeAccounts<'_, 'info>>
     fn from(accounts: &InitializeAccounts<'_, 'info>) -> Self {
         [
             accounts.payer.clone(),
+            accounts.authority.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
-            accounts.disable_pool_authority_list.clone(),
+            accounts.lp_token_mint.clone(),
             accounts.token_2022.clone(),
             accounts.system_program.clone(),
         ]
@@ -4638,11 +4688,12 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]>
     fn from(arr: &'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             payer: &arr[0],
-            pool_state: &arr[1],
-            lst_state_list: &arr[2],
-            disable_pool_authority_list: &arr[3],
-            token_2022: &arr[4],
-            system_program: &arr[5],
+            authority: &arr[1],
+            pool_state: &arr[2],
+            lst_state_list: &arr[3],
+            lp_token_mint: &arr[4],
+            token_2022: &arr[5],
+            system_program: &arr[6],
         }
     }
 }
@@ -4717,12 +4768,10 @@ pub fn initialize_verify_account_keys(
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
+        (accounts.authority.key, &keys.authority),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
-        (
-            accounts.disable_pool_authority_list.key,
-            &keys.disable_pool_authority_list,
-        ),
+        (accounts.lp_token_mint.key, &keys.lp_token_mint),
         (accounts.token_2022.key, &keys.token_2022),
         (accounts.system_program.key, &keys.system_program),
     ] {
@@ -4739,13 +4788,13 @@ pub fn initialize_verify_account_privileges<'me, 'info>(
         accounts.payer,
         accounts.pool_state,
         accounts.lst_state_list,
-        accounts.disable_pool_authority_list,
+        accounts.lp_token_mint,
     ] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.payer] {
+    for should_be_signer in [accounts.payer, accounts.authority, accounts.lp_token_mint] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
