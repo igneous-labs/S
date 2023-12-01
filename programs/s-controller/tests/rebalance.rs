@@ -6,7 +6,7 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_ID, REBALANCE_RECORD_ID, STATE_ID},
     start_rebalance_ix_full, try_lst_state_list, try_pool_state,
     EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcAccounts,
-    StartRebalanceByMintsFreeArgs, StartRebalanceIxArgsFull, U8Bool,
+    StartRebalanceByMintsFreeArgs, StartRebalanceIxFullArgs, U8Bool,
 };
 use sanctum_utils::token::TransferKeys;
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
@@ -132,7 +132,7 @@ async fn basic() {
 
     let start_rebalance_ix = start_rebalance_ix_full(
         start_rebalance_keys,
-        StartRebalanceIxArgsFull {
+        StartRebalanceIxFullArgs {
             src_lst_index: src_lst_index.try_into().unwrap(),
             dst_lst_index: dst_lst_index.try_into().unwrap(),
             amount: JITOSOL_WITHDRAW_AMT,

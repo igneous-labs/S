@@ -10,7 +10,7 @@ use super::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct StartRebalanceIxArgsFull {
+pub struct StartRebalanceIxFullArgs {
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
     pub amount: u64,
@@ -18,11 +18,11 @@ pub struct StartRebalanceIxArgsFull {
 
 pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
     accounts: K,
-    StartRebalanceIxArgsFull {
+    StartRebalanceIxFullArgs {
         src_lst_index,
         dst_lst_index,
         amount,
-    }: StartRebalanceIxArgsFull,
+    }: StartRebalanceIxFullArgs,
     sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
 ) -> std::io::Result<Instruction> {
     let mut ix = start_rebalance_ix(
