@@ -16,6 +16,11 @@ pub mod program {
     );
 }
 
-pub mod initial_manager {
-    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+// TODO: should these be in onchain program instead of being in the lib?
+pub mod initial_constants {
+    pub mod initial_manager {
+        sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+    }
+
+    pub const INITIAL_LP_WITHDRAWAL_FEE_BPS: u16 = 5;
 }

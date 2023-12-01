@@ -20,6 +20,7 @@ pub fn process_initialize_unchecked(
         system_program: _,
     }: InitializeAccounts,
     initial_manager: Pubkey,
+    initial_lp_withdrawal_fee_bps: u16,
 ) -> ProgramResult {
     create_pda(
         CreateAccountAccounts {
@@ -37,7 +38,7 @@ pub fn process_initialize_unchecked(
     let state = try_program_state_mut(&mut bytes)?;
 
     state.manager = initial_manager;
-    state.lp_withdrawal_fee_bps = 0; // TODO: confirm default
+    state.lp_withdrawal_fee_bps = initial_lp_withdrawal_fee_bps;
 
     Ok(())
 }
