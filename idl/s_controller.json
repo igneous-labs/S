@@ -716,8 +716,12 @@
       },
       "args": [
         {
-          "name": "new_protocol_fee_bps",
-          "type": "u16"
+          "name": "new_trading_protocol_fee_bps",
+          "type": { "option": "u16" }
+        },
+        {
+          "name": "new_lp_protocol_fee_bps",
+          "type": { "option": "u16" }
         }
       ],
       "accounts": [
@@ -1152,12 +1156,7 @@
         "type": "u8",
         "value": 22
       },
-      "args": [
-        {
-          "name": "protocol_fee_bps",
-          "type": "u16"
-        }
-      ],
+      "args": [],
       "accounts": [
         {
           "name": "payer",
@@ -1176,12 +1175,6 @@
           "isMut": true,
           "isSigner": false,
           "desc": "The pool's state singleton PDA"
-        },
-        {
-          "name": "lst_state_list",
-          "isMut": true,
-          "isSigner": false,
-          "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
           "name": "lp_token_mint",
@@ -1255,6 +1248,10 @@
           },
           {
             "name": "pricing_program",
+            "type": "publicKey"
+          },
+          {
+            "name": "lp_token_mint",
             "type": "publicKey"
           }
         ]

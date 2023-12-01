@@ -56,6 +56,6 @@ pub fn process_instruction(
         SControllerProgramIx::SetRebalanceAuthority(_args) => {
             process_set_rebalance_authority(accounts)
         }
-        SControllerProgramIx::Initialize(args) => process_initialize(accounts, args),
+        SControllerProgramIx::Initialize(_args) => process_initialize(accounts),
     }
 }

@@ -341,10 +341,11 @@ Updates the protocol fee rate of the pool
 
 ### Data
 
-| Name                 | Value | Type |
-| -------------------- | ----- | ---- |
-| discriminant         | 11    | u8   |
-| new_protocol_fee_bps | -     | u16  |
+| Name                         | Value                | Type        |
+| ---------------------------- | -------------------- | ----------- |
+| discriminant                 | 11                   | u8          |
+| new_trading_protocol_fee_bps | None if not changing | Option<u16> |
+| new_lp_protocol_fee_bps      | None if not changing | Option<u16> |
 
 ### Accounts
 
@@ -608,15 +609,14 @@ Initialize the pool. Can only be called once.
 
 ### Accounts
 
-| Account        | Description                                            | Read/Write (R/W) | Signer (Y/N) |
-| -------------- | ------------------------------------------------------ | ---------------- | ------------ |
-| payer          | Account paying for rent                                | W                | Y            |
-| authority      | The hardcoded pubkey allowed to initialize the pool    | R                | Y            |
-| pool_state     | The pool's state singleton PDA                         | W                | N            |
-| lst_state_list | Dynamic list PDA of LstStates for each LST in the pool | W                | N            |
-| lp_token_mint  | The LP token mint to create                            | W                | Y            |
-| token_2022     | Token 2022 program                                     | R                | N            |
-| system_program | System program                                         | R                | N            |
+| Account        | Description                                         | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | --------------------------------------------------- | ---------------- | ------------ |
+| payer          | Account paying for rent                             | W                | Y            |
+| authority      | The hardcoded pubkey allowed to initialize the pool | R                | Y            |
+| pool_state     | The pool's state singleton PDA                      | W                | N            |
+| lp_token_mint  | The LP token mint to create                         | W                | Y            |
+| token_2022     | Token 2022 program                                  | R                | N            |
+| system_program | System program                                      | R                | N            |
 
 ### Procedure
 

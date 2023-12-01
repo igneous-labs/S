@@ -3,6 +3,7 @@ use static_assertions::const_assert_eq;
 
 mod accounts_resolvers;
 mod accounts_serde;
+mod consts;
 mod instructions;
 mod lst_indexes;
 mod lst_state_list;
@@ -12,6 +13,7 @@ mod u8bool;
 
 pub use accounts_resolvers::*;
 pub use accounts_serde::*;
+pub use consts::*;
 pub use instructions::*;
 pub use lst_indexes::*;
 pub use lst_state_list::*;
@@ -22,7 +24,7 @@ pub use u8bool::*;
 // std::mem::size_of and std::mem::align_of are const fns so we dont technically need these
 // but the const asserts helps guard against unexpected size changes
 
-pub const POOL_STATE_SIZE: usize = 144;
+pub const POOL_STATE_SIZE: usize = 176;
 const_assert_eq!(std::mem::size_of::<PoolState>(), POOL_STATE_SIZE);
 pub const POOL_STATE_ALIGN: usize = 8;
 const_assert_eq!(std::mem::align_of::<PoolState>(), POOL_STATE_ALIGN);

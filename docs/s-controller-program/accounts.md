@@ -24,6 +24,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | rebalance_authority      | The pubkey authorized to rebalance                                                    | Pubkey  |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey  |
 | pricing_program          | Address of pricing program used by pool                                               | Pubkey  |
+| lp_token_mint            | Address of the pool's LP token mint                                                   | Pubkey  |
 
 ## LstStateList
 

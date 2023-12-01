@@ -24,8 +24,7 @@ use crate::{
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
-    sync_sol_value_unchecked(&accounts, cpi, args.lst_index as usize)?;
-    Ok(())
+    sync_sol_value_unchecked(&accounts, cpi, args.lst_index as usize)
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors
@@ -86,12 +85,12 @@ fn verify_sync_sol_value_accounts<'a, 'info, I: TryInto<usize>>(
     actual: SyncSolValueAccounts<'a, 'info>,
     lst_index: I,
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {
-    let free_accounts = SyncSolValueFreeArgs {
+    let free_args = SyncSolValueFreeArgs {
         lst_index,
         lst_state_list: actual.lst_state_list,
         lst_mint: actual.lst_mint,
     };
-    let expected = free_accounts.resolve()?;
+    let expected = free_args.resolve()?;
 
     sync_sol_value_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     sync_sol_value_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;

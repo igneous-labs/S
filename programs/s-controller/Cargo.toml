@@ -20,10 +20,13 @@ sanctum-utils = { path = "../../libs/sanctum-utils" }
 sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
 sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }
+spl-token-2022 = { workspace = true }
+spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]
 generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
