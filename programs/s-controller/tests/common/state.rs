@@ -19,6 +19,7 @@ pub const DEFAULT_POOL_STATE: PoolState = PoolState {
     rebalance_authority: Pubkey::new_from_array([0u8; 32]),
     protocol_fee_beneficiary: Pubkey::new_from_array([0u8; 32]),
     pricing_program: Pubkey::new_from_array([0u8; 32]),
+    lp_token_mint: Pubkey::new_from_array([0u8; 32]),
 };
 
 pub fn pool_state_to_account(pool_state: PoolState) -> Account {

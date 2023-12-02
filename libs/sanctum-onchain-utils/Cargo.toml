@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 solana-program = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
+spl-token-metadata-interface = { workspace = true }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }

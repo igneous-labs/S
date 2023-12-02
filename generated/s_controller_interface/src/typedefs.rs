@@ -16,6 +16,7 @@ pub struct PoolState {
     pub rebalance_authority: Pubkey,
     pub protocol_fee_beneficiary: Pubkey,
     pub pricing_program: Pubkey,
+    pub lp_token_mint: Pubkey,
 }
 #[repr(C)]
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]

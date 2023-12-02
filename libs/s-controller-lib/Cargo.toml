@@ -3,6 +3,9 @@ name = "s-controller-lib"
 version = "1.0.0"
 edition = "2021"
 
+[features]
+testing = []
+
 [dependencies]
 borsh = { workspace = true }
 bytemuck = { workspace = true }
@@ -11,4 +14,6 @@ sanctum-macros = { workspace = true }
 sanctum-utils = { path = "../sanctum-utils" }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
+spl-token-metadata-interface = { workspace = true }
 static_assertions = { workspace = true }

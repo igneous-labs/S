@@ -2078,7 +2078,7 @@ dependencies = [
 name = "marinade-calculator"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
  "generic-pool-calculator-test-utils",
@@ -2122,8 +2122,8 @@ dependencies = [
 name = "marinade_calculator_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
- "num-derive 0.3.3",
+ "borsh 0.10.3",
+ "num-derive 0.4.1",
  "num-traits",
  "serde",
  "solana-program",
@@ -3219,7 +3219,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 name = "s-controller"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "marinade-calculator",
@@ -3237,6 +3237,8 @@ dependencies = [
  "spl-calculator",
  "spl-calculator-lib",
  "spl-token",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
  "test-utils",
  "tokio",
 ]
@@ -3252,6 +3254,8 @@ dependencies = [
  "sanctum-utils",
  "solana-program",
  "solana-readonly-account",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
  "static_assertions",
 ]
 
@@ -3261,7 +3265,7 @@ version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
  "bytemuck",
- "num-derive 0.3.3",
+ "num-derive 0.4.1",
  "num-traits",
  "serde",
  "solana-program",
@@ -3295,6 +3299,8 @@ version = "1.0.0"
 dependencies = [
  "solana-program",
  "spl-token",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
 ]
 
 [[package]]
@@ -3606,7 +3612,7 @@ dependencies = [
 name = "sol_value_calculator_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "serde",
  "solana-program",
 ]

@@ -1,6 +1,11 @@
 use solana_program::{
-    account_info::AccountInfo, program::invoke_signed, program_error::ProgramError, pubkey::Pubkey,
-    rent::Rent, system_instruction::create_account, system_program, sysvar::Sysvar,
+    account_info::AccountInfo,
+    program::{invoke, invoke_signed},
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    rent::Rent,
+    system_instruction, system_program,
+    sysvar::Sysvar,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -13,34 +18,50 @@ pub struct CreateAccountAccounts<'me, 'info> {
 pub struct CreateAccountArgs {
     pub space: usize,
     pub owner: Pubkey,
+    /// defaults to rent exempt amount for space if not provided
+    pub lamports: Option<u64>,
+}
+
+/// Run the CreateAccount SystemInstruction for an externally signed account.
+/// system_program AccountInfo must be in scope
+pub fn create_blank_account(
+    CreateAccountAccounts { from, to }: CreateAccountAccounts,
+    CreateAccountArgs {
+        space,
+        owner,
+        lamports,
+    }: CreateAccountArgs,
+) -> Result<(), ProgramError> {
+    let space_u64: u64 = space
+        .try_into()
+        .map_err(|_e| ProgramError::InvalidArgument)?;
+    let lamports = lamports.map_or_else(
+        || Ok::<u64, ProgramError>(Rent::get()?.minimum_balance(space)),
+        Ok,
+    )?;
+    let ix = system_instruction::create_account(from.key, to.key, lamports, space_u64, &owner);
+    invoke(&ix, &[from.clone(), to.clone()])
 }
 
 /// Run the CreateAccount SystemInstruction for a PDA
 /// system_program AccountInfo must be in scope
 pub fn create_pda(
     CreateAccountAccounts { from, to }: CreateAccountAccounts,
-    CreateAccountArgs { space, owner }: CreateAccountArgs,
-    signer_seeds: &[&[&[u8]]],
-) -> Result<(), ProgramError> {
-    let rent = Rent::get()?;
-    let space_u64: u64 = space
-        .try_into()
-        .map_err(|_e| ProgramError::InvalidArgument)?;
-    let lamports = rent.minimum_balance(space);
-    let ix = create_account(from.key, to.key, lamports, space_u64, &owner);
-    invoke_signed(&ix, &[from.clone(), to.clone()], signer_seeds)
-}
-
-pub fn create_hot_potato_pda(
-    CreateAccountAccounts { from, to }: CreateAccountAccounts,
-    CreateAccountArgs { space, owner }: CreateAccountArgs,
+    CreateAccountArgs {
+        space,
+        owner,
+        lamports,
+    }: CreateAccountArgs,
     signer_seeds: &[&[&[u8]]],
 ) -> Result<(), ProgramError> {
     let space_u64: u64 = space
         .try_into()
         .map_err(|_e| ProgramError::InvalidArgument)?;
-    let lamports = 1;
-    let ix = create_account(from.key, to.key, lamports, space_u64, &owner);
+    let lamports = lamports.map_or_else(
+        || Ok::<u64, ProgramError>(Rent::get()?.minimum_balance(space)),
+        Ok,
+    )?;
+    let ix = system_instruction::create_account(from.key, to.key, lamports, space_u64, &owner);
     invoke_signed(&ix, &[from.clone(), to.clone()], signer_seeds)
 }
 

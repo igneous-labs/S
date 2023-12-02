@@ -2627,7 +2627,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProtocolFeeIxArgs {
-    pub new_protocol_fee_bps: u16,
+    pub new_trading_protocol_fee_bps: Option<u16>,
+    pub new_lp_protocol_fee_bps: Option<u16>,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetProtocolFeeIxData(pub SetProtocolFeeIxArgs);
@@ -4593,7 +4594,7 @@ pub fn set_rebalance_authority_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 7;
+pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 6;
 #[derive(Copy, Clone, Debug)]
 pub struct InitializeAccounts<'me, 'info> {
     ///Account paying for rent
@@ -4602,8 +4603,6 @@ pub struct InitializeAccounts<'me, 'info> {
     pub authority: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
-    ///Dynamic list PDA of LstStates for each LST in the pool
-    pub lst_state_list: &'me AccountInfo<'info>,
     ///The LP token mint to create
     pub lp_token_mint: &'me AccountInfo<'info>,
     ///Token 2022 program
@@ -4619,8 +4618,6 @@ pub struct InitializeKeys {
     pub authority: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
-    ///Dynamic list PDA of LstStates for each LST in the pool
-    pub lst_state_list: Pubkey,
     ///The LP token mint to create
     pub lp_token_mint: Pubkey,
     ///Token 2022 program
@@ -4634,7 +4631,6 @@ impl From<&InitializeAccounts<'_, '_>> for InitializeKeys {
             payer: *accounts.payer.key,
             authority: *accounts.authority.key,
             pool_state: *accounts.pool_state.key,
-            lst_state_list: *accounts.lst_state_list.key,
             lp_token_mint: *accounts.lp_token_mint.key,
             token_2022: *accounts.token_2022.key,
             system_program: *accounts.system_program.key,
@@ -4647,7 +4643,6 @@ impl From<&InitializeKeys> for [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] {
             AccountMeta::new(keys.payer, true),
             AccountMeta::new_readonly(keys.authority, true),
             AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
             AccountMeta::new(keys.lp_token_mint, true),
             AccountMeta::new_readonly(keys.token_2022, false),
             AccountMeta::new_readonly(keys.system_program, false),
@@ -4660,10 +4655,9 @@ impl From<[Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]> for InitializeKeys {
             payer: pubkeys[0],
             authority: pubkeys[1],
             pool_state: pubkeys[2],
-            lst_state_list: pubkeys[3],
-            lp_token_mint: pubkeys[4],
-            token_2022: pubkeys[5],
-            system_program: pubkeys[6],
+            lp_token_mint: pubkeys[3],
+            token_2022: pubkeys[4],
+            system_program: pubkeys[5],
         }
     }
 }
@@ -4675,7 +4669,6 @@ impl<'info> From<&InitializeAccounts<'_, 'info>>
             accounts.payer.clone(),
             accounts.authority.clone(),
             accounts.pool_state.clone(),
-            accounts.lst_state_list.clone(),
             accounts.lp_token_mint.clone(),
             accounts.token_2022.clone(),
             accounts.system_program.clone(),
@@ -4690,18 +4683,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]>
             payer: &arr[0],
             authority: &arr[1],
             pool_state: &arr[2],
-            lst_state_list: &arr[3],
-            lp_token_mint: &arr[4],
-            token_2022: &arr[5],
-            system_program: &arr[6],
+            lp_token_mint: &arr[3],
+            token_2022: &arr[4],
+            system_program: &arr[5],
         }
     }
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InitializeIxArgs {
-    pub protocol_fee_bps: u16,
-}
+pub struct InitializeIxArgs {}
 #[derive(Clone, Debug, PartialEq)]
 pub struct InitializeIxData(pub InitializeIxArgs);
 pub const INITIALIZE_IX_DISCM: u8 = 22u8;
@@ -4770,7 +4760,6 @@ pub fn initialize_verify_account_keys(
         (accounts.payer.key, &keys.payer),
         (accounts.authority.key, &keys.authority),
         (accounts.pool_state.key, &keys.pool_state),
-        (accounts.lst_state_list.key, &keys.lst_state_list),
         (accounts.lp_token_mint.key, &keys.lp_token_mint),
         (accounts.token_2022.key, &keys.token_2022),
         (accounts.system_program.key, &keys.system_program),
@@ -4784,12 +4773,7 @@ pub fn initialize_verify_account_keys(
 pub fn initialize_verify_account_privileges<'me, 'info>(
     accounts: &InitializeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [
-        accounts.payer,
-        accounts.pool_state,
-        accounts.lst_state_list,
-        accounts.lp_token_mint,
-    ] {
+    for should_be_writable in [accounts.payer, accounts.pool_state, accounts.lp_token_mint] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }

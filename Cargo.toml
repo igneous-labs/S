@@ -25,6 +25,8 @@ sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branc
 serde = "^1"
 serde_json = "^1"
 spl-token = "*"
+spl-token-2022 = "*"
+spl-token-metadata-interface = "*"
 spl-associated-token-account = "*"
 static_assertions = "^1"
 thiserror = "^1"
