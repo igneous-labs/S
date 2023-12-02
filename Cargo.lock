@@ -3299,6 +3299,7 @@ dependencies = [
 name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
+ "sanctum-utils",
  "solana-program",
  "spl-associated-token-account",
  "spl-token",

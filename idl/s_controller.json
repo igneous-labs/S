@@ -587,7 +587,7 @@
       },
       "args": [
         {
-          "name": "index",
+          "name": "lst_index",
           "type": "u32"
         }
       ],
@@ -1429,6 +1429,11 @@
       "code": 17,
       "name": "PoolWouldLoseSolValue",
       "msg": "Cannot allow loss of SOL value for pool"
+    },
+    {
+      "code": 18,
+      "name": "LstStillHasValue",
+      "msg": "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
     }
   ],
   "metadata": {

@@ -2154,7 +2154,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveLstIxArgs {
-    pub index: u32,
+    pub lst_index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLstIxData(pub RemoveLstIxArgs);

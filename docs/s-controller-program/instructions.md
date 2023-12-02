@@ -269,7 +269,7 @@ Remove a LST from the pool
 | Name         | Value                            | Type |
 | ------------ | -------------------------------- | ---- |
 | discriminant | 8                                | u8   |
-| index        | index of lst in `lst_state_list` | u32  |
+| lst_index    | index of lst in `lst_state_list` | u32  |
 
 ### Accounts
 

@@ -57,6 +57,7 @@ pub struct SyncSolValueByMintFreeArgs<
 impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
     SyncSolValueByMintFreeArgs<L, M>
 {
+    /// Does not check identity of pool_state and lst_state_list
     pub fn resolve(self) -> Result<(SyncSolValueKeys, SyncSolValueIxArgs), SControllerError> {
         let lst_state_list_acc_data = self.lst_state_list.data();
         let list = try_lst_state_list(&lst_state_list_acc_data)?;

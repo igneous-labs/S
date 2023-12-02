@@ -42,6 +42,10 @@ pub enum SControllerError {
     PoolNotRebalancing = 16,
     #[error("Cannot allow loss of SOL value for pool")]
     PoolWouldLoseSolValue = 17,
+    #[error(
+        "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
+    )]
+    LstStillHasValue = 18,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

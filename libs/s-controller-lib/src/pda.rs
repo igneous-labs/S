@@ -23,6 +23,23 @@ pub fn create_pool_reserves_address(
     .map_err(|_e| SControllerError::InvalidReserves)
 }
 
+pub fn create_protocol_fee_accumulator_address(
+    LstState {
+        protocol_fee_accumulator_bump,
+        mint,
+        ..
+    }: &LstState,
+    token_program: Pubkey,
+) -> Result<Pubkey, SControllerError> {
+    create_ata_address(CreateAtaAddressArgs {
+        wallet: PROTOCOL_FEE_ID,
+        mint: *mint,
+        token_program,
+        bump: *protocol_fee_accumulator_bump,
+    })
+    .map_err(|_e| SControllerError::InvalidReserves)
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct FindLstAccountAddressKeys {
     pub lst_mint: Pubkey,
