@@ -3,7 +3,7 @@ use s_controller_interface::{add_lst_ix, AddLstIxArgs, LstState};
 use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address,
     program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
-    try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstAccountAddressKeys,
+    try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstPdaAtaKeys,
 };
 use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
@@ -78,7 +78,7 @@ async fn basic_add_two() {
     verify_lst_added_success(
         &mut banks_client,
         lst_state_list,
-        FindLstAccountAddressKeys {
+        FindLstPdaAtaKeys {
             lst_mint: jitosol::ID,
             token_program: spl_token::ID,
         },
@@ -116,7 +116,7 @@ async fn basic_add_two() {
     verify_lst_added_success(
         &mut banks_client,
         lst_state_list,
-        FindLstAccountAddressKeys {
+        FindLstPdaAtaKeys {
             lst_mint: msol::ID,
             token_program: spl_token::ID,
         },
@@ -129,7 +129,7 @@ async fn basic_add_two() {
 async fn verify_lst_added_success(
     banks_client: &mut BanksClient,
     lst_state_list: &[LstState],
-    find_lst_account_address_keys: FindLstAccountAddressKeys,
+    find_lst_account_address_keys: FindLstPdaAtaKeys,
     expected_sol_value_calculator: Pubkey,
     expected_index: usize,
 ) {

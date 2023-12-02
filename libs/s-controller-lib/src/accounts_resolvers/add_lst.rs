@@ -5,7 +5,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 use crate::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
-    try_pool_state, FindLstAccountAddressKeys,
+    try_pool_state, FindLstPdaAtaKeys,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -42,7 +42,7 @@ impl<S: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccou
         let pool_state_data = pool_state_acc.data();
         let pool_state = try_pool_state(&pool_state_data)?;
 
-        let find_pda_keys = FindLstAccountAddressKeys {
+        let find_pda_keys = FindLstPdaAtaKeys {
             lst_mint: *lst_mint.key(),
             token_program: *lst_mint.owner(),
         };

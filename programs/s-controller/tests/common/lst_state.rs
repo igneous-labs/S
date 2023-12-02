@@ -1,7 +1,7 @@
 use s_controller_interface::LstState;
 use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address, try_lst_state_list_mut,
-    FindLstAccountAddressKeys, LST_STATE_SIZE,
+    FindLstPdaAtaKeys, LST_STATE_SIZE,
 };
 use sanctum_utils::associated_token::{find_ata_address, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
@@ -42,7 +42,7 @@ pub fn mock_lst_state(
         protocol_fee_accumulator_amt,
     }: MockLstStateArgs,
 ) -> MockLstStateRet {
-    let find_keys = FindLstAccountAddressKeys {
+    let find_keys = FindLstPdaAtaKeys {
         lst_mint: mint,
         token_program,
     };

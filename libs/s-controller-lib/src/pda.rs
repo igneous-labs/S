@@ -41,16 +41,16 @@ pub fn create_protocol_fee_accumulator_address(
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct FindLstAccountAddressKeys {
+pub struct FindLstPdaAtaKeys {
     pub lst_mint: Pubkey,
     pub token_program: Pubkey,
 }
 
 pub fn find_pool_reserves_address(
-    FindLstAccountAddressKeys {
+    FindLstPdaAtaKeys {
         lst_mint,
         token_program,
-    }: FindLstAccountAddressKeys,
+    }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
     find_ata_address(FindAtaAddressArgs {
         wallet: POOL_STATE_ID,
@@ -60,10 +60,10 @@ pub fn find_pool_reserves_address(
 }
 
 pub fn find_protocol_fee_accumulator_address(
-    FindLstAccountAddressKeys {
+    FindLstPdaAtaKeys {
         lst_mint,
         token_program,
-    }: FindLstAccountAddressKeys,
+    }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
     find_ata_address(FindAtaAddressArgs {
         wallet: PROTOCOL_FEE_ID,
