@@ -3220,6 +3220,7 @@ name = "s-controller"
 version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
+ "bytemuck",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "marinade-calculator",
@@ -3254,6 +3255,7 @@ dependencies = [
  "sanctum-utils",
  "solana-program",
  "solana-readonly-account",
+ "spl-associated-token-account",
  "spl-token-2022",
  "spl-token-metadata-interface",
  "static_assertions",
@@ -3298,6 +3300,7 @@ name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
  "solana-program",
+ "spl-associated-token-account",
  "spl-token",
  "spl-token-2022",
  "spl-token-metadata-interface",

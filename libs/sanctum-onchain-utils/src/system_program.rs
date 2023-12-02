@@ -4,7 +4,8 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
     rent::Rent,
-    system_instruction, system_program,
+    system_instruction::{self, allocate, assign},
+    system_program,
     sysvar::Sysvar,
 };
 
@@ -84,4 +85,41 @@ pub fn close_account(
     **close.try_borrow_mut_lamports()? = 0;
     close.assign(&system_program::ID);
     close.realloc(0, false)
+}
+
+pub fn allocate_pda(
+    pda: &AccountInfo,
+    space: usize,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = allocate(
+        pda.key,
+        space
+            .try_into()
+            .map_err(|_e| ProgramError::InvalidArgument)?,
+    );
+    invoke_signed(&ix, &[pda.clone()], signer_seeds)
+}
+
+pub fn assign_pda(
+    pda: &AccountInfo,
+    owner: Pubkey,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = assign(pda.key, &owner);
+    invoke_signed(&ix, &[pda.clone()], signer_seeds)
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct TransferAccounts<'me, 'info> {
+    pub from: &'me AccountInfo<'info>,
+    pub to: &'me AccountInfo<'info>,
+}
+
+pub fn transfer(
+    TransferAccounts { from, to }: TransferAccounts,
+    lamports: u64,
+) -> Result<(), ProgramError> {
+    let ix = system_instruction::transfer(from.key, to.key, lamports);
+    invoke(&ix, &[from.clone(), to.clone()])
 }

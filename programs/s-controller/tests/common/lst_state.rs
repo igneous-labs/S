@@ -34,7 +34,7 @@ pub fn mock_lst_state(
         reserves_amt,
     }: MockLstStateArgs,
 ) -> MockLstStateRet {
-    let (reserves_address, reserves_bump) = find_ata_address(FindAtaAddressArgs {
+    let (reserves_address, pool_reserves_bump) = find_ata_address(FindAtaAddressArgs {
         wallet: s_controller_lib::program::POOL_STATE_ID,
         mint,
         token_program: spl_token::ID,
@@ -48,7 +48,7 @@ pub fn mock_lst_state(
         mint,
         sol_value,
         is_input_disabled: 0,
-        reserves_bump,
+        pool_reserves_bump,
         protocol_fee_accumulator_bump,
         padding: Default::default(),
         sol_value_calculator,

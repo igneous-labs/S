@@ -29,7 +29,7 @@ pub fn process_instruction(
         SControllerProgramIx::RemoveLiquidity(args) => process_remove_liquidity(accounts, args),
         SControllerProgramIx::DisableLstInput(args) => process_disable_lst_input(accounts, args),
         SControllerProgramIx::EnableLstInput(args) => process_enable_lst_input(accounts, args),
-        SControllerProgramIx::AddLst(args) => process_add_lst(accounts, args),
+        SControllerProgramIx::AddLst(_args) => process_add_lst(accounts),
         SControllerProgramIx::RemoveLst(args) => process_remove_lst(accounts, args),
         SControllerProgramIx::SetSolValueCalculator(args) => {
             process_set_sol_value_calculator(accounts, args)

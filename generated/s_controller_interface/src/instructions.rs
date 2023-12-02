@@ -1753,7 +1753,7 @@ pub fn enable_lst_input_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 9;
+pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 12;
 #[derive(Copy, Clone, Debug)]
 pub struct AddLstAccounts<'me, 'info> {
     ///The pool's admin
@@ -1768,12 +1768,18 @@ pub struct AddLstAccounts<'me, 'info> {
     pub protocol_fee_accumulator: &'me AccountInfo<'info>,
     ///The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"]
     pub protocol_fee_accumulator_auth: &'me AccountInfo<'info>,
+    ///The LST's SOL value calculator program
+    pub sol_value_calculator: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: &'me AccountInfo<'info>,
+    ///Associated token account program
+    pub associated_token_program: &'me AccountInfo<'info>,
     ///System program
     pub system_program: &'me AccountInfo<'info>,
+    ///Token program of the new LST to add
+    pub lst_token_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct AddLstKeys {
@@ -1789,12 +1795,18 @@ pub struct AddLstKeys {
     pub protocol_fee_accumulator: Pubkey,
     ///The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"]
     pub protocol_fee_accumulator_auth: Pubkey,
+    ///The LST's SOL value calculator program
+    pub sol_value_calculator: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: Pubkey,
+    ///Associated token account program
+    pub associated_token_program: Pubkey,
     ///System program
     pub system_program: Pubkey,
+    ///Token program of the new LST to add
+    pub lst_token_program: Pubkey,
 }
 impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
     fn from(accounts: &AddLstAccounts) -> Self {
@@ -1805,9 +1817,12 @@ impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
             pool_reserves: *accounts.pool_reserves.key,
             protocol_fee_accumulator: *accounts.protocol_fee_accumulator.key,
             protocol_fee_accumulator_auth: *accounts.protocol_fee_accumulator_auth.key,
+            sol_value_calculator: *accounts.sol_value_calculator.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
+            associated_token_program: *accounts.associated_token_program.key,
             system_program: *accounts.system_program.key,
+            lst_token_program: *accounts.lst_token_program.key,
         }
     }
 }
@@ -1820,9 +1835,12 @@ impl From<&AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new(keys.pool_reserves, false),
             AccountMeta::new(keys.protocol_fee_accumulator, false),
             AccountMeta::new(keys.protocol_fee_accumulator_auth, false),
+            AccountMeta::new_readonly(keys.sol_value_calculator, false),
             AccountMeta::new_readonly(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
+            AccountMeta::new_readonly(keys.associated_token_program, false),
             AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta::new_readonly(keys.lst_token_program, false),
         ]
     }
 }
@@ -1835,9 +1853,12 @@ impl From<[Pubkey; ADD_LST_IX_ACCOUNTS_LEN]> for AddLstKeys {
             pool_reserves: pubkeys[3],
             protocol_fee_accumulator: pubkeys[4],
             protocol_fee_accumulator_auth: pubkeys[5],
-            pool_state: pubkeys[6],
-            lst_state_list: pubkeys[7],
-            system_program: pubkeys[8],
+            sol_value_calculator: pubkeys[6],
+            pool_state: pubkeys[7],
+            lst_state_list: pubkeys[8],
+            associated_token_program: pubkeys[9],
+            system_program: pubkeys[10],
+            lst_token_program: pubkeys[11],
         }
     }
 }
@@ -1850,9 +1871,12 @@ impl<'info> From<&AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX
             accounts.pool_reserves.clone(),
             accounts.protocol_fee_accumulator.clone(),
             accounts.protocol_fee_accumulator_auth.clone(),
+            accounts.sol_value_calculator.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
+            accounts.associated_token_program.clone(),
             accounts.system_program.clone(),
+            accounts.lst_token_program.clone(),
         ]
     }
 }
@@ -1867,17 +1891,18 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]>
             pool_reserves: &arr[3],
             protocol_fee_accumulator: &arr[4],
             protocol_fee_accumulator_auth: &arr[5],
-            pool_state: &arr[6],
-            lst_state_list: &arr[7],
-            system_program: &arr[8],
+            sol_value_calculator: &arr[6],
+            pool_state: &arr[7],
+            lst_state_list: &arr[8],
+            associated_token_program: &arr[9],
+            system_program: &arr[10],
+            lst_token_program: &arr[11],
         }
     }
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AddLstIxArgs {
-    pub index: u64,
-}
+pub struct AddLstIxArgs {}
 #[derive(Clone, Debug, PartialEq)]
 pub struct AddLstIxData(pub AddLstIxArgs);
 pub const ADD_LST_IX_DISCM: u8 = 7u8;
@@ -1955,9 +1980,18 @@ pub fn add_lst_verify_account_keys(
             accounts.protocol_fee_accumulator_auth.key,
             &keys.protocol_fee_accumulator_auth,
         ),
+        (
+            accounts.sol_value_calculator.key,
+            &keys.sol_value_calculator,
+        ),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
+        (
+            accounts.associated_token_program.key,
+            &keys.associated_token_program,
+        ),
         (accounts.system_program.key, &keys.system_program),
+        (accounts.lst_token_program.key, &keys.lst_token_program),
     ] {
         if actual != expected {
             return Err((*actual, *expected));
@@ -1986,7 +2020,7 @@ pub fn add_lst_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 9;
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 10;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstAccounts<'me, 'info> {
     ///The pool's admin
@@ -2007,6 +2041,8 @@ pub struct RemoveLstAccounts<'me, 'info> {
     pub lst_state_list: &'me AccountInfo<'info>,
     ///System program
     pub system_program: &'me AccountInfo<'info>,
+    ///Token program of the LST to remove
+    pub lst_token_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstKeys {
@@ -2028,6 +2064,8 @@ pub struct RemoveLstKeys {
     pub lst_state_list: Pubkey,
     ///System program
     pub system_program: Pubkey,
+    ///Token program of the LST to remove
+    pub lst_token_program: Pubkey,
 }
 impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
     fn from(accounts: &RemoveLstAccounts) -> Self {
@@ -2041,6 +2079,7 @@ impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
             system_program: *accounts.system_program.key,
+            lst_token_program: *accounts.lst_token_program.key,
         }
     }
 }
@@ -2056,6 +2095,7 @@ impl From<&RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new_readonly(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
             AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta::new_readonly(keys.lst_token_program, false),
         ]
     }
 }
@@ -2071,6 +2111,7 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
             pool_state: pubkeys[6],
             lst_state_list: pubkeys[7],
             system_program: pubkeys[8],
+            lst_token_program: pubkeys[9],
         }
     }
 }
@@ -2088,6 +2129,7 @@ impl<'info> From<&RemoveLstAccounts<'_, 'info>>
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
             accounts.system_program.clone(),
+            accounts.lst_token_program.clone(),
         ]
     }
 }
@@ -2105,6 +2147,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
             pool_state: &arr[6],
             lst_state_list: &arr[7],
             system_program: &arr[8],
+            lst_token_program: &arr[9],
         }
     }
 }
@@ -2193,6 +2236,7 @@ pub fn remove_lst_verify_account_keys(
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
         (accounts.system_program.key, &keys.system_program),
+        (accounts.lst_token_program.key, &keys.lst_token_program),
     ] {
         if actual != expected {
             return Err((*actual, *expected));

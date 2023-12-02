@@ -15,13 +15,14 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 borsh = { workspace = true }
+bytemuck = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 s-controller-lib = { path = "../../libs/s-controller-lib" }
 sanctum-utils = { path = "../../libs/sanctum-utils" }
 sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
 sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }
-spl-token-2022 = { workspace = true }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]

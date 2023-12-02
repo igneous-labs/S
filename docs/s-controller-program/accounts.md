@@ -43,7 +43,7 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 | Name                          | Value                                                                  | Type    |
 | ----------------------------- | ---------------------------------------------------------------------- | ------- |
 | is_input_disabled             | Flag indicating if inputs for this LST are disabled                    | PodBool |
-| reserves_bump                 | bump seed of this LST's reserves ATA                                   | u8      |
+| pool_reserves_bump            | bump seed of this LST's pool reserves ATA                              | u8      |
 | protocol_fee_accumulator_bump | bump seed of this LST's protocol fee accumulator ATA                   | u8      |
 | sol_value                     | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64     |
 | mint                          | The LST's mint                                                         | Pubkey  |
