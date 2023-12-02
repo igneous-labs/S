@@ -3,7 +3,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{
     create_pool_reserves_address,
-    program::{LST_STATE_LIST_ID, STATE_ID},
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list,
 };
 
@@ -36,7 +36,7 @@ impl<
 
         Ok(SyncSolValueKeys {
             lst_mint: lst_state.mint,
-            pool_state: STATE_ID,
+            pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             pool_reserves,
         })
@@ -67,7 +67,7 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
         Ok((
             SyncSolValueKeys {
                 lst_mint: *self.lst_mint.key(),
-                pool_state: STATE_ID,
+                pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
                 pool_reserves,
             },

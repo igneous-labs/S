@@ -36,5 +36,5 @@ pub fn pool_state_to_account(pool_state: PoolState) -> Account {
 }
 
 pub async fn banks_client_get_pool_state_acc(banks_client: &mut BanksClient) -> Account {
-    banks_client_get_account(banks_client, s_controller_lib::program::STATE_ID).await
+    banks_client_get_account(banks_client, s_controller_lib::program::POOL_STATE_ID).await
 }

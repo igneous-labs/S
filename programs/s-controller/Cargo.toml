@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 no-entrypoint = []
+testing = ["s-controller-lib/testing"]
 
 [lib]
 crate-type = ["cdylib", "lib"]

@@ -136,7 +136,7 @@ pub fn jito_marinade_program_test(
     pool_state.total_sol_value = total_sol_value;
 
     program_test.add_account(
-        s_controller_lib::program::STATE_ID,
+        s_controller_lib::program::POOL_STATE_ID,
         pool_state_to_account(pool_state),
     );
 

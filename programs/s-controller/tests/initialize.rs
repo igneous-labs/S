@@ -1,7 +1,8 @@
 use s_controller_interface::{initialize_ix, InitializeIxArgs, PoolState};
 use s_controller_lib::{
-    initial_authority, program::STATE_ID, try_pool_state, InitializeFreeArgs, CURRENT_PROGRAM_VERS,
-    DEFAULT_LP_PROTOCOL_FEE_BPS, DEFAULT_PRICING_PROGRAM, DEFAULT_TRADING_PROTOCOL_FEE_BPS,
+    initial_authority, program::POOL_STATE_ID, try_pool_state, InitializeFreeArgs,
+    CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS, DEFAULT_PRICING_PROGRAM,
+    DEFAULT_TRADING_PROTOCOL_FEE_BPS,
 };
 use solana_program::{program_option::COption, program_pack::Pack};
 use solana_program_test::{processor, ProgramTest};
@@ -78,11 +79,11 @@ async fn basic() {
     assert_eq!(
         lp_token_mint,
         Mint {
-            mint_authority: COption::Some(STATE_ID),
+            mint_authority: COption::Some(POOL_STATE_ID),
             supply: 0,
             decimals: native_mint::DECIMALS,
             is_initialized: true,
-            freeze_authority: COption::Some(STATE_ID),
+            freeze_authority: COption::Some(POOL_STATE_ID),
         }
     );
 }

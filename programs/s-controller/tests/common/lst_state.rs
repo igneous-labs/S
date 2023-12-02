@@ -35,7 +35,7 @@ pub fn mock_lst_state(
     }: MockLstStateArgs,
 ) -> MockLstStateRet {
     let (reserves_address, reserves_bump) = find_ata_address(FindAtaAddressArgs {
-        wallet: s_controller_lib::program::STATE_ID,
+        wallet: s_controller_lib::program::POOL_STATE_ID,
         mint,
         token_program: spl_token::ID,
     });
@@ -55,7 +55,7 @@ pub fn mock_lst_state(
     };
     let reserves_account = mock_token_account(MockTokenAccountArgs {
         mint,
-        authority: s_controller_lib::program::STATE_ID,
+        authority: s_controller_lib::program::POOL_STATE_ID,
         amount: reserves_amt,
     });
     MockLstStateRet {

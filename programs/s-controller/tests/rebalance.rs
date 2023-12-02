@@ -3,7 +3,7 @@ use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERM
 use marinade_keys::msol;
 use s_controller_lib::{
     end_rebalance_ix_full,
-    program::{LST_STATE_LIST_ID, REBALANCE_RECORD_ID, STATE_ID},
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, REBALANCE_RECORD_ID},
     start_rebalance_ix_full, try_lst_state_list, try_pool_state,
     EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcAccounts,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxFullArgs, U8Bool,
@@ -42,7 +42,7 @@ async fn basic() {
     let mut pool_state = DEFAULT_POOL_STATE;
     pool_state.rebalance_authority = donor_token_auth.pubkey();
     pool_state.total_sol_value = JITOSOL_START_SOL_VALUE + MSOL_START_SOL_VALUE;
-    program_test.add_account(STATE_ID, pool_state_to_account(pool_state));
+    program_test.add_account(POOL_STATE_ID, pool_state_to_account(pool_state));
 
     let withdraw_jitosol_to = mock_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -109,7 +109,7 @@ async fn basic() {
             account: lst_state_list_acc,
         },
         pool_state: KeyedReadonlyAccount {
-            key: STATE_ID,
+            key: POOL_STATE_ID,
             account: pool_state_acc,
         },
         src_lst_mint: KeyedReadonlyAccount {

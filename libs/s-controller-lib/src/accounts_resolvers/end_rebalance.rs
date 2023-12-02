@@ -6,7 +6,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{
     create_pool_reserves_address,
-    program::{LST_STATE_LIST_ID, REBALANCE_RECORD_ID, STATE_ID},
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, REBALANCE_RECORD_ID},
     try_lst_state_list, try_match_lst_mint_on_list, try_rebalance_record,
 };
 
@@ -53,7 +53,7 @@ impl<
             refund_rent_to: self.refund_rent_to,
             dst_lst_mint: dst_lst_state.mint,
             dst_pool_reserves,
-            pool_state: STATE_ID,
+            pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             rebalance_record: REBALANCE_RECORD_ID,
         })
@@ -77,7 +77,7 @@ impl<'a> EndRebalanceFromStartRebalanceKeys<'a> {
             refund_rent_to: *payer,
             dst_lst_mint: *dst_lst_mint,
             dst_pool_reserves: *dst_pool_reserves,
-            pool_state: STATE_ID,
+            pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             rebalance_record: REBALANCE_RECORD_ID,
         }

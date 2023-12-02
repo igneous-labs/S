@@ -51,7 +51,7 @@ pub mod program {
     sanctum_macros::declare_program_keys!(
         "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv",
         [
-            ("state", b"state"),
+            ("pool-state", b"state"),
             ("lst-state-list", b"lst-state-list"),
             (
                 "disable-pool-authority-list",
