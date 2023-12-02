@@ -24,6 +24,8 @@ async fn basic() {
         msol_sol_value: 1_000_000_000,
         jitosol_reserves: 1_000_000_000,
         msol_reserves: 1_000_000_000,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
     });
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {

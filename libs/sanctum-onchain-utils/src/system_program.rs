@@ -133,10 +133,10 @@ pub fn transfer_direct_increment(
     lamports: u64,
 ) -> Result<(), ProgramError> {
     let to_starting_lamports = to.lamports();
+    let from_starting_lamports = from.lamports();
     **to.try_borrow_mut_lamports()? = to_starting_lamports
         .checked_add(lamports)
         .ok_or(ProgramError::InvalidArgument)?;
-    let from_starting_lamports = from.lamports();
     **from.try_borrow_mut_lamports()? = from_starting_lamports
         .checked_sub(lamports)
         .ok_or(ProgramError::InvalidArgument)?;

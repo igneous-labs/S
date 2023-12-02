@@ -1,12 +1,11 @@
 use marinade_keys::msol;
 use s_controller_interface::{add_lst_ix, AddLstIxArgs, LstState};
 use s_controller_lib::{
-    find_pool_reserves_address, find_protocol_fee_accumulator_address, initial_authority,
-    program::POOL_STATE_ID, try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs,
-    FindLstAccountAddressKeys,
+    find_pool_reserves_address, find_protocol_fee_accumulator_address,
+    program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
+    try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstAccountAddressKeys,
 };
-use sanctum_utils::token::token_account_balance;
-use solana_program::pubkey::Pubkey;
+use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
@@ -42,9 +41,7 @@ async fn basic_add_two() {
     let mut program_test = program_test
         .add_test_fixtures_account("jitosol-mint.json")
         .add_test_fixtures_account("msol-mint.json");
-    let mut pool_state = DEFAULT_POOL_STATE;
-    pool_state.admin = initial_authority::ID;
-    let pool_state_account = pool_state_to_account(pool_state);
+    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_account.clone(),
@@ -143,7 +140,10 @@ async fn verify_lst_added_success(
         .await
         .unwrap()
         .unwrap();
-    assert_eq!(token_account_balance(pool_reserves).unwrap(), 0);
+    let pool_reserves_token_account =
+        spl_token::state::Account::unpack(&pool_reserves.data).unwrap();
+    assert_eq!(pool_reserves_token_account.owner, POOL_STATE_ID);
+    assert_eq!(pool_reserves_token_account.amount, 0);
 
     let (protocol_fee_accumulator_addr, protocol_fee_accumulator_bump) =
         find_protocol_fee_accumulator_address(find_lst_account_address_keys);
@@ -152,7 +152,13 @@ async fn verify_lst_added_success(
         .await
         .unwrap()
         .unwrap();
-    assert_eq!(token_account_balance(protocol_fee_accumulator).unwrap(), 0);
+    let protocol_fee_accumulator_token_account =
+        spl_token::state::Account::unpack(&protocol_fee_accumulator.data).unwrap();
+    assert_eq!(
+        protocol_fee_accumulator_token_account.owner,
+        PROTOCOL_FEE_ID
+    );
+    assert_eq!(protocol_fee_accumulator_token_account.amount, 0);
 
     let (i, lst_state) =
         try_find_lst_mint_on_list(find_lst_account_address_keys.lst_mint, lst_state_list).unwrap();

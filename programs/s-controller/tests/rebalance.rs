@@ -37,6 +37,8 @@ async fn basic() {
         msol_sol_value: MSOL_START_SOL_VALUE,
         jitosol_reserves: 1_000_000_000,
         msol_reserves: 1_000_000_000,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
     });
 
     let mut pool_state = DEFAULT_POOL_STATE;

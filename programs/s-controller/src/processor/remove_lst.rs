@@ -19,15 +19,6 @@ use crate::list_account::{remove_from_list_pda, RemoveFromListPdaAccounts};
 
 pub fn process_remove_lst(accounts: &[AccountInfo], args: RemoveLstIxArgs) -> ProgramResult {
     let (accounts, lst_index) = verify_remove_lst(accounts, args)?;
-
-    remove_from_list_pda::<LstState>(
-        RemoveFromListPdaAccounts {
-            list_pda: accounts.lst_state_list,
-            refund_rent_to: accounts.refund_rent_to,
-        },
-        lst_index,
-    )?;
-
     close_token_account_signed(
         CloseTokenAccountAccounts {
             account_to_close: accounts.protocol_fee_accumulator,
@@ -46,6 +37,16 @@ pub fn process_remove_lst(accounts: &[AccountInfo], args: RemoveLstIxArgs) -> Pr
             refund_rent_to: accounts.refund_rent_to,
         },
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
+    )?;
+    // Gotta put direct account lamport manipuation last after token program CPIs
+    // because CPIs' lamport balance checks are broken:
+    // https://github.com/solana-labs/solana/issues/9711
+    remove_from_list_pda::<LstState>(
+        RemoveFromListPdaAccounts {
+            list_pda: accounts.lst_state_list,
+            refund_rent_to: accounts.refund_rent_to,
+        },
+        lst_index,
     )
 }
 

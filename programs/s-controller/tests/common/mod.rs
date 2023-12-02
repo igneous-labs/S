@@ -81,6 +81,8 @@ pub struct JitoMarinadeProgramTestArgs {
     pub msol_sol_value: u64,
     pub jitosol_reserves: u64,
     pub msol_reserves: u64,
+    pub jitosol_protocol_fee_accumulator: u64,
+    pub msol_protocol_fee_accumulator: u64,
 }
 
 /// dont forget to
@@ -98,6 +100,8 @@ pub fn jito_marinade_program_test(
         msol_sol_value,
         jitosol_reserves,
         msol_reserves,
+        jitosol_protocol_fee_accumulator,
+        msol_protocol_fee_accumulator,
     }: JitoMarinadeProgramTestArgs,
 ) -> ProgramTest {
     let mut program_test = ProgramTest::default();
@@ -119,12 +123,16 @@ pub fn jito_marinade_program_test(
                 mint: jitosol::ID,
                 sol_value: jitosol_sol_value,
                 reserves_amt: jitosol_reserves,
+                protocol_fee_accumulator_amt: jitosol_protocol_fee_accumulator,
+                token_program: spl_token::ID,
                 sol_value_calculator: spl_calculator_lib::program::ID,
             },
             MockLstStateArgs {
                 mint: msol::ID,
                 sol_value: msol_sol_value,
                 reserves_amt: msol_reserves,
+                protocol_fee_accumulator_amt: msol_protocol_fee_accumulator,
+                token_program: spl_token::ID,
                 sol_value_calculator: marinade_calculator_lib::program::ID,
             },
         ],

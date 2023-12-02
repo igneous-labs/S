@@ -1,5 +1,8 @@
 use s_controller_interface::LstState;
-use s_controller_lib::{try_lst_state_list_mut, LST_STATE_SIZE};
+use s_controller_lib::{
+    find_pool_reserves_address, find_protocol_fee_accumulator_address, try_lst_state_list_mut,
+    FindLstAccountAddressKeys, LST_STATE_SIZE,
+};
 use sanctum_utils::associated_token::{find_ata_address, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{BanksClient, ProgramTest};
@@ -8,13 +11,14 @@ use test_utils::{est_rent_exempt_lamports, mock_token_account, MockTokenAccountA
 
 use super::banks_client_get_account;
 
-/// TODO: add protocol fee accumulator amt if required
 #[derive(Clone, Copy, Debug)]
 pub struct MockLstStateArgs {
     pub mint: Pubkey,
     pub sol_value_calculator: Pubkey,
+    pub token_program: Pubkey,
     pub sol_value: u64,
     pub reserves_amt: u64,
+    pub protocol_fee_accumulator_amt: u64,
 }
 
 /// TODO: add protocol fee accumulator account if required
@@ -23,6 +27,8 @@ pub struct MockLstStateRet {
     pub lst_state: LstState,
     pub reserves_address: Pubkey,
     pub reserves_account: Account,
+    pub protocol_fee_accumulator_address: Pubkey,
+    pub protocol_fee_accumulator_account: Account,
 }
 
 /// Assumes LST uses original spl-token program
@@ -30,20 +36,19 @@ pub fn mock_lst_state(
     MockLstStateArgs {
         mint,
         sol_value_calculator,
+        token_program,
         sol_value,
         reserves_amt,
+        protocol_fee_accumulator_amt,
     }: MockLstStateArgs,
 ) -> MockLstStateRet {
-    let (reserves_address, pool_reserves_bump) = find_ata_address(FindAtaAddressArgs {
-        wallet: s_controller_lib::program::POOL_STATE_ID,
-        mint,
-        token_program: spl_token::ID,
-    });
-    let (_, protocol_fee_accumulator_bump) = find_ata_address(FindAtaAddressArgs {
-        wallet: s_controller_lib::program::PROTOCOL_FEE_ID,
-        mint,
-        token_program: spl_token::ID,
-    });
+    let find_keys = FindLstAccountAddressKeys {
+        lst_mint: mint,
+        token_program,
+    };
+    let (reserves_address, pool_reserves_bump) = find_pool_reserves_address(find_keys);
+    let (protocol_fee_accumulator_address, protocol_fee_accumulator_bump) =
+        find_protocol_fee_accumulator_address(find_keys);
     let lst_state = LstState {
         mint,
         sol_value,
@@ -58,10 +63,17 @@ pub fn mock_lst_state(
         authority: s_controller_lib::program::POOL_STATE_ID,
         amount: reserves_amt,
     });
+    let protocol_fee_accumulator_account = mock_token_account(MockTokenAccountArgs {
+        mint,
+        authority: s_controller_lib::program::PROTOCOL_FEE_ID,
+        amount: protocol_fee_accumulator_amt,
+    });
     MockLstStateRet {
         lst_state,
         reserves_address,
         reserves_account,
+        protocol_fee_accumulator_address,
+        protocol_fee_accumulator_account,
     }
 }
 
@@ -99,8 +111,14 @@ pub fn program_test_add_mock_lst_states(
             lst_state,
             reserves_address,
             reserves_account,
+            protocol_fee_accumulator_address,
+            protocol_fee_accumulator_account,
         } = mock_lst_state(*arg);
         program_test.add_account(reserves_address, reserves_account);
+        program_test.add_account(
+            protocol_fee_accumulator_address,
+            protocol_fee_accumulator_account,
+        );
         lst_states.push(lst_state);
     }
     program_test_add_lst_state_list(program_test, &lst_states)
