@@ -1,0 +1,122 @@
+{
+  "version": "1.0.0",
+  "name": "pricing_programs",
+  "instructions": [
+    {
+      "name": "PriceExactIn",
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "input_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the input LST"
+        },
+        {
+          "name": "output_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the output LST"
+        }
+      ]
+    },
+    {
+      "name": "PriceExactOut",
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "input_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the input LST"
+        },
+        {
+          "name": "output_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the output LST"
+        }
+      ]
+    },
+    {
+      "name": "PriceLpTokensToMint",
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "input_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the input LST"
+        }
+      ]
+    },
+    {
+      "name": "PriceLpTokensToRedeem",
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "sol_value",
+          "type": "u64"
+        }
+      ],
+      "accounts": [
+        {
+          "name": "output_lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the output LST"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "TH1S1SNoTAVAL1DPUBKEYUSETHE1MPLS1D1NSTEAD11"
+  }
+}
