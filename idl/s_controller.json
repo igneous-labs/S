@@ -503,12 +503,7 @@
         "type": "u8",
         "value": 7
       },
-      "args": [
-        {
-          "name": "index",
-          "type": "u64"
-        }
-      ],
+      "args": [],
       "accounts": [
         {
           "name": "admin",
@@ -547,6 +542,12 @@
           "desc": "The protocol fee accumulator token account authority PDA. PDA [\"protocol_fee\"]"
         },
         {
+          "name": "sol_value_calculator",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LST's SOL value calculator program"
+        },
+        {
           "name": "pool_state",
           "isMut": false,
           "isSigner": false,
@@ -559,10 +560,22 @@
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
+          "name": "associated_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Associated token account program"
+        },
+        {
           "name": "system_program",
           "isMut": false,
           "isSigner": false,
           "desc": "System program"
+        },
+        {
+          "name": "lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program of the new LST to add"
         }
       ]
     },
@@ -574,7 +587,7 @@
       },
       "args": [
         {
-          "name": "index",
+          "name": "lst_index",
           "type": "u32"
         }
       ],
@@ -632,6 +645,12 @@
           "isMut": false,
           "isSigner": false,
           "desc": "System program"
+        },
+        {
+          "name": "lst_token_program",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program of the LST to remove"
         }
       ]
     },
@@ -1267,7 +1286,7 @@
             "type": "u8"
           },
           {
-            "name": "reserves_bump",
+            "name": "pool_reserves_bump",
             "type": "u8"
           },
           {
@@ -1410,6 +1429,11 @@
       "code": 17,
       "name": "PoolWouldLoseSolValue",
       "msg": "Cannot allow loss of SOL value for pool"
+    },
+    {
+      "code": 18,
+      "name": "LstStillHasValue",
+      "msg": "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
     }
   ],
   "metadata": {

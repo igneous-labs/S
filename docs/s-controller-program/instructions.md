@@ -248,7 +248,9 @@ Add a LST to the pool
 | sol_value_calculator          | The LST's SOL value calculator program                                         | R                | N            |
 | pool_state                    | The pool's state singleton PDA                                                 | R                | N            |
 | lst_state_list                | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
+| associated_token_program      | Associated token account program                                               | R                | N            |
 | system_program                | System program                                                                 | R                | N            |
+| lst_token_program             | Token program of the new LST to add                                            | R                | N            |
 
 ### Procedure
 
@@ -267,7 +269,7 @@ Remove a LST from the pool
 | Name         | Value                            | Type |
 | ------------ | -------------------------------- | ---- |
 | discriminant | 8                                | u8   |
-| index        | index of lst in `lst_state_list` | u32  |
+| lst_index    | index of lst in `lst_state_list` | u32  |
 
 ### Accounts
 
@@ -282,6 +284,7 @@ Remove a LST from the pool
 | pool_state                    | The pool's state singleton PDA                                                 | R                | N            |
 | lst_state_list                | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
 | system_program                | System program                                                                 | R                | N            |
+| lst_token_program             | Token program of the LST to remove                                             | R                | N            |
 
 ### Procedure
 

@@ -1,5 +1,7 @@
 use s_controller_interface::PoolState;
-use s_controller_lib::{try_pool_state_mut, POOL_STATE_SIZE};
+use s_controller_lib::{
+    initial_authority, try_pool_state_mut, DEFAULT_PRICING_PROGRAM, POOL_STATE_SIZE,
+};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
 use solana_sdk::account::Account;
@@ -15,10 +17,10 @@ pub const DEFAULT_POOL_STATE: PoolState = PoolState {
     is_disabled: 0,
     is_rebalancing: 0,
     padding: [0u8; 1],
-    admin: Pubkey::new_from_array([0u8; 32]),
-    rebalance_authority: Pubkey::new_from_array([0u8; 32]),
-    protocol_fee_beneficiary: Pubkey::new_from_array([0u8; 32]),
-    pricing_program: Pubkey::new_from_array([0u8; 32]),
+    admin: initial_authority::ID,
+    rebalance_authority: initial_authority::ID,
+    protocol_fee_beneficiary: initial_authority::ID,
+    pricing_program: DEFAULT_PRICING_PROGRAM,
     lp_token_mint: Pubkey::new_from_array([0u8; 32]),
 };
 
@@ -36,5 +38,5 @@ pub fn pool_state_to_account(pool_state: PoolState) -> Account {
 }
 
 pub async fn banks_client_get_pool_state_acc(banks_client: &mut BanksClient) -> Account {
-    banks_client_get_account(banks_client, s_controller_lib::program::STATE_ID).await
+    banks_client_get_account(banks_client, s_controller_lib::program::POOL_STATE_ID).await
 }

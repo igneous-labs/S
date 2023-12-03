@@ -4,7 +4,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{
     create_pool_reserves_address,
-    program::{LST_STATE_LIST_ID, REBALANCE_RECORD_ID, STATE_ID},
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, REBALANCE_RECORD_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, try_pool_state,
     SrcDstLstIndexes,
 };
@@ -41,7 +41,7 @@ impl<
         if *self.lst_state_list.key() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
-        if *self.pool_state.key() != STATE_ID {
+        if *self.pool_state.key() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -64,7 +64,7 @@ impl<
         Ok(StartRebalanceKeys {
             payer: self.payer,
             rebalance_authority: pool_state.rebalance_authority,
-            pool_state: STATE_ID,
+            pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             rebalance_record: REBALANCE_RECORD_ID,
             src_lst_mint: src_lst_state.mint,
@@ -107,7 +107,7 @@ impl<
         if *self.lst_state_list.key() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
-        if *self.pool_state.key() != STATE_ID {
+        if *self.pool_state.key() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -131,7 +131,7 @@ impl<
             StartRebalanceKeys {
                 payer: self.payer,
                 rebalance_authority: pool_state.rebalance_authority,
-                pool_state: STATE_ID,
+                pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
                 rebalance_record: REBALANCE_RECORD_ID,
                 src_lst_mint: src_lst_state.mint,

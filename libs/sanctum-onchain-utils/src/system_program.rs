@@ -4,7 +4,8 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
     rent::Rent,
-    system_instruction, system_program,
+    system_instruction::{self, allocate, assign},
+    system_program,
     sysvar::Sysvar,
 };
 
@@ -77,11 +78,67 @@ pub fn close_account(
         close,
     }: CloseAccountAccounts,
 ) -> Result<(), ProgramError> {
-    let refund_rent_to_starting_lamports = refund_rent_to.lamports();
-    **refund_rent_to.try_borrow_mut_lamports()? = refund_rent_to_starting_lamports
-        .checked_add(close.lamports())
-        .ok_or(ProgramError::InvalidArgument)?;
-    **close.try_borrow_mut_lamports()? = 0;
+    transfer_direct_increment(
+        TransferAccounts {
+            from: close,
+            to: refund_rent_to,
+        },
+        close.lamports(),
+    )?;
     close.assign(&system_program::ID);
     close.realloc(0, false)
+}
+
+pub fn allocate_pda(
+    pda: &AccountInfo,
+    space: usize,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = allocate(
+        pda.key,
+        space
+            .try_into()
+            .map_err(|_e| ProgramError::InvalidArgument)?,
+    );
+    invoke_signed(&ix, &[pda.clone()], signer_seeds)
+}
+
+pub fn assign_pda(
+    pda: &AccountInfo,
+    owner: Pubkey,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = assign(pda.key, &owner);
+    invoke_signed(&ix, &[pda.clone()], signer_seeds)
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct TransferAccounts<'me, 'info> {
+    pub from: &'me AccountInfo<'info>,
+    pub to: &'me AccountInfo<'info>,
+}
+
+pub fn transfer(
+    TransferAccounts { from, to }: TransferAccounts,
+    lamports: u64,
+) -> Result<(), ProgramError> {
+    let ix = system_instruction::transfer(from.key, to.key, lamports);
+    invoke(&ix, &[from.clone(), to.clone()])
+}
+
+/// Transfer by directly decrementing one account's lamports and
+/// incrementing another's
+pub fn transfer_direct_increment(
+    TransferAccounts { from, to }: TransferAccounts,
+    lamports: u64,
+) -> Result<(), ProgramError> {
+    let to_starting_lamports = to.lamports();
+    let from_starting_lamports = from.lamports();
+    **to.try_borrow_mut_lamports()? = to_starting_lamports
+        .checked_add(lamports)
+        .ok_or(ProgramError::InvalidArgument)?;
+    **from.try_borrow_mut_lamports()? = from_starting_lamports
+        .checked_sub(lamports)
+        .ok_or(ProgramError::InvalidArgument)?;
+    Ok(())
 }

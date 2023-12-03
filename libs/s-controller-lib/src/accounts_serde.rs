@@ -1,4 +1,4 @@
-use bytemuck::{try_from_bytes, try_from_bytes_mut};
+use bytemuck::{try_from_bytes, try_from_bytes_mut, AnyBitPattern};
 use s_controller_interface::{LstState, PoolState, RebalanceRecord, SControllerError};
 use solana_program::pubkey::Pubkey;
 
@@ -61,7 +61,7 @@ pub fn try_rebalance_record_mut(
 /// Returns None if failed. Could be due to:
 /// - `list_acc_data` is not divisible by T's len
 /// - `list_acc_data` is not aligned to T's align
-fn try_list<T>(list_acc_data: &[u8]) -> Option<&[T]> {
+fn try_list<T: AnyBitPattern>(list_acc_data: &[u8]) -> Option<&[T]> {
     if list_acc_data.len() % std::mem::size_of::<T>() != 0 {
         return None;
     }
@@ -80,7 +80,7 @@ fn try_list<T>(list_acc_data: &[u8]) -> Option<&[T]> {
 /// Returns None if failed. Could be due to:
 /// - `list_acc_data` is not divisible by T's len
 /// - `list_acc_data` is not aligned to T's align
-fn try_list_mut<T>(list_acc_data: &mut [u8]) -> Option<&mut [T]> {
+fn try_list_mut<T: AnyBitPattern>(list_acc_data: &mut [u8]) -> Option<&mut [T]> {
     if list_acc_data.len() % std::mem::size_of::<T>() != 0 {
         return None;
     }

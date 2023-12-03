@@ -4,7 +4,7 @@ use s_controller_interface::{
 };
 use s_controller_lib::{
     initial_token_metadata_size,
-    program::{STATE_BUMP, STATE_SEED},
+    program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_pool_state_mut, InitializeFreeArgs, CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS,
     DEFAULT_LP_TOKEN_METADATA_NAME, DEFAULT_LP_TOKEN_METADATA_SYMBOL,
     DEFAULT_LP_TOKEN_METADATA_URI, DEFAULT_MAXIMUM_TRANSFER_FEE, DEFAULT_PRICING_PROGRAM,
@@ -39,8 +39,8 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
             lamports: None,
         },
         &[&[
-            s_controller_lib::program::STATE_SEED,
-            &[s_controller_lib::program::STATE_BUMP],
+            s_controller_lib::program::POOL_STATE_SEED,
+            &[s_controller_lib::program::POOL_STATE_BUMP],
         ]],
     )?;
 
@@ -123,7 +123,7 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
             symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.to_owned(),
             uri: DEFAULT_LP_TOKEN_METADATA_URI.to_owned(),
         },
-        &[&[STATE_SEED, &[STATE_BUMP]]],
+        &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )
 }
 

@@ -23,7 +23,7 @@ pub struct PoolState {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LstState {
     pub is_input_disabled: u8,
-    pub reserves_bump: u8,
+    pub pool_reserves_bump: u8,
     pub protocol_fee_accumulator_bump: u8,
     pub padding: [u8; 5],
     pub sol_value: u64,

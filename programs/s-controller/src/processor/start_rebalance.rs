@@ -5,7 +5,7 @@ use s_controller_interface::{
 };
 use s_controller_lib::{
     pool_state_total_sol_value,
-    program::{REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED, STATE_BUMP, STATE_SEED},
+    program::{POOL_STATE_BUMP, POOL_STATE_SEED, REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED},
     try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
     StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
@@ -63,7 +63,7 @@ pub fn process_start_rebalance(
             authority: accounts.pool_state,
         },
         args.amount,
-        &[&[STATE_SEED, &[STATE_BUMP]]],
+        &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
     sync_sol_value_unchecked(
