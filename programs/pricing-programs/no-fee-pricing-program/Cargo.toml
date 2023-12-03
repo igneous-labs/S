@@ -1,0 +1,18 @@
+[package]
+name = "no-fee-pricing-program"
+version = "1.0.0"
+edition = "2021"
+
+[features]
+no-entrypoint = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+pricing_programs_interface = { path = "../../../generated/pricing-programs/pricing_programs_interface" }
+sanctum-macros = { workspace = true }
+solana-program = { workspace = true }

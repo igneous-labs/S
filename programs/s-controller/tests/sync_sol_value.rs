@@ -3,7 +3,7 @@ use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
-use solana_program::{clock::Clock, instruction::AccountMeta};
+use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
@@ -26,6 +26,8 @@ async fn basic() {
         msol_reserves: 1_000_000_000,
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
     });
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {

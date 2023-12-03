@@ -17,6 +17,9 @@ pub fn calc_lp_tokens_to_mint(
     }: LpTokenRateArgs,
     final_sol_value_to_add: u64,
 ) -> Result<u64, SControllerError> {
+    if pool_total_sol_value == 0 || lp_token_supply == 0 {
+        return Ok(final_sol_value_to_add);
+    }
     let f: u128 = final_sol_value_to_add.into();
     let l: u128 = lp_token_supply.into();
     let p: u128 = pool_total_sol_value.into();

@@ -2242,6 +2242,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "no-fee-pricing-program"
+version = "1.0.0"
+dependencies = [
+ "pricing_programs_interface",
+ "sanctum-macros",
+ "solana-program",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3235,6 +3244,7 @@ dependencies = [
  "marinade-calculator",
  "marinade-calculator-lib",
  "marinade-keys",
+ "no-fee-pricing-program",
  "pricing_programs_interface",
  "s-controller-lib",
  "s_controller_interface",
@@ -3247,6 +3257,7 @@ dependencies = [
  "solana-sdk",
  "spl-calculator",
  "spl-calculator-lib",
+ "spl-pod",
  "spl-token",
  "spl-token-2022",
  "spl-token-metadata-interface",
@@ -3325,6 +3336,7 @@ dependencies = [
  "solana-readonly-account",
  "spl-associated-token-account",
  "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]
@@ -5127,6 +5139,7 @@ dependencies = [
  "solana-readonly-account",
  "solana-sdk",
  "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]

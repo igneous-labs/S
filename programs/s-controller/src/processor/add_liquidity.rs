@@ -12,13 +12,13 @@ use sanctum_onchain_utils::{
     token_program::{tranfer_tokens, TransferAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::mint_supply;
+use sanctum_utils::token::token_2022_mint_supply;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
 use crate::{
-    cpi::{PricingProgramIxArgs, PricingProgramLiquidityCpi, SolValueCalculatorCpi},
+    cpi::{PricingProgramIxArgs, PricingProgramPriceLpCpi, SolValueCalculatorCpi},
     verify::{verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled},
 };
 
@@ -49,7 +49,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         let pool_state = try_pool_state(&pool_state_bytes)?;
         pool_state.total_sol_value
     };
-    let lp_token_supply = mint_supply(accounts.lp_token_mint)?;
+    let lp_token_supply = token_2022_mint_supply(accounts.lp_token_mint)?;
     let lp_tokens_to_mint = calc_lp_tokens_to_mint(
         LpTokenRateArgs {
             lp_token_supply,
@@ -87,7 +87,7 @@ fn verify_add_liquidity<'a, 'info>(
         AddLiquidityAccounts<'a, 'info>,
         AddLiquidityIxArgs,
         SolValueCalculatorCpi<'a, 'info>,
-        PricingProgramLiquidityCpi<'a, 'info>,
+        PricingProgramPriceLpCpi<'a, 'info>,
     ),
     ProgramError,
 > {
@@ -131,7 +131,7 @@ fn verify_add_liquidity<'a, 'info>(
         .get(lst_value_calc_suffix_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let pricing_cpi =
-        PricingProgramLiquidityCpi::from_ix_accounts(&actual, pricing_accounts_suffix_slice)?;
+        PricingProgramPriceLpCpi::from_ix_accounts(&actual, pricing_accounts_suffix_slice)?;
     pricing_cpi.verify_correct_pricing_program(&actual)?;
 
     Ok((actual, args, lst_cpi, pricing_cpi))

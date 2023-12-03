@@ -86,11 +86,8 @@ pub struct AddLiquidityByMintFreeArgs<
     pub lst_mint: M,
 }
 
-impl<
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
-        M: ReadonlyAccountOwner + KeyedAccount,
-    > AddLiquidityByMintFreeArgs<S, L, M>
+impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
+    AddLiquidityByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
     /// Returns partial instructions keys + index of lst on lst_state_list

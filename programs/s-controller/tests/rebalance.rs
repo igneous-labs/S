@@ -39,6 +39,8 @@ async fn basic() {
         msol_reserves: 1_000_000_000,
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
     });
 
     let mut pool_state = DEFAULT_POOL_STATE;
