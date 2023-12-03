@@ -1,4 +1,6 @@
-use s_controller_interface::{EndRebalanceAccounts, StartRebalanceAccounts, SyncSolValueAccounts};
+use s_controller_interface::{
+    AddLiquidityAccounts, EndRebalanceAccounts, StartRebalanceAccounts, SyncSolValueAccounts,
+};
 use solana_program::account_info::AccountInfo;
 
 use super::{DstLstMintOf, DstLstPoolReservesOf, SrcLstMintOf, SrcLstPoolReservesOf};
@@ -20,6 +22,12 @@ impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for StartRebalanceAccounts<
 }
 
 impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for EndRebalanceAccounts<'me, 'info> {
+    fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
+        self.pool_state
+    }
+}
+
+impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for AddLiquidityAccounts<'me, 'info> {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
         self.pool_state
     }

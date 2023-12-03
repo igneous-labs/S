@@ -46,6 +46,8 @@ pub enum SControllerError {
         "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
     )]
     LstStillHasValue = 18,
+    #[error("Incorrect pricing program")]
+    IncorrectPricingProgram = 19,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

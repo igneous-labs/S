@@ -69,7 +69,7 @@ fn verify_sync_sol_value<'a, 'info>(
     ProgramError,
 > {
     let actual = load_accounts(accounts)?;
-    let actual = verify_sync_sol_value_accounts(actual, *lst_index)?;
+    let actual = verify_sync_sol_value_base_accounts(actual, *lst_index)?;
 
     let accounts_suffix_slice = accounts
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
@@ -81,7 +81,7 @@ fn verify_sync_sol_value<'a, 'info>(
     Ok((actual, cpi))
 }
 
-fn verify_sync_sol_value_accounts<'a, 'info, I: TryInto<usize>>(
+fn verify_sync_sol_value_base_accounts<'a, 'info, I: TryInto<usize>>(
     actual: SyncSolValueAccounts<'a, 'info>,
     lst_index: I,
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {

@@ -16,6 +16,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 [dependencies]
 borsh = { workspace = true }
 bytemuck = { workspace = true }
+pricing_programs_interface = { path = "../../generated/pricing-programs/pricing_programs_interface" }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 s-controller-lib = { path = "../../libs/s-controller-lib" }
 sanctum-utils = { path = "../../libs/sanctum-utils" }

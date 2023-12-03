@@ -15,6 +15,15 @@ pub fn token_account_balance<D: ReadonlyAccountData>(
     Ok(amount)
 }
 
+/// Sometimes you just want to read the supply of a mint account without caring about the other fields.
+///
+/// Should work with both token and token-2022
+pub fn mint_supply<D: ReadonlyAccountData>(mint_account: D) -> Result<u64, ProgramError> {
+    let spl_token::state::Mint { supply, .. } =
+        spl_token::state::Mint::unpack(&mint_account.data())?;
+    Ok(supply)
+}
+
 pub struct TransferKeys {
     pub token_program: Pubkey,
     pub from: Pubkey,

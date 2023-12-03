@@ -2664,7 +2664,7 @@ checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 name = "pricing_programs_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "serde",
  "solana-program",
 ]
@@ -3235,6 +3235,7 @@ dependencies = [
  "marinade-calculator",
  "marinade-calculator-lib",
  "marinade-keys",
+ "pricing_programs_interface",
  "s-controller-lib",
  "s_controller_interface",
  "sanctum-onchain-utils",
