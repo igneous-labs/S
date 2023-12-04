@@ -3,16 +3,16 @@ use s_controller_interface::{
     AddLiquidityAccounts, AddLiquidityIxArgs, SControllerError, ADD_LIQUIDITY_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_lp_tokens_to_mint,
+    calc_add_liquidity, calc_lp_tokens_to_mint,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, LpTokenRateArgs, PoolStateAccount,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
+    CalcAddLiquidityArgs, CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
-    token_program::{tranfer_tokens, TransferAccounts},
+    token_program::{transfer_tokens, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_token_ratio::{AmtsAfterFee, MathError, U64RatioFloor};
 use sanctum_utils::token::token_2022_mint_supply;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
@@ -28,36 +28,36 @@ use super::sync_sol_value_unchecked;
 pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs) -> ProgramResult {
     let (
         accounts,
-        AddLiquidityIxArgs {
-            lst_index, amount, ..
+        AddLiquidityIxFullArgs {
+            lst_index,
+            lst_amount,
         },
         lst_cpi,
         pricing_cpi,
     ) = verify_add_liquidity(accounts, args)?;
+
     // lst_index checked in verify
     let lst_index: usize = lst_index.try_into().unwrap();
-    sync_sol_value_unchecked(&accounts, lst_cpi, lst_index)?;
+    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
 
-    let sol_value_to_add = lst_cpi.invoke_lst_to_sol(amount)?;
-    let sol_value_to_add_after_fees =
+    let start_total_sol_value = accounts.pool_state.total_sol_value()?;
+
+    let lst_amount_sol_value = lst_cpi.invoke_lst_to_sol(lst_amount)?;
+    let lst_amount_sol_value_after_fees =
         pricing_cpi.invoke_price_lp_tokens_to_mint(PricingProgramIxArgs {
-            amount,
-            sol_value: sol_value_to_add,
+            amount: lst_amount,
+            sol_value: lst_amount_sol_value,
         })?;
 
-    let lp_fees_sol_value = sol_value_to_add.saturating_sub(sol_value_to_add_after_fees);
-    let AmtsAfterFee {
-        fees_charged: protocol_fees_sol_value,
-        ..
-    } = accounts
-        .pool_state
-        .lp_protocol_fees_sol_value(lp_fees_sol_value)?;
-    let protocol_fees_lst = U64RatioFloor {
-        num: protocol_fees_sol_value,
-        denom: sol_value_to_add,
-    }
-    .apply(amount)?;
-    let to_reserves_lst = amount.checked_sub(protocol_fees_lst).ok_or(MathError)?;
+    let CalcAddLiquidityResult {
+        to_reserves_lst_amount,
+        to_protocol_fees_lst_amount,
+    } = calc_add_liquidity(CalcAddLiquidityArgs {
+        lst_amount,
+        lst_amount_sol_value,
+        lst_amount_sol_value_after_fees,
+        lp_protocol_fee_bps: accounts.pool_state.lp_protocol_fee_bps()?,
+    })?;
 
     let pool_total_sol_value = accounts.pool_state.total_sol_value()?;
     let lp_token_supply = token_2022_mint_supply(accounts.lp_token_mint)?;
@@ -66,26 +66,26 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
             lp_token_supply,
             pool_total_sol_value,
         },
-        sol_value_to_add_after_fees,
+        lst_amount_sol_value_after_fees,
     )?;
 
-    tranfer_tokens(
-        TransferAccounts {
+    transfer_tokens(
+        TransferTokensAccounts {
             from: accounts.src_lst_acc,
             to: accounts.pool_reserves,
             token_program: accounts.lst_token_program,
             authority: accounts.signer,
         },
-        to_reserves_lst,
+        to_reserves_lst_amount,
     )?;
-    tranfer_tokens(
-        TransferAccounts {
+    transfer_tokens(
+        TransferTokensAccounts {
             from: accounts.src_lst_acc,
             to: accounts.protocol_fee_accumulator,
             token_program: accounts.lst_token_program,
             authority: accounts.signer,
         },
-        protocol_fees_lst,
+        to_protocol_fees_lst_amount,
     )?;
     mint_to_signed(
         MintToAccounts {
@@ -96,16 +96,27 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         lp_tokens_to_mint,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
-    sync_sol_value_unchecked(&accounts, lst_cpi, lst_index)
+    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+
+    let end_total_sol_value = accounts.pool_state.total_sol_value()?;
+    if end_total_sol_value < start_total_sol_value {
+        return Err(SControllerError::PoolWouldLoseSolValue.into());
+    }
+
+    Ok(())
 }
 
 fn verify_add_liquidity<'a, 'info>(
     accounts: &'a [AccountInfo<'info>],
-    args: AddLiquidityIxArgs,
+    AddLiquidityIxArgs {
+        lst_value_calc_accs,
+        lst_index,
+        lst_amount,
+    }: AddLiquidityIxArgs,
 ) -> Result<
     (
         AddLiquidityAccounts<'a, 'info>,
-        AddLiquidityIxArgs,
+        AddLiquidityIxFullArgs,
         SolValueCalculatorCpi<'a, 'info>,
         PricingProgramPriceLpCpi<'a, 'info>,
     ),
@@ -114,7 +125,7 @@ fn verify_add_liquidity<'a, 'info>(
     let actual: AddLiquidityAccounts = load_accounts(accounts)?;
 
     let free_args = AddLiquidityFreeArgs {
-        lst_index: args.lst_index,
+        lst_index,
         signer: *actual.signer.key,
         src_lst_acc: *actual.src_lst_acc.key,
         dst_lp_acc: *actual.dst_lp_acc.key,
@@ -134,25 +145,33 @@ fn verify_add_liquidity<'a, 'info>(
     let lst_state_list_bytes = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;
     // dst_lst_index checked above
-    let lst_index: usize = args.lst_index.try_into().unwrap();
-    let dst_lst_state = lst_state_list[lst_index];
+    let lst_index_usize: usize = lst_index.try_into().unwrap();
+    let dst_lst_state = lst_state_list[lst_index_usize];
     verify_lst_input_not_disabled(&dst_lst_state)?;
 
     let lst_value_calc_suffix_end = ADD_LIQUIDITY_IX_ACCOUNTS_LEN
-        .checked_add((args.lst_value_calc_accs).into())
+        .checked_add((lst_value_calc_accs).into())
         .ok_or(SControllerError::MathError)?;
     let lst_accounts_suffix_slice = accounts
         .get(ADD_LIQUIDITY_IX_ACCOUNTS_LEN..lst_value_calc_suffix_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let lst_cpi = SolValueCalculatorCpi::from_ix_accounts(&actual, lst_accounts_suffix_slice)?;
-    lst_cpi.verify_correct_sol_value_calculator_program(&actual, args.lst_index)?;
+    let lst_cpi = SolValueCalculatorCpi::from_ix_accounts(actual, lst_accounts_suffix_slice)?;
+    lst_cpi.verify_correct_sol_value_calculator_program(actual, lst_index)?;
 
     let pricing_accounts_suffix_slice = accounts
         .get(lst_value_calc_suffix_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let pricing_cpi =
-        PricingProgramPriceLpCpi::from_ix_accounts(&actual, pricing_accounts_suffix_slice)?;
-    pricing_cpi.verify_correct_pricing_program(&actual)?;
+        PricingProgramPriceLpCpi::from_ix_accounts(actual, pricing_accounts_suffix_slice)?;
+    pricing_cpi.verify_correct_pricing_program(actual)?;
 
-    Ok((actual, args, lst_cpi, pricing_cpi))
+    Ok((
+        actual,
+        AddLiquidityIxFullArgs {
+            lst_index,
+            lst_amount,
+        },
+        lst_cpi,
+        pricing_cpi,
+    ))
 }

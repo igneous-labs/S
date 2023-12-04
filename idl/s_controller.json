@@ -263,7 +263,7 @@
           "type": "u32"
         },
         {
-          "name": "amount",
+          "name": "lst_amount",
           "type": "u64"
         }
       ],
@@ -352,7 +352,7 @@
           "type": "u32"
         },
         {
-          "name": "amount",
+          "name": "lp_token_amount",
           "type": "u64"
         }
       ],

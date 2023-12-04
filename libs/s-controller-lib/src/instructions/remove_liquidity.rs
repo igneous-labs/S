@@ -14,14 +14,14 @@ use crate::{
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLiquidityIxFullArgs {
     pub lst_index: u32,
-    pub lp_amount: u64,
+    pub lp_token_amount: u64,
 }
 
 pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
     accounts: K,
     RemoveLiquidityIxFullArgs {
         lst_index,
-        lp_amount,
+        lp_token_amount,
     }: RemoveLiquidityIxFullArgs,
     AddRemoveLiquidityExtraAccounts {
         lst_calculator_program_id,
@@ -35,7 +35,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
         RemoveLiquidityIxArgs {
             lst_value_calc_accs: 0,
             lst_index,
-            amount: lp_amount,
+            lp_token_amount,
         },
     )?;
     let lst_value_calc_accs = ix_extend_with_sol_value_calculator_accounts(
@@ -55,7 +55,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
     RemoveLiquidityIxData(RemoveLiquidityIxArgs {
         lst_value_calc_accs,
         lst_index,
-        amount: lp_amount,
+        lp_token_amount,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)
@@ -77,7 +77,7 @@ pub fn remove_liquidity_ix_by_mint_full<
             lst_index: lst_index
                 .try_into()
                 .map_err(|_e| SControllerError::MathError)?,
-            lp_amount,
+            lp_token_amount: lp_amount,
         },
         extra_accounts,
     )?;

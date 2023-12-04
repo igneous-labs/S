@@ -1,6 +1,4 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
-use sanctum_token_ratio::{AmtsAfterFee, U64BpsFeeCeil};
-use solana_program::program_error::ProgramError;
 use solana_readonly_account::ReadonlyAccountData;
 
 use crate::{try_pool_state, U8Bool};
@@ -31,16 +29,7 @@ pub trait PoolStateAccount {
     /// Returns this PoolState account's current `total_sol_value`
     fn total_sol_value(&self) -> Result<u64, SControllerError>;
 
-    /// Returns the SOL value of the protocol fees to charge
-    /// on the Add/Remove liquidity operation.
-    ///
-    /// Args:
-    /// - `lp_fees_sol_value`: SOL value of the LP fees to charge.
-    ///     Calculated by taking `SOL value of LST to add or LP tokens to redeem - pricing program return value`
-    fn lp_protocol_fees_sol_value(
-        &self,
-        lp_fees_sol_value: u64,
-    ) -> Result<AmtsAfterFee, ProgramError>;
+    fn lp_protocol_fee_bps(&self) -> Result<u16, SControllerError>;
 
     fn is_disabled(&self) -> Result<bool, SControllerError>;
 }
@@ -52,14 +41,10 @@ impl<D: ReadonlyAccountData> PoolStateAccount for D {
         Ok(deser.total_sol_value)
     }
 
-    fn lp_protocol_fees_sol_value(
-        &self,
-        lp_fees_sol_value: u64,
-    ) -> Result<AmtsAfterFee, ProgramError> {
+    fn lp_protocol_fee_bps(&self) -> Result<u16, SControllerError> {
         let bytes = self.data();
         let deser = try_pool_state(&bytes)?;
-        let res = U64BpsFeeCeil(deser.lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
-        Ok(res)
+        Ok(deser.lp_protocol_fee_bps)
     }
 
     fn is_disabled(&self) -> Result<bool, SControllerError> {

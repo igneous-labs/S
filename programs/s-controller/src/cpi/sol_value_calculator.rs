@@ -35,7 +35,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
     /// - `accounts_suffix_slice`: subslice of instruction accounts where first account is the SOL value calculator program
     ///     and remaining slice is remaining_accounts (excludes `lst_mint`)
     pub fn from_ix_accounts<G: GetLstMintAccountInfo<'me, 'info>>(
-        ix_accounts: &G,
+        ix_accounts: G,
         accounts_suffix_slice: &'me [AccountInfo<'info>],
     ) -> Result<Self, ProgramError> {
         let program = accounts_suffix_slice
@@ -55,7 +55,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
         I: TryInto<usize>,
     >(
         &self,
-        ix_accounts: &G,
+        ix_accounts: G,
         lst_index: I,
     ) -> Result<(), ProgramError> {
         let lst_state_list_bytes = ix_accounts

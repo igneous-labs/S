@@ -34,7 +34,7 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
         AddLiquidityIxArgs {
             lst_value_calc_accs: 0,
             lst_index,
-            amount: lst_amount,
+            lst_amount,
         },
     )?;
     let lst_value_calc_accs = ix_extend_with_sol_value_calculator_accounts(
@@ -54,7 +54,7 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
     AddLiquidityIxData(AddLiquidityIxArgs {
         lst_value_calc_accs,
         lst_index,
-        amount: lst_amount,
+        lst_amount,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)

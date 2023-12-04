@@ -73,6 +73,9 @@ impl<
     }
 }
 
+/// Iterates through lst_state_list to find lst_index.
+/// Suitable for use on client-side.
+/// Does not check identity of pool_state and lst_state_list
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLiquidityByMintFreeArgs<
     S: ReadonlyAccountData,

@@ -1054,7 +1054,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
 pub struct AddLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
-    pub amount: u64,
+    pub lst_amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct AddLiquidityIxData(pub AddLiquidityIxArgs);
@@ -1310,7 +1310,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
 pub struct RemoveLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
-    pub amount: u64,
+    pub lp_token_amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLiquidityIxData(pub RemoveLiquidityIxArgs);

@@ -37,7 +37,7 @@ pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
         (*old_total_sol_value, *dst_lst_index)
     };
 
-    sync_sol_value_unchecked(&accounts, cpi, dst_lst_index as usize)?;
+    sync_sol_value_unchecked(accounts, cpi, dst_lst_index as usize)?;
 
     if accounts.pool_state.total_sol_value()? < old_total_sol_value {
         return Err(SControllerError::PoolWouldLoseSolValue.into());
@@ -82,9 +82,9 @@ fn verify_end_rebalance<'a, 'info>(
         .get(END_REBALANCE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let dst_lst_cpi =
-        SolValueCalculatorCpi::from_ix_accounts(&actual, dst_lst_accounts_suffix_slice)?;
+        SolValueCalculatorCpi::from_ix_accounts(actual, dst_lst_accounts_suffix_slice)?;
     dst_lst_cpi
-        .verify_correct_sol_value_calculator_program(&actual, rebalance_record.dst_lst_index)?;
+        .verify_correct_sol_value_calculator_program(actual, rebalance_record.dst_lst_index)?;
 
     Ok((actual, dst_lst_cpi))
 }

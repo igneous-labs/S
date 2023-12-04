@@ -36,6 +36,34 @@ pub fn mint_to_signed(
     )
 }
 
+pub struct BurnTokensAccounts<'me, 'info> {
+    pub mint: &'me AccountInfo<'info>,
+    pub burn_from: &'me AccountInfo<'info>,
+    pub burn_from_authority: &'me AccountInfo<'info>,
+}
+
+pub fn burn_tokens(
+    BurnTokensAccounts {
+        mint,
+        burn_from,
+        burn_from_authority,
+    }: BurnTokensAccounts,
+    amount: u64,
+) -> Result<(), ProgramError> {
+    let ix = spl_token_2022::instruction::burn(
+        &spl_token_2022::ID,
+        burn_from.key,
+        mint.key,
+        burn_from_authority.key,
+        &[],
+        amount,
+    )?;
+    invoke(
+        &ix,
+        &[burn_from.clone(), mint.clone(), burn_from_authority.clone()],
+    )
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct InitializeMint2Args {
     pub decimals: u8,

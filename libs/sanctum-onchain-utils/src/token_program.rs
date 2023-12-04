@@ -7,7 +7,7 @@ use solana_program::{
 };
 use spl_token::instruction::transfer;
 
-pub struct TransferAccounts<'me, 'info> {
+pub struct TransferTokensAccounts<'me, 'info> {
     pub token_program: &'me AccountInfo<'info>,
     pub from: &'me AccountInfo<'info>,
     pub to: &'me AccountInfo<'info>,
@@ -15,7 +15,7 @@ pub struct TransferAccounts<'me, 'info> {
 }
 
 /// TODO: refactor to use sanctum_utils::TransferKeys
-impl<'me, 'info> TransferAccounts<'me, 'info> {
+impl<'me, 'info> TransferTokensAccounts<'me, 'info> {
     pub fn to_ix(&self, amount: u64) -> Result<Instruction, ProgramError> {
         transfer(
             self.token_program.key,
@@ -28,8 +28,8 @@ impl<'me, 'info> TransferAccounts<'me, 'info> {
     }
 }
 
-/// TODO: handle token-2022
-pub fn tranfer_tokens(accounts: TransferAccounts, amount: u64) -> Result<(), ProgramError> {
+/// TODO: handle token-2022 transfer hook?
+pub fn transfer_tokens(accounts: TransferTokensAccounts, amount: u64) -> Result<(), ProgramError> {
     let ix = accounts.to_ix(amount)?;
     invoke(
         &ix,
@@ -41,9 +41,9 @@ pub fn tranfer_tokens(accounts: TransferAccounts, amount: u64) -> Result<(), Pro
     )
 }
 
-/// TODO: handle token-2022
+/// TODO: handle token-2022 transfer hook?
 pub fn transfer_tokens_signed(
-    accounts: TransferAccounts,
+    accounts: TransferTokensAccounts,
     amount: u64,
     signer_seeds: &[&[&[u8]]],
 ) -> Result<(), ProgramError> {
