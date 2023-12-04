@@ -3329,6 +3329,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-token-ratio"
+version = "1.0.0"
+dependencies = [
+ "num-traits",
+ "proptest",
+ "solana-program",
+ "test-utils",
+]
+
+[[package]]
 name = "sanctum-utils"
 version = "1.0.0"
 dependencies = [
