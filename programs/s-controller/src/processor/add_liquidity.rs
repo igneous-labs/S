@@ -43,6 +43,16 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
             amount,
             sol_value: sol_value_to_add,
         })?;
+    // TODO: protocol fees
+    /*
+    let lp_fees_sol_value = sol_value_to_add.saturating_sub(final_sol_value_to_add);
+    let AmtAfterBpsFee {
+        fees_charged: protocol_fees_sol_value,
+        ..
+    } = accounts
+        .pool_state
+        .lp_protocol_fees_sol_value(lp_fees_sol_value)?;
+     */
 
     let pool_total_sol_value = {
         let pool_state_bytes = accounts.pool_state.try_borrow_data()?;

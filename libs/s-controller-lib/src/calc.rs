@@ -37,21 +37,37 @@ pub struct CalcAmtAfterBpsFeeArgs {
     pub fee_bps: u16,
 }
 
+/// `amt_after_fees + fees_charged = amt_before_fees`
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct AmtAfterBpsFee {
+    pub amt_after_fees: u64,
+    pub fees_charged: u64,
+}
+
 /// Returns final amount after `fee_bps` fee is charged
 pub fn calc_amt_after_bps_fee(
     CalcAmtAfterBpsFeeArgs {
         amt_before_fees,
         fee_bps,
     }: CalcAmtAfterBpsFeeArgs,
-) -> Result<u64, SControllerError> {
+) -> Result<AmtAfterBpsFee, SControllerError> {
     let x: u128 = amt_before_fees.into();
     let n: u128 = BPS_DENOMINATOR
         .checked_sub(fee_bps)
         .ok_or(SControllerError::MathError)?
         .into();
     let d: u128 = BPS_DENOMINATOR.into();
-    x.checked_mul(n)
+    let amt_after_fees: u64 = x
+        .checked_mul(n)
         .map(|xn| xn / d)
-        .ok_or(SControllerError::MathError)
-        .and_then(|res| res.try_into().map_err(|_e| SControllerError::MathError))
+        .ok_or(SControllerError::MathError)?
+        .try_into()
+        .map_err(|_e| SControllerError::MathError)?;
+    let fees_charged = amt_before_fees
+        .checked_sub(amt_after_fees)
+        .ok_or(SControllerError::MathError)?;
+    Ok(AmtAfterBpsFee {
+        amt_after_fees,
+        fees_charged,
+    })
 }

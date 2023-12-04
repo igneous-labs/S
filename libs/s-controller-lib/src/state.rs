@@ -1,7 +1,9 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
 use solana_readonly_account::ReadonlyAccountData;
 
-use crate::{calc_amt_after_bps_fee, try_pool_state, CalcAmtAfterBpsFeeArgs};
+use crate::{
+    calc_amt_after_bps_fee, try_pool_state, AmtAfterBpsFee, CalcAmtAfterBpsFeeArgs, U8Bool,
+};
 
 pub fn sync_sol_value_with_retval(
     pool_state: &mut PoolState,
@@ -21,9 +23,10 @@ pub fn sync_sol_value_with_retval(
     Ok(())
 }
 
-// For nice method call syntax,
-// and to reduce scope of borrowing AccountInfo.data
-// to avoid CPI account data borrow failed errors
+/// For nice method call syntax,
+/// and to reduce scope of borrowing AccountInfo.data
+/// to avoid CPI account data borrow failed errors.
+/// Hopefully bytemuck means pointer casting of data to &PoolState is cheap.
 pub trait PoolStateAccount {
     /// Returns this PoolState account's current `total_sol_value`
     fn total_sol_value(&self) -> Result<u64, SControllerError>;
@@ -34,10 +37,12 @@ pub trait PoolStateAccount {
     /// Args:
     /// - `lp_fees_sol_value`: SOL value of the LP fees to charge.
     ///     Calculated by taking `SOL value of LST to add or LP tokens to redeem - pricing program return value`
-    fn sol_value_of_lp_protocol_fees(
+    fn lp_protocol_fees_sol_value(
         &self,
         lp_fees_sol_value: u64,
-    ) -> Result<u64, SControllerError>;
+    ) -> Result<AmtAfterBpsFee, SControllerError>;
+
+    fn is_disabled(&self) -> Result<bool, SControllerError>;
 }
 
 impl<D: ReadonlyAccountData> PoolStateAccount for D {
@@ -47,15 +52,21 @@ impl<D: ReadonlyAccountData> PoolStateAccount for D {
         Ok(deser.total_sol_value)
     }
 
-    fn sol_value_of_lp_protocol_fees(
+    fn lp_protocol_fees_sol_value(
         &self,
         lp_fees_sol_value: u64,
-    ) -> Result<u64, SControllerError> {
+    ) -> Result<AmtAfterBpsFee, SControllerError> {
         let bytes = self.data();
         let deser = try_pool_state(&bytes)?;
         calc_amt_after_bps_fee(CalcAmtAfterBpsFeeArgs {
             amt_before_fees: lp_fees_sol_value,
             fee_bps: deser.lp_protocol_fee_bps,
         })
+    }
+
+    fn is_disabled(&self) -> Result<bool, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(U8Bool(deser.is_disabled).is_true())
     }
 }
