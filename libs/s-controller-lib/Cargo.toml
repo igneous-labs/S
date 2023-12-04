@@ -12,6 +12,7 @@ bytemuck = { workspace = true }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 sanctum-macros = { workspace = true }
 sanctum-utils = { path = "../sanctum-utils" }
+sanctum-token-ratio = { path = "../sanctum-token-ratio" }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 spl-associated-token-account = { workspace = true, features = ["no-entrypoint"] }

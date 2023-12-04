@@ -1,5 +1,5 @@
 use marinade_calculator_interface::{MarinadeCalculatorError, MarinadeState};
-use sanctum_token_ratio::{AmtsAfterFees, U64FeeFloor, U64RatioFloor};
+use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
@@ -53,9 +53,11 @@ impl MarinadeStateCalc {
 impl SolValueCalculator for MarinadeStateCalc {
     fn calc_lst_to_sol(&self, msol_amount: u64) -> Result<u64, ProgramError> {
         let sol_value_of_msol_burned = self.msol_to_sol_ratio().apply(msol_amount)?;
-        let AmtsAfterFees { amt_after_fee, .. } =
-            self.delayed_unstake_fee().apply(sol_value_of_msol_burned)?;
-        Ok(amt_after_fee)
+        let AmtsAfterFee {
+            amt_after_fee: lamports_for_user,
+            ..
+        } = self.delayed_unstake_fee().apply(sol_value_of_msol_burned)?;
+        Ok(lamports_for_user)
     }
 
     fn calc_sol_to_lst(&self, lamports_for_user: u64) -> Result<u64, ProgramError> {

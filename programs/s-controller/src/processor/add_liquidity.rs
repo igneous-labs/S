@@ -5,13 +5,14 @@ use s_controller_interface::{
 use s_controller_lib::{
     calc_lp_tokens_to_mint,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, LpTokenRateArgs,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
     token_program::{tranfer_tokens, TransferAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
+use sanctum_token_ratio::{AmtsAfterFee, MathError, U64RatioFloor};
 use sanctum_utils::token::token_2022_mint_supply;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
@@ -38,34 +39,34 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
     sync_sol_value_unchecked(&accounts, lst_cpi, lst_index)?;
 
     let sol_value_to_add = lst_cpi.invoke_lst_to_sol(amount)?;
-    let final_sol_value_to_add =
+    let sol_value_to_add_after_fees =
         pricing_cpi.invoke_price_lp_tokens_to_mint(PricingProgramIxArgs {
             amount,
             sol_value: sol_value_to_add,
         })?;
-    // TODO: protocol fees
-    /*
-    let lp_fees_sol_value = sol_value_to_add.saturating_sub(final_sol_value_to_add);
-    let AmtAfterBpsFee {
+
+    let lp_fees_sol_value = sol_value_to_add.saturating_sub(sol_value_to_add_after_fees);
+    let AmtsAfterFee {
         fees_charged: protocol_fees_sol_value,
         ..
     } = accounts
         .pool_state
         .lp_protocol_fees_sol_value(lp_fees_sol_value)?;
-     */
+    let protocol_fees_lst = U64RatioFloor {
+        num: protocol_fees_sol_value,
+        denom: sol_value_to_add,
+    }
+    .apply(amount)?;
+    let to_reserves_lst = amount.checked_sub(protocol_fees_lst).ok_or(MathError)?;
 
-    let pool_total_sol_value = {
-        let pool_state_bytes = accounts.pool_state.try_borrow_data()?;
-        let pool_state = try_pool_state(&pool_state_bytes)?;
-        pool_state.total_sol_value
-    };
+    let pool_total_sol_value = accounts.pool_state.total_sol_value()?;
     let lp_token_supply = token_2022_mint_supply(accounts.lp_token_mint)?;
     let lp_tokens_to_mint = calc_lp_tokens_to_mint(
         LpTokenRateArgs {
             lp_token_supply,
             pool_total_sol_value,
         },
-        final_sol_value_to_add,
+        sol_value_to_add_after_fees,
     )?;
 
     tranfer_tokens(
@@ -75,7 +76,16 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
             token_program: accounts.lst_token_program,
             authority: accounts.signer,
         },
-        amount,
+        to_reserves_lst,
+    )?;
+    tranfer_tokens(
+        TransferAccounts {
+            from: accounts.src_lst_acc,
+            to: accounts.protocol_fee_accumulator,
+            token_program: accounts.lst_token_program,
+            authority: accounts.signer,
+        },
+        protocol_fees_lst,
     )?;
     mint_to_signed(
         MintToAccounts {

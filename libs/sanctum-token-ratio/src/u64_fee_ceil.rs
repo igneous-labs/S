@@ -1,4 +1,4 @@
-use crate::{AmtsAfterFees, MathError, U64RatioFloor};
+use crate::{AmtsAfterFee, MathError, U64RatioFloor};
 
 /// A fee ratio that should be <= 1.0.
 /// amt_after_fees = floor(amt * (fee_denom - fee_num) / fee_denom),
@@ -10,7 +10,7 @@ pub struct U64FeeCeil<N: Copy + Into<u128>, D: Copy + Into<u128>> {
 }
 
 impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeCeil<N, D> {
-    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFees, MathError> {
+    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFee, MathError> {
         let num: u128 = self
             .fee_denom
             .into()
@@ -22,7 +22,7 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeCeil<N, D> {
         }
         .apply(amt)?;
         let fees_charged = amt.checked_sub(amt_after_fee).ok_or(MathError)?;
-        Ok(AmtsAfterFees {
+        Ok(AmtsAfterFee {
             amt_after_fee,
             fees_charged,
         })

@@ -1,4 +1,4 @@
-use sanctum_token_ratio::{AmtsAfterFees, U64FeeFloor, U64RatioFloor};
+use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
@@ -52,7 +52,7 @@ impl SplStakePoolCalc {
 /// - stake pool has been updated for this epoch
 impl SolValueCalculator for SplStakePoolCalc {
     fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<u64, ProgramError> {
-        let AmtsAfterFees {
+        let AmtsAfterFee {
             amt_after_fee: pool_tokens_burnt,
             ..
         } = self.stake_withdrawal_fee().apply(pool_tokens)?;

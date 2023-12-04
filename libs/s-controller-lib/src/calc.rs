@@ -1,6 +1,5 @@
-use s_controller_interface::SControllerError;
-
-use crate::BPS_DENOMINATOR;
+use sanctum_token_ratio::U64RatioFloor;
+use solana_program::program_error::ProgramError;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct LpTokenRateArgs {
@@ -18,56 +17,14 @@ pub fn calc_lp_tokens_to_mint(
         pool_total_sol_value,
     }: LpTokenRateArgs,
     final_sol_value_to_add: u64,
-) -> Result<u64, SControllerError> {
+) -> Result<u64, ProgramError> {
     if pool_total_sol_value == 0 || lp_token_supply == 0 {
         return Ok(final_sol_value_to_add);
     }
-    let f: u128 = final_sol_value_to_add.into();
-    let l: u128 = lp_token_supply.into();
-    let p: u128 = pool_total_sol_value.into();
-    f.checked_mul(l)
-        .and_then(|fl| fl.checked_div(p))
-        .ok_or(SControllerError::MathError)
-        .and_then(|x| x.try_into().map_err(|_e| SControllerError::MathError))
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CalcAmtAfterBpsFeeArgs {
-    pub amt_before_fees: u64,
-    pub fee_bps: u16,
-}
-
-/// `amt_after_fees + fees_charged = amt_before_fees`
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct AmtAfterBpsFee {
-    pub amt_after_fees: u64,
-    pub fees_charged: u64,
-}
-
-/// Returns final amount after `fee_bps` fee is charged
-pub fn calc_amt_after_bps_fee(
-    CalcAmtAfterBpsFeeArgs {
-        amt_before_fees,
-        fee_bps,
-    }: CalcAmtAfterBpsFeeArgs,
-) -> Result<AmtAfterBpsFee, SControllerError> {
-    let x: u128 = amt_before_fees.into();
-    let n: u128 = BPS_DENOMINATOR
-        .checked_sub(fee_bps)
-        .ok_or(SControllerError::MathError)?
-        .into();
-    let d: u128 = BPS_DENOMINATOR.into();
-    let amt_after_fees: u64 = x
-        .checked_mul(n)
-        .map(|xn| xn / d)
-        .ok_or(SControllerError::MathError)?
-        .try_into()
-        .map_err(|_e| SControllerError::MathError)?;
-    let fees_charged = amt_before_fees
-        .checked_sub(amt_after_fees)
-        .ok_or(SControllerError::MathError)?;
-    Ok(AmtAfterBpsFee {
-        amt_after_fees,
-        fees_charged,
-    })
+    let res = U64RatioFloor {
+        num: lp_token_supply,
+        denom: pool_total_sol_value,
+    }
+    .apply(final_sol_value_to_add)?;
+    Ok(res)
 }

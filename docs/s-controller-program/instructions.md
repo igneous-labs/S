@@ -138,10 +138,15 @@ Add single-LST liquidity to the pool.
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for LST
 - Self CPI SyncSolValue for LST
-- CPI LST's SOL value calculator program LstToSol to get SOL value of amount to add
-- CPI pricing program's PriceLpTokensToMint to get SOL value of LP tokens to mint
-- Transfer amount from src_lst_acc to pool_reserves
-- Mint LP tokens proportional to SOL value of LP tokens to mint to dst_lp_token_acc
+- sol_value_to_add = LstToSol(amount)
+- sol_value_to_add_after_fees = PriceLpTokensToMint(lp_tokens_sol_value)
+- lp_fees_sol_value = lp_tokens_sol_value - sol_value_to_add_after_fees
+- protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
+- lp_tokens_due = sol_value_to_add_after_fees \* lp_token_supply / pool_total_sol_value
+- protocol_fees_lst = amount \* protocol_fees_sol_value / sol_value_to_add
+- Transfer protocol_fees_lst from src_lst_acc to protocol_fee_accumulator
+- Transfer amount - protocol_fees_lst from src_lst_acc to pool_reserves
+- Mint lp_tokens_due to dst_lp_token_acc
 - Self CPI SyncSolValue for LST
 
 ## RemoveLiquidity
@@ -179,11 +184,15 @@ Remove single-LST liquidity from the pool.
 
 - Verify pool is not rebalancing and not disabled
 - Self CPI SyncSolValue for LST
-- CPI pricing program's PriceLpTokensToRedeem with SOL value of LP tokens to be burnt
-- CPI LST's SOL value calculator program SolToLst to get amount of LST due
-- Burn LP tokens
-- Subtract and transfer protocol fees
-- Transfer remaining LST due to dst_acc
+- lp_tokens_sol_value = lp_tokens_to_burn \* pool_total_sol_value / lp_token_supply
+- lp_tokens_sol_value_after_fees = PriceLpTokensToRedeem(lp_tokens_sol_value)
+- lp_fees_sol_value = lp_tokens_sol_value - lp_tokens_sol_value_after_fees
+- protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
+- lst_due = SolToLst(lp_tokens_sol_value_after_fees)
+- protocol_fees_lst = lst_due \* protocol_fees_sol_value / lp_tokens_sol_value_after_fees
+- Burn amount LP tokens
+- Transfer lst_due to dst_acc
+- Transfer protocol_fees_lst to protocol_fee_accumulator
 - Self CPI SyncSolValue for LST
 
 ## DisableLstInput
