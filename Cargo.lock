@@ -1355,6 +1355,7 @@ version = "1.0.0"
 dependencies = [
  "flat-fee-lib",
  "flat_fee_interface",
+ "sanctum-onchain-utils",
  "solana-program",
 ]
 

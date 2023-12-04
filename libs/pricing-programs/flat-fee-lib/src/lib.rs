@@ -1,7 +1,7 @@
 pub mod account_resolvers;
+pub mod calc;
 pub mod pda;
-pub mod processor;
-mod utils;
+pub mod utils;
 
 pub mod program {
     pub const STATE_SIZE: usize = 34;
@@ -24,3 +24,6 @@ pub mod initial_constants {
 
     pub const INITIAL_LP_WITHDRAWAL_FEE_BPS: u16 = 5;
 }
+
+// TODO: move this
+const BPS_DENOM: u16 = 10_000;
