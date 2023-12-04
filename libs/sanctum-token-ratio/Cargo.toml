@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 onchain = ["solana-program", "num-traits"]
+default = ["onchain"]
 
 [dependencies]
 num-traits = { workspace = true, optional = true }

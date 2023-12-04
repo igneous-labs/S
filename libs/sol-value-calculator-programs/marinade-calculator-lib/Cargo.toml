@@ -9,7 +9,7 @@ generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
 marinade_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/marinade_calculator_interface" }
 marinade-keys = { path = "../../../keys/marinade-keys" }
 sanctum-macros = { workspace = true }
-sanctum-token-ratio = { path = "../../sanctum-token-ratio", features = ["onchain"] }
+sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
 sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
 solana-program = { workspace = true }
 
