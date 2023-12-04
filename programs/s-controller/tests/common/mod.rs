@@ -14,11 +14,9 @@ use test_utils::{
 
 mod lst_state;
 mod state;
-mod utils;
 
 pub use lst_state::*;
 pub use state::*;
-pub use utils::*;
 
 /// Adds the spl sol value calculator program, a mock calculator state
 /// and the spl stake pool program to a ProgramTest

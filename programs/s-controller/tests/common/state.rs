@@ -13,9 +13,7 @@ use spl_token_2022::extension::{
     StateWithExtensionsMut,
 };
 use spl_token_metadata_interface::state::TokenMetadata;
-use test_utils::est_rent_exempt_lamports;
-
-use super::banks_client_get_account;
+use test_utils::{banks_client_get_account, est_rent_exempt_lamports};
 
 pub const DEFAULT_POOL_STATE: PoolState = PoolState {
     total_sol_value: 0,

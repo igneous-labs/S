@@ -1,27 +1,28 @@
 use borsh::BorshSerialize;
 use s_controller_interface::{
-    add_liquidity_ix, AddLiquidityIxArgs, AddLiquidityIxData, AddLiquidityKeys, SControllerError,
+    remove_liquidity_ix, RemoveLiquidityIxArgs, RemoveLiquidityIxData, RemoveLiquidityKeys,
+    SControllerError,
 };
 use solana_program::{instruction::Instruction, program_error::ProgramError};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
     ix_extend_with_pricing_program_price_lp_accounts, ix_extend_with_sol_value_calculator_accounts,
-    try_from_int_err_to_io_err, AddLiquidityByMintFreeArgs, AddRemoveLiquidityExtraAccounts,
+    try_from_int_err_to_io_err, AddRemoveLiquidityExtraAccounts, RemoveLiquidityByMintFreeArgs,
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct AddLiquidityIxFullArgs {
+pub struct RemoveLiquidityIxFullArgs {
     pub lst_index: u32,
-    pub lst_amount: u64,
+    pub lp_amount: u64,
 }
 
-pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
+pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
     accounts: K,
-    AddLiquidityIxFullArgs {
+    RemoveLiquidityIxFullArgs {
         lst_index,
-        lst_amount,
-    }: AddLiquidityIxFullArgs,
+        lp_amount,
+    }: RemoveLiquidityIxFullArgs,
     AddRemoveLiquidityExtraAccounts {
         lst_calculator_program_id,
         pricing_program_id,
@@ -29,12 +30,12 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
         pricing_program_price_lp_accounts,
     }: AddRemoveLiquidityExtraAccounts,
 ) -> std::io::Result<Instruction> {
-    let mut ix = add_liquidity_ix(
+    let mut ix = remove_liquidity_ix(
         accounts,
-        AddLiquidityIxArgs {
+        RemoveLiquidityIxArgs {
             lst_value_calc_accs: 0,
             lst_index,
-            amount: lst_amount,
+            amount: lp_amount,
         },
     )?;
     let lst_value_calc_accs = ix_extend_with_sol_value_calculator_accounts(
@@ -51,32 +52,32 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
     .map_err(try_from_int_err_to_io_err)?;
     // TODO: better way to update lst_value_calc_accs than double serialization here
     let mut overwrite = &mut ix.data[..];
-    AddLiquidityIxData(AddLiquidityIxArgs {
+    RemoveLiquidityIxData(RemoveLiquidityIxArgs {
         lst_value_calc_accs,
         lst_index,
-        amount: lst_amount,
+        amount: lp_amount,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)
 }
 
-pub fn add_liquidity_ix_by_mint_full<
+pub fn remove_liquidity_ix_by_mint_full<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
     M: ReadonlyAccountOwner + KeyedAccount,
 >(
-    free_args: AddLiquidityByMintFreeArgs<S, L, M>,
-    amount: u64,
+    free_args: RemoveLiquidityByMintFreeArgs<S, L, M>,
+    lp_amount: u64,
     extra_accounts: AddRemoveLiquidityExtraAccounts,
 ) -> Result<Instruction, ProgramError> {
     let (keys, lst_index) = free_args.resolve()?;
-    let ix = add_liquidity_ix_full(
+    let ix = remove_liquidity_ix_full(
         keys,
-        AddLiquidityIxFullArgs {
+        RemoveLiquidityIxFullArgs {
             lst_index: lst_index
                 .try_into()
                 .map_err(|_e| SControllerError::MathError)?,
-            lst_amount: amount,
+            lp_amount,
         },
         extra_accounts,
     )?;

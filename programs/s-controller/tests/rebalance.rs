@@ -15,7 +15,7 @@ use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
 use test_utils::{
-    jito_stake_pool, jitosol, mock_token_account, MockTokenAccountArgs,
+    banks_client_get_account, jito_stake_pool, jitosol, mock_token_account, MockTokenAccountArgs,
     JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
 
