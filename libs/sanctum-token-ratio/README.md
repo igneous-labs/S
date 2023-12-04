@@ -1,12 +1,12 @@
 # sanctum-token-ratio
 
-Utils for workting with applying ratios to token amounts that can work both onchain and offchain
+Utils for working with applying ratios to token amounts that can work both onchain and offchain
 
 ## Math
 
 ### "Inverting" a floor division
 
-Many stake pool convert LST amount to SOL amount by taking `sol_amount = lst_amount * pool_sol / lst_supply`.
+Many stake pools convert LST amount to SOL amount by taking `sol_amount = lst_amount * pool_sol // lst_supply`.
 
 Let y = sol_amount, x = lst_amount, n = pool_sol, d = lst_supply.
 
@@ -14,6 +14,7 @@ Given y, n, d, find a suitable value of x
 
 ```
 y = floor(nx/d)
+y <= nx/d < y + 1
 dy <= nx < d(y + 1)
 
 LHS:
@@ -42,9 +43,9 @@ r <= n-r-d
 2r <= n - d
 ```
 
-### "Inverting" a fee charge
+### "Inverting" a floor fee charge
 
-Many stake pools charge a percentage fee on stuff by taking `fee_amount = amount * fee_numerator / fee_denominator, output_amount = amount - fee_amount`.
+Many stake pools charge a percentage fee on stuff by taking `fee_amount = amount * fee_numerator // fee_denominator, output_amount = amount - fee_amount`.
 
 Let y = output_amount, x = amount, n = fee_numerator, d = fee_denominator
 
