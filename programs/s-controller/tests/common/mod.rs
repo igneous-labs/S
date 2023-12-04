@@ -83,6 +83,8 @@ pub struct JitoMarinadeProgramTestArgs {
     pub msol_reserves: u64,
     pub jitosol_protocol_fee_accumulator: u64,
     pub msol_protocol_fee_accumulator: u64,
+    pub lp_token_mint: Pubkey,
+    pub lp_token_supply: u64,
 }
 
 /// dont forget to
@@ -102,6 +104,8 @@ pub fn jito_marinade_program_test(
         msol_reserves,
         jitosol_protocol_fee_accumulator,
         msol_protocol_fee_accumulator,
+        lp_token_mint,
+        lp_token_supply,
     }: JitoMarinadeProgramTestArgs,
 ) -> ProgramTest {
     let mut program_test = ProgramTest::default();
@@ -142,11 +146,14 @@ pub fn jito_marinade_program_test(
     let mut pool_state = DEFAULT_POOL_STATE;
     // TODO: set other state vars
     pool_state.total_sol_value = total_sol_value;
+    pool_state.lp_token_mint = lp_token_mint;
+    pool_state.pricing_program = no_fee_pricing_program::ID;
 
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_to_account(pool_state),
     );
+    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
 
     program_test
 }

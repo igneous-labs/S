@@ -31,6 +31,8 @@ async fn basic_two_clear_from_front() {
         msol_reserves: 0,
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
     });
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -61,6 +63,8 @@ async fn basic_two_clear_from_back() {
         msol_reserves: 0,
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
     });
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {

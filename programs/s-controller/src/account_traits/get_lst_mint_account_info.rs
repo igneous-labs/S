@@ -1,4 +1,4 @@
-use s_controller_interface::{EndRebalanceAccounts, SyncSolValueAccounts};
+use s_controller_interface::{AddLiquidityAccounts, EndRebalanceAccounts, SyncSolValueAccounts};
 use solana_program::account_info::AccountInfo;
 
 use super::{DstLstMintOf, GetSrcDstLstMintAccountInfo, SrcLstMintOf};
@@ -18,6 +18,14 @@ impl<'me, 'info> GetLstMintAccountInfo<'me, 'info> for EndRebalanceAccounts<'me,
         self.dst_lst_mint
     }
 }
+
+impl<'me, 'info> GetLstMintAccountInfo<'me, 'info> for AddLiquidityAccounts<'me, 'info> {
+    fn get_lst_mint_account_info(&self) -> &'me AccountInfo<'info> {
+        self.lst_mint
+    }
+}
+
+// SrcLstMintOf + DstLstMintOf
 
 impl<'a, 'me, 'info, A> GetLstMintAccountInfo<'me, 'info> for SrcLstMintOf<'a, A>
 where

@@ -6,6 +6,36 @@ use solana_program::{
 };
 use spl_token_metadata_interface::instruction::Initialize;
 
+pub struct MintToAccounts<'me, 'info> {
+    pub mint: &'me AccountInfo<'info>,
+    pub mint_to: &'me AccountInfo<'info>,
+    pub mint_authority: &'me AccountInfo<'info>,
+}
+
+pub fn mint_to_signed(
+    MintToAccounts {
+        mint,
+        mint_to,
+        mint_authority,
+    }: MintToAccounts,
+    amount: u64,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = spl_token_2022::instruction::mint_to(
+        &spl_token_2022::ID,
+        mint.key,
+        mint_to.key,
+        mint_authority.key,
+        &[],
+        amount,
+    )?;
+    invoke_signed(
+        &ix,
+        &[mint.clone(), mint_to.clone(), mint_authority.clone()],
+        signer_seeds,
+    )
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct InitializeMint2Args {
     pub decimals: u8,

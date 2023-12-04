@@ -9,6 +9,7 @@ members = [
     "libs/sanctum-utils",
     "libs/sanctum-onchain-utils",
     "libs/sol-value-calculator-programs/*",
+    "programs/pricing-programs/*",
     "programs/s-controller",
     "programs/sol-value-calculator-programs/*",
     "test-utils"
@@ -24,6 +25,7 @@ proptest = "^1"
 sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branch = "master" }
 serde = "^1"
 serde_json = "^1"
+spl-pod = "*"
 spl-token = "*"
 spl-token-2022 = "*"
 spl-token-metadata-interface = "*"

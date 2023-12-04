@@ -1434,6 +1434,11 @@
       "code": 18,
       "name": "LstStillHasValue",
       "msg": "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
+    },
+    {
+      "code": 19,
+      "name": "IncorrectPricingProgram",
+      "msg": "Incorrect pricing program"
     }
   ],
   "metadata": {

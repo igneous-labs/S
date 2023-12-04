@@ -11,6 +11,7 @@ mod lst_state_list;
 mod pda;
 mod state;
 mod u8bool;
+mod utils;
 
 pub use accounts_resolvers::*;
 pub use accounts_serde::*;
@@ -22,6 +23,7 @@ pub use lst_state_list::*;
 pub use pda::*;
 pub use state::*;
 pub use u8bool::*;
+pub use utils::*;
 
 // std::mem::size_of and std::mem::align_of are const fns so we dont technically need these
 // but the const asserts helps guard against unexpected size changes
