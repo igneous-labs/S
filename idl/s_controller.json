@@ -299,6 +299,12 @@
           "desc": "LP token mint"
         },
         {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Protocol fee accumulator token account"
+        },
+        {
           "name": "lst_token_program",
           "isMut": false,
           "isSigner": false,

@@ -4,10 +4,9 @@ use s_controller_interface::{
     START_REBALANCE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    pool_state_total_sol_value,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED, REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED},
     try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
-    StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
+    PoolStateAccount, StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
 use sanctum_onchain_utils::{
     system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
@@ -53,7 +52,7 @@ pub fn process_start_rebalance(
         args.dst_lst_index as usize,
     )?;
 
-    let old_total_sol_value = pool_state_total_sol_value(accounts.pool_state)?;
+    let old_total_sol_value = accounts.pool_state.total_sol_value()?;
 
     transfer_tokens_signed(
         TransferAccounts {

@@ -16,7 +16,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | ------------------------ | ------------------------------------------------------------------------------------- | ------- |
 | total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                | u64     |
 | trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                   | u16     |
-| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                          | u16     |
+| lp_protocol_fee_bps      | The flat protocol fee to charge on LP adding/withdrawing fees in bps                  | u16     |
 | version                  | incrementing counter representing schema version number. Starts at 1                  | u8      |
 | is_disabled              | true if all functionality of the pool has been disabled by DisablePool                | PodBool |
 | is_rebalancing           | true if a rebalance is currently occuring                                             | PodBool |

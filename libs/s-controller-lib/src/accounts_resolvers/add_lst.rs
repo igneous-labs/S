@@ -14,6 +14,7 @@ pub struct LstStateBumps {
     pub pool_reserves: u8,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct AddLstFreeArgs<
     S: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,

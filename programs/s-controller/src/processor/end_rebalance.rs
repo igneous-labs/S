@@ -4,8 +4,8 @@ use s_controller_interface::{
     END_REBALANCE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    try_pool_state, try_pool_state_mut, try_rebalance_record, EndRebalanceFreeArgs, U8Bool,
-    U8BoolMut,
+    try_pool_state, try_pool_state_mut, try_rebalance_record, EndRebalanceFreeArgs,
+    PoolStateAccount, U8Bool, U8BoolMut,
 };
 use sanctum_onchain_utils::{
     system_program::{close_account, CloseAccountAccounts},
@@ -39,10 +39,7 @@ pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
 
     sync_sol_value_unchecked(&accounts, cpi, dst_lst_index as usize)?;
 
-    let pool_state_data = accounts.pool_state.try_borrow_data()?;
-    let pool_state = try_pool_state(&pool_state_data)?;
-
-    if pool_state.total_sol_value < old_total_sol_value {
+    if accounts.pool_state.total_sol_value()? < old_total_sol_value {
         return Err(SControllerError::PoolWouldLoseSolValue.into());
     }
 

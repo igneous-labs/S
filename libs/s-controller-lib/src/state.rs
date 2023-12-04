@@ -1,7 +1,7 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
 use solana_readonly_account::ReadonlyAccountData;
 
-use crate::try_pool_state;
+use crate::{calc_amt_after_bps_fee, try_pool_state, CalcAmtAfterBpsFeeArgs};
 
 pub fn sync_sol_value_with_retval(
     pool_state: &mut PoolState,
@@ -21,12 +21,41 @@ pub fn sync_sol_value_with_retval(
     Ok(())
 }
 
-/// TODO: confirm that theres an issue with borrowing account data across CPI boundaries
-/// otherwise there isnt really a need for this fn
-pub fn pool_state_total_sol_value<D: ReadonlyAccountData>(
-    pool_state: D,
-) -> Result<u64, SControllerError> {
-    let bytes = pool_state.data();
-    let deser = try_pool_state(&bytes)?;
-    Ok(deser.total_sol_value)
+// For nice method call syntax,
+// and to reduce scope of borrowing AccountInfo.data
+// to avoid CPI account data borrow failed errors
+pub trait PoolStateAccount {
+    /// Returns this PoolState account's current `total_sol_value`
+    fn total_sol_value(&self) -> Result<u64, SControllerError>;
+
+    /// Returns the SOL value of the protocol fees to charge
+    /// on the Add/Remove liquidity operation.
+    ///
+    /// Args:
+    /// - `lp_fees_sol_value`: SOL value of the LP fees to charge.
+    ///     Calculated by taking `SOL value of LST to add or LP tokens to redeem - pricing program return value`
+    fn sol_value_of_lp_protocol_fees(
+        &self,
+        lp_fees_sol_value: u64,
+    ) -> Result<u64, SControllerError>;
+}
+
+impl<D: ReadonlyAccountData> PoolStateAccount for D {
+    fn total_sol_value(&self) -> Result<u64, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(deser.total_sol_value)
+    }
+
+    fn sol_value_of_lp_protocol_fees(
+        &self,
+        lp_fees_sol_value: u64,
+    ) -> Result<u64, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        calc_amt_after_bps_fee(CalcAmtAfterBpsFeeArgs {
+            amt_before_fees: lp_fees_sol_value,
+            fee_bps: deser.lp_protocol_fee_bps,
+        })
+    }
 }

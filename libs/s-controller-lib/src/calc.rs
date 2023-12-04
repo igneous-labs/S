@@ -1,5 +1,7 @@
 use s_controller_interface::SControllerError;
 
+use crate::BPS_DENOMINATOR;
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct LpTokenRateArgs {
     pub lp_token_supply: u64,
@@ -27,4 +29,29 @@ pub fn calc_lp_tokens_to_mint(
         .and_then(|fl| fl.checked_div(p))
         .ok_or(SControllerError::MathError)
         .and_then(|x| x.try_into().map_err(|_e| SControllerError::MathError))
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CalcAmtAfterBpsFeeArgs {
+    pub amt_before_fees: u64,
+    pub fee_bps: u16,
+}
+
+/// Returns final amount after `fee_bps` fee is charged
+pub fn calc_amt_after_bps_fee(
+    CalcAmtAfterBpsFeeArgs {
+        amt_before_fees,
+        fee_bps,
+    }: CalcAmtAfterBpsFeeArgs,
+) -> Result<u64, SControllerError> {
+    let x: u128 = amt_before_fees.into();
+    let n: u128 = BPS_DENOMINATOR
+        .checked_sub(fee_bps)
+        .ok_or(SControllerError::MathError)?
+        .into();
+    let d: u128 = BPS_DENOMINATOR.into();
+    x.checked_mul(n)
+        .map(|xn| xn / d)
+        .ok_or(SControllerError::MathError)
+        .and_then(|res| res.try_into().map_err(|_e| SControllerError::MathError))
 }

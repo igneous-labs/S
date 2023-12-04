@@ -12,6 +12,7 @@ use crate::{
 
 /// Requires an existing rebalance_record account.
 /// Should only be used on-chain
+#[derive(Clone, Copy, Debug)]
 pub struct EndRebalanceFreeArgs<
     L: ReadonlyAccountData + KeyedAccount,
     R: ReadonlyAccountData + KeyedAccount,
