@@ -2,7 +2,7 @@ use crate::MathError;
 
 /// A ratio that is applied to a u64 token amount
 /// with floor division
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
 pub struct U64RatioFloor<N: Copy + Into<u128>, D: Copy + Into<u128>> {
     pub num: N,
     pub denom: D,

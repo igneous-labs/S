@@ -1,8 +1,9 @@
 use std::{error::Error, fmt::Display};
 
-mod solana;
-
-pub use solana::*;
+#[cfg(feature = "onchain")]
+mod onchain;
+#[cfg(feature = "onchain")]
+pub use onchain::*;
 
 #[derive(Clone, Copy, Default, Debug)]
 pub struct MathError;

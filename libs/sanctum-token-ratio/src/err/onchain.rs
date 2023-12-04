@@ -1,5 +1,3 @@
-#![cfg(feature = "solana")]
-
 use solana_program::{
     decode_error::DecodeError,
     msg,
