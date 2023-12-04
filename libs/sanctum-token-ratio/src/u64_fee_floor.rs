@@ -1,24 +1,25 @@
-use generic_pool_calculator_interface::GenericPoolCalculatorError;
+use crate::{AmtsAfterFees, MathError, U64RatioFloor};
 
-use crate::U64RatioFloor;
-
-/// A fee ratio that should be <= 1.0
-#[derive(Debug, Copy, Clone)]
+/// A fee ratio that should be <= 1.0.
+/// fee_amt = floor(amt * fee_num / fee_denom)
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
 pub struct U64FeeFloor<N: Copy + Into<u128>, D: Copy + Into<u128>> {
     pub fee_num: N,
     pub fee_denom: D,
 }
 
 impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeFloor<N, D> {
-    /// Returns amt - (amt * fee_num // fee_denom)
-    pub fn apply(&self, amt: u64) -> Result<u64, GenericPoolCalculatorError> {
-        let deduct_amt = U64RatioFloor {
+    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFees, MathError> {
+        let fees_charged = U64RatioFloor {
             num: self.fee_num,
             denom: self.fee_denom,
         }
         .apply(amt)?;
-        amt.checked_sub(deduct_amt)
-            .ok_or(GenericPoolCalculatorError::MathError)
+        let amt_after_fee = amt.checked_sub(fees_charged).ok_or(MathError)?;
+        Ok(AmtsAfterFees {
+            amt_after_fee,
+            fees_charged,
+        })
     }
 
     /// Returns a possible amount that was fed into self.apply()
@@ -26,25 +27,21 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeFloor<N, D> {
     /// Returns `amt_after_apply` if fee_num == 0 || fee_denom == 0
     ///
     /// Returns 0 if fee_num >= fee_denom
-    pub fn reverse(&self, amt_after_apply: u64) -> Result<u64, GenericPoolCalculatorError> {
+    pub fn pseudo_reverse(&self, amt_after_fee: u64) -> Result<u64, MathError> {
         let n = self.fee_num.into();
         let d = self.fee_denom.into();
         if n == 0 || d == 0 {
-            return Ok(amt_after_apply);
+            return Ok(amt_after_fee);
         }
         if n >= d {
             return Ok(0);
         }
-        let y: u128 = amt_after_apply.into();
-        let dy = y
-            .checked_mul(d)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let y: u128 = amt_after_fee.into();
+        let dy = y.checked_mul(d).ok_or(MathError)?;
         let d_minus_n = d - n;
         let q_floor = dy / d_minus_n;
 
-        q_floor
-            .try_into()
-            .map_err(|_e| GenericPoolCalculatorError::MathError)
+        q_floor.try_into().map_err(|_e| MathError)
     }
 }
 
@@ -65,12 +62,12 @@ mod tests {
     proptest! {
         #[test]
         fn u64_fee_round_trip(amt: u64, fee in u64_fee_lte_one()) {
-            let applied = fee.apply(amt).unwrap();
+            let AmtsAfterFees { amt_after_fee, .. } = fee.apply(amt).unwrap();
 
-            let reversed = fee.reverse(applied).unwrap();
+            let reversed = fee.pseudo_reverse(amt_after_fee).unwrap();
             let apply_on_reversed = fee.apply(reversed).unwrap();
 
-            prop_assert_eq!(applied, apply_on_reversed);
+            prop_assert_eq!(amt_after_fee, apply_on_reversed.amt_after_fee);
         }
     }
 }

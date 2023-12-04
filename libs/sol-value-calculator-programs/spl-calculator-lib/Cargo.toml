@@ -10,6 +10,7 @@ borsh = { workspace = true }
 generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
 sanctum-macros = { workspace = true }
+sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
 sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }

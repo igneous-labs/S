@@ -1,7 +1,8 @@
-use generic_pool_calculator_interface::GenericPoolCalculatorError;
+use crate::MathError;
 
 /// A ratio that is applied to a u64 token amount
-#[derive(Debug, Copy, Clone)]
+/// with floor division
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
 pub struct U64RatioFloor<N: Copy + Into<u128>, D: Copy + Into<u128>> {
     pub num: N,
     pub denom: D,
@@ -10,7 +11,7 @@ pub struct U64RatioFloor<N: Copy + Into<u128>, D: Copy + Into<u128>> {
 impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64RatioFloor<N, D> {
     /// Returns amt * num // denom
     /// Returns 0 if denominator == 0
-    pub fn apply(&self, amt: u64) -> Result<u64, GenericPoolCalculatorError> {
+    pub fn apply(&self, amt: u64) -> Result<u64, MathError> {
         let d = self.denom.into();
         if d == 0 {
             return Ok(0);
@@ -20,44 +21,34 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64RatioFloor<N, D> {
         x.checked_mul(n)
             .map(|nx| nx / d) // d != 0
             .and_then(|res| res.try_into().ok())
-            .ok_or(GenericPoolCalculatorError::MathError)
+            .ok_or(MathError)
     }
 
     /// Returns 0 if denominator == 0 || numerator == 0
-    pub fn reverse(&self, amt_after_apply: u64) -> Result<u64, GenericPoolCalculatorError> {
+    pub fn pseudo_reverse(&self, amt_after_apply: u64) -> Result<u64, MathError> {
         let d = self.denom.into();
         let n = self.num.into();
         if d == 0 || n == 0 {
             return Ok(0);
         }
         let y: u128 = amt_after_apply.into();
-        let dy = y
-            .checked_mul(d)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let dy = y.checked_mul(d).ok_or(MathError)?;
         // n != 0, d != 0
-        let q_floor: u64 = (dy / n)
-            .try_into()
-            .map_err(|_e| GenericPoolCalculatorError::MathError)?;
+        let q_floor: u64 = (dy / n).try_into().map_err(|_e| MathError)?;
         let r = dy % n;
 
         if r == 0 {
             return Ok(q_floor);
         }
 
-        let d_plus_r = d
-            .checked_add(r)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
-        let q_ceil = q_floor
-            .checked_add(1)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let d_plus_r = d.checked_add(r).ok_or(MathError)?;
+        let q_ceil = q_floor.checked_add(1).ok_or(MathError)?;
 
         if d_plus_r >= n || d >= n {
             return Ok(q_ceil);
         }
 
-        let r_plus_r = r
-            .checked_add(r)
-            .ok_or(GenericPoolCalculatorError::MathError)?;
+        let r_plus_r = r.checked_add(r).ok_or(MathError)?;
 
         // d < n
         let res = if r_plus_r <= (n - d) { q_floor } else { q_ceil };
@@ -105,7 +96,7 @@ mod tests {
         #[test]
         fn u64_ratio_round_trip((amt, ratio) in u64_ratio_gte_one_amt_no_overflow()) {
             let applied = ratio.apply(amt).unwrap();
-            let reversed = ratio.reverse(applied).unwrap();
+            let reversed = ratio.pseudo_reverse(applied).unwrap();
 
             prop_assert_eq!(reversed, amt);
         }

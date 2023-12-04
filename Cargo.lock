@@ -2105,6 +2105,7 @@ dependencies = [
  "marinade_calculator_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
  "test-utils",
@@ -3326,6 +3327,16 @@ dependencies = [
  "spl-token",
  "spl-token-2022",
  "spl-token-metadata-interface",
+]
+
+[[package]]
+name = "sanctum-token-ratio"
+version = "1.0.0"
+dependencies = [
+ "num-traits",
+ "proptest",
+ "solana-program",
+ "test-utils",
 ]
 
 [[package]]
@@ -4736,6 +4747,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
  "solana-readonly-account",
