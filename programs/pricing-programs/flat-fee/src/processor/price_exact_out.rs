@@ -3,7 +3,8 @@ use flat_fee_interface::{
     PriceExactOutAccounts, PriceExactOutIxArgs, PriceExactOutKeys,
 };
 use flat_fee_lib::{
-    account_resolvers::PriceExactOutFreeArgs, calc::calculate_price_exact_out,
+    account_resolvers::{PriceExactOutFreeArgs, PriceExactOutWithBumpFreeArgs},
+    calc::calculate_price_exact_out,
     utils::try_fee_account,
 };
 use sanctum_onchain_utils::utils::{
@@ -52,11 +53,20 @@ fn verify_price_exact_out<'me, 'info>(
 ) -> Result<PriceExactOutAccounts<'me, 'info>, ProgramError> {
     let actual: PriceExactOutAccounts = load_accounts(accounts)?;
 
-    let free_args = PriceExactOutFreeArgs {
-        input_lst_mint: *actual.input_lst_mint.key,
-        output_lst_mint: *actual.output_lst_mint.key,
+    let input_fee_acc_bytes = actual.input_fee_acc.try_borrow_data()?;
+    let input_fee_acc_bump = try_fee_account(&input_fee_acc_bytes)?.bump;
+    let output_fee_acc_bytes = actual.output_fee_acc.try_borrow_data()?;
+    let output_fee_acc_bump = try_fee_account(&output_fee_acc_bytes)?.bump;
+
+    let free_args = PriceExactOutWithBumpFreeArgs {
+        find_pda_args: PriceExactOutFreeArgs {
+            input_lst_mint: *actual.input_lst_mint.key,
+            output_lst_mint: *actual.output_lst_mint.key,
+        },
+        input_fee_acc_bump,
+        output_fee_acc_bump,
     };
-    let expected: PriceExactOutKeys = free_args.resolve();
+    let expected: PriceExactOutKeys = free_args.resolve()?;
 
     price_exact_out_verify_account_keys(&actual, &expected)
         .map_err(log_and_return_wrong_acc_err)?;
