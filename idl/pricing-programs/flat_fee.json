@@ -412,6 +412,11 @@
       "code": 1,
       "name": "UnsupportedLstMint",
       "msg": "FeeAccount is not initialized for the given LST mint"
+    },
+    {
+      "code": 2,
+      "name": "MathError",
+      "msg": "Math error"
     }
   ],
   "metadata": {

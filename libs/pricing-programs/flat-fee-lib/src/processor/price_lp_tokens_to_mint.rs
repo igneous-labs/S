@@ -17,7 +17,6 @@ pub fn process_price_lp_tokens_to_mint_unchecked(
     _amount: u64,
     sol_value: u64,
 ) -> ProgramResult {
-    // TODO: calculate the sol value of lp tokens to mint
     let result = sol_value;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);

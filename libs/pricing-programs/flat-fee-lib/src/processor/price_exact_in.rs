@@ -1,5 +1,5 @@
 use flat_fee_interface::{
-    price_exact_in_verify_account_keys, price_exact_in_verify_account_privileges,
+    price_exact_in_verify_account_keys, price_exact_in_verify_account_privileges, FlatFeeError,
     PriceExactInAccounts, PriceExactInKeys,
 };
 use sanctum_onchain_utils::utils::{
@@ -12,6 +12,9 @@ use solana_program::{
 
 use crate::{account_resolvers::PriceExactInFreeArgs, utils::try_fee_account};
 
+// TODO: Move this
+const BPS_DENOM: i16 = 10_000;
+
 pub fn process_price_exact_in_unchecked(
     PriceExactInAccounts {
         input_lst_mint: _,
@@ -23,14 +26,25 @@ pub fn process_price_exact_in_unchecked(
     sol_value: u64,
 ) -> ProgramResult {
     let input_fee_acc_bytes = input_fee_acc.try_borrow_data()?;
-    let _input_fee_acc = try_fee_account(&input_fee_acc_bytes)?;
+    let input_fee_acc = try_fee_account(&input_fee_acc_bytes)?;
     let output_fee_acc_bytes = output_fee_acc.try_borrow_data()?;
-    let _output_fee_acc = try_fee_account(&output_fee_acc_bytes)?;
+    let output_fee_acc = try_fee_account(&output_fee_acc_bytes)?;
 
-    // TODO: calculate the sol value of the output lst after levying the fees
-    // input_fee_acc.input_fee_bps;
-    // output_fee_acc.output_fee_bps;
-    let result = sol_value;
+    let fee_bps = input_fee_acc
+        .input_fee_bps
+        .checked_add(output_fee_acc.output_fee_bps)
+        .ok_or(FlatFeeError::MathError)?;
+    let post_fee_bps: u128 = BPS_DENOM
+        .checked_sub(fee_bps)
+        .ok_or(FlatFeeError::MathError)?
+        .try_into()
+        .map_err(|_e| FlatFeeError::MathError)?;
+    let bps_denom_u128: u128 = BPS_DENOM.try_into().map_err(|_e| FlatFeeError::MathError)?;
+    let result: u64 = post_fee_bps
+        .checked_mul(sol_value.into())
+        .and_then(|v| v.checked_div(bps_denom_u128))
+        .and_then(|v| v.try_into().ok())
+        .ok_or(FlatFeeError::MathError)?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
     Ok(())

@@ -1,7 +1,7 @@
 use flat_fee_interface::{
     price_lp_tokens_to_redeem_verify_account_keys,
-    price_lp_tokens_to_redeem_verify_account_privileges, PriceLpTokensToRedeemAccounts,
-    PriceLpTokensToRedeemKeys,
+    price_lp_tokens_to_redeem_verify_account_privileges, FlatFeeError,
+    PriceLpTokensToRedeemAccounts, PriceLpTokensToRedeemKeys,
 };
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -13,6 +13,9 @@ use solana_program::{
 
 use crate::{account_resolvers::PriceLpTokensToRedeemFreeArgs, utils::try_program_state};
 
+// TODO: Move this
+const BPS_DENOM: u64 = 10_000;
+
 pub fn process_price_lp_tokens_to_redeem_unchecked(
     PriceLpTokensToRedeemAccounts {
         output_lst_mint: _,
@@ -22,11 +25,19 @@ pub fn process_price_lp_tokens_to_redeem_unchecked(
     sol_value: u64,
 ) -> ProgramResult {
     let bytes = state.try_borrow_data()?;
-    let _state = try_program_state(&bytes)?;
+    let state = try_program_state(&bytes)?;
 
     // TODO: calculate the sol value of the output lst to redeem lp tokens for after levying the lp withdrawal fee
-    // state.lp_withdrawal_fee_bps;
-    let result = sol_value;
+    let post_fee_bps: u128 = BPS_DENOM
+        .checked_sub(state.lp_withdrawal_fee_bps.into())
+        .ok_or(FlatFeeError::MathError)?
+        .try_into()
+        .map_err(|_e| FlatFeeError::MathError)?;
+    let result: u64 = post_fee_bps
+        .checked_mul(sol_value.into())
+        .and_then(|v| v.checked_div(BPS_DENOM.into()))
+        .and_then(|v| v.try_into().ok())
+        .ok_or(FlatFeeError::MathError)?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
     Ok(())
