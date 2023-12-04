@@ -1,6 +1,6 @@
 use flat_fee_interface::FlatFeeError;
 
-use crate::BPS_DENOM;
+use crate::calc::BPS_DENOM;
 
 pub fn calculate_price_lp_tokens_to_redeem(
     lp_withdrawal_fee_bps: u16,

@@ -2,8 +2,7 @@ use solana_program::pubkey::{Pubkey, PubkeyError};
 
 use crate::program;
 
-const FEE_ACCOUNT_SEED_PREFIX: &[u8] = b"fee";
-pub const FEE_ACCOUNT_SIZE: usize = 0; // TODO
+pub const FEE_ACCOUNT_SEED_PREFIX: &[u8] = b"fee";
 
 pub struct FeeAccountFindPdaArgs {
     pub lst_mint: Pubkey,

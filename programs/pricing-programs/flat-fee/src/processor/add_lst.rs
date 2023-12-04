@@ -4,7 +4,7 @@ use flat_fee_interface::{
 };
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs,
-    pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs, FEE_ACCOUNT_SIZE},
+    pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
     program,
     utils::try_fee_account_mut,
 };
@@ -49,7 +49,7 @@ fn process_add_lst_unchecked(
             to: fee_acc,
         },
         CreateAccountArgs {
-            space: FEE_ACCOUNT_SIZE,
+            space: program::FEE_ACCOUNT_SIZE,
             owner: program::ID,
         },
         &[create_pda_args.to_signer_seeds().as_slice()],
