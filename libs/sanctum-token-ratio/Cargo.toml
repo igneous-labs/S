@@ -1,0 +1,16 @@
+[package]
+name = "sanctum-token-ratio"
+version = "1.0.0"
+edition = "2021"
+
+[features]
+onchain = ["solana-program", "num-traits"]
+default = ["onchain"]
+
+[dependencies]
+num-traits = { workspace = true, optional = true }
+solana-program = { workspace = true, optional = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+test-utils = { path = "../../test-utils" }
