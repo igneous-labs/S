@@ -24,7 +24,8 @@ use crate::{
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
-    sync_sol_value_unchecked(accounts, cpi, args.lst_index as usize)
+    let lst_index: usize = args.lst_index.try_into().unwrap(); // lst_index checked in verify
+    sync_sol_value_unchecked(accounts, cpi, lst_index)
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors

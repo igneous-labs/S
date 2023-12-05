@@ -42,18 +42,14 @@ pub fn process_start_rebalance(
             src_lst: src_lst_cpi,
             dst_lst: dst_lst_cpi,
         },
+        SrcDstLstIndexes {
+            src_lst_index,
+            dst_lst_index,
+        },
     ) = verify_start_rebalance(accounts, &args)?;
 
-    sync_sol_value_unchecked(
-        SrcLstPoolReservesOf(&accounts),
-        src_lst_cpi,
-        args.src_lst_index as usize,
-    )?;
-    sync_sol_value_unchecked(
-        DstLstPoolReservesOf(&accounts),
-        dst_lst_cpi,
-        args.dst_lst_index as usize,
-    )?;
+    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
+    sync_sol_value_unchecked(DstLstPoolReservesOf(&accounts), dst_lst_cpi, dst_lst_index)?;
 
     let old_total_sol_value = accounts.pool_state.total_sol_value()?;
 
@@ -68,11 +64,7 @@ pub fn process_start_rebalance(
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
-    sync_sol_value_unchecked(
-        SrcLstPoolReservesOf(&accounts),
-        src_lst_cpi,
-        args.src_lst_index as usize,
-    )?;
+    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
 
     create_pda(
         CreateAccountAccounts {
@@ -111,6 +103,7 @@ fn verify_start_rebalance<'a, 'info>(
     (
         StartRebalanceAccounts<'a, 'info>,
         SrcDstLstSolValueCalculatorCpis<'a, 'info>,
+        SrcDstLstIndexes,
     ),
     ProgramError,
 > {
@@ -149,19 +142,21 @@ fn verify_start_rebalance<'a, 'info>(
         .get(START_REBALANCE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
+    let src_dst_lst_indexes = SrcDstLstIndexes {
+        src_lst_index,
+        dst_lst_index,
+    };
+
     let src_dst_lst_cpis = verify_src_dst_lst_sol_val_calc_cpis(
         actual,
         accounts_suffix_slice,
         *src_lst_calc_accs,
-        SrcDstLstIndexes {
-            src_lst_index,
-            dst_lst_index,
-        },
+        src_dst_lst_indexes,
     )?;
 
     verify_has_succeeding_end_rebalance_ix(actual.instructions)?;
 
-    Ok((actual, src_dst_lst_cpis))
+    Ok((actual, src_dst_lst_cpis, src_dst_lst_indexes))
 }
 
 fn verify_has_succeeding_end_rebalance_ix(
