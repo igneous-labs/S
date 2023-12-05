@@ -43,7 +43,7 @@ impl<'me, 'info> GetPoolReservesAccountInfo<'me, 'info> for RemoveLiquidityAccou
 
 // SrcLstPoolReservesOf + DstLstPoolReservesOf
 
-impl<'a, 'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for SrcLstPoolReservesOf<'a, A>
+impl<'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for SrcLstPoolReservesOf<A>
 where
     A: GetSrcDstLstPoolReservesAccountInfo<'me, 'info>,
 {
@@ -52,7 +52,7 @@ where
     }
 }
 
-impl<'a, 'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for DstLstPoolReservesOf<'a, A>
+impl<'me, 'info, A> GetPoolReservesAccountInfo<'me, 'info> for DstLstPoolReservesOf<A>
 where
     A: GetSrcDstLstPoolReservesAccountInfo<'me, 'info>,
 {

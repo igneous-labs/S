@@ -1,6 +1,6 @@
 use s_controller_interface::{
     swap_exact_in_verify_account_keys, swap_exact_in_verify_account_privileges, SControllerError,
-    SwapExactInAccounts, SwapExactInIxArgs,
+    SwapExactInAccounts, SwapExactInIxArgs, SWAP_EXACT_IN_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
     calc_swap_protocol_fees,
@@ -174,9 +174,12 @@ fn verify_swap_exact_in<'a, 'info>(
         dst_lst_value_calc_accs,
     };
 
+    let accounts_suffix_slice = accounts
+        .get(SWAP_EXACT_IN_IX_ACCOUNTS_LEN..)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let (src_dst_cpis, pricing_cpi) = verify_swap_cpis(
-        accounts,
-        &actual,
+        actual,
+        accounts_suffix_slice,
         src_dst_lst_value_calc_accs,
         src_dst_lst_indexes,
     )?;

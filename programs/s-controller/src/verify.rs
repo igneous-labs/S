@@ -1,17 +1,18 @@
 //! Common verification functions used across multiple instruction processors
 
-use s_controller_interface::{
-    LstState, PoolState, SControllerError, SWAP_EXACT_IN_IX_ACCOUNTS_LEN,
-};
+use s_controller_interface::{LstState, PoolState, SControllerError};
 use s_controller_lib::{SrcDstLstIndexes, SrcDstLstValueCalcAccs, U8Bool};
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 
 use crate::{
     account_traits::{
-        DstLstMintOf, GetLstStateListAccountInfo, GetPoolStateAccountInfo,
+        DstLstMintOf, GetLstMintAccountInfo, GetLstStateListAccountInfo, GetPoolStateAccountInfo,
         GetSrcDstLstMintAccountInfo, SrcLstMintOf,
     },
-    cpi::{PricingProgramPriceSwapCpi, SolValueCalculatorCpi, SrcDstLstSolValueCalculatorCpis},
+    cpi::{
+        PricingProgramPriceLpCpi, PricingProgramPriceSwapCpi, SolValueCalculatorCpi,
+        SrcDstLstSolValueCalculatorCpis,
+    },
 };
 
 pub const fn verify_not_rebalancing_and_not_disabled(
@@ -33,6 +34,118 @@ pub const fn verify_lst_input_not_disabled(lst_state: &LstState) -> Result<(), S
     Ok(())
 }
 
+pub fn verify_lst_sol_val_calc_cpi<
+    'a,
+    'info,
+    A: GetLstStateListAccountInfo<'a, 'info> + GetLstMintAccountInfo<'a, 'info>,
+>(
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
+    lst_index: usize,
+) -> Result<SolValueCalculatorCpi<'a, 'info>, ProgramError> {
+    let cpi = SolValueCalculatorCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
+    cpi.verify_correct_sol_value_calculator_program(base_accounts, lst_index)?;
+    Ok(cpi)
+}
+
+pub fn verify_pricing_swap_cpi<
+    'a,
+    'info,
+    A: GetPoolStateAccountInfo<'a, 'info> + GetSrcDstLstMintAccountInfo<'a, 'info>,
+>(
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
+) -> Result<PricingProgramPriceSwapCpi<'a, 'info>, ProgramError> {
+    let pricing_program_cpi =
+        PricingProgramPriceSwapCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
+    pricing_program_cpi.verify_correct_pricing_program(base_accounts)?;
+    Ok(pricing_program_cpi)
+}
+
+pub fn verify_pricing_lp_cpi<
+    'a,
+    'info,
+    A: GetPoolStateAccountInfo<'a, 'info> + GetLstMintAccountInfo<'a, 'info>,
+>(
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
+) -> Result<PricingProgramPriceLpCpi<'a, 'info>, ProgramError> {
+    let pricing_program_cpi =
+        PricingProgramPriceLpCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
+    pricing_program_cpi.verify_correct_pricing_program(base_accounts)?;
+    Ok(pricing_program_cpi)
+}
+
+pub fn verify_src_dst_lst_sol_val_calc_cpis<
+    'a,
+    'info,
+    A: GetSrcDstLstMintAccountInfo<'a, 'info> + GetLstStateListAccountInfo<'a, 'info>,
+>(
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
+    src_lst_value_calc_accs: u8,
+    SrcDstLstIndexes {
+        src_lst_index,
+        dst_lst_index,
+    }: SrcDstLstIndexes,
+) -> Result<SrcDstLstSolValueCalculatorCpis<'a, 'info>, ProgramError> {
+    let src_suffix_slice_end = src_lst_value_calc_accs.into();
+
+    let src_suffix_slice = accounts_suffix_slice
+        .get(..src_suffix_slice_end)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
+    let src_lst = verify_lst_sol_val_calc_cpi(
+        SrcLstMintOf(&base_accounts),
+        src_suffix_slice,
+        src_lst_index,
+    )?;
+
+    let dst_suffix_slice = accounts_suffix_slice
+        .get(src_suffix_slice_end..)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
+    let dst_lst = verify_lst_sol_val_calc_cpi(
+        DstLstMintOf(&base_accounts),
+        dst_suffix_slice,
+        dst_lst_index,
+    )?;
+
+    Ok(SrcDstLstSolValueCalculatorCpis { src_lst, dst_lst })
+}
+
+pub fn verify_lp_cpis<
+    'a,
+    'info,
+    A: GetLstStateListAccountInfo<'a, 'info>
+        + GetLstMintAccountInfo<'a, 'info>
+        + GetPoolStateAccountInfo<'a, 'info>,
+>(
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
+    lst_value_calc_accs: u8,
+    lst_index: usize,
+) -> Result<
+    (
+        SolValueCalculatorCpi<'a, 'info>,
+        PricingProgramPriceLpCpi<'a, 'info>,
+    ),
+    ProgramError,
+> {
+    let lst_accounts_suffix_slice_end: usize = lst_value_calc_accs.into();
+
+    let lst_accounts_suffix_slice = accounts_suffix_slice
+        .get(..lst_accounts_suffix_slice_end)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
+    let lst_cpi =
+        verify_lst_sol_val_calc_cpi(&base_accounts, lst_accounts_suffix_slice, lst_index)?;
+
+    let pricing_accounts_suffix_slice = accounts_suffix_slice
+        .get(lst_accounts_suffix_slice_end..)
+        .ok_or(ProgramError::NotEnoughAccountKeys)?;
+    let pricing_cpi = verify_pricing_lp_cpi(base_accounts, pricing_accounts_suffix_slice)?;
+
+    Ok((lst_cpi, pricing_cpi))
+}
+
 pub fn verify_swap_cpis<
     'a,
     'info,
@@ -40,16 +153,13 @@ pub fn verify_swap_cpis<
         + GetLstStateListAccountInfo<'a, 'info>
         + GetPoolStateAccountInfo<'a, 'info>,
 >(
-    ix_accounts_full: &'a [AccountInfo<'info>],
-    base_swap_accounts: &A,
+    base_accounts: A,
+    accounts_suffix_slice: &'a [AccountInfo<'info>],
     SrcDstLstValueCalcAccs {
         src_lst_value_calc_accs,
         dst_lst_value_calc_accs,
     }: SrcDstLstValueCalcAccs,
-    SrcDstLstIndexes {
-        src_lst_index,
-        dst_lst_index,
-    }: SrcDstLstIndexes,
+    src_dst_lst_indexes: SrcDstLstIndexes,
 ) -> Result<
     (
         SrcDstLstSolValueCalculatorCpis<'a, 'info>,
@@ -57,45 +167,26 @@ pub fn verify_swap_cpis<
     ),
     ProgramError,
 > {
-    // const asserts SWAP_EXACT_IN_IX_ACCOUNTS_LEN == SWAP_EXACT_OUT_IX_ACCOUNTS_LEN in _lib
-    let src_lst_accounts_suffix_end = SWAP_EXACT_IN_IX_ACCOUNTS_LEN
-        .checked_add(src_lst_value_calc_accs.into())
-        .ok_or(SControllerError::MathError)?;
-    let src_lst_accounts_suffix_slice = ix_accounts_full
-        .get(SWAP_EXACT_IN_IX_ACCOUNTS_LEN..src_lst_accounts_suffix_end)
+    let src_lst_value_calc_accs_usize: usize = src_lst_value_calc_accs.into();
+    let dst_lst_value_calc_accs_usize: usize = dst_lst_value_calc_accs.into();
+    // no overflow, u8
+    let src_dst_lst_suffix_slice_end =
+        src_lst_value_calc_accs_usize + dst_lst_value_calc_accs_usize;
+    let src_dst_lst_suffix_slice = accounts_suffix_slice
+        .get(..src_dst_lst_suffix_slice_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let src_lst_cpi = SolValueCalculatorCpi::from_ix_accounts(
-        SrcLstMintOf(base_swap_accounts),
-        src_lst_accounts_suffix_slice,
+    let sol_val_calc_cpis = verify_src_dst_lst_sol_val_calc_cpis(
+        &base_accounts,
+        src_dst_lst_suffix_slice,
+        src_lst_value_calc_accs,
+        src_dst_lst_indexes,
     )?;
-    src_lst_cpi.verify_correct_sol_value_calculator_program(base_swap_accounts, src_lst_index)?;
 
-    let dst_lst_accounts_suffix_slice_end = src_lst_accounts_suffix_end
-        .checked_add(dst_lst_value_calc_accs.into())
-        .ok_or(SControllerError::MathError)?;
-    let dst_lst_accounts_suffix_slice = ix_accounts_full
-        .get(src_lst_accounts_suffix_end..dst_lst_accounts_suffix_slice_end)
+    let pricing_program_accounts_suffix_slice = accounts_suffix_slice
+        .get(src_dst_lst_suffix_slice_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let dst_lst_cpi = SolValueCalculatorCpi::from_ix_accounts(
-        DstLstMintOf(base_swap_accounts),
-        dst_lst_accounts_suffix_slice,
-    )?;
-    dst_lst_cpi.verify_correct_sol_value_calculator_program(base_swap_accounts, dst_lst_index)?;
+    let pricing_program_cpi =
+        verify_pricing_swap_cpi(base_accounts, pricing_program_accounts_suffix_slice)?;
 
-    let pricing_program_accounts_suffix_slice = ix_accounts_full
-        .get(dst_lst_accounts_suffix_slice_end..)
-        .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let pricing_program_cpi = PricingProgramPriceSwapCpi::from_ix_accounts(
-        base_swap_accounts,
-        pricing_program_accounts_suffix_slice,
-    )?;
-    pricing_program_cpi.verify_correct_pricing_program(base_swap_accounts)?;
-
-    Ok((
-        SrcDstLstSolValueCalculatorCpis {
-            src_lst: src_lst_cpi,
-            dst_lst: dst_lst_cpi,
-        },
-        pricing_program_cpi,
-    ))
+    Ok((sol_val_calc_cpis, pricing_program_cpi))
 }

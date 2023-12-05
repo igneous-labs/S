@@ -15,7 +15,7 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::cpi::SolValueCalculatorCpi;
+use crate::{cpi::SolValueCalculatorCpi, verify::verify_lst_sol_val_calc_cpi};
 
 use super::sync_sol_value_unchecked;
 
@@ -77,14 +77,15 @@ fn verify_end_rebalance<'a, 'info>(
 
     let rebalance_record_bytes = actual.rebalance_record.try_borrow_data()?;
     let rebalance_record = try_rebalance_record(&rebalance_record_bytes)?;
+    let dst_lst_index: usize = rebalance_record
+        .dst_lst_index
+        .try_into()
+        .map_err(|_e| SControllerError::InvalidLstIndex)?;
 
-    let dst_lst_accounts_suffix_slice = accounts
+    let accounts_suffix_slice = accounts
         .get(END_REBALANCE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let dst_lst_cpi =
-        SolValueCalculatorCpi::from_ix_accounts(actual, dst_lst_accounts_suffix_slice)?;
-    dst_lst_cpi
-        .verify_correct_sol_value_calculator_program(actual, rebalance_record.dst_lst_index)?;
+    let dst_lst_cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, dst_lst_index)?;
 
     Ok((actual, dst_lst_cpi))
 }

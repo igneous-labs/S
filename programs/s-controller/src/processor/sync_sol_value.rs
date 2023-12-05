@@ -19,7 +19,7 @@ use crate::{
         GetLstStateListAccountInfo, GetPoolReservesAccountInfo, GetPoolStateAccountInfo,
     },
     cpi::SolValueCalculatorCpi,
-    verify::verify_not_rebalancing_and_not_disabled,
+    verify::{verify_lst_sol_val_calc_cpi, verify_not_rebalancing_and_not_disabled},
 };
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
@@ -76,9 +76,8 @@ fn verify_sync_sol_value<'a, 'info>(
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    let cpi = SolValueCalculatorCpi::from_ix_accounts(actual, accounts_suffix_slice)?;
-    cpi.verify_correct_sol_value_calculator_program(actual, *lst_index)?;
-
+    let lst_index_usize: usize = (*lst_index).try_into().unwrap(); // lst_index checked in resolve()
+    let cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, lst_index_usize)?;
     Ok((actual, cpi))
 }
 
