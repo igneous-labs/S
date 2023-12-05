@@ -1,18 +1,46 @@
 use s_controller_interface::{
     add_disable_pool_authority_verify_account_keys,
     add_disable_pool_authority_verify_account_privileges, AddDisablePoolAuthorityAccounts,
+    SControllerError,
 };
-use s_controller_lib::AddDisablePoolAuthorityFreeArgs;
+use s_controller_lib::{
+    program::{DISABLE_POOL_AUTHORITY_LIST_BUMP, DISABLE_POOL_AUTHORITY_LIST_SEED},
+    try_disable_pool_authority_list_mut, AddDisablePoolAuthorityFreeArgs,
+};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    pubkey::Pubkey,
 };
 
+use crate::list_account::{extend_list_pda, ExtendListPdaAccounts};
+
 pub fn process_add_disable_pool_authority(accounts: &[AccountInfo]) -> ProgramResult {
-    let _checked = verify_add_disable_pool_authority(accounts)?;
-    todo!()
+    let checked = verify_add_disable_pool_authority(accounts)?;
+
+    extend_list_pda::<Pubkey>(
+        ExtendListPdaAccounts {
+            list_pda: checked.disable_pool_authority_list,
+            payer: checked.payer,
+        },
+        &[&[
+            DISABLE_POOL_AUTHORITY_LIST_SEED,
+            &[DISABLE_POOL_AUTHORITY_LIST_BUMP],
+        ]],
+    )?;
+
+    let mut disable_pool_authority_list_data =
+        checked.disable_pool_authority_list.try_borrow_mut_data()?;
+    let list = try_disable_pool_authority_list_mut(&mut disable_pool_authority_list_data)?;
+    let new_entry = list
+        .last_mut()
+        .ok_or(SControllerError::InvalidDisablePoolAuthorityListData)?;
+
+    *new_entry = *checked.new_authority.key;
+
+    Ok(())
 }
 
 fn verify_add_disable_pool_authority<'me, 'info>(
