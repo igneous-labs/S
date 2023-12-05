@@ -4,14 +4,13 @@ use s_controller_interface::{
     START_REBALANCE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    pool_state_total_sol_value,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED, REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED},
     try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
-    StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
+    PoolStateAccount, StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
 use sanctum_onchain_utils::{
     system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
-    token_program::{transfer_tokens_signed, TransferAccounts},
+    token_program::{transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use solana_program::{
@@ -43,20 +42,20 @@ pub fn process_start_rebalance(
     ) = verify_start_rebalance(accounts, &args)?;
 
     sync_sol_value_unchecked(
-        &SrcLstPoolReservesOf(&accounts),
+        SrcLstPoolReservesOf(&accounts),
         src_lst_cpi,
         args.src_lst_index as usize,
     )?;
     sync_sol_value_unchecked(
-        &DstLstPoolReservesOf(&accounts),
+        DstLstPoolReservesOf(&accounts),
         dst_lst_cpi,
         args.dst_lst_index as usize,
     )?;
 
-    let old_total_sol_value = pool_state_total_sol_value(accounts.pool_state)?;
+    let old_total_sol_value = accounts.pool_state.total_sol_value()?;
 
     transfer_tokens_signed(
-        TransferAccounts {
+        TransferTokensAccounts {
             token_program: accounts.src_lst_token_program,
             from: accounts.src_pool_reserves,
             to: accounts.withdraw_to,
@@ -67,7 +66,7 @@ pub fn process_start_rebalance(
     )?;
 
     sync_sol_value_unchecked(
-        &SrcLstPoolReservesOf(&accounts),
+        SrcLstPoolReservesOf(&accounts),
         src_lst_cpi,
         args.src_lst_index as usize,
     )?;
@@ -146,19 +145,19 @@ fn verify_start_rebalance<'a, 'info>(
         .get(START_REBALANCE_IX_ACCOUNTS_LEN..src_lst_accounts_suffix_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let src_lst_cpi = SolValueCalculatorCpi::from_ix_accounts(
-        &SrcLstMintOf(&actual),
+        SrcLstMintOf(&actual),
         src_lst_accounts_suffix_slice,
     )?;
-    src_lst_cpi.verify_correct_sol_value_calculator_program(&actual, *src_lst_index)?;
+    src_lst_cpi.verify_correct_sol_value_calculator_program(actual, *src_lst_index)?;
 
     let dst_lst_accounts_suffix_slice = accounts
         .get(src_lst_accounts_suffix_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let dst_lst_cpi = SolValueCalculatorCpi::from_ix_accounts(
-        &DstLstMintOf(&actual),
+        DstLstMintOf(&actual),
         dst_lst_accounts_suffix_slice,
     )?;
-    dst_lst_cpi.verify_correct_sol_value_calculator_program(&actual, *dst_lst_index)?;
+    dst_lst_cpi.verify_correct_sol_value_calculator_program(actual, *dst_lst_index)?;
 
     verify_has_succeeding_end_rebalance_ix(actual.instructions)?;
 

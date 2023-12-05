@@ -113,34 +113,40 @@ Add single-LST liquidity to the pool.
 | discriminant        | 3                                                                                                                                                                                                  | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. | u8   |
 | lst_index           | index of lst in `lst_state_list`                                                                                                                                                                   | u32  |
-| amount              | amount of tokens to add as liquidity                                                                                                                                                               | u64  |
+| lst_amount          | amount of LST to add as liquidity                                                                                                                                                                  | u64  |
 
 ### Accounts
 
-| Account             | Description                                                                                                                                                                               | Read/Write (R/W) | Signer (Y/N) |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
-| signer              | Authority of lst_acc. User who's adding liquidity.                                                                                                                                        | R                | Y            |
-| lst_mint            | Mint of the LST                                                                                                                                                                           | R                | N            |
-| src_lst_acc         | LST token account to add liquidity from                                                                                                                                                   | W                | N            |
-| dst_lp_acc          | LP token account to mint new LP tokens to                                                                                                                                                 | W                | N            |
-| lp_token_mint       | LP token mint                                                                                                                                                                             | W                | N            |
-| lst_token_program   | LST's token program                                                                                                                                                                       | R                | N            |
-| token_2022          | Token 2022 program for use with LP token mint                                                                                                                                             | R                | N            |
-| pool_state          | The pool's state singleton PDA                                                                                                                                                            | W                | N            |
-| lst_state_list      | Dynamic list PDA of LstStates for each LST in the pool                                                                                                                                    | W                | N            |
-| pool_reserves       | LST reserves token account of the pool                                                                                                                                                    | W                | N            |
-| lst_value_calc_accs | Accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
-| pricing_accs        | Accounts to invoke pricing program PriceLpTokensToMint with. First account should be the pricing program itself. Multiple Accounts.                                                       | ...              | ...          |
+| Account                  | Description                                                                                                                                                                               | Read/Write (R/W) | Signer (Y/N) |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
+| signer                   | Authority of lst_acc. User who's adding liquidity.                                                                                                                                        | R                | Y            |
+| lst_mint                 | Mint of the LST                                                                                                                                                                           | R                | N            |
+| src_lst_acc              | LST token account to add liquidity from                                                                                                                                                   | W                | N            |
+| dst_lp_acc               | LP token account to mint new LP tokens to                                                                                                                                                 | W                | N            |
+| lp_token_mint            | LP token mint                                                                                                                                                                             | W                | N            |
+| protocol_fee_accumulator | Protocol fee accumulator token account                                                                                                                                                    | W                | N            |
+| lst_token_program        | LST's token program                                                                                                                                                                       | R                | N            |
+| token_2022               | Token 2022 program for use with LP token mint                                                                                                                                             | R                | N            |
+| pool_state               | The pool's state singleton PDA                                                                                                                                                            | W                | N            |
+| lst_state_list           | Dynamic list PDA of LstStates for each LST in the pool                                                                                                                                    | W                | N            |
+| pool_reserves            | LST reserves token account of the pool                                                                                                                                                    | W                | N            |
+| lst_value_calc_accs      | Accounts to invoke token's SOL value calculator program LstToSol with, excluding the interface prefix accounts. First account should be the calculator program itself. Multiple Accounts. | ...              | ...          |
+| pricing_accs             | Accounts to invoke pricing program PriceLpTokensToMint with. First account should be the pricing program itself. Multiple Accounts.                                                       | ...              | ...          |
 
 ### Procedure
 
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for LST
 - Self CPI SyncSolValue for LST
-- CPI LST's SOL value calculator program LstToSol to get SOL value of amount to add
-- CPI pricing program's PriceLpTokensToMint to get SOL value of LP tokens to mint
-- Transfer amount from src_lst_acc to pool_reserves
-- Mint LP tokens proportional to SOL value of LP tokens to mint to dst_lp_token_acc
+- sol_value_to_add = LstToSol(amount)
+- sol_value_to_add_after_fees = PriceLpTokensToMint(lp_tokens_sol_value)
+- lp_fees_sol_value = lp_tokens_sol_value - sol_value_to_add_after_fees
+- protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
+- lp_tokens_due = sol_value_to_add_after_fees \* lp_token_supply / pool_total_sol_value
+- protocol_fees_lst = amount \* protocol_fees_sol_value / sol_value_to_add
+- Transfer protocol_fees_lst from src_lst_acc to protocol_fee_accumulator
+- Transfer amount - protocol_fees_lst from src_lst_acc to pool_reserves
+- Mint lp_tokens_due to dst_lp_token_acc
 - Self CPI SyncSolValue for LST
 
 ## RemoveLiquidity
@@ -154,7 +160,7 @@ Remove single-LST liquidity from the pool.
 | discriminant        | 4                                                                                                                                                                                                 | u8   |
 | lst_value_calc_accs | number of accounts following to invoke the input LST's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8   |
 | lst_index           | index of lst in `lst_state_list`                                                                                                                                                                  | u32  |
-| amount              | amount of LP tokens to burn and redeem                                                                                                                                                            | u64  |
+| lp_token_amount     | amount of LP tokens to burn and redeem                                                                                                                                                            | u64  |
 
 ### Accounts
 
@@ -178,11 +184,15 @@ Remove single-LST liquidity from the pool.
 
 - Verify pool is not rebalancing and not disabled
 - Self CPI SyncSolValue for LST
-- CPI pricing program's PriceLpTokensToRedeem with SOL value of LP tokens to be burnt
-- CPI LST's SOL value calculator program SolToLst to get amount of LST due
-- Burn LP tokens
-- Subtract and transfer protocol fees
-- Transfer remaining LST due to dst_acc
+- lp_tokens_sol_value = lp_tokens_to_burn \* pool_total_sol_value / lp_token_supply
+- lp_tokens_sol_value_after_fees = PriceLpTokensToRedeem(lp_tokens_sol_value)
+- lp_fees_sol_value = lp_tokens_sol_value - lp_tokens_sol_value_after_fees
+- protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
+- lst_due = SolToLst(lp_tokens_sol_value_after_fees)
+- protocol_fees_lst = lst_due \* protocol_fees_sol_value / lp_tokens_sol_value_after_fees
+- Burn amount LP tokens
+- Transfer lst_due to dst_acc
+- Transfer protocol_fees_lst to protocol_fee_accumulator
 - Self CPI SyncSolValue for LST
 
 ## DisableLstInput

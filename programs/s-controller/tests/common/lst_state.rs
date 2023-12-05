@@ -7,9 +7,9 @@ use sanctum_utils::associated_token::{find_ata_address, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::account::Account;
-use test_utils::{est_rent_exempt_lamports, mock_token_account, MockTokenAccountArgs};
-
-use super::banks_client_get_account;
+use test_utils::{
+    banks_client_get_account, est_rent_exempt_lamports, mock_token_account, MockTokenAccountArgs,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct MockLstStateArgs {

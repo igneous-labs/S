@@ -1,14 +1,16 @@
 use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
-    sync_sol_value_ix_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
+    sync_sol_value_ix_by_mint_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
-use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
+use test_utils::{
+    banks_client_get_account, jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+};
 
 mod common;
 
@@ -44,14 +46,13 @@ async fn basic() {
     let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
     let jitosol_mint_acc = banks_client_get_account(&mut banks_client, jitosol::ID).await;
 
-    let args = SyncSolValueByMintFreeArgs {
+    let free_args = SyncSolValueByMintFreeArgs {
         lst_state_list: lst_state_list_acc,
         lst_mint: KeyedReadonlyAccount {
             key: jitosol::ID,
             account: jitosol_mint_acc,
         },
     };
-    let (keys, ix_args) = args.resolve().unwrap();
 
     let jito_stake_pool_acc =
         banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
@@ -70,13 +71,13 @@ async fn basic() {
     let jito_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
         (&jito_sol_val_calc_keys).into();
 
-    let ix = sync_sol_value_ix_full(
-        keys,
-        ix_args,
+    let ix = sync_sol_value_ix_by_mint_full(
+        free_args,
         &jito_sol_val_calc_accounts,
         spl_calculator_lib::program::ID,
     )
     .unwrap();
+
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer], last_blockhash);
 

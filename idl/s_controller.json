@@ -263,7 +263,7 @@
           "type": "u32"
         },
         {
-          "name": "amount",
+          "name": "lst_amount",
           "type": "u64"
         }
       ],
@@ -297,6 +297,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "LP token mint"
+        },
+        {
+          "name": "protocol_fee_accumulator",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Protocol fee accumulator token account"
         },
         {
           "name": "lst_token_program",
@@ -346,7 +352,7 @@
           "type": "u32"
         },
         {
-          "name": "amount",
+          "name": "lp_token_amount",
           "type": "u64"
         }
       ],

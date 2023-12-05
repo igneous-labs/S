@@ -9,8 +9,6 @@ pub mod initial_authority {
     sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
 }
 
-pub const BPS_DENOMINATOR: u16 = 10_000;
-
 pub const CURRENT_PROGRAM_VERS: u8 = 1;
 
 /// 10% of trading fees

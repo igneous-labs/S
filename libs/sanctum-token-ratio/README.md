@@ -43,6 +43,8 @@ r <= n-r-d
 2r <= n - d
 ```
 
+Implemented in `U64RatioFloor::pseudo_reverse()`
+
 ### "Inverting" a floor fee charge
 
 Many stake pools charge a percentage fee on stuff by taking `fee_amount = amount * fee_numerator // fee_denominator, output_amount = amount - fee_amount`.
@@ -74,3 +76,5 @@ dy/(d-n) - d/(d-n) < x
 d/(d-n) >= 1,
 x = floor(dy/(d-n)) is always a possible candidate
 ```
+
+Implemented in `U64FeeFloor::pseudo_reverse()`

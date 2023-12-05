@@ -24,7 +24,7 @@ use crate::{
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
-    sync_sol_value_unchecked(&accounts, cpi, args.lst_index as usize)
+    sync_sol_value_unchecked(accounts, cpi, args.lst_index as usize)
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors
@@ -35,7 +35,7 @@ pub fn sync_sol_value_unchecked<
         + GetPoolStateAccountInfo<'a, 'info>
         + GetLstStateListAccountInfo<'a, 'info>,
 >(
-    accounts: &A,
+    accounts: A,
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {
@@ -75,8 +75,8 @@ fn verify_sync_sol_value<'a, 'info>(
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    let cpi = SolValueCalculatorCpi::from_ix_accounts(&actual, accounts_suffix_slice)?;
-    cpi.verify_correct_sol_value_calculator_program(&actual, *lst_index)?;
+    let cpi = SolValueCalculatorCpi::from_ix_accounts(actual, accounts_suffix_slice)?;
+    cpi.verify_correct_sol_value_calculator_program(actual, *lst_index)?;
 
     Ok((actual, cpi))
 }

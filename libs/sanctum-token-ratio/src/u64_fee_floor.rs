@@ -1,4 +1,4 @@
-use crate::{AmtsAfterFees, MathError, U64RatioFloor};
+use crate::{AmtsAfterFee, MathError, U64RatioFloor};
 
 /// A fee ratio that should be <= 1.0.
 /// fee_amt = floor(amt * fee_num / fee_denom)
@@ -9,14 +9,14 @@ pub struct U64FeeFloor<N: Copy + Into<u128>, D: Copy + Into<u128>> {
 }
 
 impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeFloor<N, D> {
-    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFees, MathError> {
+    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFee, MathError> {
         let fees_charged = U64RatioFloor {
             num: self.fee_num,
             denom: self.fee_denom,
         }
         .apply(amt)?;
         let amt_after_fee = amt.checked_sub(fees_charged).ok_or(MathError)?;
-        Ok(AmtsAfterFees {
+        Ok(AmtsAfterFee {
             amt_after_fee,
             fees_charged,
         })
@@ -62,7 +62,7 @@ mod tests {
     proptest! {
         #[test]
         fn u64_fee_round_trip(amt: u64, fee in u64_fee_lte_one()) {
-            let AmtsAfterFees { amt_after_fee, .. } = fee.apply(amt).unwrap();
+            let AmtsAfterFee { amt_after_fee, .. } = fee.apply(amt).unwrap();
 
             let reversed = fee.pseudo_reverse(amt_after_fee).unwrap();
             let apply_on_reversed = fee.apply(reversed).unwrap();

@@ -45,7 +45,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     /// - `accounts_suffix_slice`: subslice of instruction accounts where first account is the pricing program
     ///     and remaining slice is remaining_accounts (excludes `lst_mint`)
     pub fn from_ix_accounts<G: GetLstMintAccountInfo<'me, 'info>>(
-        ix_accounts: &G,
+        ix_accounts: G,
         accounts_suffix_slice: &'me [AccountInfo<'info>],
     ) -> Result<Self, ProgramError> {
         let program = accounts_suffix_slice
@@ -62,7 +62,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
 
     pub fn verify_correct_pricing_program<G: GetPoolStateAccountInfo<'me, 'info>>(
         &self,
-        ix_accounts: &G,
+        ix_accounts: G,
     ) -> Result<(), ProgramError> {
         let pool_state_bytes = ix_accounts
             .get_pool_state_account_info()

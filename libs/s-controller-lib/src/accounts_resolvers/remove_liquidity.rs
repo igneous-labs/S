@@ -1,4 +1,4 @@
-use s_controller_interface::{AddLiquidityKeys, SControllerError};
+use s_controller_interface::{RemoveLiquidityKeys, SControllerError};
 use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct AddLiquidityFreeArgs<
+pub struct RemoveLiquidityFreeArgs<
     I: TryInto<usize>,
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
@@ -17,8 +17,8 @@ pub struct AddLiquidityFreeArgs<
 > {
     pub lst_index: I,
     pub signer: Pubkey,
-    pub src_lst_acc: Pubkey,
-    pub dst_lp_acc: Pubkey,
+    pub src_lp_acc: Pubkey,
+    pub dst_lst_acc: Pubkey,
     pub pool_state: S,
     pub lst_state_list: L,
     pub lst_mint: M,
@@ -29,14 +29,14 @@ impl<
         S: ReadonlyAccountData + KeyedAccount,
         L: ReadonlyAccountData + KeyedAccount,
         M: ReadonlyAccountOwner + KeyedAccount,
-    > AddLiquidityFreeArgs<I, S, L, M>
+    > RemoveLiquidityFreeArgs<I, S, L, M>
 {
-    pub fn resolve(self) -> Result<AddLiquidityKeys, SControllerError> {
+    pub fn resolve(self) -> Result<RemoveLiquidityKeys, SControllerError> {
         let Self {
             lst_index,
             signer,
-            src_lst_acc,
-            dst_lp_acc,
+            src_lp_acc,
+            dst_lst_acc,
             pool_state: pool_state_account,
             lst_state_list: lst_state_list_account,
             lst_mint,
@@ -57,12 +57,11 @@ impl<
 
         let pool_state_data = pool_state_account.data();
         let pool_state = try_pool_state(&pool_state_data)?;
-
-        Ok(AddLiquidityKeys {
+        Ok(RemoveLiquidityKeys {
             signer,
             lst_mint: *lst_mint.key(),
-            src_lst_acc,
-            dst_lp_acc,
+            dst_lst_acc,
+            src_lp_acc,
             lp_token_mint: pool_state.lp_token_mint,
             protocol_fee_accumulator,
             lst_token_program: *lst_mint.owner(),
@@ -77,29 +76,30 @@ impl<
 /// Iterates through lst_state_list to find lst_index.
 /// Suitable for use on client-side.
 /// Does not check identity of pool_state and lst_state_list
-pub struct AddLiquidityByMintFreeArgs<
+#[derive(Clone, Copy, Debug)]
+pub struct RemoveLiquidityByMintFreeArgs<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
     pub signer: Pubkey,
-    pub src_lst_acc: Pubkey,
-    pub dst_lp_acc: Pubkey,
+    pub src_lp_acc: Pubkey,
+    pub dst_lst_acc: Pubkey,
     pub pool_state: S,
     pub lst_state_list: L,
     pub lst_mint: M,
 }
 
 impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
-    AddLiquidityByMintFreeArgs<S, L, M>
+    RemoveLiquidityByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
     /// Returns partial instructions keys + index of lst on lst_state_list
-    pub fn resolve(self) -> Result<(AddLiquidityKeys, usize), SControllerError> {
+    pub fn resolve(self) -> Result<(RemoveLiquidityKeys, usize), SControllerError> {
         let Self {
             signer,
-            src_lst_acc,
-            dst_lp_acc,
+            src_lp_acc,
+            dst_lst_acc,
             pool_state: pool_state_account,
             lst_state_list: lst_state_list_account,
             lst_mint,
@@ -115,11 +115,11 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
         let pool_state = try_pool_state(&pool_state_data)?;
 
         Ok((
-            AddLiquidityKeys {
+            RemoveLiquidityKeys {
                 signer,
                 lst_mint: *lst_mint.key(),
-                src_lst_acc,
-                dst_lp_acc,
+                src_lp_acc,
+                dst_lst_acc,
                 lp_token_mint: pool_state.lp_token_mint,
                 protocol_fee_accumulator,
                 lst_token_program: *lst_mint.owner(),

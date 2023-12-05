@@ -909,7 +909,7 @@ pub fn swap_exact_out_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 10;
+pub const ADD_LIQUIDITY_IX_ACCOUNTS_LEN: usize = 11;
 #[derive(Copy, Clone, Debug)]
 pub struct AddLiquidityAccounts<'me, 'info> {
     ///Authority of src_lst_acc. User who's adding liquidity.
@@ -922,6 +922,8 @@ pub struct AddLiquidityAccounts<'me, 'info> {
     pub dst_lp_acc: &'me AccountInfo<'info>,
     ///LP token mint
     pub lp_token_mint: &'me AccountInfo<'info>,
+    ///Protocol fee accumulator token account
+    pub protocol_fee_accumulator: &'me AccountInfo<'info>,
     ///LST's token program
     pub lst_token_program: &'me AccountInfo<'info>,
     ///Token 2022 program for use with LP token mint
@@ -945,6 +947,8 @@ pub struct AddLiquidityKeys {
     pub dst_lp_acc: Pubkey,
     ///LP token mint
     pub lp_token_mint: Pubkey,
+    ///Protocol fee accumulator token account
+    pub protocol_fee_accumulator: Pubkey,
     ///LST's token program
     pub lst_token_program: Pubkey,
     ///Token 2022 program for use with LP token mint
@@ -964,6 +968,7 @@ impl From<&AddLiquidityAccounts<'_, '_>> for AddLiquidityKeys {
             src_lst_acc: *accounts.src_lst_acc.key,
             dst_lp_acc: *accounts.dst_lp_acc.key,
             lp_token_mint: *accounts.lp_token_mint.key,
+            protocol_fee_accumulator: *accounts.protocol_fee_accumulator.key,
             lst_token_program: *accounts.lst_token_program.key,
             token_2022: *accounts.token_2022.key,
             pool_state: *accounts.pool_state.key,
@@ -980,6 +985,7 @@ impl From<&AddLiquidityKeys> for [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] {
             AccountMeta::new(keys.src_lst_acc, false),
             AccountMeta::new(keys.dst_lp_acc, false),
             AccountMeta::new(keys.lp_token_mint, false),
+            AccountMeta::new(keys.protocol_fee_accumulator, false),
             AccountMeta::new_readonly(keys.lst_token_program, false),
             AccountMeta::new_readonly(keys.token_2022, false),
             AccountMeta::new(keys.pool_state, false),
@@ -996,11 +1002,12 @@ impl From<[Pubkey; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]> for AddLiquidityKeys {
             src_lst_acc: pubkeys[2],
             dst_lp_acc: pubkeys[3],
             lp_token_mint: pubkeys[4],
-            lst_token_program: pubkeys[5],
-            token_2022: pubkeys[6],
-            pool_state: pubkeys[7],
-            lst_state_list: pubkeys[8],
-            pool_reserves: pubkeys[9],
+            protocol_fee_accumulator: pubkeys[5],
+            lst_token_program: pubkeys[6],
+            token_2022: pubkeys[7],
+            pool_state: pubkeys[8],
+            lst_state_list: pubkeys[9],
+            pool_reserves: pubkeys[10],
         }
     }
 }
@@ -1014,6 +1021,7 @@ impl<'info> From<&AddLiquidityAccounts<'_, 'info>>
             accounts.src_lst_acc.clone(),
             accounts.dst_lp_acc.clone(),
             accounts.lp_token_mint.clone(),
+            accounts.protocol_fee_accumulator.clone(),
             accounts.lst_token_program.clone(),
             accounts.token_2022.clone(),
             accounts.pool_state.clone(),
@@ -1032,11 +1040,12 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
             src_lst_acc: &arr[2],
             dst_lp_acc: &arr[3],
             lp_token_mint: &arr[4],
-            lst_token_program: &arr[5],
-            token_2022: &arr[6],
-            pool_state: &arr[7],
-            lst_state_list: &arr[8],
-            pool_reserves: &arr[9],
+            protocol_fee_accumulator: &arr[5],
+            lst_token_program: &arr[6],
+            token_2022: &arr[7],
+            pool_state: &arr[8],
+            lst_state_list: &arr[9],
+            pool_reserves: &arr[10],
         }
     }
 }
@@ -1045,7 +1054,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
 pub struct AddLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
-    pub amount: u64,
+    pub lst_amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct AddLiquidityIxData(pub AddLiquidityIxArgs);
@@ -1117,6 +1126,10 @@ pub fn add_liquidity_verify_account_keys(
         (accounts.src_lst_acc.key, &keys.src_lst_acc),
         (accounts.dst_lp_acc.key, &keys.dst_lp_acc),
         (accounts.lp_token_mint.key, &keys.lp_token_mint),
+        (
+            accounts.protocol_fee_accumulator.key,
+            &keys.protocol_fee_accumulator,
+        ),
         (accounts.lst_token_program.key, &keys.lst_token_program),
         (accounts.token_2022.key, &keys.token_2022),
         (accounts.pool_state.key, &keys.pool_state),
@@ -1136,6 +1149,7 @@ pub fn add_liquidity_verify_account_privileges<'me, 'info>(
         accounts.src_lst_acc,
         accounts.dst_lp_acc,
         accounts.lp_token_mint,
+        accounts.protocol_fee_accumulator,
         accounts.pool_state,
         accounts.lst_state_list,
         accounts.pool_reserves,
@@ -1296,7 +1310,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
 pub struct RemoveLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
-    pub amount: u64,
+    pub lp_token_amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLiquidityIxData(pub RemoveLiquidityIxArgs);

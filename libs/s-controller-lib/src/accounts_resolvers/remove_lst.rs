@@ -10,6 +10,7 @@ use crate::{
 
 /// Must ensure protocol_fee_accumulator and pool_reserves token accounts
 /// are empty before calling
+#[derive(Clone, Copy, Debug)]
 pub struct RemoveLstFreeArgs<
     I: TryInto<usize>,
     S: ReadonlyAccountData + KeyedAccount,
@@ -31,7 +32,7 @@ impl<
     > RemoveLstFreeArgs<I, S, L, M>
 {
     pub fn resolve(self) -> Result<RemoveLstKeys, SControllerError> {
-        let RemoveLstFreeArgs {
+        let Self {
             lst_index,
             refund_rent_to,
             pool_state: pool_state_account,
@@ -74,6 +75,7 @@ impl<
 /// Iterates through lst_state_list to find lst_index.
 /// Suitable for use on client-side.
 /// Does not check identity of pool_state and lst_state_list
+#[derive(Clone, Copy, Debug)]
 pub struct RemoveLstByMintFreeArgs<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,

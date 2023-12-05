@@ -1,5 +1,6 @@
 use s_controller_interface::{
-    AddLiquidityAccounts, EndRebalanceAccounts, StartRebalanceAccounts, SyncSolValueAccounts,
+    AddLiquidityAccounts, EndRebalanceAccounts, RemoveLiquidityAccounts, StartRebalanceAccounts,
+    SyncSolValueAccounts,
 };
 use solana_program::account_info::AccountInfo;
 
@@ -7,6 +8,14 @@ use super::{DstLstMintOf, DstLstPoolReservesOf, SrcLstMintOf, SrcLstPoolReserves
 
 pub trait GetLstStateListAccountInfo<'me, 'info> {
     fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info>;
+}
+
+impl<'me, 'info, T: GetLstStateListAccountInfo<'me, 'info>> GetLstStateListAccountInfo<'me, 'info>
+    for &T
+{
+    fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
+        (*self).get_lst_state_list_account_info()
+    }
 }
 
 impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
@@ -28,6 +37,12 @@ impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for EndRebalanceAccounts
 }
 
 impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for AddLiquidityAccounts<'me, 'info> {
+    fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
+        self.lst_state_list
+    }
+}
+
+impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for RemoveLiquidityAccounts<'me, 'info> {
     fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
         self.lst_state_list
     }

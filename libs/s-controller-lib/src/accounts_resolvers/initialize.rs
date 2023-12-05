@@ -3,6 +3,7 @@ use solana_program::{pubkey::Pubkey, system_program};
 
 use crate::{initial_authority, program::POOL_STATE_ID};
 
+#[derive(Clone, Copy, Debug)]
 pub struct InitializeFreeArgs {
     pub payer: Pubkey,
     pub lp_token_mint: Pubkey,

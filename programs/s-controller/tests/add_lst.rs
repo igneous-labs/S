@@ -9,7 +9,7 @@ use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::{jitosol, test_fixtures_dir, AddAccount};
+use test_utils::{banks_client_get_account, jitosol, test_fixtures_dir, AddAccount};
 
 mod common;
 

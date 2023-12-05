@@ -1,7 +1,7 @@
 use s_controller_interface::{LstState, PoolState, SControllerError};
 use solana_readonly_account::ReadonlyAccountData;
 
-use crate::try_pool_state;
+use crate::{try_pool_state, U8Bool};
 
 pub fn sync_sol_value_with_retval(
     pool_state: &mut PoolState,
@@ -21,12 +21,35 @@ pub fn sync_sol_value_with_retval(
     Ok(())
 }
 
-/// TODO: confirm that theres an issue with borrowing account data across CPI boundaries
-/// otherwise there isnt really a need for this fn
-pub fn pool_state_total_sol_value<D: ReadonlyAccountData>(
-    pool_state: D,
-) -> Result<u64, SControllerError> {
-    let bytes = pool_state.data();
-    let deser = try_pool_state(&bytes)?;
-    Ok(deser.total_sol_value)
+/// For nice method call syntax both onchain and offchain,
+/// and to reduce scope of borrowing AccountInfo.data
+/// to avoid CPI account data borrow failed errors.
+/// Hopefully bytemuck means pointer casting of data to &PoolState is cheap.
+pub trait PoolStateAccount {
+    /// Returns this PoolState account's current `total_sol_value`
+    fn total_sol_value(&self) -> Result<u64, SControllerError>;
+
+    fn lp_protocol_fee_bps(&self) -> Result<u16, SControllerError>;
+
+    fn is_disabled(&self) -> Result<bool, SControllerError>;
+}
+
+impl<D: ReadonlyAccountData> PoolStateAccount for D {
+    fn total_sol_value(&self) -> Result<u64, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(deser.total_sol_value)
+    }
+
+    fn lp_protocol_fee_bps(&self) -> Result<u16, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(deser.lp_protocol_fee_bps)
+    }
+
+    fn is_disabled(&self) -> Result<bool, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(U8Bool(deser.is_disabled).is_true())
+    }
 }

@@ -3,6 +3,7 @@ use static_assertions::const_assert_eq;
 
 mod accounts_resolvers;
 mod accounts_serde;
+mod calc;
 mod consts;
 mod instructions;
 mod lp_token_metadata;
@@ -11,10 +12,10 @@ mod lst_state_list;
 mod pda;
 mod state;
 mod u8bool;
-mod utils;
 
 pub use accounts_resolvers::*;
 pub use accounts_serde::*;
+pub use calc::*;
 pub use consts::*;
 pub use instructions::*;
 pub use lp_token_metadata::*;
@@ -23,7 +24,6 @@ pub use lst_state_list::*;
 pub use pda::*;
 pub use state::*;
 pub use u8bool::*;
-pub use utils::*;
 
 // std::mem::size_of and std::mem::align_of are const fns so we dont technically need these
 // but the const asserts helps guard against unexpected size changes

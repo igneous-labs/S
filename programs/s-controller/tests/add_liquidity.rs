@@ -12,8 +12,8 @@ use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
 use test_utils::{
-    jito_stake_pool, jitosol, mock_lp_token_account, mock_token_account, MockTokenAccountArgs,
-    JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+    banks_client_get_account, jito_stake_pool, jitosol, mock_lp_token_account, mock_token_account,
+    MockTokenAccountArgs, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
 
 mod common;
@@ -165,7 +165,7 @@ async fn exec_verify_add_liq_success(
         keys,
         AddLiquidityIxFullArgs {
             lst_index: lst_index.try_into().unwrap(),
-            amount: lst_account_balance,
+            lst_amount: lst_account_balance,
         },
         AddRemoveLiquidityExtraAccounts {
             lst_calculator_program_id,
