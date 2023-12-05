@@ -3616,7 +3616,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RemoveDisablePoolAuthorityIxArgs {}
+pub struct RemoveDisablePoolAuthorityIxArgs {
+    pub index: u32,
+}
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveDisablePoolAuthorityIxData(pub RemoveDisablePoolAuthorityIxArgs);
 pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM: u8 = 16u8;

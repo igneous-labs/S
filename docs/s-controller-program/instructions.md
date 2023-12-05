@@ -456,9 +456,10 @@ Remove a disable pool authority
 
 ### Data
 
-| Name         | Value | Type |
-| ------------ | ----- | ---- |
-| discriminant | 16    | u8   |
+| Name         | Value                                               | Type |
+| ------------ | --------------------------------------------------- | ---- |
+| discriminant | 16                                                  | u8   |
+| index        | index of authority in `disable_pool_authority_list` | u32  |
 
 ### Accounts
 

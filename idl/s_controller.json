@@ -924,7 +924,12 @@
         "type": "u8",
         "value": 16
       },
-      "args": [],
+      "args": [
+        {
+          "name": "index",
+          "type": "u32"
+        }
+      ],
       "accounts": [
         {
           "name": "refund_rent_to",
