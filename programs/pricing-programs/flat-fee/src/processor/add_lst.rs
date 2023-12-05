@@ -51,6 +51,7 @@ fn process_add_lst_unchecked(
         CreateAccountArgs {
             space: program::FEE_ACCOUNT_SIZE,
             owner: program::ID,
+            lamports: None,
         },
         &[create_pda_args.to_signer_seeds().as_slice()],
     )?;

@@ -3,8 +3,9 @@ use flat_fee_interface::{
     RemoveLstKeys,
 };
 use flat_fee_lib::account_resolvers::RemoveLstFreeArgs;
-use sanctum_onchain_utils::utils::{
-    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+use sanctum_onchain_utils::{
+    system_program::{close_account, CloseAccountAccounts},
+    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
@@ -18,14 +19,17 @@ pub fn process_remove_lst(accounts: &[AccountInfo]) -> ProgramResult {
 fn process_remove_lst_unchecked(
     RemoveLstAccounts {
         manager: _,
-        fee_acc: _,
+        fee_acc,
         state: _,
         system_program: _,
-        refund_rent_to: _,
+        refund_rent_to,
     }: RemoveLstAccounts,
 ) -> ProgramResult {
-    // TODO close_pda
-    todo!()
+    close_account(CloseAccountAccounts {
+        refund_rent_to,
+        close: fee_acc,
+    })?;
+    Ok(())
 }
 
 fn verify_remove_lst<'me, 'info>(

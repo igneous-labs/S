@@ -38,6 +38,7 @@ fn process_initialize_unchecked(
         CreateAccountArgs {
             space: program::STATE_SIZE,
             owner: program::ID,
+            lamports: None,
         },
         &[&[program::STATE_SEED, &[program::STATE_BUMP]]],
     )?;

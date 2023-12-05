@@ -1369,6 +1369,7 @@ dependencies = [
  "proptest",
  "sanctum-macros",
  "sanctum-onchain-utils",
+ "sanctum-token-ratio",
  "solana-program",
  "solana-readonly-account",
  "static_assertions",
