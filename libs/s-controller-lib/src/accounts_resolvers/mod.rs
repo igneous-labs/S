@@ -5,6 +5,7 @@ mod initialize;
 mod remove_liquidity;
 mod remove_lst;
 mod start_rebalance;
+mod swap_exact_in;
 mod sync_sol_value;
 
 pub use add_liquidity::*;
@@ -14,4 +15,5 @@ pub use initialize::*;
 pub use remove_liquidity::*;
 pub use remove_lst::*;
 pub use start_rebalance::*;
+pub use swap_exact_in::*;
 pub use sync_sol_value::*;

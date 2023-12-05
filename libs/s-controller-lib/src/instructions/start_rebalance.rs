@@ -8,10 +8,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
 
-use super::{
-    ix_extend_with_src_dst_sol_value_calculator_accounts, try_from_int_err_to_io_err,
-    SrcDstLstSolValueCalcAccounts,
-};
+use super::{ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstSolValueCalcAccounts};
 
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceIxFullArgs {
@@ -28,7 +25,7 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
         amount,
     }: StartRebalanceIxFullArgs,
     sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
-) -> std::io::Result<Instruction> {
+) -> Result<Instruction, ProgramError> {
     let mut ix = start_rebalance_ix(
         accounts,
         StartRebalanceIxArgs {
@@ -40,7 +37,7 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
     )?;
     let extend_count =
         ix_extend_with_src_dst_sol_value_calculator_accounts(&mut ix, sol_val_calc_keys)
-            .map_err(try_from_int_err_to_io_err)?;
+            .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update src_lst_calc_accs than double serialization here
     let mut overwrite = &mut ix.data[..];
     StartRebalanceIxData(StartRebalanceIxArgs {
@@ -70,7 +67,7 @@ pub fn start_rebalance_ix_by_mints_full<
             dst_lst_index,
         },
     ) = free_args.resolve()?;
-    Ok(start_rebalance_ix_full(
+    start_rebalance_ix_full(
         start_rebalance_keys,
         StartRebalanceIxFullArgs {
             src_lst_index: src_lst_index
@@ -82,5 +79,5 @@ pub fn start_rebalance_ix_by_mints_full<
             amount,
         },
         sol_val_calc_accounts,
-    )?)
+    )
 }

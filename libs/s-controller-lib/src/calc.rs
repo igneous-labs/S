@@ -83,10 +83,10 @@ pub fn calc_add_liquidity(
         ..
     } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
     let to_protocol_fees_lst_amount = U64RatioFloor {
-        num: protocol_fees_sol_value,
+        num: lst_amount,
         denom: lst_amount_sol_value,
     }
-    .apply(lst_amount)?;
+    .apply(protocol_fees_sol_value)?;
     let to_reserves_lst_amount = lst_amount
         .checked_sub(to_protocol_fees_lst_amount)
         .ok_or(MathError)?;
@@ -125,9 +125,45 @@ pub fn calc_remove_liquidity_protocol_fees(
         ..
     } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
     let to_protocol_fees_lst_amount = U64RatioFloor {
-        num: protocol_fees_sol_value,
+        num: to_user_lst_amount,
         denom: lp_tokens_sol_value_after_fees,
     }
-    .apply(to_user_lst_amount)?;
+    .apply(protocol_fees_sol_value)?;
+    Ok(to_protocol_fees_lst_amount)
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CalcSwapProtocolFeesArgs {
+    pub in_sol_value: u64,
+
+    /// SOL value of dst_lst_out
+    pub out_sol_value: u64,
+
+    /// Amount of dst_lst to transfer to user
+    pub dst_lst_out: u64,
+
+    pub trading_protocol_fee_bps: u16,
+}
+
+/// Returns amount of dst_lst tokens to transfer
+/// from pool_reserves to protocol_fee_accumulator
+pub fn calc_swap_protocol_fees(
+    CalcSwapProtocolFeesArgs {
+        in_sol_value,
+        out_sol_value,
+        dst_lst_out,
+        trading_protocol_fee_bps,
+    }: CalcSwapProtocolFeesArgs,
+) -> Result<u64, MathError> {
+    let fees_sol_value = in_sol_value.saturating_sub(out_sol_value);
+    let AmtsAfterFee {
+        fees_charged: protocol_fees_sol_value,
+        ..
+    } = U64BpsFeeCeil(trading_protocol_fee_bps).apply(fees_sol_value)?;
+    let to_protocol_fees_lst_amount = U64RatioFloor {
+        num: dst_lst_out,
+        denom: out_sol_value,
+    }
+    .apply(protocol_fees_sol_value)?;
     Ok(to_protocol_fees_lst_amount)
 }

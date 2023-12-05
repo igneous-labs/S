@@ -31,6 +31,8 @@ pub trait PoolStateAccount {
 
     fn lp_protocol_fee_bps(&self) -> Result<u16, SControllerError>;
 
+    fn trading_protocol_fee_bps(&self) -> Result<u16, SControllerError>;
+
     fn is_disabled(&self) -> Result<bool, SControllerError>;
 }
 
@@ -45,6 +47,12 @@ impl<D: ReadonlyAccountData> PoolStateAccount for D {
         let bytes = self.data();
         let deser = try_pool_state(&bytes)?;
         Ok(deser.lp_protocol_fee_bps)
+    }
+
+    fn trading_protocol_fee_bps(&self) -> Result<u16, SControllerError> {
+        let bytes = self.data();
+        let deser = try_pool_state(&bytes)?;
+        Ok(deser.trading_protocol_fee_bps)
     }
 
     fn is_disabled(&self) -> Result<bool, SControllerError> {

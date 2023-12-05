@@ -517,6 +517,7 @@ pub struct SwapExactInIxArgs {
     pub dst_lst_value_calc_accs: u8,
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
+    pub min_amount_out: u64,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -791,6 +792,7 @@ pub struct SwapExactOutIxArgs {
     pub dst_lst_value_calc_accs: u8,
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
+    pub max_amount_in: u64,
     pub amount: u64,
 }
 #[derive(Clone, Debug, PartialEq)]

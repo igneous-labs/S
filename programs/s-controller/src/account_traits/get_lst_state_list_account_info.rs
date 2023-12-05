@@ -1,6 +1,6 @@
 use s_controller_interface::{
     AddLiquidityAccounts, EndRebalanceAccounts, RemoveLiquidityAccounts, StartRebalanceAccounts,
-    SyncSolValueAccounts,
+    SwapExactInAccounts, SyncSolValueAccounts,
 };
 use solana_program::account_info::AccountInfo;
 
@@ -43,6 +43,12 @@ impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for AddLiquidityAccounts
 }
 
 impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for RemoveLiquidityAccounts<'me, 'info> {
+    fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
+        self.lst_state_list
+    }
+}
+
+impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for SwapExactInAccounts<'me, 'info> {
     fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
         self.lst_state_list
     }

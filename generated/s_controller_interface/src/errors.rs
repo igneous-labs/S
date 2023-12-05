@@ -48,6 +48,10 @@ pub enum SControllerError {
     LstStillHasValue = 18,
     #[error("Incorrect pricing program")]
     IncorrectPricingProgram = 19,
+    #[error("Swap would exceed slippage tolerance")]
+    SlippageToleranceExceeded = 20,
+    #[error("Not enough liquidity complete swap")]
+    NotEnoughLiquidity = 21,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

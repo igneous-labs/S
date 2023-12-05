@@ -19,10 +19,10 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Accounts
 
-| Account            | Description                                                                        | Read/Write (R/W) | Signer (Y/N) |
-| ------------------ | ---------------------------------------------------------------------------------- | ---------------- | ------------ |
-| lst_mint           | Token mint of the lst                                                              | R                | N            |
-| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ...              | ...          |
+| Account            | Description                                                                                                 | Read/Write (R/W) | Signer (Y/N) |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
+| lst_mint           | Token mint of the lst                                                                                       | R                | N            |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. Must be same as SolToLst | ...              | ...          |
 
 #### Return Data
 
@@ -47,13 +47,17 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Accounts
 
-| Account            | Description                                                                        | Read/Write (R/W) | Signer (Y/N) |
-| ------------------ | ---------------------------------------------------------------------------------- | ---------------- | ------------ |
-| lst_mint           | Token mint of the lst                                                              | R                | N            |
-| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. | ...              | ...          |
+| Account            | Description                                                                                                 | Read/Write (R/W) | Signer (Y/N) |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
+| lst_mint           | Token mint of the lst                                                                                       | R                | N            |
+| remaining_accounts | Any remaining accounts the program needs. Varies with each liquid staking program. Must be same as LstToSol | ...              | ...          |
 
 #### Return Data
 
 | Name   | Value                     | Type |
 | ------ | ------------------------- | ---- |
 | result | the calculated LST amount | u64  |
+
+### LstToSol - SolToLst Accounts Symmetricality
+
+Implementations are free to specify any remaining accounts required, but they must be the same for both `LstToSol` and `SolToLst` such that a program is able to invoke both instructions successfully with the same set of accounts.
