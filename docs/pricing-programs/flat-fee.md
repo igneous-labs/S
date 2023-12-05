@@ -14,10 +14,10 @@ The program state singleton is located at PDA ["state"].
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name              | Value                                                                 | Type   |
-| ----------------- | --------------------------------------------------------------------- | ------ |
-| manager           | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
-| lp_withdrawal_fee | Fee in bips to impose when redeeming LP token for LST                 | u16    |
+| Name                  | Value                                                                 | Type   |
+| --------------------- | --------------------------------------------------------------------- | ------ |
+| manager               | The manager authorized to update the fee accounts for each LST and LP | Pubkey |
+| lp_withdrawal_fee_bps | Fee in bips to impose when redeeming LP token for LST                 | u16    |
 
 ### FeeAccount
 
@@ -29,11 +29,11 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 
 NOTE: a negative fee value means incentivization for given route
 
-| Name       | Value                                                       | Type |
-| ---------- | ----------------------------------------------------------- | ---- |
-| bump       | This FeeAccount's PDA bump                                  | u8   |
-| input_fee  | Fee in bips to impose when the token type is used as input  | i16  |
-| output_fee | Fee in bips to impose when the token type is used as output | i16  |
+| Name           | Value                                                       | Type |
+| -------------- | ----------------------------------------------------------- | ---- |
+| bump           | This FeeAccount's PDA bump                                  | u8   |
+| input_fee_bps  | Fee in bips to impose when the token type is used as input  | i16  |
+| output_fee_bps | Fee in bips to impose when the token type is used as output | i16  |
 
 ## Instructions
 
@@ -43,7 +43,7 @@ NOTE: a negative fee value means incentivization for given route
 
 Given an input LST amount and its SOL value, calculate the output SOL value by:
 
-- calculate total fee in bips by adding `fee_acc_input.input_fee` and `fee_acc_output.output_fee`
+- calculate total fee in bips by adding `fee_acc_input.input_fee_bps` and `fee_acc_output.output_fee_bps`
 - calculate output LST's sol value after imposing fee by using the calculated fee and the given `sol_value` of input lst
 
 ##### Data
@@ -51,17 +51,17 @@ Given an input LST amount and its SOL value, calculate the output SOL value by:
 | Name         | Value                         | Type |
 | ------------ | ----------------------------- | ---- |
 | discriminant | 0                             | u8   |
-| amount       | Amount of input LST           | u64  |
+| amount       | amount of the input LST       | u64  |
 | sol_value    | SOL value of amount input LST | u64  |
 
 ##### Accounts
 
-| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
-| -------------- | ----------------------------- | ---------------- | ------------ |
-| lst_input      | Input LST token mint          | R                | N            |
-| lst_output     | Output LST token mint         | R                | N            |
-| fee_acc_input  | FeeAccount PDA for input LST  | R                | N            |
-| fee_acc_output | FeeAccount PDA for output LST | R                | N            |
+| Account         | Description                       | Read/Write (R/W) | Signer (Y/N) |
+| --------------- | --------------------------------- | ---------------- | ------------ |
+| input_lst_mint  | Mint of the input LST             | R                | N            |
+| output_lst_mint | Mint of the output LST            | R                | N            |
+| input_fee_acc   | FeeAccount PDA for the input LST  | R                | N            |
+| output_fee_acc  | FeeAccount PDA for the output LST | R                | N            |
 
 ##### Return Data
 
@@ -75,7 +75,7 @@ Given an input LST amount and its SOL value, calculate the output SOL value by:
 
 Given an output LST amount and its SOL value, calculate the input SOL value by:
 
-- calculate total fee in bips by adding `fee_acc.input_fee` and `fee_acc.output_fee`
+- calculate total fee in bips by adding `fee_acc.input_fee_bps` and `fee_acc.output_fee_bps`
 - calculate input LST's sol value using given `sol_value` of output lst assuming that the calculated fee was imposed to resulting input lst's SOL value
 
 ##### Data
@@ -83,7 +83,7 @@ Given an output LST amount and its SOL value, calculate the input SOL value by:
 | Name         | Value                          | Type |
 | ------------ | ------------------------------ | ---- |
 | discriminant | 1                              | u8   |
-| amount       | Amount of output LST           | u64  |
+| amount       | amount of the output LST       | u64  |
 | sol_value    | SOL value of amount output LST | u64  |
 
 ##### Return Data
@@ -94,12 +94,12 @@ Given an output LST amount and its SOL value, calculate the input SOL value by:
 
 ##### Accounts
 
-| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
-| -------------- | ----------------------------- | ---------------- | ------------ |
-| lst_input      | Input LST token mint          | R                | N            |
-| lst_output     | Output LST token mint         | R                | N            |
-| fee_acc_input  | FeeAccount PDA for input LST  | R                | N            |
-| fee_acc_output | FeeAccount PDA for output LST | R                | N            |
+| Account         | Description                       | Read/Write (R/W) | Signer (Y/N) |
+| --------------- | --------------------------------- | ---------------- | ------------ |
+| input_lst_mint  | Mint of the input LST             | R                | N            |
+| output_lst_mint | Mint of the output LST            | R                | N            |
+| input_fee_acc   | FeeAccount PDA for the input LST  | R                | N            |
+| output_fee_acc  | FeeAccount PDA for the output LST | R                | N            |
 
 ##### Procedure
 
@@ -112,7 +112,7 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 | Name         | Value                         | Type |
 | ------------ | ----------------------------- | ---- |
 | discriminant | 2                             | u8   |
-| amount       | Amount of input LST           | u64  |
+| amount       | amount of the input LST       | u64  |
 | sol_value    | SOL value of amount input LST | u64  |
 
 ##### Return Data
@@ -123,9 +123,9 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 ##### Accounts
 
-| Account   | Description          | Read/Write (R/W) | Signer (Y/N) |
-| --------- | -------------------- | ---------------- | ------------ |
-| lst_input | Input LST token mint | R                | N            |
+| Account        | Description           | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | --------------------- | ---------------- | ------------ |
+| input_lst_mint | Mint of the input LST | R                | N            |
 
 ##### Procedure
 
@@ -138,7 +138,7 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | Name         | Value                        | Type |
 | ------------ | ---------------------------- | ---- |
 | discriminant | 3                            | u8   |
-| amount       | Amount of input LP           | u64  |
+| amount       | amount of the input LP       | u64  |
 | sol_value    | SOL value of amount input LP | u64  |
 
 ##### Return Data
@@ -149,10 +149,10 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 ##### Accounts
 
-| Account    | Description           | Read/Write (R/W) | Signer (Y/N) |
-| ---------- | --------------------- | ---------------- | ------------ |
-| lst_output | Output LST token mint | R                | N            |
-| state      | Program state PDA     | R                | N            |
+| Account         | Description            | Read/Write (R/W) | Signer (Y/N) |
+| --------------- | ---------------------- | ---------------- | ------------ |
+| output_lst_mint | Mint of the output LST | R                | N            |
+| state           | Program state PDA      | R                | N            |
 
 ##### Procedure
 
@@ -162,7 +162,7 @@ Regardless of how the price is calculated, the pricing program should guarantee 
 
 Only the current manager is authorized to execute.
 
-#### Init
+#### Initialize
 
 Permissionlessly initialize the program state. Can only be called once and sets manager to a hardcoded init manager.
 
@@ -176,7 +176,7 @@ Permissionlessly initialize the program state. Can only be called once and sets 
 
 | Account        | Description                                | Read/Write (R/W) | Signer (Y/N) |
 | -------------- | ------------------------------------------ | ---------------- | ------------ |
-| payer          | The account paying for ProgramState's rent | W                | Y            |
+| payer          | Account paying for ProgramState's rent     | W                | Y            |
 | state          | Program state PDA                          | W                | N            |
 | system_program | System program                             | R                | N            |
 
@@ -198,7 +198,30 @@ Update the manager authority of the pricing program.
 | new_manager     | The new program manager to set to | R                | N            |
 | state           | Program state PDA                 | W                | N            |
 
-#### SetFee
+#### AddLst
+
+Update the fees for given type of pricing action.
+
+##### Data
+
+| Name           | Value                                                       | Type |
+| -------------- | ----------------------------------------------------------- | ---- |
+| discriminant   | 253                                                         | u8   |
+| input_fee_bps  | fee in bips to impose when the token type is used as input  | i16  |
+| output_fee_bps | fee in bips to impose when the token type is used as output | i16  |
+
+##### Accounts
+
+| Account        | Description                          | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ------------------------------------ | ---------------- | ------------ |
+| manager        | The program manager                  | R                | Y            |
+| payer          | Account paying for FeeAccount's rent | R                | Y            |
+| fee_acc        | FeeAccount PDA to create             | W                | N            |
+| lst_mint       | Mint of the LST                      | R                | N            |
+| state          | Program state PDA                    | R                | N            |
+| system_program | System program                       | R                | N            |
+
+#### RemoveLst
 
 Update the fees for given type of pricing action.
 
@@ -206,9 +229,29 @@ Update the fees for given type of pricing action.
 
 | Name         | Value                                                       | Type |
 | ------------ | ----------------------------------------------------------- | ---- |
-| discriminant | 253                                                         | u8   |
-| input_fee    | Fee in bips to impose when the token type is used as input  | i16  |
-| output_fee   | Fee in bips to impose when the token type is used as output | i16  |
+| discriminant | 252                                                         | u8   |
+
+##### Accounts
+
+| Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | ----------------------------- | ---------------- | ------------ |
+| manager        | The program manager           | R                | Y            |
+| refund_rent_to | Account to refund SOL rent to | R                | Y            |
+| fee_acc        | FeeAccount PDA to modify      | W                | N            |
+| state          | Program state PDA             | R                | N            |
+| system_program | System program                | R                | N            |
+
+#### SetLstFee
+
+Update the fees for given type of pricing action.
+
+##### Data
+
+| Name           | Value                                                       | Type |
+| -------------- | ----------------------------------------------------------- | ---- |
+| discriminant   | 251                                                         | u8   |
+| input_fee_bps  | fee in bips to impose when the token type is used as input  | i16  |
+| output_fee_bps | fee in bips to impose when the token type is used as output | i16  |
 
 ##### Accounts
 
@@ -216,6 +259,7 @@ Update the fees for given type of pricing action.
 | ------- | ------------------------ | ---------------- | ------------ |
 | manager | The program manager      | R                | Y            |
 | fee_acc | FeeAccount PDA to modify | W                | N            |
+| state   | Program state PDA        | R                | N            |
 
 #### SetLpWithdrawalFee
 
@@ -223,10 +267,10 @@ Update the fees imposed for redeeming LP token for LST
 
 ##### Data
 
-| Name              | Value                                                 | Type |
-| ----------------- | ----------------------------------------------------- | ---- |
-| discriminant      | 252                                                   | u8   |
-| lp_withdrawal_fee | Fee in bips to impose when redeeming LP token for LST | u16  |
+| Name                  | Value                                                 | Type |
+| --------------------- | ----------------------------------------------------- | ---- |
+| discriminant          | 250                                                   | u8   |
+| lp_withdrawal_fee_bps | fee in bips to impose when redeeming LP token for LST | u16  |
 
 ##### Accounts
 

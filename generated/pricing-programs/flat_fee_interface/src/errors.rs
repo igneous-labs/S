@@ -6,8 +6,12 @@ use solana_program::{
 use thiserror::Error;
 #[derive(Clone, Copy, Debug, Eq, Error, num_derive::FromPrimitive, PartialEq)]
 pub enum FlatFeeError {
+    #[error("Invalid program state data")]
+    InvalidProgramStateData = 0,
     #[error("FeeAccount is not initialized for the given LST mint")]
-    UnsupportedLstMint = 0,
+    UnsupportedLstMint = 1,
+    #[error("Math error")]
+    MathError = 2,
 }
 impl From<FlatFeeError> for ProgramError {
     fn from(e: FlatFeeError) -> Self {

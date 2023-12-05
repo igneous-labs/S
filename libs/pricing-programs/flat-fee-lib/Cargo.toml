@@ -1,0 +1,21 @@
+[package]
+name = "flat-fee-lib"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+borsh = { workspace = true }
+bytemuck = { workspace = true }
+flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
+sanctum-macros = { workspace = true }
+sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
+sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
+solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
+static_assertions = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+test-utils = { path = "../../../test-utils" }

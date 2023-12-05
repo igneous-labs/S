@@ -1,0 +1,19 @@
+[package]
+name = "flat-fee"
+version = "1.0.0"
+edition = "2021"
+
+[features]
+no-entrypoint = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
+flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib" }
+sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
+solana-program = { workspace = true }
