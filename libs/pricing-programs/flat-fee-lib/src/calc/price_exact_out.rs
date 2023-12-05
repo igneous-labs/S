@@ -1,6 +1,7 @@
 use flat_fee_interface::FlatFeeError;
+use sanctum_token_ratio::{U64RatioFloor, BPS_DENOMINATOR};
 
-use super::{BPS_DENOM_I16, BPS_DENOM_U128};
+use super::BPS_DENOMINATOR_I16;
 
 pub fn calculate_price_exact_out(
     input_fee_bps: i16,
@@ -10,15 +11,16 @@ pub fn calculate_price_exact_out(
     let fee_bps = input_fee_bps
         .checked_add(output_fee_bps)
         .ok_or(FlatFeeError::MathError)?;
-    let post_fee_bps: u128 = BPS_DENOM_I16
+    let post_fee_bps: u64 = BPS_DENOMINATOR_I16
         .checked_sub(fee_bps)
-        .ok_or(FlatFeeError::MathError)?
-        .try_into()
-        .map_err(|_e| FlatFeeError::MathError)?;
-    let result: u64 = BPS_DENOM_U128
-        .checked_mul(sol_value.into())
-        .and_then(|v| v.checked_div(post_fee_bps))
-        .and_then(|v| v.try_into().ok())
+        .and_then(|v| u64::try_from(v).ok())
         .ok_or(FlatFeeError::MathError)?;
+    let post_fee_bps = U64RatioFloor {
+        num: post_fee_bps,
+        denom: BPS_DENOMINATOR,
+    };
+    let result = post_fee_bps
+        .pseudo_reverse(sol_value)
+        .map_err(|_e| FlatFeeError::MathError)?;
     Ok(result)
 }
