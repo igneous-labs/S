@@ -116,7 +116,11 @@ async fn basic_redeem_full_no_fees() {
             lst_calculator_program_id: spl_calculator_lib::program::ID,
             pricing_program_id: no_fee_pricing_program::ID,
             lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            pricing_program_price_lp_accounts: &[],
+            pricing_program_price_lp_accounts: &[AccountMeta {
+                pubkey: jitosol::ID,
+                is_signer: false,
+                is_writable: false,
+            }],
         },
     )
     .unwrap();

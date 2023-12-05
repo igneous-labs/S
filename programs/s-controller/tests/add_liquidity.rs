@@ -171,7 +171,11 @@ async fn exec_verify_add_liq_success(
             lst_calculator_program_id,
             pricing_program_id: no_fee_pricing_program::ID,
             lst_calculator_accounts,
-            pricing_program_price_lp_accounts: &[],
+            pricing_program_price_lp_accounts: &[AccountMeta {
+                pubkey: lst_mint,
+                is_signer: false,
+                is_writable: false,
+            }],
         },
     )
     .unwrap();
