@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 no-entrypoint = []
+testing = ["s-controller-lib/testing"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -14,24 +15,32 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 borsh = { workspace = true }
+bytemuck = { workspace = true }
+pricing_programs_interface = { path = "../../generated/pricing-programs/pricing_programs_interface" }
 s_controller_interface = { path = "../../generated/s_controller_interface" }
 s-controller-lib = { path = "../../libs/s-controller-lib" }
 sanctum-utils = { path = "../../libs/sanctum-utils" }
 sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
+sanctum-token-ratio = { path = "../../libs/sanctum-token-ratio" }
 sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
+spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]
 generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 marinade-calculator = { path = "../sol-value-calculator-programs/marinade-calculator", features = ["no-entrypoint"] }
 marinade-calculator-lib = { path = "../../libs/sol-value-calculator-programs/marinade-calculator-lib" }
 marinade-keys = { path = "../../keys/marinade-keys" }
+no-fee-pricing-program = { path = "../pricing-programs/no-fee-pricing-program", features = ["no-entrypoint"] }
 spl-calculator = { path = "../sol-value-calculator-programs/spl-calculator", features = ["no-entrypoint"] }
 spl-calculator-lib = { path = "../../libs/sol-value-calculator-programs/spl-calculator-lib" }
+spl-pod = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
 test-utils = { path = "../../test-utils" }
 tokio = { workspace = true }

@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use generic_pool_calculator_test_utils::{
     program_test_add_mock_calculator_state, ProgramTestAddMockCalculatorStateArgs,
 };
@@ -12,17 +14,16 @@ use test_utils::{
 
 mod lst_state;
 mod state;
-mod utils;
 
 pub use lst_state::*;
 pub use state::*;
-pub use utils::*;
 
 /// Adds the spl sol value calculator program, a mock calculator state
 /// and the spl stake pool program to a ProgramTest
 pub fn add_spl_progs(mut program_test: ProgramTest) -> ProgramTest {
+    // name must match <name>.so filename
     program_test.add_program(
-        "spl_sol_value_calculator",
+        "spl_calculator",
         spl_calculator_lib::program::ID,
         processor!(spl_calculator::entrypoint::process_instruction),
     );
@@ -41,8 +42,9 @@ pub fn add_spl_progs(mut program_test: ProgramTest) -> ProgramTest {
 /// Adds the marinade sol value calculator program, a mock calculator state
 /// and the marinade program to a ProgramTest
 pub fn add_marinade_progs(mut program_test: ProgramTest) -> ProgramTest {
+    // name must match <name>.so filename
     program_test.add_program(
-        "marinade_sol_value_calculator",
+        "marinade_calculator",
         marinade_calculator_lib::program::ID,
         processor!(marinade_calculator::entrypoint::process_instruction),
     );
@@ -77,6 +79,10 @@ pub struct JitoMarinadeProgramTestArgs {
     pub msol_sol_value: u64,
     pub jitosol_reserves: u64,
     pub msol_reserves: u64,
+    pub jitosol_protocol_fee_accumulator: u64,
+    pub msol_protocol_fee_accumulator: u64,
+    pub lp_token_mint: Pubkey,
+    pub lp_token_supply: u64,
 }
 
 /// dont forget to
@@ -94,11 +100,15 @@ pub fn jito_marinade_program_test(
         msol_sol_value,
         jitosol_reserves,
         msol_reserves,
+        jitosol_protocol_fee_accumulator,
+        msol_protocol_fee_accumulator,
+        lp_token_mint,
+        lp_token_supply,
     }: JitoMarinadeProgramTestArgs,
 ) -> ProgramTest {
     let mut program_test = ProgramTest::default();
-    program_test.prefer_bpf(false);
 
+    // name must match <name>.so filename
     program_test.add_program(
         "s_controller",
         s_controller_lib::program::ID,
@@ -115,11 +125,17 @@ pub fn jito_marinade_program_test(
                 mint: jitosol::ID,
                 sol_value: jitosol_sol_value,
                 reserves_amt: jitosol_reserves,
+                protocol_fee_accumulator_amt: jitosol_protocol_fee_accumulator,
+                token_program: spl_token::ID,
+                sol_value_calculator: spl_calculator_lib::program::ID,
             },
             MockLstStateArgs {
                 mint: msol::ID,
                 sol_value: msol_sol_value,
                 reserves_amt: msol_reserves,
+                protocol_fee_accumulator_amt: msol_protocol_fee_accumulator,
+                token_program: spl_token::ID,
+                sol_value_calculator: marinade_calculator_lib::program::ID,
             },
         ],
     );
@@ -128,11 +144,14 @@ pub fn jito_marinade_program_test(
     let mut pool_state = DEFAULT_POOL_STATE;
     // TODO: set other state vars
     pool_state.total_sol_value = total_sol_value;
+    pool_state.lp_token_mint = lp_token_mint;
+    pool_state.pricing_program = no_fee_pricing_program::ID;
 
     program_test.add_account(
-        s_controller_lib::program::STATE_ID,
+        s_controller_lib::program::POOL_STATE_ID,
         pool_state_to_account(pool_state),
     );
+    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
 
     program_test
 }

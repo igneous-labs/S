@@ -3,13 +3,14 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{
     create_pool_reserves_address,
-    program::{LST_STATE_LIST_ID, STATE_ID},
-    try_lst_state_list,
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID},
+    try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list,
 };
 
+#[derive(Clone, Copy, Debug)]
 pub struct SyncSolValueFreeArgs<
     I: TryInto<usize>,
-    L: ReadonlyAccountData,
+    L: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
     pub lst_index: I,
@@ -17,27 +18,25 @@ pub struct SyncSolValueFreeArgs<
     pub lst_mint: M,
 }
 
-impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
-    SyncSolValueFreeArgs<I, L, M>
+impl<
+        I: TryInto<usize>,
+        L: ReadonlyAccountData + KeyedAccount,
+        M: ReadonlyAccountOwner + KeyedAccount,
+    > SyncSolValueFreeArgs<I, L, M>
 {
     pub fn resolve(self) -> Result<SyncSolValueKeys, SControllerError> {
+        if *self.lst_state_list.key() != LST_STATE_LIST_ID {
+            return Err(SControllerError::IncorrectLstStateList);
+        }
         let lst_state_list_acc_data = self.lst_state_list.data();
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
-        let i = self
-            .lst_index
-            .try_into()
-            .map_err(|_e| SControllerError::InvalidLstIndex)?;
-
-        let lst_state = list.get(i).ok_or(SControllerError::InvalidLstIndex)?;
-        if *self.lst_mint.key() != lst_state.mint {
-            return Err(SControllerError::InvalidLstIndex);
-        }
-        let pool_reserves = create_pool_reserves_address(lst_state, self.lst_mint)?;
+        let lst_state = try_match_lst_mint_on_list(*self.lst_mint.key(), list, self.lst_index)?;
+        let pool_reserves = create_pool_reserves_address(lst_state, *self.lst_mint.owner())?;
 
         Ok(SyncSolValueKeys {
             lst_mint: lst_state.mint,
-            pool_state: STATE_ID,
+            pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
             pool_reserves,
         })
@@ -46,6 +45,7 @@ impl<I: TryInto<usize>, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedA
 
 /// Iterates through lst_state_list to find lst_index.
 /// Suitable for use on client-side
+#[derive(Clone, Copy, Debug)]
 pub struct SyncSolValueByMintFreeArgs<
     L: ReadonlyAccountData,
     M: ReadonlyAccountOwner + KeyedAccount,
@@ -57,21 +57,18 @@ pub struct SyncSolValueByMintFreeArgs<
 impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
     SyncSolValueByMintFreeArgs<L, M>
 {
+    /// Does not check identity of pool_state and lst_state_list
     pub fn resolve(self) -> Result<(SyncSolValueKeys, SyncSolValueIxArgs), SControllerError> {
         let lst_state_list_acc_data = self.lst_state_list.data();
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
-        let (lst_index, lst_state) = list
-            .iter()
-            .enumerate()
-            .find(|(_i, s)| s.mint == *self.lst_mint.key())
-            .ok_or(SControllerError::InvalidLstIndex)?;
-        let pool_reserves = create_pool_reserves_address(lst_state, &self.lst_mint)?;
+        let (lst_index, lst_state) = try_find_lst_mint_on_list(*self.lst_mint.key(), list)?;
+        let pool_reserves = create_pool_reserves_address(lst_state, *self.lst_mint.owner())?;
 
         Ok((
             SyncSolValueKeys {
                 lst_mint: *self.lst_mint.key(),
-                pool_state: STATE_ID,
+                pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
                 pool_reserves,
             },

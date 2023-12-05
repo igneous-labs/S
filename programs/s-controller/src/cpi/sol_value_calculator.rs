@@ -1,5 +1,5 @@
 use borsh::BorshSerialize;
-use s_controller_interface::{SControllerError, SyncSolValueAccounts};
+use s_controller_interface::SControllerError;
 use s_controller_lib::try_lst_state_list;
 use sanctum_onchain_utils::utils::account_info_to_account_meta;
 use sol_value_calculator_interface::{
@@ -12,8 +12,11 @@ use solana_program::{
     program_error::ProgramError,
 };
 
+use crate::account_traits::{GetLstMintAccountInfo, GetLstStateListAccountInfo};
+
 use super::get_le_u64_return_data;
 
+#[derive(Clone, Copy, Debug)]
 pub struct SolValueCalculatorCpi<'me, 'info> {
     /// The SOL value calculator program to invoke
     pub program: &'me AccountInfo<'info>,
@@ -32,7 +35,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
     /// - `accounts_suffix_slice`: subslice of instruction accounts where first account is the SOL value calculator program
     ///     and remaining slice is remaining_accounts (excludes `lst_mint`)
     pub fn from_ix_accounts<G: GetLstMintAccountInfo<'me, 'info>>(
-        ix_accounts: &G,
+        ix_accounts: G,
         accounts_suffix_slice: &'me [AccountInfo<'info>],
     ) -> Result<Self, ProgramError> {
         let program = accounts_suffix_slice
@@ -52,7 +55,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
         I: TryInto<usize>,
     >(
         &self,
-        ix_accounts: &G,
+        ix_accounts: G,
         lst_index: I,
     ) -> Result<(), ProgramError> {
         let lst_state_list_bytes = ix_accounts
@@ -123,22 +126,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
     }
 }
 
-pub trait GetLstMintAccountInfo<'me, 'info> {
-    fn get_lst_mint_account_info(&self) -> &'me AccountInfo<'info>;
-}
-
-impl<'me, 'info> GetLstMintAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
-    fn get_lst_mint_account_info(&self) -> &'me AccountInfo<'info> {
-        self.lst_mint
-    }
-}
-
-pub trait GetLstStateListAccountInfo<'me, 'info> {
-    fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info>;
-}
-
-impl<'me, 'info> GetLstStateListAccountInfo<'me, 'info> for SyncSolValueAccounts<'me, 'info> {
-    fn get_lst_state_list_account_info(&self) -> &'me AccountInfo<'info> {
-        self.lst_state_list
-    }
+pub struct SrcDstLstSolValueCalculatorCpis<'me, 'info> {
+    pub src_lst: SolValueCalculatorCpi<'me, 'info>,
+    pub dst_lst: SolValueCalculatorCpi<'me, 'info>,
 }

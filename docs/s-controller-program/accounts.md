@@ -16,7 +16,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | ------------------------ | ------------------------------------------------------------------------------------- | ------- |
 | total_sol_value          | The last recorded total SOL value of the pool, updated by SyncSolValue                | u64     |
 | trading_protocol_fee_bps | The flat protocol fee to charge on swap fees in bps                                   | u16     |
-| lp_protocol_fee_bps      | The flat protocol fee to charge on LP withdrawal fees in bps                          | u16     |
+| lp_protocol_fee_bps      | The flat protocol fee to charge on LP adding/withdrawing fees in bps                  | u16     |
 | version                  | incrementing counter representing schema version number. Starts at 1                  | u8      |
 | is_disabled              | true if all functionality of the pool has been disabled by DisablePool                | PodBool |
 | is_rebalancing           | true if a rebalance is currently occuring                                             | PodBool |
@@ -24,6 +24,7 @@ The struct is bytemuck/zero_copy. Explicit manual padding is required, but not s
 | rebalance_authority      | The pubkey authorized to rebalance                                                    | Pubkey  |
 | protocol_fee_beneficiary | Beneficiary of protocol fees that is authorized to withdraw accumulated protocol fees | Pubkey  |
 | pricing_program          | Address of pricing program used by pool                                               | Pubkey  |
+| lp_token_mint            | Address of the pool's LP token mint                                                   | Pubkey  |
 
 ## LstStateList
 
@@ -42,7 +43,7 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 | Name                          | Value                                                                  | Type    |
 | ----------------------------- | ---------------------------------------------------------------------- | ------- |
 | is_input_disabled             | Flag indicating if inputs for this LST are disabled                    | PodBool |
-| reserves_bump                 | bump seed of this LST's reserves ATA                                   | u8      |
+| pool_reserves_bump            | bump seed of this LST's pool reserves ATA                              | u8      |
 | protocol_fee_accumulator_bump | bump seed of this LST's protocol fee accumulator ATA                   | u8      |
 | sol_value                     | SOL value of this LST's pool reserves balance, updated by SyncSolValue | u64     |
 | mint                          | The LST's mint                                                         | Pubkey  |
@@ -68,12 +69,10 @@ Transient hot potato account that records data about the current rebalancing. PD
 
 The struct is bytemuck/zero_copy. Explicit manual padding is required, but not shown.
 
-| Name                    | Value                                                                                                                                                                                         | Type   |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| sol_value               | SOL value of the LST tokens withdrawn to be rebalanced                                                                                                                                        | u64    |
-| dst_lst_index           | index of dst_lst in PoolState.lst_state_list                                                                                                                                                  | u64    |
-| dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself | u8     |
-| dst_lst_mint            | token mint of the LST being rebalanced to                                                                                                                                                     | Pubkey |
+| Name                | Value                                                                           | Type |
+| ------------------- | ------------------------------------------------------------------------------- | ---- |
+| old_total_sol_value | total SOL value of the pool before the funds for rebalance were transferred out | u64  |
+| dst_lst_index       | index of dst_lst in PoolState.lst_state_list                                    | u32  |
 
 ## LST Reserves
 
@@ -82,3 +81,7 @@ For each LST, the LST reserve is located at the associated token address (ATA) o
 ## Protocol Fee Accumulators
 
 For each LST, protocol fees are accumulated at the associated token address (ATA) of PDA ["protocol-fee"]
+
+## LP token mint
+
+The LP token mint is a token 2022 mint with mint authority = PoolState PDA

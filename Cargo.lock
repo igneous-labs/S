@@ -2104,7 +2104,7 @@ dependencies = [
 name = "marinade-calculator"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
  "generic-pool-calculator-test-utils",
@@ -2131,6 +2131,7 @@ dependencies = [
  "marinade_calculator_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
  "test-utils",
@@ -2148,8 +2149,8 @@ dependencies = [
 name = "marinade_calculator_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
- "num-derive 0.3.3",
+ "borsh 0.10.3",
+ "num-derive 0.4.1",
  "num-traits",
  "serde",
  "solana-program",
@@ -2265,6 +2266,15 @@ dependencies = [
  "libc",
  "memoffset 0.7.1",
  "pin-utils",
+]
+
+[[package]]
+name = "no-fee-pricing-program"
+version = "1.0.0"
+dependencies = [
+ "pricing_programs_interface",
+ "sanctum-macros",
+ "solana-program",
 ]
 
 [[package]]
@@ -2685,6 +2695,15 @@ name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
+
+[[package]]
+name = "pricing_programs_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.10.3",
+ "serde",
+ "solana-program",
+]
 
 [[package]]
 name = "proc-macro-crate"
@@ -3245,15 +3264,19 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 name = "s-controller"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
+ "bytemuck",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "marinade-calculator",
  "marinade-calculator-lib",
  "marinade-keys",
+ "no-fee-pricing-program",
+ "pricing_programs_interface",
  "s-controller-lib",
  "s_controller_interface",
  "sanctum-onchain-utils",
+ "sanctum-token-ratio",
  "sanctum-utils",
  "sol_value_calculator_interface",
  "solana-program",
@@ -3262,7 +3285,10 @@ dependencies = [
  "solana-sdk",
  "spl-calculator",
  "spl-calculator-lib",
+ "spl-pod",
  "spl-token",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
  "test-utils",
  "tokio",
 ]
@@ -3271,12 +3297,17 @@ dependencies = [
 name = "s-controller-lib"
 version = "1.0.0"
 dependencies = [
+ "borsh 0.10.3",
  "bytemuck",
  "s_controller_interface",
  "sanctum-macros",
+ "sanctum-token-ratio",
  "sanctum-utils",
  "solana-program",
  "solana-readonly-account",
+ "spl-associated-token-account",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
  "static_assertions",
 ]
 
@@ -3284,9 +3315,9 @@ dependencies = [
 name = "s_controller_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "bytemuck",
- "num-derive 0.3.3",
+ "num-derive 0.4.1",
  "num-traits",
  "serde",
  "solana-program",
@@ -3318,7 +3349,22 @@ dependencies = [
 name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
+ "sanctum-utils",
  "solana-program",
+ "spl-associated-token-account",
+ "spl-token",
+ "spl-token-2022",
+ "spl-token-metadata-interface",
+]
+
+[[package]]
+name = "sanctum-token-ratio"
+version = "1.0.0"
+dependencies = [
+ "num-traits",
+ "proptest",
+ "solana-program",
+ "test-utils",
 ]
 
 [[package]]
@@ -3329,6 +3375,7 @@ dependencies = [
  "solana-readonly-account",
  "spl-associated-token-account",
  "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]
@@ -3630,7 +3677,7 @@ dependencies = [
 name = "sol_value_calculator_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "serde",
  "solana-program",
 ]
@@ -4728,6 +4775,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
  "solana-readonly-account",
@@ -5131,6 +5179,7 @@ dependencies = [
  "solana-readonly-account",
  "solana-sdk",
  "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]

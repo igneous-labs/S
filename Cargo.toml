@@ -7,19 +7,19 @@ members = [
     "keys/*",
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
-    "libs/sanctum-utils",
     "libs/sanctum-onchain-utils",
+    "libs/sanctum-token-ratio",
+    "libs/sanctum-utils",
     "libs/sol-value-calculator-programs/*",
-    "libs/s-controller-lib",
     "programs/pricing-programs/*",
     "programs/s-controller",
     "programs/sol-value-calculator-programs/*",
-    "test-utils"
+    "test-utils",
 ]
 
 [workspace.dependencies]
 bincode = "^1"
-borsh = ">=0.9" # TODO: there are probably gonna be issues from having both 0.9 and 0.10 in the workspace but idk how to fix this bec solana-program depends on both
+borsh = ">=0.9"                                                                                # TODO: there are probably gonna be issues from having both 0.9 and 0.10 in the workspace but idk how to fix this bec solana-program depends on both
 bytemuck = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
@@ -27,7 +27,10 @@ proptest = "^1"
 sanctum-macros = { git = "https://github.com/igneous-labs/sanctum-macros", branch = "master" }
 serde = "^1"
 serde_json = "^1"
+spl-pod = "*"
 spl-token = "*"
+spl-token-2022 = "*"
+spl-token-metadata-interface = "*"
 spl-associated-token-account = "*"
 static_assertions = "^1"
 thiserror = "^1"

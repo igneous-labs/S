@@ -1,4 +1,4 @@
-use generic_pool_calculator_lib::{U64FeeFloor, U64RatioFloor};
+use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
@@ -52,14 +52,21 @@ impl SplStakePoolCalc {
 /// - stake pool has been updated for this epoch
 impl SolValueCalculator for SplStakePoolCalc {
     fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<u64, ProgramError> {
-        let pool_tokens_burnt = self.stake_withdrawal_fee().apply(pool_tokens)?;
+        let AmtsAfterFee {
+            amt_after_fee: pool_tokens_burnt,
+            ..
+        } = self.stake_withdrawal_fee().apply(pool_tokens)?;
         let withdraw_lamports = self.lst_to_lamports_ratio().apply(pool_tokens_burnt)?;
         Ok(withdraw_lamports)
     }
 
     fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<u64, ProgramError> {
-        let pool_tokens_burnt = self.lst_to_lamports_ratio().reverse(withdraw_lamports)?;
-        let pool_tokens = self.stake_withdrawal_fee().reverse(pool_tokens_burnt)?;
+        let pool_tokens_burnt = self
+            .lst_to_lamports_ratio()
+            .pseudo_reverse(withdraw_lamports)?;
+        let pool_tokens = self
+            .stake_withdrawal_fee()
+            .pseudo_reverse(pool_tokens_burnt)?;
         Ok(pool_tokens)
     }
 }

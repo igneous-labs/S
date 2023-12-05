@@ -13,16 +13,17 @@ pub struct PoolState {
     pub is_rebalancing: u8,
     pub padding: [u8; 1],
     pub admin: Pubkey,
-    pub rebalancing_authority: Pubkey,
+    pub rebalance_authority: Pubkey,
     pub protocol_fee_beneficiary: Pubkey,
     pub pricing_program: Pubkey,
+    pub lp_token_mint: Pubkey,
 }
 #[repr(C)]
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LstState {
     pub is_input_disabled: u8,
-    pub reserves_bump: u8,
+    pub pool_reserves_bump: u8,
     pub protocol_fee_accumulator_bump: u8,
     pub padding: [u8; 5],
     pub sol_value: u64,
@@ -33,9 +34,7 @@ pub struct LstState {
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq, Pod, Copy, Zeroable)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RebalanceRecord {
-    pub sol_value: u64,
-    pub dst_lst_index: u64,
-    pub dst_lst_value_calc_accs: u8,
-    pub padding: [u8; 7],
-    pub dst_lst_mint: Pubkey,
+    pub old_total_sol_value: u64,
+    pub padding: [u8; 4],
+    pub dst_lst_index: u32,
 }
