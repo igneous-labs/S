@@ -893,6 +893,12 @@
           "desc": "The pool's admin"
         },
         {
+          "name": "pool_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
+        },
+        {
           "name": "new_authority",
           "isMut": false,
           "isSigner": false,
@@ -937,6 +943,12 @@
           "isMut": false,
           "isSigner": true,
           "desc": "The authority to remove"
+        },
+        {
+          "name": "pool_state",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The pool's state singleton PDA"
         },
         {
           "name": "disable_pool_authority_list",
