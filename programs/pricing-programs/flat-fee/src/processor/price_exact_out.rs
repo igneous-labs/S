@@ -17,22 +17,18 @@ use solana_program::{
 
 pub fn process_price_exact_out(
     accounts: &[AccountInfo],
-    PriceExactOutIxArgs { amount, sol_value }: PriceExactOutIxArgs,
+    PriceExactOutIxArgs {
+        amount: _,
+        sol_value,
+    }: PriceExactOutIxArgs,
 ) -> ProgramResult {
-    let checked = verify_price_exact_out(accounts)?;
-    process_price_exact_out_unchecked(checked, amount, sol_value)
-}
-
-fn process_price_exact_out_unchecked(
-    PriceExactOutAccounts {
+    let PriceExactOutAccounts {
         input_lst_mint: _,
         output_lst_mint: _,
         input_fee_acc,
         output_fee_acc,
-    }: PriceExactOutAccounts,
-    _amount: u64,
-    sol_value: u64,
-) -> ProgramResult {
+    } = verify_price_exact_out(accounts)?;
+
     let input_fee_acc_bytes = input_fee_acc.try_borrow_data()?;
     let input_fee_acc = try_fee_account(&input_fee_acc_bytes)?;
     let output_fee_acc_bytes = output_fee_acc.try_borrow_data()?;
@@ -45,6 +41,7 @@ fn process_price_exact_out_unchecked(
     )?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
+
     Ok(())
 }
 

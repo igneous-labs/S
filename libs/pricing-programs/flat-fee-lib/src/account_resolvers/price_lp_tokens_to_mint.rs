@@ -7,6 +7,7 @@ pub struct PriceLpTokensToMintFreeArgs {
 
 impl PriceLpTokensToMintFreeArgs {
     pub fn resolve(self) -> PriceLpTokensToMintKeys {
+        // TODO: should we check if FeeAccount exists at [b"fee", input_lst_mint]?
         PriceLpTokensToMintKeys {
             input_lst_mint: self.input_lst_mint,
         }

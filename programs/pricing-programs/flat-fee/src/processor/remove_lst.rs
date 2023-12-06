@@ -12,23 +12,19 @@ use solana_program::{
 };
 
 pub fn process_remove_lst(accounts: &[AccountInfo]) -> ProgramResult {
-    let checked = verify_remove_lst(accounts)?;
-    process_remove_lst_unchecked(checked)
-}
-
-fn process_remove_lst_unchecked(
-    RemoveLstAccounts {
+    let RemoveLstAccounts {
         manager: _,
         fee_acc,
         state: _,
         system_program: _,
         refund_rent_to,
-    }: RemoveLstAccounts,
-) -> ProgramResult {
+    } = verify_remove_lst(accounts)?;
+
     close_account(CloseAccountAccounts {
         refund_rent_to,
         close: fee_acc,
     })?;
+
     Ok(())
 }
 

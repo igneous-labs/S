@@ -17,19 +17,12 @@ pub fn process_set_lst_fee(
         output_fee_bps,
     }: SetLstFeeIxArgs,
 ) -> ProgramResult {
-    let checked = verify_set_lst_fee(accounts)?;
-    process_set_lst_fee_unchecked(checked, input_fee_bps, output_fee_bps)
-}
-
-fn process_set_lst_fee_unchecked(
-    SetLstFeeAccounts {
+    let SetLstFeeAccounts {
         manager: _,
         fee_acc,
         state: _,
-    }: SetLstFeeAccounts,
-    input_fee_bps: i16,
-    output_fee_bps: i16,
-) -> ProgramResult {
+    } = verify_set_lst_fee(accounts)?;
+
     let mut bytes = fee_acc.try_borrow_mut_data()?;
     let fee_acc = try_fee_account_mut(&mut bytes)?;
 

@@ -11,20 +11,17 @@ use solana_program::{
 };
 
 pub fn process_set_manager(accounts: &[AccountInfo]) -> ProgramResult {
-    let checked = verify_set_manager(accounts)?;
-    process_set_manager_unchecked(checked)
-}
-
-fn process_set_manager_unchecked(
-    SetManagerAccounts {
+    let SetManagerAccounts {
         current_manager: _,
         new_manager,
         state,
-    }: SetManagerAccounts,
-) -> ProgramResult {
+    } = verify_set_manager(accounts)?;
+
     let mut bytes = state.try_borrow_mut_data()?;
     let state = try_program_state_mut(&mut bytes)?;
+
     state.manager = *new_manager.key;
+
     Ok(())
 }
 
