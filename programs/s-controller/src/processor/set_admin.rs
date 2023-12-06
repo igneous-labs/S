@@ -1,8 +1,7 @@
 use s_controller_interface::{
     set_admin_verify_account_keys, set_admin_verify_account_privileges, SetAdminAccounts,
-    SetAdminKeys,
 };
-use s_controller_lib::try_pool_state_mut;
+use s_controller_lib::{try_pool_state_mut, SetAdminFreeArgs};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
@@ -34,11 +33,10 @@ fn verify_set_admin<'a, 'info>(
 ) -> Result<SetAdminAccounts<'a, 'info>, ProgramError> {
     let actual: SetAdminAccounts = load_accounts(accounts)?;
 
-    let expected = SetAdminKeys {
-        current_admin: *actual.current_admin.key,
+    let expected = SetAdminFreeArgs {
         new_admin: *actual.new_admin.key,
-        pool_state: *actual.pool_state.key,
-    };
+    }
+    .resolve();
 
     set_admin_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     set_admin_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
