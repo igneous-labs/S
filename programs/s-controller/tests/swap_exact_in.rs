@@ -6,7 +6,7 @@ use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERM
 use marinade_keys::msol;
 use s_controller_lib::{
     swap_exact_in_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
-    SwapExactInAmounts, SwapExactInByMintFreeArgs,
+    SwapByMintsFreeArgs, SwapExactInAmounts,
 };
 use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
@@ -107,7 +107,7 @@ async fn basic_no_fee() {
         (&marinade_sol_val_calc_keys).into();
 
     let ix = swap_exact_in_ix_by_mint_full(
-        SwapExactInByMintFreeArgs {
+        SwapByMintsFreeArgs {
             signer: swapper.pubkey(),
             src_lst_acc: swapper_msol_acc_addr,
             dst_lst_acc: swapper_jitosol_acc_addr,

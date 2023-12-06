@@ -109,3 +109,21 @@ pub fn ix_extend_with_pricing_program_price_swap_accounts(
         .and_then(|len| len.try_into().ok())
         .ok_or(SControllerError::MathError)
 }
+
+/// For conversion of u32 instruction args index types into usize.
+/// Basically a wrapper around `try_into()`.
+/// Reverse of [`index_to_u32`]
+pub fn index_to_usize(ix_arg_index: u32) -> Result<usize, SControllerError> {
+    ix_arg_index
+        .try_into()
+        .map_err(|_e| SControllerError::IndexTooLarge)
+}
+
+/// For converting usize index types to u32 to pack into instruction args.
+/// Basically a wrapper around `try_into()`.
+/// Reverse of [`index_to_usize`]
+pub fn index_to_u32(ix_arg_index: usize) -> Result<u32, SControllerError> {
+    ix_arg_index
+        .try_into()
+        .map_err(|_e| SControllerError::IndexTooLarge)
+}
