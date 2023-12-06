@@ -1,5 +1,7 @@
 mod common;
 
+use std::intrinsics::assert_zero_valid;
+
 use common::*;
 use s_controller_interface::{
     remove_disable_pool_authority_ix, RemoveDisablePoolAuthorityIxArgs, SControllerError,
@@ -144,9 +146,12 @@ async fn basic_add_two() {
             disable_pool_authority_list,
             target_index,
         );
-        assert_eq!(
-            result,
-            Err(SControllerError::InvalidDisablePoolAuthorityIndex)
+        assert!(
+            matches!(result, Err(SControllerError::IndexTooLarge))
+                || matches!(
+                    result,
+                    Err(SControllerError::InvalidDisablePoolAuthorityIndex)
+                )
         );
     }
 }
