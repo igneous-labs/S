@@ -134,6 +134,7 @@ pub fn calc_remove_liquidity_protocol_fees(
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CalcSwapProtocolFeesArgs {
+    /// SOL value of LST user is transferring in to the pool
     pub in_sol_value: u64,
 
     /// SOL value of dst_lst_out
