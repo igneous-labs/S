@@ -3,7 +3,8 @@ use s_controller_interface::{
     DisableLstInputAccounts, DisableLstInputIxArgs,
 };
 use s_controller_lib::{
-    index_to_usize, try_lst_state_list_mut, try_pool_state, DisableLstInputFreeArgs, U8BoolMut,
+    index_to_usize, try_lst_state_list_mut, try_pool_state, DisableEnableLstInputFreeArgs,
+    U8BoolMut,
 };
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -37,12 +38,12 @@ fn verify_disable_lst_input<'me, 'info>(
 
     let actual: DisableLstInputAccounts = load_accounts(accounts)?;
 
-    let free_args = DisableLstInputFreeArgs {
+    let free_args = DisableEnableLstInputFreeArgs {
         lst_index,
         pool_state: actual.pool_state,
         lst_state_list: actual.lst_state_list,
     };
-    let expected = free_args.resolve()?;
+    let expected = free_args.resolve_disable()?;
 
     disable_lst_input_verify_account_keys(&actual, &expected)
         .map_err(log_and_return_wrong_acc_err)?;
