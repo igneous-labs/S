@@ -3,10 +3,10 @@ use s_controller_interface::{
     AddLiquidityAccounts, AddLiquidityIxArgs, SControllerError, ADD_LIQUIDITY_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_add_liquidity, calc_lp_tokens_to_mint,
+    calc_add_liquidity, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
-    CalcAddLiquidityArgs, CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, CalcAddLiquidityArgs,
+    CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
@@ -20,15 +20,22 @@ use solana_program::{
 
 use crate::{
     cpi::{PricingProgramIxArgs, PricingProgramPriceLpCpi, SolValueCalculatorCpi},
-    verify::{verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled},
+    verify::{
+        verify_lp_cpis, verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled,
+    },
 };
 
 use super::sync_sol_value_unchecked;
 
+struct AddLiquidityIxArgsChecked {
+    pub lst_index: usize,
+    pub lst_amount: u64,
+}
+
 pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs) -> ProgramResult {
     let (
         accounts,
-        AddLiquidityIxFullArgs {
+        AddLiquidityIxArgsChecked {
             lst_index,
             lst_amount,
         },
@@ -36,8 +43,6 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         pricing_cpi,
     ) = verify_add_liquidity(accounts, args)?;
 
-    // lst_index checked in verify
-    let lst_index: usize = lst_index.try_into().unwrap();
     sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
@@ -116,12 +121,14 @@ fn verify_add_liquidity<'a, 'info>(
 ) -> Result<
     (
         AddLiquidityAccounts<'a, 'info>,
-        AddLiquidityIxFullArgs,
+        AddLiquidityIxArgsChecked,
         SolValueCalculatorCpi<'a, 'info>,
         PricingProgramPriceLpCpi<'a, 'info>,
     ),
     ProgramError,
 > {
+    let lst_index = index_to_usize(lst_index)?;
+
     let actual: AddLiquidityAccounts = load_accounts(accounts)?;
 
     let free_args = AddLiquidityFreeArgs {
@@ -145,29 +152,23 @@ fn verify_add_liquidity<'a, 'info>(
     let lst_state_list_bytes = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;
     // dst_lst_index checked above
-    let lst_index_usize: usize = lst_index.try_into().unwrap();
-    let dst_lst_state = lst_state_list[lst_index_usize];
+    let dst_lst_state = lst_state_list[lst_index];
     verify_lst_input_not_disabled(&dst_lst_state)?;
 
-    let lst_value_calc_suffix_end = ADD_LIQUIDITY_IX_ACCOUNTS_LEN
-        .checked_add((lst_value_calc_accs).into())
-        .ok_or(SControllerError::MathError)?;
-    let lst_accounts_suffix_slice = accounts
-        .get(ADD_LIQUIDITY_IX_ACCOUNTS_LEN..lst_value_calc_suffix_end)
+    let accounts_suffix_slice = accounts
+        .get(ADD_LIQUIDITY_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let lst_cpi = SolValueCalculatorCpi::from_ix_accounts(actual, lst_accounts_suffix_slice)?;
-    lst_cpi.verify_correct_sol_value_calculator_program(actual, lst_index)?;
 
-    let pricing_accounts_suffix_slice = accounts
-        .get(lst_value_calc_suffix_end..)
-        .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let pricing_cpi =
-        PricingProgramPriceLpCpi::from_ix_accounts(actual, pricing_accounts_suffix_slice)?;
-    pricing_cpi.verify_correct_pricing_program(actual)?;
+    let (lst_cpi, pricing_cpi) = verify_lp_cpis(
+        actual,
+        accounts_suffix_slice,
+        lst_value_calc_accs,
+        lst_index,
+    )?;
 
     Ok((
         actual,
-        AddLiquidityIxFullArgs {
+        AddLiquidityIxArgsChecked {
             lst_index,
             lst_amount,
         },

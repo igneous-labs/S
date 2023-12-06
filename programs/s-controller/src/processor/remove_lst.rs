@@ -3,6 +3,7 @@ use s_controller_interface::{
     RemoveLstAccounts, RemoveLstIxArgs, SControllerError,
 };
 use s_controller_lib::{
+    index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED, PROTOCOL_FEE_BUMP, PROTOCOL_FEE_SEED},
     try_lst_state_list, RemoveLstFreeArgs,
 };
@@ -10,7 +11,7 @@ use sanctum_onchain_utils::{
     token_program::{close_token_account_signed, CloseTokenAccountAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_account_balance;
+use sanctum_utils::token::token_account_balance_program_agnostic;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -54,6 +55,8 @@ fn verify_remove_lst<'a, 'info>(
     accounts: &'a [AccountInfo<'info>],
     RemoveLstIxArgs { lst_index }: RemoveLstIxArgs,
 ) -> Result<(RemoveLstAccounts<'a, 'info>, usize), ProgramError> {
+    let lst_index = index_to_usize(lst_index)?;
+
     let actual: RemoveLstAccounts = load_accounts(accounts)?;
 
     let free_args = RemoveLstFreeArgs {
@@ -68,17 +71,13 @@ fn verify_remove_lst<'a, 'info>(
     remove_lst_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     remove_lst_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
 
-    let lst_index: usize = lst_index
-        .try_into()
-        .map_err(|_e| SControllerError::MathError)?;
-
     let lst_state_list_acc_data = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
     let lst_state = lst_state_list[lst_index]; // index checked during accounts resolution
 
     if lst_state.sol_value != 0
-        || token_account_balance(actual.pool_reserves)? != 0
-        || token_account_balance(actual.protocol_fee_accumulator)? != 0
+        || token_account_balance_program_agnostic(actual.pool_reserves)? != 0
+        || token_account_balance_program_agnostic(actual.protocol_fee_accumulator)? != 0
     {
         return Err(SControllerError::LstStillHasValue.into());
     }

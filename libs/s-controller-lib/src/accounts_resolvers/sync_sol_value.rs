@@ -1,4 +1,4 @@
-use s_controller_interface::{SControllerError, SyncSolValueIxArgs, SyncSolValueKeys};
+use s_controller_interface::{SControllerError, SyncSolValueKeys};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -9,20 +9,16 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct SyncSolValueFreeArgs<
-    I: TryInto<usize>,
     L: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
-    pub lst_index: I,
+    pub lst_index: usize,
     pub lst_state_list: L,
     pub lst_mint: M,
 }
 
-impl<
-        I: TryInto<usize>,
-        L: ReadonlyAccountData + KeyedAccount,
-        M: ReadonlyAccountOwner + KeyedAccount,
-    > SyncSolValueFreeArgs<I, L, M>
+impl<L: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccount>
+    SyncSolValueFreeArgs<L, M>
 {
     pub fn resolve(self) -> Result<SyncSolValueKeys, SControllerError> {
         if *self.lst_state_list.key() != LST_STATE_LIST_ID {
@@ -58,7 +54,8 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
     SyncSolValueByMintFreeArgs<L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
-    pub fn resolve(self) -> Result<(SyncSolValueKeys, SyncSolValueIxArgs), SControllerError> {
+    /// Returns (keys, index of lst_mint on lst_state_list)
+    pub fn resolve(self) -> Result<(SyncSolValueKeys, usize), SControllerError> {
         let lst_state_list_acc_data = self.lst_state_list.data();
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
@@ -72,11 +69,7 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
                 lst_state_list: LST_STATE_LIST_ID,
                 pool_reserves,
             },
-            SyncSolValueIxArgs {
-                lst_index: lst_index
-                    .try_into()
-                    .map_err(|_e| SControllerError::MathError)?,
-            },
+            lst_index,
         ))
     }
 }

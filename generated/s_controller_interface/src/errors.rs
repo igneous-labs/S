@@ -48,10 +48,16 @@ pub enum SControllerError {
     LstStillHasValue = 18,
     #[error("Incorrect pricing program")]
     IncorrectPricingProgram = 19,
+    #[error("Swap would exceed slippage tolerance")]
+    SlippageToleranceExceeded = 20,
+    #[error("Not enough liquidity complete swap")]
+    NotEnoughLiquidity = 21,
+    #[error("Provided list index argument is too large")]
+    IndexTooLarge = 22,
     #[error("Disable Pool Authority with given index does not exist")]
-    InvalidDisablePoolAuthorityIndex = 20,
+    InvalidDisablePoolAuthorityIndex = 23,
     #[error("Signer is not authorized to remove given disable pool authority")]
-    UnauthorizedDisablePoolAuthoritySigner = 21,
+    UnauthorizedDisablePoolAuthoritySigner = 24,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

@@ -1,6 +1,6 @@
 use s_controller_interface::{
     AddLiquidityAccounts, EndRebalanceAccounts, RemoveLiquidityAccounts, StartRebalanceAccounts,
-    SyncSolValueAccounts,
+    SwapExactInAccounts, SwapExactOutAccounts, SyncSolValueAccounts,
 };
 use solana_program::account_info::AccountInfo;
 
@@ -48,10 +48,22 @@ impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for RemoveLiquidityAccounts
     }
 }
 
+impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for SwapExactInAccounts<'me, 'info> {
+    fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
+        self.pool_state
+    }
+}
+
+impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for SwapExactOutAccounts<'me, 'info> {
+    fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
+        self.pool_state
+    }
+}
+
 // impls for src_dst wrapper newtypes
 
 impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for SrcLstMintOf<'me, A>
+    for SrcLstMintOf<A>
 {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
         self.0.get_pool_state_account_info()
@@ -59,7 +71,7 @@ impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo
 }
 
 impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for DstLstMintOf<'me, A>
+    for DstLstMintOf<A>
 {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
         self.0.get_pool_state_account_info()
@@ -67,7 +79,7 @@ impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo
 }
 
 impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for SrcLstPoolReservesOf<'me, A>
+    for SrcLstPoolReservesOf<A>
 {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
         self.0.get_pool_state_account_info()
@@ -75,7 +87,7 @@ impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo
 }
 
 impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for DstLstPoolReservesOf<'me, A>
+    for DstLstPoolReservesOf<A>
 {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
         self.0.get_pool_state_account_info()

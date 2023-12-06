@@ -6,13 +6,14 @@ use solana_program::{instruction::Instruction, program_error::ProgramError};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
-    ix_extend_with_pricing_program_price_lp_accounts, ix_extend_with_sol_value_calculator_accounts,
-    try_from_int_err_to_io_err, AddLiquidityByMintFreeArgs, AddRemoveLiquidityExtraAccounts,
+    index_to_u32, ix_extend_with_pricing_program_price_lp_accounts,
+    ix_extend_with_sol_value_calculator_accounts, AddLiquidityByMintFreeArgs,
+    AddRemoveLiquidityExtraAccounts,
 };
 
 #[derive(Clone, Copy, Debug)]
 pub struct AddLiquidityIxFullArgs {
-    pub lst_index: u32,
+    pub lst_index: usize,
     pub lst_amount: u64,
 }
 
@@ -28,7 +29,8 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
         lst_calculator_accounts,
         pricing_program_price_lp_accounts,
     }: AddRemoveLiquidityExtraAccounts,
-) -> std::io::Result<Instruction> {
+) -> Result<Instruction, ProgramError> {
+    let lst_index = index_to_u32(lst_index)?;
     let mut ix = add_liquidity_ix(
         accounts,
         AddLiquidityIxArgs {
@@ -42,13 +44,13 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
         lst_calculator_accounts,
         lst_calculator_program_id,
     )
-    .map_err(try_from_int_err_to_io_err)?;
+    .map_err(|_e| SControllerError::MathError)?;
     ix_extend_with_pricing_program_price_lp_accounts(
         &mut ix,
         pricing_program_price_lp_accounts,
         pricing_program_id,
     )
-    .map_err(try_from_int_err_to_io_err)?;
+    .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update lst_value_calc_accs than double serialization here
     let mut overwrite = &mut ix.data[..];
     AddLiquidityIxData(AddLiquidityIxArgs {
@@ -73,9 +75,7 @@ pub fn add_liquidity_ix_by_mint_full<
     let ix = add_liquidity_ix_full(
         keys,
         AddLiquidityIxFullArgs {
-            lst_index: lst_index
-                .try_into()
-                .map_err(|_e| SControllerError::MathError)?,
+            lst_index,
             lst_amount: amount,
         },
         extra_accounts,

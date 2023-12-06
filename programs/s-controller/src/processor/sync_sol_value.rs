@@ -3,13 +3,13 @@ use s_controller_interface::{
     SyncSolValueAccounts, SyncSolValueIxArgs, SYNC_SOL_VALUE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    sync_sol_value_with_retval, try_lst_state_list_mut, try_pool_state, try_pool_state_mut,
-    SyncSolValueFreeArgs,
+    index_to_usize, sync_sol_value_with_retval, try_lst_state_list_mut, try_pool_state,
+    try_pool_state_mut, SyncSolValueFreeArgs,
 };
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::token_account_balance;
+use sanctum_utils::token::token_account_balance_program_agnostic;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -19,12 +19,13 @@ use crate::{
         GetLstStateListAccountInfo, GetPoolReservesAccountInfo, GetPoolStateAccountInfo,
     },
     cpi::SolValueCalculatorCpi,
-    verify::verify_not_rebalancing_and_not_disabled,
+    verify::{verify_lst_sol_val_calc_cpi, verify_not_rebalancing_and_not_disabled},
 };
 
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
-    sync_sol_value_unchecked(accounts, cpi, args.lst_index as usize)
+    let lst_index: usize = args.lst_index.try_into().unwrap(); // lst_index checked in verify
+    sync_sol_value_unchecked(accounts, cpi, lst_index)
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors
@@ -39,7 +40,8 @@ pub fn sync_sol_value_unchecked<
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {
-    let lst_balance = token_account_balance(accounts.get_pool_reserves_account_info())?;
+    let lst_balance =
+        token_account_balance_program_agnostic(accounts.get_pool_reserves_account_info())?;
     let returned_sol_value = cpi.invoke_lst_to_sol(lst_balance)?;
 
     let mut pool_state_bytes = accounts
@@ -69,21 +71,20 @@ fn verify_sync_sol_value<'a, 'info>(
     ProgramError,
 > {
     let actual = load_accounts(accounts)?;
-    let actual = verify_sync_sol_value_base_accounts(actual, *lst_index)?;
+    let lst_index = index_to_usize(*lst_index)?;
+    let actual = verify_sync_sol_value_base_accounts(actual, lst_index)?;
 
     let accounts_suffix_slice = accounts
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    let cpi = SolValueCalculatorCpi::from_ix_accounts(actual, accounts_suffix_slice)?;
-    cpi.verify_correct_sol_value_calculator_program(actual, *lst_index)?;
-
+    let cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, lst_index)?;
     Ok((actual, cpi))
 }
 
-fn verify_sync_sol_value_base_accounts<'a, 'info, I: TryInto<usize>>(
+fn verify_sync_sol_value_base_accounts<'a, 'info>(
     actual: SyncSolValueAccounts<'a, 'info>,
-    lst_index: I,
+    lst_index: usize,
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {
     let free_args = SyncSolValueFreeArgs {
         lst_index,

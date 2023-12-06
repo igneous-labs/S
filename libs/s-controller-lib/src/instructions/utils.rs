@@ -1,5 +1,6 @@
 use std::num::TryFromIntError;
 
+use s_controller_interface::SControllerError;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
@@ -68,7 +69,7 @@ pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
 }
 
 // actually the same as ix_extend_with_sol_value_calculator_accounts
-// since this interface takes lst_mint prefix account
+// since this interface also takes a single lst_mint prefix account
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_pricing_program_price_lp_accounts(
     ix: &mut Instruction,
@@ -87,6 +88,42 @@ pub fn ix_extend_with_pricing_program_price_lp_accounts(
     pricing_program_price_lp_accounts.len().try_into()
 }
 
-pub fn try_from_int_err_to_io_err(e: TryFromIntError) -> std::io::Error {
-    std::io::Error::new(std::io::ErrorKind::Other, e)
+/// Returns number of accounts added to the instruction's accounts array
+pub fn ix_extend_with_pricing_program_price_swap_accounts(
+    ix: &mut Instruction,
+    pricing_program_price_swap_accounts: &[AccountMeta],
+    pricing_program_id: Pubkey,
+) -> Result<u8, SControllerError> {
+    ix.accounts.push(AccountMeta {
+        pubkey: pricing_program_id,
+        is_signer: false,
+        is_writable: false,
+    });
+    // exclude first 2 accounts since that should be input_lst_mint and output_lst_mint
+    ix.accounts
+        .extend(pricing_program_price_swap_accounts.iter().skip(2).cloned());
+    // n_accounts = len() - 2 + 1
+    pricing_program_price_swap_accounts
+        .len()
+        .checked_sub(1)
+        .and_then(|len| len.try_into().ok())
+        .ok_or(SControllerError::MathError)
+}
+
+/// For conversion of u32 instruction args index types into usize.
+/// Basically a wrapper around `try_into()`.
+/// Reverse of [`index_to_u32`]
+pub fn index_to_usize(ix_arg_index: u32) -> Result<usize, SControllerError> {
+    ix_arg_index
+        .try_into()
+        .map_err(|_e| SControllerError::IndexTooLarge)
+}
+
+/// For converting usize index types to u32 to pack into instruction args.
+/// Basically a wrapper around `try_into()`.
+/// Reverse of [`index_to_usize`]
+pub fn index_to_u32(ix_arg_index: usize) -> Result<u32, SControllerError> {
+    ix_arg_index
+        .try_into()
+        .map_err(|_e| SControllerError::IndexTooLarge)
 }

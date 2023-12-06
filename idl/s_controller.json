@@ -65,6 +65,10 @@
           "type": "u32"
         },
         {
+          "name": "min_amount_out",
+          "type": "u64"
+        },
+        {
           "name": "amount",
           "type": "u64"
         }
@@ -166,6 +170,10 @@
         {
           "name": "dst_lst_index",
           "type": "u32"
+        },
+        {
+          "name": "max_amount_in",
+          "type": "u64"
         },
         {
           "name": "amount",
@@ -1465,11 +1473,26 @@
     },
     {
       "code": 20,
+      "name": "SlippageToleranceExceeded",
+      "msg": "Swap would exceed slippage tolerance"
+    },
+    {
+      "code": 21,
+      "name": "NotEnoughLiquidity",
+      "msg": "Not enough liquidity complete swap"
+    },
+    {
+      "code": 22,
+      "name": "IndexTooLarge",
+      "msg": "Provided list index argument is too large"
+    },
+    {
+      "code": 23,
       "name": "InvalidDisablePoolAuthorityIndex",
       "msg": "Disable Pool Authority with given index does not exist"
     },
     {
-      "code": 21,
+      "code": 24,
       "name": "UnauthorizedDisablePoolAuthoritySigner",
       "msg": "Signer is not authorized to remove given disable pool authority"
     }
