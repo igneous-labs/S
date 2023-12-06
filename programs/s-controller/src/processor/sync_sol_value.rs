@@ -3,8 +3,8 @@ use s_controller_interface::{
     SyncSolValueAccounts, SyncSolValueIxArgs, SYNC_SOL_VALUE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    sync_sol_value_with_retval, try_lst_state_list_mut, try_pool_state, try_pool_state_mut,
-    SyncSolValueFreeArgs,
+    index_to_usize, sync_sol_value_with_retval, try_lst_state_list_mut, try_pool_state,
+    try_pool_state_mut, SyncSolValueFreeArgs,
 };
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -71,20 +71,20 @@ fn verify_sync_sol_value<'a, 'info>(
     ProgramError,
 > {
     let actual = load_accounts(accounts)?;
-    let actual = verify_sync_sol_value_base_accounts(actual, *lst_index)?;
+    let lst_index = index_to_usize(*lst_index)?;
+    let actual = verify_sync_sol_value_base_accounts(actual, lst_index)?;
 
     let accounts_suffix_slice = accounts
         .get(SYNC_SOL_VALUE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    let lst_index_usize: usize = (*lst_index).try_into().unwrap(); // lst_index checked in resolve()
-    let cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, lst_index_usize)?;
+    let cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, lst_index)?;
     Ok((actual, cpi))
 }
 
-fn verify_sync_sol_value_base_accounts<'a, 'info, I: TryInto<usize>>(
+fn verify_sync_sol_value_base_accounts<'a, 'info>(
     actual: SyncSolValueAccounts<'a, 'info>,
-    lst_index: I,
+    lst_index: usize,
 ) -> Result<SyncSolValueAccounts<'a, 'info>, ProgramError> {
     let free_args = SyncSolValueFreeArgs {
         lst_index,

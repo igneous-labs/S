@@ -52,19 +52,15 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
 
     pub fn verify_correct_sol_value_calculator_program<
         G: GetLstStateListAccountInfo<'me, 'info>,
-        I: TryInto<usize>,
     >(
         &self,
         ix_accounts: G,
-        lst_index: I,
+        lst_index: usize,
     ) -> Result<(), ProgramError> {
         let lst_state_list_bytes = ix_accounts
             .get_lst_state_list_account_info()
             .try_borrow_data()?;
         let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;
-        let lst_index = lst_index
-            .try_into()
-            .map_err(|_e| SControllerError::InvalidLstIndex)?;
         let lst_state = lst_state_list
             .get(lst_index)
             .ok_or(SControllerError::InvalidLstIndex)?;

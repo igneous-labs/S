@@ -6,14 +6,14 @@ use s_controller_interface::{
 use solana_program::{instruction::Instruction, program_error::ProgramError};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
-use crate::{SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
+use crate::{index_to_u32, SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
 
 use super::{ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstSolValueCalcAccounts};
 
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceIxFullArgs {
-    pub src_lst_index: u32,
-    pub dst_lst_index: u32,
+    pub src_lst_index: usize,
+    pub dst_lst_index: usize,
     pub amount: u64,
 }
 
@@ -26,6 +26,8 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
     }: StartRebalanceIxFullArgs,
     sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
 ) -> Result<Instruction, ProgramError> {
+    let src_lst_index = index_to_u32(src_lst_index)?;
+    let dst_lst_index = index_to_u32(dst_lst_index)?;
     let mut ix = start_rebalance_ix(
         accounts,
         StartRebalanceIxArgs {
@@ -70,12 +72,8 @@ pub fn start_rebalance_ix_by_mints_full<
     start_rebalance_ix_full(
         start_rebalance_keys,
         StartRebalanceIxFullArgs {
-            src_lst_index: src_lst_index
-                .try_into()
-                .map_err(|_e| SControllerError::MathError)?,
-            dst_lst_index: dst_lst_index
-                .try_into()
-                .map_err(|_e| SControllerError::MathError)?,
+            src_lst_index,
+            dst_lst_index,
             amount,
         },
         sol_val_calc_accounts,

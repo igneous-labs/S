@@ -7,13 +7,14 @@ use solana_program::{instruction::Instruction, program_error::ProgramError};
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
-    ix_extend_with_pricing_program_price_lp_accounts, ix_extend_with_sol_value_calculator_accounts,
-    AddRemoveLiquidityExtraAccounts, RemoveLiquidityByMintFreeArgs,
+    index_to_u32, ix_extend_with_pricing_program_price_lp_accounts,
+    ix_extend_with_sol_value_calculator_accounts, AddRemoveLiquidityExtraAccounts,
+    RemoveLiquidityByMintFreeArgs,
 };
 
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLiquidityIxFullArgs {
-    pub lst_index: u32,
+    pub lst_index: usize,
     pub lp_token_amount: u64,
 }
 
@@ -30,6 +31,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
         pricing_program_price_lp_accounts,
     }: AddRemoveLiquidityExtraAccounts,
 ) -> Result<Instruction, ProgramError> {
+    let lst_index = index_to_u32(lst_index)?;
     let mut ix = remove_liquidity_ix(
         accounts,
         RemoveLiquidityIxArgs {
@@ -74,9 +76,7 @@ pub fn remove_liquidity_ix_by_mint_full<
     let ix = remove_liquidity_ix_full(
         keys,
         RemoveLiquidityIxFullArgs {
-            lst_index: lst_index
-                .try_into()
-                .map_err(|_e| SControllerError::MathError)?,
+            lst_index,
             lp_token_amount: lp_amount,
         },
         extra_accounts,

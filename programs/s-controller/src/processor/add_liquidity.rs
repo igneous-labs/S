@@ -3,7 +3,7 @@ use s_controller_interface::{
     AddLiquidityAccounts, AddLiquidityIxArgs, SControllerError, ADD_LIQUIDITY_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_add_liquidity, calc_lp_tokens_to_mint,
+    calc_add_liquidity, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, CalcAddLiquidityArgs,
     CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
@@ -127,6 +127,8 @@ fn verify_add_liquidity<'a, 'info>(
     ),
     ProgramError,
 > {
+    let lst_index = index_to_usize(lst_index)?;
+
     let actual: AddLiquidityAccounts = load_accounts(accounts)?;
 
     let free_args = AddLiquidityFreeArgs {
@@ -150,7 +152,6 @@ fn verify_add_liquidity<'a, 'info>(
     let lst_state_list_bytes = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;
     // dst_lst_index checked above
-    let lst_index: usize = lst_index.try_into().unwrap();
     let dst_lst_state = lst_state_list[lst_index];
     verify_lst_input_not_disabled(&dst_lst_state)?;
 

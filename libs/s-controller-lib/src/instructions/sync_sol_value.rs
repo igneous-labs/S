@@ -8,17 +8,18 @@ use solana_program::{
 };
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
-use crate::SyncSolValueByMintFreeArgs;
+use crate::{index_to_u32, SyncSolValueByMintFreeArgs};
 
 use super::utils::ix_extend_with_sol_value_calculator_accounts;
 
-pub fn sync_sol_value_ix_full<K: Into<SyncSolValueKeys>, A: Into<SyncSolValueIxArgs>>(
+pub fn sync_sol_value_ix_full<K: Into<SyncSolValueKeys>>(
     accounts: K,
-    args: A,
+    lst_index: usize,
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
-    let mut ix = sync_sol_value_ix(accounts, args)?;
+    let lst_index = index_to_u32(lst_index)?;
+    let mut ix = sync_sol_value_ix(accounts, SyncSolValueIxArgs { lst_index })?;
     ix_extend_with_sol_value_calculator_accounts(
         &mut ix,
         sol_value_calculator_accounts,
@@ -36,10 +37,10 @@ pub fn sync_sol_value_ix_by_mint_full<
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
-    let (keys, ix_args) = free_args.resolve()?;
+    let (keys, lst_index) = free_args.resolve()?;
     let ix = sync_sol_value_ix_full(
         keys,
-        ix_args,
+        lst_index,
         sol_value_calculator_accounts,
         sol_value_calculator_program_id,
     )?;
