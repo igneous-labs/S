@@ -1,20 +1,33 @@
-use s_controller_interface::{RemoveDisablePoolAuthorityKeys, SControllerError};
+use s_controller_interface::{
+    RemoveDisablePoolAuthorityIxArgs, RemoveDisablePoolAuthorityKeys, SControllerError,
+};
 use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
-    try_pool_state,
+    try_disable_pool_authority_list, try_find_element_in_list, try_pool_state,
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct RemoveDisablePoolAuthorityFreeArgs<S: ReadonlyAccountData + KeyedAccount> {
+pub struct RemoveDisablePoolAuthorityFreeArgs<
+    I: TryInto<usize>,
+    S: ReadonlyAccountData + KeyedAccount,
+    L: ReadonlyAccountData + KeyedAccount,
+> {
+    pub index: I,
     pub refund_rent_to: Pubkey,
     pub authority: Pubkey,
     pub pool_state_acc: S,
+    pub disable_pool_authority_list: L,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount> RemoveDisablePoolAuthorityFreeArgs<S> {
+impl<
+        I: TryInto<usize>,
+        S: ReadonlyAccountData + KeyedAccount,
+        L: ReadonlyAccountData + KeyedAccount,
+    > RemoveDisablePoolAuthorityFreeArgs<I, S, L>
+{
     pub fn resolve(&self) -> Result<RemoveDisablePoolAuthorityKeys, SControllerError> {
         if *self.pool_state_acc.key() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
@@ -30,5 +43,55 @@ impl<S: ReadonlyAccountData + KeyedAccount> RemoveDisablePoolAuthorityFreeArgs<S
             authority: self.authority,
             disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,
         })
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct RemoveDisablePoolAuthorityByPubkeyFreeArgs<
+    S: ReadonlyAccountData + KeyedAccount,
+    L: ReadonlyAccountData + KeyedAccount,
+> {
+    pub refund_rent_to: Pubkey,
+    pub authority: Pubkey,
+    pub pool_state_acc: S,
+    pub disable_pool_authority_list: L,
+}
+
+impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccount>
+    RemoveDisablePoolAuthorityByPubkeyFreeArgs<S, L>
+{
+    pub fn resolve(
+        &self,
+    ) -> Result<
+        (
+            RemoveDisablePoolAuthorityKeys,
+            RemoveDisablePoolAuthorityIxArgs,
+        ),
+        SControllerError,
+    > {
+        if *self.pool_state_acc.key() != POOL_STATE_ID {
+            return Err(SControllerError::IncorrectPoolState);
+        }
+
+        let pool_state_data = self.pool_state_acc.data();
+        let pool_state = try_pool_state(&pool_state_data)?;
+
+        let disable_pool_authority_list_data = self.disable_pool_authority_list.data();
+        let list = try_disable_pool_authority_list(&disable_pool_authority_list_data)?;
+        let (index, _authority) = try_find_element_in_list(self.authority, list)?;
+        let index: u32 = index
+            .try_into()
+            .map_err(|_e| SControllerError::InvalidDisablePoolAuthorityIndex)?;
+
+        Ok((
+            RemoveDisablePoolAuthorityKeys {
+                refund_rent_to: self.refund_rent_to,
+                admin: pool_state.admin,
+                authority: self.authority,
+                pool_state: *self.pool_state_acc.key(),
+                disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,
+            },
+            RemoveDisablePoolAuthorityIxArgs { index },
+        ))
     }
 }
