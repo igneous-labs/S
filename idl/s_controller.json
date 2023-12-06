@@ -1408,96 +1408,101 @@
     },
     {
       "code": 7,
+      "name": "PoolEnabled",
+      "msg": "Pool is currently enabled "
+    },
+    {
+      "code": 8,
       "name": "InvalidLstIndex",
       "msg": "LST with given index does not exist"
     },
     {
-      "code": 8,
+      "code": 9,
       "name": "InvalidReserves",
       "msg": "Invalid LST reserves account"
     },
     {
-      "code": 9,
+      "code": 10,
       "name": "IncorrectSolValueCalculator",
       "msg": "Incorrect SOL value calculator program"
     },
     {
-      "code": 10,
+      "code": 11,
       "name": "FaultySolValueCalculator",
       "msg": "Faulty SOL value calculator program"
     },
     {
-      "code": 11,
+      "code": 12,
       "name": "IncorrectLstStateList",
       "msg": "Incorrect LST state list account"
     },
     {
-      "code": 12,
+      "code": 13,
       "name": "IncorrectPoolState",
       "msg": "Incorrect pool state account"
     },
     {
-      "code": 13,
+      "code": 14,
       "name": "LstInputDisabled",
       "msg": "Input is currently disabled for this LST"
     },
     {
-      "code": 14,
+      "code": 15,
       "name": "NoSucceedingEndRebalance",
       "msg": "No succeeding EndRebalance instruction found"
     },
     {
-      "code": 15,
+      "code": 16,
       "name": "IncorrectRebalanceRecord",
       "msg": "Incorrect rebalance record account"
     },
     {
-      "code": 16,
+      "code": 17,
       "name": "PoolNotRebalancing",
       "msg": "Pool is not currently rebalancing"
     },
     {
-      "code": 17,
+      "code": 18,
       "name": "PoolWouldLoseSolValue",
       "msg": "Cannot allow loss of SOL value for pool"
     },
     {
-      "code": 18,
+      "code": 19,
       "name": "LstStillHasValue",
       "msg": "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
     },
     {
-      "code": 19,
+      "code": 20,
       "name": "IncorrectPricingProgram",
       "msg": "Incorrect pricing program"
     },
     {
-      "code": 20,
+      "code": 21,
       "name": "SlippageToleranceExceeded",
       "msg": "Swap would exceed slippage tolerance"
     },
     {
-      "code": 21,
+      "code": 22,
       "name": "NotEnoughLiquidity",
       "msg": "Not enough liquidity complete swap"
     },
     {
-      "code": 22,
+      "code": 23,
       "name": "IndexTooLarge",
       "msg": "Provided list index argument is too large"
     },
     {
-      "code": 23,
+      "code": 24,
       "name": "InvalidDisablePoolAuthorityIndex",
       "msg": "Disable Pool Authority with given index does not exist"
     },
     {
-      "code": 24,
+      "code": 25,
       "name": "UnauthorizedDisablePoolAuthoritySigner",
       "msg": "Signer is not authorized to operate on given disable pool authority"
     },
     {
-      "code": 25,
+      "code": 26,
       "name": "InvalidDisablePoolAuthority",
       "msg": "Given disable pool authority is not valid"
     }
