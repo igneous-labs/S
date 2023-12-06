@@ -25,7 +25,7 @@ use crate::{
     },
 };
 
-use super::sync_sol_value_unchecked;
+use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 struct AddLiquidityIxArgsChecked {
     pub lst_index: usize,
@@ -43,7 +43,9 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         pricing_cpi,
     ) = verify_add_liquidity(accounts, args)?;
 
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+    let sync_sol_value_accounts = SyncSolValueUncheckedAccounts::from(accounts);
+
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)?;
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
@@ -101,7 +103,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         lp_tokens_to_mint,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)?;
 
     let end_total_sol_value = accounts.pool_state.total_sol_value()?;
     if end_total_sol_value < start_total_sol_value {

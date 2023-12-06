@@ -31,7 +31,7 @@ use crate::{
     },
 };
 
-use super::sync_sol_value_unchecked;
+use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 pub fn process_start_rebalance(
     accounts: &[AccountInfo],
@@ -49,8 +49,14 @@ pub fn process_start_rebalance(
         },
     ) = verify_start_rebalance(accounts, &args)?;
 
-    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
-    sync_sol_value_unchecked(DstLstPoolReservesOf(&accounts), dst_lst_cpi, dst_lst_index)?;
+    let src_sync_sol_value_accounts =
+        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(&accounts));
+    sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
+    sync_sol_value_unchecked(
+        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(&accounts)),
+        dst_lst_cpi,
+        dst_lst_index,
+    )?;
 
     let old_total_sol_value = accounts.pool_state.total_sol_value()?;
 
@@ -65,7 +71,7 @@ pub fn process_start_rebalance(
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
-    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
+    sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
 
     create_pda(
         CreateAccountAccounts {

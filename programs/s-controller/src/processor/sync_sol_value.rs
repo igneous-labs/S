@@ -25,33 +25,52 @@ use crate::{
 pub fn process_sync_sol_value(accounts: &[AccountInfo], args: SyncSolValueIxArgs) -> ProgramResult {
     let (accounts, cpi) = verify_sync_sol_value(accounts, &args)?;
     let lst_index: usize = args.lst_index.try_into().unwrap(); // lst_index checked in verify
-    sync_sol_value_unchecked(accounts, cpi, lst_index)
+    sync_sol_value_unchecked(
+        SyncSolValueUncheckedAccounts::from(accounts),
+        cpi,
+        lst_index,
+    )
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct SyncSolValueUncheckedAccounts<'me, 'info> {
+    pub pool_reserves: &'me AccountInfo<'info>,
+    pub pool_state: &'me AccountInfo<'info>,
+    pub lst_state_list: &'me AccountInfo<'info>,
+}
+
+impl<'me, 'info, A> From<A> for SyncSolValueUncheckedAccounts<'me, 'info>
+where
+    A: GetPoolReservesAccountInfo<'me, 'info>
+        + GetPoolStateAccountInfo<'me, 'info>
+        + GetLstStateListAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            pool_reserves: ix_accounts.get_pool_reserves_account_info(),
+            pool_state: ix_accounts.get_pool_state_account_info(),
+            lst_state_list: ix_accounts.get_lst_state_list_account_info(),
+        }
+    }
 }
 
 /// SyncSolValue's full subroutine, exported for use by other instruction processors
-pub fn sync_sol_value_unchecked<
-    'a,
-    'info,
-    A: GetPoolReservesAccountInfo<'a, 'info>
-        + GetPoolStateAccountInfo<'a, 'info>
-        + GetLstStateListAccountInfo<'a, 'info>,
->(
-    accounts: A,
+pub fn sync_sol_value_unchecked<'a, 'info>(
+    SyncSolValueUncheckedAccounts {
+        pool_reserves,
+        pool_state,
+        lst_state_list,
+    }: SyncSolValueUncheckedAccounts<'a, 'info>,
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {
-    let lst_balance =
-        token_account_balance_program_agnostic(accounts.get_pool_reserves_account_info())?;
+    let lst_balance = token_account_balance_program_agnostic(pool_reserves)?;
     let returned_sol_value = cpi.invoke_lst_to_sol(lst_balance)?;
 
-    let mut pool_state_bytes = accounts
-        .get_pool_state_account_info()
-        .try_borrow_mut_data()?;
+    let mut pool_state_bytes = pool_state.try_borrow_mut_data()?;
     let pool_state = try_pool_state_mut(&mut pool_state_bytes)?;
 
-    let mut lst_state_list_bytes = accounts
-        .get_lst_state_list_account_info()
-        .try_borrow_mut_data()?;
+    let mut lst_state_list_bytes = lst_state_list.try_borrow_mut_data()?;
     let lst_state_list = try_lst_state_list_mut(&mut lst_state_list_bytes)?;
     let lst_state = &mut lst_state_list[lst_index];
 
