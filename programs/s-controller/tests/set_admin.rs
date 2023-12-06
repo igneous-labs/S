@@ -1,12 +1,9 @@
 use s_controller_interface::{set_admin_ix, PoolState, SetAdminIxArgs};
-use s_controller_lib::{
-    initial_authority, program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs,
-};
-use solana_program::system_program;
+use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs};
+
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{
-    account::Account,
     signature::{read_keypair_file, Keypair, Signer},
     transaction::Transaction,
 };
@@ -30,26 +27,6 @@ async fn basic_set_admin() {
         "s_controller",
         s_controller_lib::program::ID,
         processor!(s_controller::entrypoint::process_instruction),
-    );
-
-    program_test.add_account(
-        initial_authority::ID,
-        Account {
-            lamports: 5,
-            data: vec![0; 1024], // Adjust size as needed
-            owner: system_program::ID,
-            ..Account::default()
-        },
-    );
-
-    program_test.add_account(
-        new_admin_kp.pubkey(),
-        Account {
-            lamports: 5,
-            data: vec![0; 1024], // Adjust size as needed
-            owner: system_program::ID,
-            ..Account::default()
-        },
     );
 
     let pool_state_acc = pool_state_to_account(DEFAULT_POOL_STATE);
