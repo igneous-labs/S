@@ -50,10 +50,10 @@ pub fn process_start_rebalance(
     ) = verify_start_rebalance(accounts, &args)?;
 
     let src_sync_sol_value_accounts =
-        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(&accounts));
+        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(accounts));
     sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
     sync_sol_value_unchecked(
-        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(&accounts)),
+        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(accounts)),
         dst_lst_cpi,
         dst_lst_index,
     )?;

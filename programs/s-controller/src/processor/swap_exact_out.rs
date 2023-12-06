@@ -47,9 +47,9 @@ pub fn process_swap_exact_out(accounts: &[AccountInfo], args: SwapExactOutIxArgs
     ) = verify_swap_exact_out(accounts, args)?;
 
     let src_sync_sol_value_accounts =
-        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(&accounts));
+        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(accounts));
     let dst_sync_sol_value_accounts =
-        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(&accounts));
+        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(accounts));
     sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
     sync_sol_value_unchecked(dst_sync_sol_value_accounts, dst_lst_cpi, dst_lst_index)?;
 
