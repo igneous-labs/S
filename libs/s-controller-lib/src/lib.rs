@@ -1,4 +1,7 @@
-use s_controller_interface::{LstState, PoolState, RebalanceRecord};
+use s_controller_interface::{
+    LstState, PoolState, RebalanceRecord, SWAP_EXACT_IN_IX_ACCOUNTS_LEN,
+    SWAP_EXACT_OUT_IX_ACCOUNTS_LEN,
+};
 use static_assertions::const_assert_eq;
 
 mod accounts_resolvers;
@@ -37,6 +40,11 @@ pub const LST_STATE_SIZE: usize = 80;
 const_assert_eq!(std::mem::size_of::<LstState>(), LST_STATE_SIZE);
 pub const LST_STATE_ALIGN: usize = 8;
 const_assert_eq!(std::mem::align_of::<LstState>(), LST_STATE_ALIGN);
+
+const_assert_eq!(
+    SWAP_EXACT_IN_IX_ACCOUNTS_LEN,
+    SWAP_EXACT_OUT_IX_ACCOUNTS_LEN
+);
 
 pub const REBALANCE_RECORD_SIZE: usize = 16;
 const_assert_eq!(

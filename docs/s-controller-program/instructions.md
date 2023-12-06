@@ -48,6 +48,7 @@ Swap to output LST from an exact amount of given input LST.
 | dst_lst_value_calc_accs | number of accounts following to invoke dst token's SOL value calculator program SolToLst with, excluding the interface prefix accounts. First account should be the calculator program itself             | u8   |
 | src_lst_index           | index of src_lst in `lst_state_list`                                                                                                                                                                      | u32  |
 | dst_lst_index           | index of dst_lst in `lst_state_list`                                                                                                                                                                      | u32  |
+| min_amount_out          | minimum output amount of dst_lst expected                                                                                                                                                                 | u64  |
 | amount                  | amount of src tokens to swap                                                                                                                                                                              | u64  |
 
 ### Accounts
@@ -76,16 +77,19 @@ Swap to output LST from an exact amount of given input LST.
 - Verify input not disabled for src_lst
 - Self CPI SyncSolValue for src_lst
 - Self CPI SyncSolValue for dst_lst
-- CPI src token's SOL value calculator program LstToSol to get SOL value of input amount
-- CPI pricing program PriceExactIn to get output SOL value
-- Apply protocol fees to fee amount = input SOL value - output SOL value
-- CPI dst token's SOL value calculator program SolToLst with protocol fees SOL value to get protocol fees amount
-- CPI dst token's SOL value calculator program SolToLst with output SOL value to get output token amount
-- Transfer input amount src tokens from src_lst_acc to src token reserves
-- Transfer protocol fees to protocol_fee_accumulator
-- Transfer remaining output dst tokens from dst token reserves to dst_lst_acc
+- in_sol_value = LstToSol(amount)
+- out_sol_value = PriceExactIn(amount, in_sol_value)
+- fee_amount_sol_value = in_sol_value - out_sol_value
+- protocol_fees_sol_value = apply protocol fees to fee_amount_sol_value
+- amount_out = SolToLst(out_sol_value)
+- Check amount_out >= min_amount_out
+- protocol_fees_amount = protocol_fees_sol_value \* amount_out / out_sol_value
+- Transfer amount src tokens from src_lst_acc to src_pool_reserves
+- Transfer protocol_fees_amount from dst_pool_reserves to protocol_fee_accumulator
+- Transfer amount_out dst tokens from dst_pool_reserves to dst_lst_acc
 - Self CPI SyncSolValue for src_lst
 - Self CPI SyncSolValue for dst_lst
+- Check pool has not lost SOL value
 
 ## SwapExactOut
 
@@ -94,11 +98,12 @@ Swap to an exact amount of output LST from input LST.
 Same as [SwapExactIn](#swapexactin-instruction), but:
 
 - discriminator = 2
+- max_amount_in instead of min_amount_out
 - amount is amount of dst tokens to receive
 - the core part goes like this instead:
-  - CPI dst token's SOL value calculator program LstToSol to get SOL value of output amount
-  - CPI pricing program PriceExactOut to get input SOL value
-  - CPI src token's SOL value calculator program SolToLst with input SOL value to get input token amount
+  - out_sol_value = LstToSol(amount)
+  - in_sol_value = PriceExactOut(amount, out_sol_value)
+  - amount_in = SolToLst(in_sol_value)
 
 Note protocol fees are always levied on dst_lst
 

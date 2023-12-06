@@ -15,29 +15,28 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::cpi::SolValueCalculatorCpi;
+use crate::{cpi::SolValueCalculatorCpi, verify::verify_lst_sol_val_calc_cpi};
 
 use super::sync_sol_value_unchecked;
 
 pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
-    let (accounts, cpi) = verify_end_rebalance(accounts)?;
+    let (accounts, cpi, dst_lst_index) = verify_end_rebalance(accounts)?;
     // TODO: remove these 2 braces if account data borrow across CPI safe
     {
         let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
         let pool_state = try_pool_state_mut(&mut pool_state_data)?;
         U8BoolMut(&mut pool_state.is_rebalancing).set_false();
     }
-    let (old_total_sol_value, dst_lst_index) = {
+    let old_total_sol_value = {
         let rebalance_record_data = accounts.rebalance_record.try_borrow_data()?;
         let RebalanceRecord {
             old_total_sol_value,
-            dst_lst_index,
             ..
         } = try_rebalance_record(&rebalance_record_data)?;
-        (*old_total_sol_value, *dst_lst_index)
+        *old_total_sol_value
     };
 
-    sync_sol_value_unchecked(accounts, cpi, dst_lst_index as usize)?;
+    sync_sol_value_unchecked(accounts, cpi, dst_lst_index)?;
 
     if accounts.pool_state.total_sol_value()? < old_total_sol_value {
         return Err(SControllerError::PoolWouldLoseSolValue.into());
@@ -55,6 +54,7 @@ fn verify_end_rebalance<'a, 'info>(
     (
         EndRebalanceAccounts<'a, 'info>,
         SolValueCalculatorCpi<'a, 'info>,
+        usize,
     ),
     ProgramError,
 > {
@@ -77,16 +77,17 @@ fn verify_end_rebalance<'a, 'info>(
 
     let rebalance_record_bytes = actual.rebalance_record.try_borrow_data()?;
     let rebalance_record = try_rebalance_record(&rebalance_record_bytes)?;
+    let dst_lst_index: usize = rebalance_record
+        .dst_lst_index
+        .try_into()
+        .map_err(|_e| SControllerError::InvalidLstIndex)?;
 
-    let dst_lst_accounts_suffix_slice = accounts
+    let accounts_suffix_slice = accounts
         .get(END_REBALANCE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let dst_lst_cpi =
-        SolValueCalculatorCpi::from_ix_accounts(actual, dst_lst_accounts_suffix_slice)?;
-    dst_lst_cpi
-        .verify_correct_sol_value_calculator_program(actual, rebalance_record.dst_lst_index)?;
+    let dst_lst_cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, dst_lst_index)?;
 
-    Ok((actual, dst_lst_cpi))
+    Ok((actual, dst_lst_cpi, dst_lst_index))
 }
 
 const fn verify_is_rebalancing(pool_state: &PoolState) -> Result<(), SControllerError> {

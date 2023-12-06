@@ -65,6 +65,10 @@
           "type": "u32"
         },
         {
+          "name": "min_amount_out",
+          "type": "u64"
+        },
+        {
           "name": "amount",
           "type": "u64"
         }
@@ -166,6 +170,10 @@
         {
           "name": "dst_lst_index",
           "type": "u32"
+        },
+        {
+          "name": "max_amount_in",
+          "type": "u64"
         },
         {
           "name": "amount",
@@ -1445,6 +1453,16 @@
       "code": 19,
       "name": "IncorrectPricingProgram",
       "msg": "Incorrect pricing program"
+    },
+    {
+      "code": 20,
+      "name": "SlippageToleranceExceeded",
+      "msg": "Swap would exceed slippage tolerance"
+    },
+    {
+      "code": 21,
+      "name": "NotEnoughLiquidity",
+      "msg": "Not enough liquidity complete swap"
     }
   ],
   "metadata": {

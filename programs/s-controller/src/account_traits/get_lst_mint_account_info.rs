@@ -41,7 +41,7 @@ impl<'me, 'info> GetLstMintAccountInfo<'me, 'info> for RemoveLiquidityAccounts<'
 
 // SrcLstMintOf + DstLstMintOf
 
-impl<'a, 'me, 'info, A> GetLstMintAccountInfo<'me, 'info> for SrcLstMintOf<'a, A>
+impl<'me, 'info, A> GetLstMintAccountInfo<'me, 'info> for SrcLstMintOf<A>
 where
     A: GetSrcDstLstMintAccountInfo<'me, 'info>,
 {
@@ -50,7 +50,7 @@ where
     }
 }
 
-impl<'a, 'me, 'info, A> GetLstMintAccountInfo<'me, 'info> for DstLstMintOf<'a, A>
+impl<'me, 'info, A> GetLstMintAccountInfo<'me, 'info> for DstLstMintOf<A>
 where
     A: GetSrcDstLstMintAccountInfo<'me, 'info>,
 {

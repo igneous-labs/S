@@ -5,6 +5,18 @@ use solana_readonly_account::ReadonlyAccountData;
 use spl_token::instruction::{close_account, transfer};
 use spl_token_2022::extension::StateWithExtensions;
 
+pub fn token_account_balance_program_agnostic<D: ReadonlyAccountData>(
+    token_account: D,
+) -> Result<u64, ProgramError> {
+    // First try to deserialize tokenkeg then token_2022 if failed,
+    // instead of deserializing based on account owner directly,
+    // in order to support custom deploys of token_program and/or token_2022
+    if let Ok(balance) = token_account_balance(&token_account) {
+        return Ok(balance);
+    }
+    token_2022_account_balance(token_account)
+}
+
 /// Sometimes you just want to read the balance of a token account without caring about the other fields.
 pub fn token_account_balance<D: ReadonlyAccountData>(
     token_account: D,

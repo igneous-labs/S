@@ -8,7 +8,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 
 use crate::{
     ix_extend_with_pricing_program_price_lp_accounts, ix_extend_with_sol_value_calculator_accounts,
-    try_from_int_err_to_io_err, AddRemoveLiquidityExtraAccounts, RemoveLiquidityByMintFreeArgs,
+    AddRemoveLiquidityExtraAccounts, RemoveLiquidityByMintFreeArgs,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -29,7 +29,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
         lst_calculator_accounts,
         pricing_program_price_lp_accounts,
     }: AddRemoveLiquidityExtraAccounts,
-) -> std::io::Result<Instruction> {
+) -> Result<Instruction, ProgramError> {
     let mut ix = remove_liquidity_ix(
         accounts,
         RemoveLiquidityIxArgs {
@@ -43,13 +43,13 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
         lst_calculator_accounts,
         lst_calculator_program_id,
     )
-    .map_err(try_from_int_err_to_io_err)?;
+    .map_err(|_e| SControllerError::MathError)?;
     ix_extend_with_pricing_program_price_lp_accounts(
         &mut ix,
         pricing_program_price_lp_accounts,
         pricing_program_id,
     )
-    .map_err(try_from_int_err_to_io_err)?;
+    .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update lst_value_calc_accs than double serialization here
     let mut overwrite = &mut ix.data[..];
     RemoveLiquidityIxData(RemoveLiquidityIxArgs {
