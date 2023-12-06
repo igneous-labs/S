@@ -1463,6 +1463,11 @@
       "code": 21,
       "name": "NotEnoughLiquidity",
       "msg": "Not enough liquidity complete swap"
+    },
+    {
+      "code": 22,
+      "name": "IndexTooLarge",
+      "msg": "Provided list index argument is too large"
     }
   ],
   "metadata": {

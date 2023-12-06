@@ -3,10 +3,10 @@ use s_controller_interface::{
     SwapExactInAccounts, SwapExactInIxArgs, SWAP_EXACT_IN_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_swap_protocol_fees,
+    calc_swap_protocol_fees, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_lst_state_list, try_pool_state, CalcSwapProtocolFeesArgs, PoolStateAccount,
-    SrcDstLstIndexes, SrcDstLstValueCalcAccs, SwapExactInAmounts, SwapExactInFreeArgs,
+    SrcDstLstIndexes, SrcDstLstValueCalcAccs, SwapExactInAmounts, SwapFreeArgs,
 };
 use sanctum_onchain_utils::{
     token_program::{transfer_tokens, transfer_tokens_signed, TransferTokensAccounts},
@@ -136,9 +136,12 @@ fn verify_swap_exact_in<'a, 'info>(
     ),
     ProgramError,
 > {
+    let src_lst_index = index_to_usize(src_lst_index)?;
+    let dst_lst_index = index_to_usize(dst_lst_index)?;
+
     let actual: SwapExactInAccounts = load_accounts(accounts)?;
 
-    let free_args = SwapExactInFreeArgs {
+    let free_args = SwapFreeArgs {
         signer: *actual.signer.key,
         src_lst_acc: *actual.src_lst_acc.key,
         dst_lst_acc: *actual.dst_lst_acc.key,
@@ -148,7 +151,7 @@ fn verify_swap_exact_in<'a, 'info>(
         dst_lst_mint: actual.dst_lst_mint,
         lst_state_list: actual.lst_state_list,
     };
-    let expected = free_args.resolve()?;
+    let expected = free_args.resolve_exact_in()?;
 
     swap_exact_in_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     swap_exact_in_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
@@ -159,9 +162,6 @@ fn verify_swap_exact_in<'a, 'info>(
 
     let lst_state_list_bytes = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;
-    // indexes checked in resolve()
-    let src_lst_index: usize = src_lst_index.try_into().unwrap();
-    let dst_lst_index: usize = dst_lst_index.try_into().unwrap();
     let src_lst_state = lst_state_list[src_lst_index];
     verify_lst_input_not_disabled(&src_lst_state)?;
 

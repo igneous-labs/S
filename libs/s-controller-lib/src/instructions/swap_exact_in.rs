@@ -12,7 +12,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccount
 use crate::{
     ix_extend_with_pricing_program_price_swap_accounts,
     ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstIndexes,
-    SrcDstLstSolValueCalcAccounts, SrcDstLstSolValueCalcExtendCount, SwapExactInByMintFreeArgs,
+    SrcDstLstSolValueCalcAccounts, SrcDstLstSolValueCalcExtendCount, SwapByMintsFreeArgs,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -82,7 +82,7 @@ pub fn swap_exact_in_ix_by_mint_full<
     DM: ReadonlyAccountOwner + KeyedAccount,
     L: ReadonlyAccountData,
 >(
-    free_args: SwapExactInByMintFreeArgs<SM, DM, L>,
+    free_args: SwapByMintsFreeArgs<SM, DM, L>,
     SwapExactInAmounts {
         min_amount_out,
         amount,
@@ -97,7 +97,7 @@ pub fn swap_exact_in_ix_by_mint_full<
             src_lst_index,
             dst_lst_index,
         },
-    ) = free_args.resolve()?;
+    ) = free_args.resolve_exact_in()?;
     let ix = swap_exact_in_ix_full(
         keys,
         SwapExactInIxFullArgs {

@@ -52,6 +52,8 @@ pub enum SControllerError {
     SlippageToleranceExceeded = 20,
     #[error("Not enough liquidity complete swap")]
     NotEnoughLiquidity = 21,
+    #[error("Provided list index argument is too large")]
+    IndexTooLarge = 22,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
