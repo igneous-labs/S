@@ -938,15 +938,15 @@
           "desc": "The account to refund SOL rent to after resizing"
         },
         {
-          "name": "admin",
+          "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "desc": "The pool's admin"
+          "desc": "Either the pool's admin or the authority"
         },
         {
           "name": "authority",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
           "desc": "The authority to remove"
         },
         {

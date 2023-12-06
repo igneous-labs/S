@@ -463,13 +463,13 @@ Remove a disable pool authority
 
 ### Accounts
 
-| Account                     | Description                                          | Read/Write (R/W) | Signer (Y/N)                     |
-| --------------------------- | ---------------------------------------------------- | ---------------- | -------------------------------- |
-| refund_rent_to              | The account to refund SOL rent to after resizing     | W                | N                                |
-| admin                       | The pool's admin                                     | R                | Y if authority signature missing |
-| authority                   | The authority to remove                              | R                | Y if admin signature missing     |
-| pool_state                  | The pool's state singleton PDA                       | R                | N                                |
-| disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N                                |
+| Account                     | Description                                          | Read/Write (R/W) | Signer (Y/N) |
+| --------------------------- | ---------------------------------------------------- | ---------------- | ------------ |
+| refund_rent_to              | The account to refund SOL rent to after resizing     | W                | N            |
+| signer                      | Either the pool's admin or the authority             | R                | Y            |
+| authority                   | The authority to remove                              | R                | N            |
+| pool_state                  | The pool's state singleton PDA                       | R                | N            |
+| disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N            |
 
 ### Procedure
 
