@@ -3325,13 +3325,15 @@ pub fn withdraw_protocol_fees_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN: usize = 5;
+pub const ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN: usize = 6;
 #[derive(Copy, Clone, Debug)]
 pub struct AddDisablePoolAuthorityAccounts<'me, 'info> {
     ///Account paying for additional rent for realloc
     pub payer: &'me AccountInfo<'info>,
     ///The pool's admin
     pub admin: &'me AccountInfo<'info>,
+    ///The pool's state singleton PDA
+    pub pool_state: &'me AccountInfo<'info>,
     ///The new disable pool authority to add
     pub new_authority: &'me AccountInfo<'info>,
     ///The pool's disable pool authority list singleton PDA
@@ -3345,6 +3347,8 @@ pub struct AddDisablePoolAuthorityKeys {
     pub payer: Pubkey,
     ///The pool's admin
     pub admin: Pubkey,
+    ///The pool's state singleton PDA
+    pub pool_state: Pubkey,
     ///The new disable pool authority to add
     pub new_authority: Pubkey,
     ///The pool's disable pool authority list singleton PDA
@@ -3357,6 +3361,7 @@ impl From<&AddDisablePoolAuthorityAccounts<'_, '_>> for AddDisablePoolAuthorityK
         Self {
             payer: *accounts.payer.key,
             admin: *accounts.admin.key,
+            pool_state: *accounts.pool_state.key,
             new_authority: *accounts.new_authority.key,
             disable_pool_authority_list: *accounts.disable_pool_authority_list.key,
             system_program: *accounts.system_program.key,
@@ -3370,6 +3375,7 @@ impl From<&AddDisablePoolAuthorityKeys>
         [
             AccountMeta::new(keys.payer, true),
             AccountMeta::new_readonly(keys.admin, true),
+            AccountMeta::new_readonly(keys.pool_state, false),
             AccountMeta::new_readonly(keys.new_authority, false),
             AccountMeta::new(keys.disable_pool_authority_list, false),
             AccountMeta::new_readonly(keys.system_program, false),
@@ -3381,9 +3387,10 @@ impl From<[Pubkey; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]> for AddDisablePo
         Self {
             payer: pubkeys[0],
             admin: pubkeys[1],
-            new_authority: pubkeys[2],
-            disable_pool_authority_list: pubkeys[3],
-            system_program: pubkeys[4],
+            pool_state: pubkeys[2],
+            new_authority: pubkeys[3],
+            disable_pool_authority_list: pubkeys[4],
+            system_program: pubkeys[5],
         }
     }
 }
@@ -3394,6 +3401,7 @@ impl<'info> From<&AddDisablePoolAuthorityAccounts<'_, 'info>>
         [
             accounts.payer.clone(),
             accounts.admin.clone(),
+            accounts.pool_state.clone(),
             accounts.new_authority.clone(),
             accounts.disable_pool_authority_list.clone(),
             accounts.system_program.clone(),
@@ -3407,9 +3415,10 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_DISABLE_POOL_AUTHORITY_IX_AC
         Self {
             payer: &arr[0],
             admin: &arr[1],
-            new_authority: &arr[2],
-            disable_pool_authority_list: &arr[3],
-            system_program: &arr[4],
+            pool_state: &arr[2],
+            new_authority: &arr[3],
+            disable_pool_authority_list: &arr[4],
+            system_program: &arr[5],
         }
     }
 }
@@ -3488,6 +3497,7 @@ pub fn add_disable_pool_authority_verify_account_keys(
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
         (accounts.admin.key, &keys.admin),
+        (accounts.pool_state.key, &keys.pool_state),
         (accounts.new_authority.key, &keys.new_authority),
         (
             accounts.disable_pool_authority_list.key,
@@ -3516,7 +3526,7 @@ pub fn add_disable_pool_authority_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN: usize = 4;
+pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveDisablePoolAuthorityAccounts<'me, 'info> {
     ///The account to refund SOL rent to after resizing
@@ -3525,6 +3535,8 @@ pub struct RemoveDisablePoolAuthorityAccounts<'me, 'info> {
     pub admin: &'me AccountInfo<'info>,
     ///The authority to remove
     pub authority: &'me AccountInfo<'info>,
+    ///The pool's state singleton PDA
+    pub pool_state: &'me AccountInfo<'info>,
     ///The pool's disable pool authority list singleton PDA
     pub disable_pool_authority_list: &'me AccountInfo<'info>,
 }
@@ -3536,6 +3548,8 @@ pub struct RemoveDisablePoolAuthorityKeys {
     pub admin: Pubkey,
     ///The authority to remove
     pub authority: Pubkey,
+    ///The pool's state singleton PDA
+    pub pool_state: Pubkey,
     ///The pool's disable pool authority list singleton PDA
     pub disable_pool_authority_list: Pubkey,
 }
@@ -3545,6 +3559,7 @@ impl From<&RemoveDisablePoolAuthorityAccounts<'_, '_>> for RemoveDisablePoolAuth
             refund_rent_to: *accounts.refund_rent_to.key,
             admin: *accounts.admin.key,
             authority: *accounts.authority.key,
+            pool_state: *accounts.pool_state.key,
             disable_pool_authority_list: *accounts.disable_pool_authority_list.key,
         }
     }
@@ -3557,6 +3572,7 @@ impl From<&RemoveDisablePoolAuthorityKeys>
             AccountMeta::new(keys.refund_rent_to, true),
             AccountMeta::new_readonly(keys.admin, true),
             AccountMeta::new_readonly(keys.authority, true),
+            AccountMeta::new_readonly(keys.pool_state, false),
             AccountMeta::new(keys.disable_pool_authority_list, false),
         ]
     }
@@ -3569,7 +3585,8 @@ impl From<[Pubkey; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]>
             refund_rent_to: pubkeys[0],
             admin: pubkeys[1],
             authority: pubkeys[2],
-            disable_pool_authority_list: pubkeys[3],
+            pool_state: pubkeys[3],
+            disable_pool_authority_list: pubkeys[4],
         }
     }
 }
@@ -3581,6 +3598,7 @@ impl<'info> From<&RemoveDisablePoolAuthorityAccounts<'_, 'info>>
             accounts.refund_rent_to.clone(),
             accounts.admin.clone(),
             accounts.authority.clone(),
+            accounts.pool_state.clone(),
             accounts.disable_pool_authority_list.clone(),
         ]
     }
@@ -3593,7 +3611,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX
             refund_rent_to: &arr[0],
             admin: &arr[1],
             authority: &arr[2],
-            disable_pool_authority_list: &arr[3],
+            pool_state: &arr[3],
+            disable_pool_authority_list: &arr[4],
         }
     }
 }
@@ -3676,6 +3695,7 @@ pub fn remove_disable_pool_authority_verify_account_keys(
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.admin.key, &keys.admin),
         (accounts.authority.key, &keys.authority),
+        (accounts.pool_state.key, &keys.pool_state),
         (
             accounts.disable_pool_authority_list.key,
             &keys.disable_pool_authority_list,

@@ -446,6 +446,7 @@ Add a disable pool authority
 | --------------------------- | ---------------------------------------------------- | ---------------- | ------------ |
 | payer                       | Account paying for additional rent for realloc       | W                | Y            |
 | admin                       | The pool's admin                                     | R                | Y            |
+| pool_state                  | The pool's state singleton PDA                       | R                | N            |
 | new_authority               | The new disable pool authority to add                | R                | N            |
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N            |
 | system_program              | System program                                       | R                | N            |
@@ -471,6 +472,7 @@ Remove a disable pool authority
 | refund_rent_to              | The account to refund SOL rent to after resizing     | W                | N                                |
 | admin                       | The pool's admin                                     | R                | Y if authority signature missing |
 | authority                   | The authority to remove                              | R                | Y if admin signature missing     |
+| pool_state                  | The pool's state singleton PDA                       | R                | N                                |
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA | W                | N                                |
 
 ### Procedure
