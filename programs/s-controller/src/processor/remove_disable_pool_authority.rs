@@ -3,7 +3,7 @@ use s_controller_interface::{
     remove_disable_pool_authority_verify_account_privileges, RemoveDisablePoolAuthorityAccounts,
     RemoveDisablePoolAuthorityIxArgs, SControllerError,
 };
-use s_controller_lib::{try_pool_state, RemoveDisablePoolAuthorityFreeArgs};
+use s_controller_lib::{index_to_usize, try_pool_state, RemoveDisablePoolAuthorityFreeArgs};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
@@ -61,9 +61,5 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
         }
     }
 
-    let index: usize = index
-        .try_into()
-        .map_err(|_e| SControllerError::InvalidDisablePoolAuthorityIndex)?;
-
-    Ok((actual, index))
+    Ok((actual, index_to_usize(index)?))
 }

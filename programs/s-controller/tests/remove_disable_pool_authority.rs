@@ -5,6 +5,7 @@ use s_controller_interface::{
     remove_disable_pool_authority_ix, RemoveDisablePoolAuthorityIxArgs, SControllerError,
 };
 use s_controller_lib::{
+    index_to_u32,
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
     try_disable_pool_authority_list, try_match_element_in_list, RemoveDisablePoolAuthorityFreeArgs,
 };
@@ -77,7 +78,7 @@ async fn basic_add_two() {
         let ix = remove_disable_pool_authority_ix(
             keys,
             RemoveDisablePoolAuthorityIxArgs {
-                index: target_index as u32, // TODO: use index_to_u32 after merge
+                index: index_to_u32(target_index).unwrap(),
             },
         )
         .unwrap();

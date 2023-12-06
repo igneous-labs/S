@@ -5,6 +5,7 @@ use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{
+    index_to_u32,
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
     try_disable_pool_authority_list, try_find_element_in_list,
 };
@@ -74,10 +75,8 @@ impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccoun
 
         let disable_pool_authority_list_data = self.disable_pool_authority_list.data();
         let list = try_disable_pool_authority_list(&disable_pool_authority_list_data)?;
-        let (index, _authority) = try_find_element_in_list(self.authority, list)?;
-        let index: u32 = index
-            .try_into()
-            .map_err(|_e| SControllerError::InvalidDisablePoolAuthorityIndex)?;
+        let (index, _authority) = try_find_element_in_list(self.authority, list)
+            .ok_or(SControllerError::InvalidDisablePoolAuthority)?;
 
         Ok((
             RemoveDisablePoolAuthorityKeys {
@@ -87,7 +86,9 @@ impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccoun
                 pool_state: *self.pool_state_acc.key(),
                 disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,
             },
-            RemoveDisablePoolAuthorityIxArgs { index },
+            RemoveDisablePoolAuthorityIxArgs {
+                index: index_to_u32(index)?,
+            },
         ))
     }
 }
