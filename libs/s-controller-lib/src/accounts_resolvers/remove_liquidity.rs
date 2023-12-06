@@ -10,12 +10,11 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLiquidityFreeArgs<
-    I: TryInto<usize>,
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
-    pub lst_index: I,
+    pub lst_index: usize,
     pub signer: Pubkey,
     pub src_lp_acc: Pubkey,
     pub dst_lst_acc: Pubkey,
@@ -25,11 +24,10 @@ pub struct RemoveLiquidityFreeArgs<
 }
 
 impl<
-        I: TryInto<usize>,
         S: ReadonlyAccountData + KeyedAccount,
         L: ReadonlyAccountData + KeyedAccount,
         M: ReadonlyAccountOwner + KeyedAccount,
-    > RemoveLiquidityFreeArgs<I, S, L, M>
+    > RemoveLiquidityFreeArgs<S, L, M>
 {
     pub fn resolve(self) -> Result<RemoveLiquidityKeys, SControllerError> {
         let Self {

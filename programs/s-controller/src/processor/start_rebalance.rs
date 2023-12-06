@@ -4,6 +4,7 @@ use s_controller_interface::{
     START_REBALANCE_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
+    index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED, REBALANCE_RECORD_BUMP, REBALANCE_RECORD_SEED},
     try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
     PoolStateAccount, SrcDstLstIndexes, StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
@@ -107,13 +108,16 @@ fn verify_start_rebalance<'a, 'info>(
     ),
     ProgramError,
 > {
+    let src_lst_index = index_to_usize(*src_lst_index)?;
+    let dst_lst_index = index_to_usize(*dst_lst_index)?;
+
     let actual: StartRebalanceAccounts = load_accounts(accounts)?;
 
     let free_args = StartRebalanceFreeArgs {
         payer: *actual.payer.key,
         withdraw_to: *actual.withdraw_to.key,
-        src_lst_index: *src_lst_index,
-        dst_lst_index: *dst_lst_index,
+        src_lst_index,
+        dst_lst_index,
         lst_state_list: actual.lst_state_list,
         pool_state: actual.pool_state,
         src_lst_mint: actual.src_lst_mint,
@@ -128,10 +132,6 @@ fn verify_start_rebalance<'a, 'info>(
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
     verify_not_rebalancing_and_not_disabled(pool_state)?;
-
-    // indexes checked in resolve() above
-    let src_lst_index: usize = (*src_lst_index).try_into().unwrap();
-    let dst_lst_index: usize = (*dst_lst_index).try_into().unwrap();
 
     let lst_state_list_bytes = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_bytes)?;

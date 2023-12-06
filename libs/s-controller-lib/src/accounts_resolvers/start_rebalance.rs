@@ -11,8 +11,6 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceFreeArgs<
-    SI: TryInto<usize>,
-    DI: TryInto<usize>,
     SM: ReadonlyAccountOwner + KeyedAccount,
     DM: ReadonlyAccountOwner + KeyedAccount,
     S: ReadonlyAccountData + KeyedAccount,
@@ -20,8 +18,8 @@ pub struct StartRebalanceFreeArgs<
 > {
     pub payer: Pubkey,
     pub withdraw_to: Pubkey,
-    pub src_lst_index: SI,
-    pub dst_lst_index: DI,
+    pub src_lst_index: usize,
+    pub dst_lst_index: usize,
     pub lst_state_list: L,
     pub pool_state: S,
     pub src_lst_mint: SM,
@@ -29,13 +27,11 @@ pub struct StartRebalanceFreeArgs<
 }
 
 impl<
-        SI: TryInto<usize>,
-        DI: TryInto<usize>,
         SM: ReadonlyAccountOwner + KeyedAccount,
         DM: ReadonlyAccountOwner + KeyedAccount,
         S: ReadonlyAccountData + KeyedAccount,
         L: ReadonlyAccountData + KeyedAccount,
-    > StartRebalanceFreeArgs<SI, DI, SM, DM, S, L>
+    > StartRebalanceFreeArgs<SM, DM, S, L>
 {
     pub fn resolve(self) -> Result<StartRebalanceKeys, SControllerError> {
         if *self.lst_state_list.key() != LST_STATE_LIST_ID {

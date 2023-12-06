@@ -4,7 +4,7 @@ use s_controller_interface::{
     REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_lp_tokens_sol_value, calc_remove_liquidity_protocol_fees,
+    calc_lp_tokens_sol_value, calc_remove_liquidity_protocol_fees, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_pool_state, CalcRemoveLiquidityProtocolFeesArgs, LpTokenRateArgs, PoolStateAccount,
     RemoveLiquidityFreeArgs,
@@ -125,6 +125,8 @@ fn verify_remove_liquidity<'a, 'info>(
     ),
     ProgramError,
 > {
+    let lst_index = index_to_usize(lst_index)?;
+
     let actual: RemoveLiquidityAccounts = load_accounts(accounts)?;
 
     let free_args = RemoveLiquidityFreeArgs {
@@ -151,8 +153,6 @@ fn verify_remove_liquidity<'a, 'info>(
         .get(REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
-    // lst_index checked in resolve
-    let lst_index: usize = lst_index.try_into().unwrap();
     let (lst_cpi, pricing_cpi) = verify_lp_cpis(
         actual,
         accounts_suffix_slice,

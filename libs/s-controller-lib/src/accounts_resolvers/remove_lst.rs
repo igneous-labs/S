@@ -12,12 +12,11 @@ use crate::{
 /// are empty before calling
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLstFreeArgs<
-    I: TryInto<usize>,
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
-    pub lst_index: I,
+    pub lst_index: usize,
     pub refund_rent_to: Pubkey,
     pub pool_state: S,
     pub lst_state_list: L,
@@ -25,11 +24,10 @@ pub struct RemoveLstFreeArgs<
 }
 
 impl<
-        I: TryInto<usize>,
         S: ReadonlyAccountData + KeyedAccount,
         L: ReadonlyAccountData + KeyedAccount,
         M: ReadonlyAccountOwner + KeyedAccount,
-    > RemoveLstFreeArgs<I, S, L, M>
+    > RemoveLstFreeArgs<S, L, M>
 {
     pub fn resolve(self) -> Result<RemoveLstKeys, SControllerError> {
         let Self {
