@@ -932,7 +932,12 @@
         "type": "u8",
         "value": 16
       },
-      "args": [],
+      "args": [
+        {
+          "name": "index",
+          "type": "u32"
+        }
+      ],
       "accounts": [
         {
           "name": "refund_rent_to",
@@ -941,15 +946,15 @@
           "desc": "The account to refund SOL rent to after resizing"
         },
         {
-          "name": "admin",
+          "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "desc": "The pool's admin"
+          "desc": "Either the pool's admin or the authority"
         },
         {
           "name": "authority",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
           "desc": "The authority to remove"
         },
         {
@@ -1480,6 +1485,21 @@
       "code": 22,
       "name": "IndexTooLarge",
       "msg": "Provided list index argument is too large"
+    },
+    {
+      "code": 23,
+      "name": "InvalidDisablePoolAuthorityIndex",
+      "msg": "Disable Pool Authority with given index does not exist"
+    },
+    {
+      "code": 24,
+      "name": "UnauthorizedDisablePoolAuthoritySigner",
+      "msg": "Signer is not authorized to operate on given disable pool authority"
+    },
+    {
+      "code": 25,
+      "name": "InvalidDisablePoolAuthority",
+      "msg": "Given disable pool authority is not valid"
     }
   ],
   "metadata": {

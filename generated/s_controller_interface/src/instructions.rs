@@ -3531,8 +3531,8 @@ pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN: usize = 5;
 pub struct RemoveDisablePoolAuthorityAccounts<'me, 'info> {
     ///The account to refund SOL rent to after resizing
     pub refund_rent_to: &'me AccountInfo<'info>,
-    ///The pool's admin
-    pub admin: &'me AccountInfo<'info>,
+    ///Either the pool's admin or the authority
+    pub signer: &'me AccountInfo<'info>,
     ///The authority to remove
     pub authority: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
@@ -3544,8 +3544,8 @@ pub struct RemoveDisablePoolAuthorityAccounts<'me, 'info> {
 pub struct RemoveDisablePoolAuthorityKeys {
     ///The account to refund SOL rent to after resizing
     pub refund_rent_to: Pubkey,
-    ///The pool's admin
-    pub admin: Pubkey,
+    ///Either the pool's admin or the authority
+    pub signer: Pubkey,
     ///The authority to remove
     pub authority: Pubkey,
     ///The pool's state singleton PDA
@@ -3557,7 +3557,7 @@ impl From<&RemoveDisablePoolAuthorityAccounts<'_, '_>> for RemoveDisablePoolAuth
     fn from(accounts: &RemoveDisablePoolAuthorityAccounts) -> Self {
         Self {
             refund_rent_to: *accounts.refund_rent_to.key,
-            admin: *accounts.admin.key,
+            signer: *accounts.signer.key,
             authority: *accounts.authority.key,
             pool_state: *accounts.pool_state.key,
             disable_pool_authority_list: *accounts.disable_pool_authority_list.key,
@@ -3570,8 +3570,8 @@ impl From<&RemoveDisablePoolAuthorityKeys>
     fn from(keys: &RemoveDisablePoolAuthorityKeys) -> Self {
         [
             AccountMeta::new(keys.refund_rent_to, true),
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.authority, true),
+            AccountMeta::new_readonly(keys.signer, true),
+            AccountMeta::new_readonly(keys.authority, false),
             AccountMeta::new_readonly(keys.pool_state, false),
             AccountMeta::new(keys.disable_pool_authority_list, false),
         ]
@@ -3583,7 +3583,7 @@ impl From<[Pubkey; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]>
     fn from(pubkeys: [Pubkey; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             refund_rent_to: pubkeys[0],
-            admin: pubkeys[1],
+            signer: pubkeys[1],
             authority: pubkeys[2],
             pool_state: pubkeys[3],
             disable_pool_authority_list: pubkeys[4],
@@ -3596,7 +3596,7 @@ impl<'info> From<&RemoveDisablePoolAuthorityAccounts<'_, 'info>>
     fn from(accounts: &RemoveDisablePoolAuthorityAccounts<'_, 'info>) -> Self {
         [
             accounts.refund_rent_to.clone(),
-            accounts.admin.clone(),
+            accounts.signer.clone(),
             accounts.authority.clone(),
             accounts.pool_state.clone(),
             accounts.disable_pool_authority_list.clone(),
@@ -3609,7 +3609,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX
     fn from(arr: &'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]) -> Self {
         Self {
             refund_rent_to: &arr[0],
-            admin: &arr[1],
+            signer: &arr[1],
             authority: &arr[2],
             pool_state: &arr[3],
             disable_pool_authority_list: &arr[4],
@@ -3618,7 +3618,9 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX
 }
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RemoveDisablePoolAuthorityIxArgs {}
+pub struct RemoveDisablePoolAuthorityIxArgs {
+    pub index: u32,
+}
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveDisablePoolAuthorityIxData(pub RemoveDisablePoolAuthorityIxArgs);
 pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM: u8 = 16u8;
@@ -3693,7 +3695,7 @@ pub fn remove_disable_pool_authority_verify_account_keys(
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
-        (accounts.admin.key, &keys.admin),
+        (accounts.signer.key, &keys.signer),
         (accounts.authority.key, &keys.authority),
         (accounts.pool_state.key, &keys.pool_state),
         (
@@ -3718,7 +3720,7 @@ pub fn remove_disable_pool_authority_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.refund_rent_to, accounts.admin, accounts.authority] {
+    for should_be_signer in [accounts.refund_rent_to, accounts.signer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }

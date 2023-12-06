@@ -54,6 +54,12 @@ pub enum SControllerError {
     NotEnoughLiquidity = 21,
     #[error("Provided list index argument is too large")]
     IndexTooLarge = 22,
+    #[error("Disable Pool Authority with given index does not exist")]
+    InvalidDisablePoolAuthorityIndex = 23,
+    #[error("Signer is not authorized to operate on given disable pool authority")]
+    UnauthorizedDisablePoolAuthoritySigner = 24,
+    #[error("Given disable pool authority is not valid")]
+    InvalidDisablePoolAuthority = 25,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
