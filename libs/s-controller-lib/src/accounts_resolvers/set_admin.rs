@@ -17,6 +17,10 @@ impl<S: ReadonlyAccountData + KeyedAccount> SetAdminFreeArgs<S> {
             pool_state: pool_state_acc,
         } = self;
 
+        if *pool_state_acc.key() != POOL_STATE_ID {
+            return Err(SControllerError::IncorrectPoolState);
+        }
+
         let pool_state_data = pool_state_acc.data();
         let pool_state = try_pool_state(&pool_state_data)?;
 
