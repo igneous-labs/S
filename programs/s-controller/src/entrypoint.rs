@@ -46,8 +46,8 @@ pub fn process_instruction(
         SControllerProgramIx::AddDisablePoolAuthority(_args) => {
             process_add_disable_pool_authority(accounts)
         }
-        SControllerProgramIx::RemoveDisablePoolAuthority(_args) => {
-            process_remove_disable_pool_authority(accounts)
+        SControllerProgramIx::RemoveDisablePoolAuthority(args) => {
+            process_remove_disable_pool_authority(accounts, args)
         }
         SControllerProgramIx::DisablePool(_args) => process_disable_pool(accounts),
         SControllerProgramIx::EnablePool(_args) => process_enable_pool(accounts),
