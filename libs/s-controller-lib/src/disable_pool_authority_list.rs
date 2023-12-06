@@ -4,14 +4,12 @@ use solana_program::pubkey::Pubkey;
 
 /// Checks identity of element against `list[index]`,
 /// returning `list[index]` if matches
-pub fn try_match_element_in_list<I: Into<usize>>(
+pub fn try_match_element_in_list(
     element: Pubkey,
     list: &[Pubkey],
-    index: I,
+    index: usize,
 ) -> Result<&Pubkey, SControllerError> {
-    let element_in_list = list
-        .get(index.into())
-        .ok_or(SControllerError::IndexTooLarge)?;
+    let element_in_list = list.get(index).ok_or(SControllerError::IndexTooLarge)?;
     if element != *element_in_list {
         return Err(SControllerError::InvalidDisablePoolAuthorityIndex);
     }
