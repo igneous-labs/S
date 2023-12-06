@@ -1,18 +1,23 @@
 use s_controller_interface::{StartRebalanceAccounts, SwapExactInAccounts, SwapExactOutAccounts};
 use solana_program::account_info::AccountInfo;
 
+#[derive(Clone, Copy, Debug)]
+pub struct SrcDstLstMintAccountInfos<'me, 'info> {
+    pub src_lst_mint: &'me AccountInfo<'info>,
+    pub dst_lst_mint: &'me AccountInfo<'info>,
+}
+
 pub trait GetSrcDstLstMintAccountInfo<'me, 'info> {
     fn get_src_lst_mint(&self) -> &'me AccountInfo<'info>;
     fn get_dst_lst_mint(&self) -> &'me AccountInfo<'info>;
+
+    fn get_src_dst_lst_mints(&self) -> SrcDstLstMintAccountInfos<'me, 'info> {
+        SrcDstLstMintAccountInfos {
+            src_lst_mint: self.get_src_lst_mint(),
+            dst_lst_mint: self.get_dst_lst_mint(),
+        }
+    }
 }
-
-/// For use with GetLstMintAccountInfo
-#[derive(Debug, Clone, Copy)]
-pub struct SrcLstMintOf<A>(pub A);
-
-/// For use with GetLstMintAccountInfo
-#[derive(Debug, Clone, Copy)]
-pub struct DstLstMintOf<A>(pub A);
 
 impl<'me, 'info, T: GetSrcDstLstMintAccountInfo<'me, 'info>> GetSrcDstLstMintAccountInfo<'me, 'info>
     for &T

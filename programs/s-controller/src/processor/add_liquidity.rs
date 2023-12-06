@@ -5,8 +5,8 @@ use s_controller_interface::{
 use s_controller_lib::{
     calc_add_liquidity, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, CalcAddLiquidityArgs,
-    CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
+    CalcAddLiquidityArgs, CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
@@ -22,20 +22,16 @@ use crate::{
     cpi::{PricingProgramIxArgs, PricingProgramPriceLpCpi, SolValueCalculatorCpi},
     verify::{
         verify_lp_cpis, verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled,
+        VerifyLpCpiAccounts,
     },
 };
 
 use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
-struct AddLiquidityIxArgsChecked {
-    pub lst_index: usize,
-    pub lst_amount: u64,
-}
-
 pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs) -> ProgramResult {
     let (
         accounts,
-        AddLiquidityIxArgsChecked {
+        AddLiquidityIxFullArgs {
             lst_index,
             lst_amount,
         },
@@ -123,7 +119,7 @@ fn verify_add_liquidity<'a, 'info>(
 ) -> Result<
     (
         AddLiquidityAccounts<'a, 'info>,
-        AddLiquidityIxArgsChecked,
+        AddLiquidityIxFullArgs,
         SolValueCalculatorCpi<'a, 'info>,
         PricingProgramPriceLpCpi<'a, 'info>,
     ),
@@ -162,7 +158,7 @@ fn verify_add_liquidity<'a, 'info>(
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
     let (lst_cpi, pricing_cpi) = verify_lp_cpis(
-        actual,
+        VerifyLpCpiAccounts::from(actual),
         accounts_suffix_slice,
         lst_value_calc_accs,
         lst_index,
@@ -170,7 +166,7 @@ fn verify_add_liquidity<'a, 'info>(
 
     Ok((
         actual,
-        AddLiquidityIxArgsChecked {
+        AddLiquidityIxFullArgs {
             lst_index,
             lst_amount,
         },

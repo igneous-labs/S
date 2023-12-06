@@ -27,7 +27,7 @@ use crate::{
     cpi::SrcDstLstSolValueCalculatorCpis,
     verify::{
         verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled,
-        verify_src_dst_lst_sol_val_calc_cpis,
+        verify_src_dst_lst_sol_val_calc_cpis, VerifySrcDstLstSolValCalcCpiAccounts,
     },
 };
 
@@ -154,7 +154,7 @@ fn verify_start_rebalance<'a, 'info>(
     };
 
     let src_dst_lst_cpis = verify_src_dst_lst_sol_val_calc_cpis(
-        actual,
+        VerifySrcDstLstSolValCalcCpiAccounts::from(actual),
         accounts_suffix_slice,
         *src_lst_calc_accs,
         src_dst_lst_indexes,

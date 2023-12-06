@@ -4,7 +4,7 @@ use s_controller_interface::{
 };
 use solana_program::account_info::AccountInfo;
 
-use super::{DstLstMintOf, DstLstPoolReservesOf, SrcLstMintOf, SrcLstPoolReservesOf};
+use super::{DstLstPoolReservesOf, SrcLstPoolReservesOf};
 
 pub trait GetPoolStateAccountInfo<'me, 'info> {
     fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info>;
@@ -61,22 +61,6 @@ impl<'me, 'info> GetPoolStateAccountInfo<'me, 'info> for SwapExactOutAccounts<'m
 }
 
 // impls for src_dst wrapper newtypes
-
-impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for SrcLstMintOf<A>
-{
-    fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
-        self.0.get_pool_state_account_info()
-    }
-}
-
-impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
-    for DstLstMintOf<A>
-{
-    fn get_pool_state_account_info(&self) -> &'me AccountInfo<'info> {
-        self.0.get_pool_state_account_info()
-    }
-}
 
 impl<'me, 'info, A: GetPoolStateAccountInfo<'me, 'info>> GetPoolStateAccountInfo<'me, 'info>
     for SrcLstPoolReservesOf<A>

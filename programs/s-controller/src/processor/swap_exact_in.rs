@@ -23,6 +23,7 @@ use crate::{
     processor::sync_sol_value_unchecked,
     verify::{
         verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled, verify_swap_cpis,
+        VerifySwapCpiAccounts,
     },
 };
 
@@ -184,7 +185,7 @@ fn verify_swap_exact_in<'a, 'info>(
         .get(SWAP_EXACT_IN_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let (src_dst_cpis, pricing_cpi) = verify_swap_cpis(
-        actual,
+        VerifySwapCpiAccounts::from(actual),
         accounts_suffix_slice,
         src_dst_lst_value_calc_accs,
         src_dst_lst_indexes,
