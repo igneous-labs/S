@@ -12,9 +12,11 @@ use test_utils::{
     jitosol, AddAccount, MARINADE_PROG_LAST_UPDATED_SLOT, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
 };
 
+mod disable_pool_authority_list;
 mod lst_state;
 mod state;
 
+pub use disable_pool_authority_list::*;
 pub use lst_state::*;
 pub use state::*;
 
