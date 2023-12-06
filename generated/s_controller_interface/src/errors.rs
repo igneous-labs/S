@@ -48,6 +48,8 @@ pub enum SControllerError {
     LstStillHasValue = 18,
     #[error("Incorrect pricing program")]
     IncorrectPricingProgram = 19,
+    #[error("Disable Pool Authority with given index does not exist")]
+    InvalidDisablePoolAuthorityIndex = 20,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

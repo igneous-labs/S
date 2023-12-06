@@ -1462,6 +1462,11 @@
       "code": 19,
       "name": "IncorrectPricingProgram",
       "msg": "Incorrect pricing program"
+    },
+    {
+      "code": 20,
+      "name": "InvalidDisablePoolAuthorityIndex",
+      "msg": "Disable Pool Authority with given index does not exist"
     }
   ],
   "metadata": {
