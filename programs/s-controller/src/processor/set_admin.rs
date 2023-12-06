@@ -11,19 +11,10 @@ use solana_program::{
 
 pub fn process_set_admin(accounts: &[AccountInfo]) -> ProgramResult {
     let checked = verify_set_admin(accounts)?;
-    process_set_admin_unchecked(checked)
-}
 
-fn process_set_admin_unchecked(
-    SetAdminAccounts {
-        current_admin: _,
-        new_admin,
-        pool_state,
-    }: SetAdminAccounts,
-) -> ProgramResult {
-    let mut pool_state_data = pool_state.try_borrow_mut_data()?;
+    let mut pool_state_data = checked.pool_state.try_borrow_mut_data()?;
     let pool_state = try_pool_state_mut(&mut pool_state_data)?;
-    pool_state.admin = *new_admin.key;
+    pool_state.admin = *checked.new_admin.key;
 
     Ok(())
 }
