@@ -15,9 +15,12 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::{cpi::SolValueCalculatorCpi, verify::verify_lst_sol_val_calc_cpi};
+use crate::{
+    cpi::SolValueCalculatorCpi,
+    verify::{verify_lst_sol_val_calc_cpi, VerifyLstSolValCalcCpiAccounts},
+};
 
-use super::sync_sol_value_unchecked;
+use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
     let (accounts, cpi, dst_lst_index) = verify_end_rebalance(accounts)?;
@@ -36,7 +39,11 @@ pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
         *old_total_sol_value
     };
 
-    sync_sol_value_unchecked(accounts, cpi, dst_lst_index)?;
+    sync_sol_value_unchecked(
+        SyncSolValueUncheckedAccounts::from(accounts),
+        cpi,
+        dst_lst_index,
+    )?;
 
     if accounts.pool_state.total_sol_value()? < old_total_sol_value {
         return Err(SControllerError::PoolWouldLoseSolValue.into());
@@ -85,7 +92,11 @@ fn verify_end_rebalance<'a, 'info>(
     let accounts_suffix_slice = accounts
         .get(END_REBALANCE_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let dst_lst_cpi = verify_lst_sol_val_calc_cpi(actual, accounts_suffix_slice, dst_lst_index)?;
+    let dst_lst_cpi = verify_lst_sol_val_calc_cpi(
+        VerifyLstSolValCalcCpiAccounts::from(actual),
+        accounts_suffix_slice,
+        dst_lst_index,
+    )?;
 
     Ok((actual, dst_lst_cpi, dst_lst_index))
 }

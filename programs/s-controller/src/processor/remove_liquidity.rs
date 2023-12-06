@@ -7,7 +7,7 @@ use s_controller_lib::{
     calc_lp_tokens_sol_value, calc_remove_liquidity_protocol_fees, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_pool_state, CalcRemoveLiquidityProtocolFeesArgs, LpTokenRateArgs, PoolStateAccount,
-    RemoveLiquidityFreeArgs,
+    RemoveLiquidityFreeArgs, RemoveLiquidityIxFullArgs,
 };
 use sanctum_onchain_utils::{
     token_2022::{burn_tokens, BurnTokensAccounts},
@@ -21,15 +21,10 @@ use solana_program::{
 
 use crate::{
     cpi::{PricingProgramIxArgs, PricingProgramPriceLpCpi, SolValueCalculatorCpi},
-    verify::{verify_lp_cpis, verify_not_rebalancing_and_not_disabled},
+    verify::{verify_lp_cpis, verify_not_rebalancing_and_not_disabled, VerifyLpCpiAccounts},
 };
 
-use super::sync_sol_value_unchecked;
-
-struct RemoveLiquidityIxArgsChecked {
-    pub lst_index: usize,
-    pub lp_token_amount: u64,
-}
+use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 pub fn process_remove_liquidity(
     accounts: &[AccountInfo],
@@ -37,7 +32,7 @@ pub fn process_remove_liquidity(
 ) -> ProgramResult {
     let (
         accounts,
-        RemoveLiquidityIxArgsChecked {
+        RemoveLiquidityIxFullArgs {
             lst_index,
             lp_token_amount,
         },
@@ -45,7 +40,8 @@ pub fn process_remove_liquidity(
         pricing_cpi,
     ) = verify_remove_liquidity(accounts, args)?;
 
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+    let sync_sol_value_accounts = SyncSolValueUncheckedAccounts::from(accounts);
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)?;
 
     let pool_total_sol_value = accounts.pool_state.total_sol_value()?;
     let lp_token_supply = token_2022_mint_supply(accounts.lp_token_mint)?;
@@ -106,7 +102,7 @@ pub fn process_remove_liquidity(
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)
 }
 
 fn verify_remove_liquidity<'a, 'info>(
@@ -119,7 +115,7 @@ fn verify_remove_liquidity<'a, 'info>(
 ) -> Result<
     (
         RemoveLiquidityAccounts<'a, 'info>,
-        RemoveLiquidityIxArgsChecked,
+        RemoveLiquidityIxFullArgs,
         SolValueCalculatorCpi<'a, 'info>,
         PricingProgramPriceLpCpi<'a, 'info>,
     ),
@@ -154,7 +150,7 @@ fn verify_remove_liquidity<'a, 'info>(
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
     let (lst_cpi, pricing_cpi) = verify_lp_cpis(
-        actual,
+        VerifyLpCpiAccounts::from(actual),
         accounts_suffix_slice,
         lst_value_calc_accs,
         lst_index,
@@ -162,7 +158,7 @@ fn verify_remove_liquidity<'a, 'info>(
 
     Ok((
         actual,
-        RemoveLiquidityIxArgsChecked {
+        RemoveLiquidityIxFullArgs {
             lst_index,
             lp_token_amount,
         },

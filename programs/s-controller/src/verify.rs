@@ -6,8 +6,8 @@ use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 
 use crate::{
     account_traits::{
-        DstLstMintOf, GetLstMintAccountInfo, GetLstStateListAccountInfo, GetPoolStateAccountInfo,
-        GetSrcDstLstMintAccountInfo, SrcLstMintOf,
+        GetLstMintAccountInfo, GetLstStateListAccountInfo, GetPoolStateAccountInfo,
+        GetSrcDstLstMintAccountInfo, SrcDstLstMintAccountInfos,
     },
     cpi::{
         PricingProgramPriceLpCpi, PricingProgramPriceSwapCpi, SolValueCalculatorCpi,
@@ -34,54 +34,134 @@ pub const fn verify_lst_input_not_disabled(lst_state: &LstState) -> Result<(), S
     Ok(())
 }
 
-pub fn verify_lst_sol_val_calc_cpi<
-    'a,
-    'info,
-    A: GetLstStateListAccountInfo<'a, 'info> + GetLstMintAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifyLstSolValCalcCpiAccounts<'me, 'info> {
+    pub lst_state_list: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifyLstSolValCalcCpiAccounts<'me, 'info>
+where
+    A: GetLstMintAccountInfo<'me, 'info> + GetLstStateListAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            lst_mint: ix_accounts.get_lst_mint_account_info(),
+            lst_state_list: ix_accounts.get_lst_state_list_account_info(),
+        }
+    }
+}
+
+pub fn verify_lst_sol_val_calc_cpi<'a, 'info>(
+    VerifyLstSolValCalcCpiAccounts {
+        lst_state_list,
+        lst_mint,
+    }: VerifyLstSolValCalcCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
     lst_index: usize,
 ) -> Result<SolValueCalculatorCpi<'a, 'info>, ProgramError> {
-    let cpi = SolValueCalculatorCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
-    cpi.verify_correct_sol_value_calculator_program(base_accounts, lst_index)?;
+    let cpi = SolValueCalculatorCpi::from_lst_mint_and_account_suffix_slice(
+        lst_mint,
+        accounts_suffix_slice,
+    )?;
+    cpi.verify_correct_sol_value_calculator_program(lst_state_list, lst_index)?;
     Ok(cpi)
 }
 
-pub fn verify_pricing_swap_cpi<
-    'a,
-    'info,
-    A: GetPoolStateAccountInfo<'a, 'info> + GetSrcDstLstMintAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifyPricingSwapCpiAccounts<'me, 'info> {
+    pub pool_state: &'me AccountInfo<'info>,
+    pub src_dst_lst_mints: SrcDstLstMintAccountInfos<'me, 'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifyPricingSwapCpiAccounts<'me, 'info>
+where
+    A: GetPoolStateAccountInfo<'me, 'info> + GetSrcDstLstMintAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            pool_state: ix_accounts.get_pool_state_account_info(),
+            src_dst_lst_mints: ix_accounts.get_src_dst_lst_mints(),
+        }
+    }
+}
+
+pub fn verify_pricing_swap_cpi<'a, 'info>(
+    VerifyPricingSwapCpiAccounts {
+        pool_state,
+        src_dst_lst_mints,
+    }: VerifyPricingSwapCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
 ) -> Result<PricingProgramPriceSwapCpi<'a, 'info>, ProgramError> {
     let pricing_program_cpi =
-        PricingProgramPriceSwapCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
-    pricing_program_cpi.verify_correct_pricing_program(base_accounts)?;
+        PricingProgramPriceSwapCpi::from_src_dst_lst_mints_and_account_suffix_slice(
+            src_dst_lst_mints,
+            accounts_suffix_slice,
+        )?;
+    pricing_program_cpi.verify_correct_pricing_program(pool_state)?;
     Ok(pricing_program_cpi)
 }
 
-pub fn verify_pricing_lp_cpi<
-    'a,
-    'info,
-    A: GetPoolStateAccountInfo<'a, 'info> + GetLstMintAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifyPricingLpCpiAccounts<'me, 'info> {
+    pub pool_state: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifyPricingLpCpiAccounts<'me, 'info>
+where
+    A: GetPoolStateAccountInfo<'me, 'info> + GetLstMintAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            pool_state: ix_accounts.get_pool_state_account_info(),
+            lst_mint: ix_accounts.get_lst_mint_account_info(),
+        }
+    }
+}
+
+pub fn verify_pricing_lp_cpi<'a, 'info>(
+    VerifyPricingLpCpiAccounts {
+        pool_state,
+        lst_mint,
+    }: VerifyPricingLpCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
 ) -> Result<PricingProgramPriceLpCpi<'a, 'info>, ProgramError> {
-    let pricing_program_cpi =
-        PricingProgramPriceLpCpi::from_ix_accounts(&base_accounts, accounts_suffix_slice)?;
-    pricing_program_cpi.verify_correct_pricing_program(base_accounts)?;
+    let pricing_program_cpi = PricingProgramPriceLpCpi::from_lst_mint_and_account_suffix_slice(
+        lst_mint,
+        accounts_suffix_slice,
+    )?;
+    pricing_program_cpi.verify_correct_pricing_program(pool_state)?;
     Ok(pricing_program_cpi)
 }
 
-pub fn verify_src_dst_lst_sol_val_calc_cpis<
-    'a,
-    'info,
-    A: GetSrcDstLstMintAccountInfo<'a, 'info> + GetLstStateListAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifySrcDstLstSolValCalcCpiAccounts<'me, 'info> {
+    pub lst_state_list: &'me AccountInfo<'info>,
+    pub src_dst_lst_mints: SrcDstLstMintAccountInfos<'me, 'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifySrcDstLstSolValCalcCpiAccounts<'me, 'info>
+where
+    A: GetLstStateListAccountInfo<'me, 'info> + GetSrcDstLstMintAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            lst_state_list: ix_accounts.get_lst_state_list_account_info(),
+            src_dst_lst_mints: ix_accounts.get_src_dst_lst_mints(),
+        }
+    }
+}
+
+pub fn verify_src_dst_lst_sol_val_calc_cpis<'a, 'info>(
+    VerifySrcDstLstSolValCalcCpiAccounts {
+        lst_state_list,
+        src_dst_lst_mints:
+            SrcDstLstMintAccountInfos {
+                src_lst_mint,
+                dst_lst_mint,
+            },
+    }: VerifySrcDstLstSolValCalcCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
     src_lst_value_calc_accs: u8,
     SrcDstLstIndexes {
@@ -95,7 +175,10 @@ pub fn verify_src_dst_lst_sol_val_calc_cpis<
         .get(..src_suffix_slice_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let src_lst = verify_lst_sol_val_calc_cpi(
-        SrcLstMintOf(&base_accounts),
+        VerifyLstSolValCalcCpiAccounts {
+            lst_state_list,
+            lst_mint: src_lst_mint,
+        },
         src_suffix_slice,
         src_lst_index,
     )?;
@@ -104,7 +187,10 @@ pub fn verify_src_dst_lst_sol_val_calc_cpis<
         .get(src_suffix_slice_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let dst_lst = verify_lst_sol_val_calc_cpi(
-        DstLstMintOf(&base_accounts),
+        VerifyLstSolValCalcCpiAccounts {
+            lst_state_list,
+            lst_mint: dst_lst_mint,
+        },
         dst_suffix_slice,
         dst_lst_index,
     )?;
@@ -112,14 +198,34 @@ pub fn verify_src_dst_lst_sol_val_calc_cpis<
     Ok(SrcDstLstSolValueCalculatorCpis { src_lst, dst_lst })
 }
 
-pub fn verify_lp_cpis<
-    'a,
-    'info,
-    A: GetLstStateListAccountInfo<'a, 'info>
-        + GetLstMintAccountInfo<'a, 'info>
-        + GetPoolStateAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifyLpCpiAccounts<'me, 'info> {
+    pub lst_state_list: &'me AccountInfo<'info>,
+    pub pool_state: &'me AccountInfo<'info>,
+    pub lst_mint: &'me AccountInfo<'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifyLpCpiAccounts<'me, 'info>
+where
+    A: GetLstStateListAccountInfo<'me, 'info>
+        + GetLstMintAccountInfo<'me, 'info>
+        + GetPoolStateAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            lst_state_list: ix_accounts.get_lst_state_list_account_info(),
+            pool_state: ix_accounts.get_pool_state_account_info(),
+            lst_mint: ix_accounts.get_lst_mint_account_info(),
+        }
+    }
+}
+
+pub fn verify_lp_cpis<'a, 'info>(
+    VerifyLpCpiAccounts {
+        lst_state_list,
+        pool_state,
+        lst_mint,
+    }: VerifyLpCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
     lst_value_calc_accs: u8,
     lst_index: usize,
@@ -135,25 +241,57 @@ pub fn verify_lp_cpis<
     let lst_accounts_suffix_slice = accounts_suffix_slice
         .get(..lst_accounts_suffix_slice_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let lst_cpi =
-        verify_lst_sol_val_calc_cpi(&base_accounts, lst_accounts_suffix_slice, lst_index)?;
+    let lst_cpi = verify_lst_sol_val_calc_cpi(
+        VerifyLstSolValCalcCpiAccounts {
+            lst_state_list,
+            lst_mint,
+        },
+        lst_accounts_suffix_slice,
+        lst_index,
+    )?;
 
     let pricing_accounts_suffix_slice = accounts_suffix_slice
         .get(lst_accounts_suffix_slice_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let pricing_cpi = verify_pricing_lp_cpi(base_accounts, pricing_accounts_suffix_slice)?;
+    let pricing_cpi = verify_pricing_lp_cpi(
+        VerifyPricingLpCpiAccounts {
+            pool_state,
+            lst_mint,
+        },
+        pricing_accounts_suffix_slice,
+    )?;
 
     Ok((lst_cpi, pricing_cpi))
 }
 
-pub fn verify_swap_cpis<
-    'a,
-    'info,
-    A: GetSrcDstLstMintAccountInfo<'a, 'info>
-        + GetLstStateListAccountInfo<'a, 'info>
-        + GetPoolStateAccountInfo<'a, 'info>,
->(
-    base_accounts: A,
+#[derive(Clone, Copy, Debug)]
+pub struct VerifySwapCpiAccounts<'me, 'info> {
+    pub lst_state_list: &'me AccountInfo<'info>,
+    pub pool_state: &'me AccountInfo<'info>,
+    pub src_dst_lst_mints: SrcDstLstMintAccountInfos<'me, 'info>,
+}
+
+impl<'me, 'info, A> From<A> for VerifySwapCpiAccounts<'me, 'info>
+where
+    A: GetLstStateListAccountInfo<'me, 'info>
+        + GetSrcDstLstMintAccountInfo<'me, 'info>
+        + GetPoolStateAccountInfo<'me, 'info>,
+{
+    fn from(ix_accounts: A) -> Self {
+        Self {
+            lst_state_list: ix_accounts.get_lst_state_list_account_info(),
+            pool_state: ix_accounts.get_pool_state_account_info(),
+            src_dst_lst_mints: ix_accounts.get_src_dst_lst_mints(),
+        }
+    }
+}
+
+pub fn verify_swap_cpis<'a, 'info>(
+    VerifySwapCpiAccounts {
+        lst_state_list,
+        pool_state,
+        src_dst_lst_mints,
+    }: VerifySwapCpiAccounts<'a, 'info>,
     accounts_suffix_slice: &'a [AccountInfo<'info>],
     SrcDstLstValueCalcAccs {
         src_lst_value_calc_accs,
@@ -176,7 +314,10 @@ pub fn verify_swap_cpis<
         .get(..src_dst_lst_suffix_slice_end)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let sol_val_calc_cpis = verify_src_dst_lst_sol_val_calc_cpis(
-        &base_accounts,
+        VerifySrcDstLstSolValCalcCpiAccounts {
+            lst_state_list,
+            src_dst_lst_mints,
+        },
         src_dst_lst_suffix_slice,
         src_lst_value_calc_accs,
         src_dst_lst_indexes,
@@ -185,8 +326,13 @@ pub fn verify_swap_cpis<
     let pricing_program_accounts_suffix_slice = accounts_suffix_slice
         .get(src_dst_lst_suffix_slice_end..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
-    let pricing_program_cpi =
-        verify_pricing_swap_cpi(base_accounts, pricing_program_accounts_suffix_slice)?;
+    let pricing_program_cpi = verify_pricing_swap_cpi(
+        VerifyPricingSwapCpiAccounts {
+            pool_state,
+            src_dst_lst_mints,
+        },
+        pricing_program_accounts_suffix_slice,
+    )?;
 
     Ok((sol_val_calc_cpis, pricing_program_cpi))
 }

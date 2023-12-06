@@ -23,8 +23,11 @@ use crate::{
     processor::sync_sol_value_unchecked,
     verify::{
         verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled, verify_swap_cpis,
+        VerifySwapCpiAccounts,
     },
 };
+
+use super::SyncSolValueUncheckedAccounts;
 
 pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) -> ProgramResult {
     let (
@@ -44,8 +47,12 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
         pricing_cpi,
     ) = verify_swap_exact_in(accounts, args)?;
 
-    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
-    sync_sol_value_unchecked(DstLstPoolReservesOf(&accounts), dst_lst_cpi, dst_lst_index)?;
+    let src_sync_sol_value_accounts =
+        SyncSolValueUncheckedAccounts::from(SrcLstPoolReservesOf(accounts));
+    let dst_sync_sol_value_accounts =
+        SyncSolValueUncheckedAccounts::from(DstLstPoolReservesOf(accounts));
+    sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
+    sync_sol_value_unchecked(dst_sync_sol_value_accounts, dst_lst_cpi, dst_lst_index)?;
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
@@ -105,8 +112,8 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
-    sync_sol_value_unchecked(SrcLstPoolReservesOf(&accounts), src_lst_cpi, src_lst_index)?;
-    sync_sol_value_unchecked(DstLstPoolReservesOf(&accounts), dst_lst_cpi, dst_lst_index)?;
+    sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
+    sync_sol_value_unchecked(dst_sync_sol_value_accounts, dst_lst_cpi, dst_lst_index)?;
 
     let end_total_sol_value = accounts.pool_state.total_sol_value()?;
     if end_total_sol_value < start_total_sol_value {
@@ -178,7 +185,7 @@ fn verify_swap_exact_in<'a, 'info>(
         .get(SWAP_EXACT_IN_IX_ACCOUNTS_LEN..)
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
     let (src_dst_cpis, pricing_cpi) = verify_swap_cpis(
-        actual,
+        VerifySwapCpiAccounts::from(actual),
         accounts_suffix_slice,
         src_dst_lst_value_calc_accs,
         src_dst_lst_indexes,

@@ -5,8 +5,8 @@ use s_controller_interface::{
 use s_controller_lib::{
     calc_add_liquidity, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, CalcAddLiquidityArgs,
-    CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
+    CalcAddLiquidityArgs, CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
@@ -22,20 +22,16 @@ use crate::{
     cpi::{PricingProgramIxArgs, PricingProgramPriceLpCpi, SolValueCalculatorCpi},
     verify::{
         verify_lp_cpis, verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled,
+        VerifyLpCpiAccounts,
     },
 };
 
-use super::sync_sol_value_unchecked;
-
-struct AddLiquidityIxArgsChecked {
-    pub lst_index: usize,
-    pub lst_amount: u64,
-}
+use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs) -> ProgramResult {
     let (
         accounts,
-        AddLiquidityIxArgsChecked {
+        AddLiquidityIxFullArgs {
             lst_index,
             lst_amount,
         },
@@ -43,7 +39,9 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         pricing_cpi,
     ) = verify_add_liquidity(accounts, args)?;
 
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+    let sync_sol_value_accounts = SyncSolValueUncheckedAccounts::from(accounts);
+
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)?;
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
@@ -101,7 +99,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         lp_tokens_to_mint,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
-    sync_sol_value_unchecked(accounts, lst_cpi, lst_index)?;
+    sync_sol_value_unchecked(sync_sol_value_accounts, lst_cpi, lst_index)?;
 
     let end_total_sol_value = accounts.pool_state.total_sol_value()?;
     if end_total_sol_value < start_total_sol_value {
@@ -121,7 +119,7 @@ fn verify_add_liquidity<'a, 'info>(
 ) -> Result<
     (
         AddLiquidityAccounts<'a, 'info>,
-        AddLiquidityIxArgsChecked,
+        AddLiquidityIxFullArgs,
         SolValueCalculatorCpi<'a, 'info>,
         PricingProgramPriceLpCpi<'a, 'info>,
     ),
@@ -160,7 +158,7 @@ fn verify_add_liquidity<'a, 'info>(
         .ok_or(ProgramError::NotEnoughAccountKeys)?;
 
     let (lst_cpi, pricing_cpi) = verify_lp_cpis(
-        actual,
+        VerifyLpCpiAccounts::from(actual),
         accounts_suffix_slice,
         lst_value_calc_accs,
         lst_index,
@@ -168,7 +166,7 @@ fn verify_add_liquidity<'a, 'info>(
 
     Ok((
         actual,
-        AddLiquidityIxArgsChecked {
+        AddLiquidityIxFullArgs {
             lst_index,
             lst_amount,
         },
