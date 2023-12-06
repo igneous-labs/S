@@ -3,7 +3,7 @@ use s_controller_interface::{
     remove_disable_pool_authority_verify_account_privileges, RemoveDisablePoolAuthorityAccounts,
     RemoveDisablePoolAuthorityIxArgs, SControllerError,
 };
-use s_controller_lib::RemoveDisablePoolAuthorityFreeArgs;
+use s_controller_lib::{try_pool_state, RemoveDisablePoolAuthorityFreeArgs};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
@@ -38,6 +38,7 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
     let free_args = RemoveDisablePoolAuthorityFreeArgs {
         index,
         refund_rent_to: *actual.refund_rent_to.key,
+        signer: *actual.signer.key,
         authority: *actual.authority.key,
         pool_state_acc: actual.pool_state,
         disable_pool_authority_list: actual.disable_pool_authority_list,
@@ -46,10 +47,19 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
 
     remove_disable_pool_authority_verify_account_keys(&actual, &expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    // TODO: How should we handle authority being required to be signer if admin is not a signer?
-    // NOTE: for now it just requires both signature as per the IDL
     remove_disable_pool_authority_verify_account_privileges(&actual)
         .map_err(log_and_return_acc_privilege_err)?;
+
+    // signer should be:
+    //  - authority if it matches given authority to be removed
+    //  - admin
+    if *actual.signer.key != *actual.authority.key {
+        let pool_state_bytes = actual.pool_state.try_borrow_data()?;
+        let pool_state = try_pool_state(&pool_state_bytes)?;
+        if *actual.signer.key != pool_state.admin {
+            return Err(SControllerError::UnauthorizedDisablePoolAuthoritySigner.into());
+        }
+    }
 
     let index: usize = index
         .try_into()

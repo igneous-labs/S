@@ -6,7 +6,7 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
-    try_disable_pool_authority_list, try_find_element_in_list, try_pool_state,
+    try_disable_pool_authority_list, try_find_element_in_list,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -17,6 +17,7 @@ pub struct RemoveDisablePoolAuthorityFreeArgs<
 > {
     pub index: I,
     pub refund_rent_to: Pubkey,
+    pub signer: Pubkey,
     pub authority: Pubkey,
     pub pool_state_acc: S,
     pub disable_pool_authority_list: L,
@@ -33,12 +34,9 @@ impl<
             return Err(SControllerError::IncorrectPoolState);
         }
 
-        let pool_state_data = self.pool_state_acc.data();
-        let pool_state = try_pool_state(&pool_state_data)?;
-
         Ok(RemoveDisablePoolAuthorityKeys {
             refund_rent_to: self.refund_rent_to,
-            admin: pool_state.admin,
+            signer: self.signer,
             pool_state: *self.pool_state_acc.key(),
             authority: self.authority,
             disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,
@@ -52,6 +50,7 @@ pub struct RemoveDisablePoolAuthorityByPubkeyFreeArgs<
     L: ReadonlyAccountData + KeyedAccount,
 > {
     pub refund_rent_to: Pubkey,
+    pub signer: Pubkey,
     pub authority: Pubkey,
     pub pool_state_acc: S,
     pub disable_pool_authority_list: L,
@@ -73,9 +72,6 @@ impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccoun
             return Err(SControllerError::IncorrectPoolState);
         }
 
-        let pool_state_data = self.pool_state_acc.data();
-        let pool_state = try_pool_state(&pool_state_data)?;
-
         let disable_pool_authority_list_data = self.disable_pool_authority_list.data();
         let list = try_disable_pool_authority_list(&disable_pool_authority_list_data)?;
         let (index, _authority) = try_find_element_in_list(self.authority, list)?;
@@ -86,7 +82,7 @@ impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccoun
         Ok((
             RemoveDisablePoolAuthorityKeys {
                 refund_rent_to: self.refund_rent_to,
-                admin: pool_state.admin,
+                signer: self.signer,
                 authority: self.authority,
                 pool_state: *self.pool_state_acc.key(),
                 disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,

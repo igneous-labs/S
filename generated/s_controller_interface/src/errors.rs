@@ -50,6 +50,8 @@ pub enum SControllerError {
     IncorrectPricingProgram = 19,
     #[error("Disable Pool Authority with given index does not exist")]
     InvalidDisablePoolAuthorityIndex = 20,
+    #[error("Signer is not authorized to remove given disable pool authority")]
+    UnauthorizedDisablePoolAuthoritySigner = 21,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

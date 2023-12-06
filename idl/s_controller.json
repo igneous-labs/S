@@ -1467,6 +1467,11 @@
       "code": 20,
       "name": "InvalidDisablePoolAuthorityIndex",
       "msg": "Disable Pool Authority with given index does not exist"
+    },
+    {
+      "code": 21,
+      "name": "UnauthorizedDisablePoolAuthoritySigner",
+      "msg": "Signer is not authorized to remove given disable pool authority"
     }
   ],
   "metadata": {
