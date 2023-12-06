@@ -21,7 +21,6 @@ async fn basic_enable_pool() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    // TODO: confirm this syntax
     let pool_state_account = pool_state_to_account(PoolState {
         is_disabled: 1,
         ..DEFAULT_POOL_STATE
