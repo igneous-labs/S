@@ -4,6 +4,7 @@ use s_controller_lib::{
 };
 use solana_program::system_program;
 use solana_program_test::*;
+use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{
     account::Account,
     signature::{read_keypair_file, Keypair, Signer},
@@ -30,8 +31,6 @@ async fn basic_set_admin() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    program_test.add_account(POOL_STATE_ID, pool_state_to_account(DEFAULT_POOL_STATE));
-
     program_test.add_account(
         initial_authority::ID,
         Account {
@@ -52,13 +51,22 @@ async fn basic_set_admin() {
         },
     );
 
+    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
+
+    program_test.add_account(POOL_STATE_ID, pool_state_account.clone());
+
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let ix = set_admin_ix(
         SetAdminFreeArgs {
             new_admin: new_admin_kp.pubkey(),
+            pool_state: KeyedReadonlyAccount {
+                key: POOL_STATE_ID,
+                account: pool_state_account.clone(),
+            },
         }
-        .resolve(),
+        .resolve()
+        .unwrap(),
         SetAdminIxArgs {},
     )
     .unwrap();

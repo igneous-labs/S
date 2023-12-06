@@ -35,8 +35,9 @@ fn verify_set_admin<'a, 'info>(
 
     let expected = SetAdminFreeArgs {
         new_admin: *actual.new_admin.key,
+        pool_state: actual.pool_state,
     }
-    .resolve();
+    .resolve()?;
 
     set_admin_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     set_admin_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
