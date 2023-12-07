@@ -24,12 +24,10 @@ pub fn process_add_lst(
     }: AddLstIxArgs,
 ) -> ProgramResult {
     let AddLstAccounts {
-        manager: _,
         payer,
         fee_acc,
         lst_mint,
-        state: _,
-        system_program: _,
+        ..
     } = verify_add_lst(accounts)?;
 
     let create_pda_args: FeeAccountCreatePdaArgs = FeeAccountFindPdaArgs {
