@@ -1,10 +1,8 @@
-mod common;
-
-use common::*;
 use s_controller_interface::{set_pricing_program_ix, SetPricingProgramIxArgs};
 use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
+
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
@@ -14,6 +12,8 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use test_utils::{assert_program_error, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic() {
