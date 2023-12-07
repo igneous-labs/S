@@ -12,39 +12,46 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveDisablePoolAuthorityFreeArgs<
-    I: TryInto<usize>,
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
 > {
-    pub index: I,
+    pub index: usize,
     pub refund_rent_to: Pubkey,
     pub signer: Pubkey,
-    pub authority: Pubkey,
     pub pool_state_acc: S,
     pub disable_pool_authority_list: L,
 }
 
-impl<
-        I: TryInto<usize>,
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
-    > RemoveDisablePoolAuthorityFreeArgs<I, S, L>
+impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccount>
+    RemoveDisablePoolAuthorityFreeArgs<S, L>
 {
     pub fn resolve(&self) -> Result<RemoveDisablePoolAuthorityKeys, SControllerError> {
         if *self.pool_state_acc.key() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
+        if *self.disable_pool_authority_list.key() != DISABLE_POOL_AUTHORITY_LIST_ID {
+            return Err(SControllerError::IncorrectDisablePoolAuthorityList);
+        }
+
+        let disable_pool_authority_list_data = self.disable_pool_authority_list.data();
+        let list = try_disable_pool_authority_list(&disable_pool_authority_list_data)?;
+        let authority = list
+            .get(self.index)
+            .ok_or(SControllerError::InvalidDisablePoolAuthorityIndex)?;
 
         Ok(RemoveDisablePoolAuthorityKeys {
             refund_rent_to: self.refund_rent_to,
             signer: self.signer,
-            pool_state: *self.pool_state_acc.key(),
-            authority: self.authority,
+            pool_state: POOL_STATE_ID,
+            authority: *authority,
             disable_pool_authority_list: DISABLE_POOL_AUTHORITY_LIST_ID,
         })
     }
 }
 
+/// Iterates through disable_pool_authority_list to find the index.
+/// Does not check identity of pool_state_account and disable_pool_authority_list
+/// Suitable for use client-side.
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveDisablePoolAuthorityByPubkeyFreeArgs<
     S: ReadonlyAccountData + KeyedAccount,

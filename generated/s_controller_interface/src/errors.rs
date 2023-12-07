@@ -62,6 +62,10 @@ pub enum SControllerError {
     UnauthorizedDisablePoolAuthoritySigner = 25,
     #[error("Given disable pool authority is not valid")]
     InvalidDisablePoolAuthority = 26,
+    #[error("Signer is not authorized to set rebalance authority")]
+    UnauthorizedSetRebalanceAuthoritySigner = 27,
+    #[error("Incorrect disable pool authority list account")]
+    IncorrectDisablePoolAuthorityList = 28,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
