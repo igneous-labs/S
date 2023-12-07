@@ -1181,10 +1181,10 @@
       "args": [],
       "accounts": [
         {
-          "name": "authority",
+          "name": "signer",
           "isMut": false,
           "isSigner": true,
-          "desc": "The pool's rebalance authority or admin"
+          "desc": "Either the pool's rebalance authority or admin"
         },
         {
           "name": "new_rebalance_authority",
@@ -1505,6 +1505,11 @@
       "code": 26,
       "name": "InvalidDisablePoolAuthority",
       "msg": "Given disable pool authority is not valid"
+    },
+    {
+      "code": 27,
+      "name": "UnauthorizedSetRebalanceAuthoritySigner",
+      "msg": "Signer is not authorized to set rebalance authority"
     }
   ],
   "metadata": {
