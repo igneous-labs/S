@@ -76,6 +76,7 @@ pub fn add_marinade_stake_pool(program_test: ProgramTest) -> ProgramTest {
         .add_test_fixtures_account("msol-mint.json")
 }
 
+#[derive(Clone, Copy, Default, Debug)]
 pub struct JitoMarinadeProgramTestArgs {
     pub jitosol_sol_value: u64,
     pub msol_sol_value: u64,
@@ -85,6 +86,13 @@ pub struct JitoMarinadeProgramTestArgs {
     pub msol_protocol_fee_accumulator: u64,
     pub lp_token_mint: Pubkey,
     pub lp_token_supply: u64,
+}
+
+impl JitoMarinadeProgramTestArgs {
+    pub fn with_lp_token_mint(mut self, lp_token_mint: Pubkey) -> Self {
+        self.lp_token_mint = lp_token_mint;
+        self
+    }
 }
 
 /// dont forget to
