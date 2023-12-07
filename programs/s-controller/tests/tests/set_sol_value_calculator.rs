@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS};
 use marinade_keys::msol;
@@ -16,6 +13,8 @@ use sanctum_utils::mint_with_token_program::MintWithTokenProgram;
 use solana_program::{instruction::AccountMeta, program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{assert_program_error, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_set_marinade() {
@@ -124,7 +123,7 @@ async fn fail_unauthorized() {
     let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
     let (lst_index, lst_state) = try_find_lst_mint_on_list(
         msol::ID,
-        &try_lst_state_list(&lst_state_list_account.data).unwrap(),
+        try_lst_state_list(&lst_state_list_account.data).unwrap(),
     )
     .unwrap();
     let pool_reserves = create_pool_reserves_address(lst_state, spl_token::ID).unwrap();

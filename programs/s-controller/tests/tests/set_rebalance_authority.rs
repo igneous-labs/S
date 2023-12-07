@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use s_controller_interface::{
     set_rebalance_authority_ix, SControllerError, SetRebalanceAuthorityIxArgs,
 };
@@ -17,6 +14,8 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use test_utils::{assert_is_custom_err, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn admin_set() {

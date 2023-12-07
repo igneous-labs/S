@@ -19,11 +19,10 @@ fn extract_ix_err(banks_client_err: BanksClientError) -> InstructionError {
         BanksClientError::SimulationError { err, .. } => err,
         _ => panic!("Unexpected BanksClientError {banks_client_err}"),
     };
-    let ix_err = match tx_err {
+    match tx_err {
         TransactionError::InstructionError(_, e) => e,
         _ => panic!("Unexpected TransactionError {tx_err}"),
-    };
-    ix_err
+    }
 }
 
 pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(

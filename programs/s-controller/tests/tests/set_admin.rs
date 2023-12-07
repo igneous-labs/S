@@ -1,7 +1,5 @@
-use s_controller_interface::{
-    set_protocol_fee_beneficiary_ix, PoolState, SetProtocolFeeBeneficiaryIxArgs,
-};
-use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
+use s_controller_interface::{set_admin_ix, PoolState, SetAdminIxArgs};
+use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs};
 
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
@@ -11,17 +9,15 @@ use solana_sdk::{
 };
 use test_utils::test_fixtures_dir;
 
-mod common;
-
 use crate::common::*;
 
 #[tokio::test]
-async fn basic_set_protocol_fee_beneficiary() {
+async fn basic_set_admin() {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
-    let new_beneficiary_kp = Keypair::new();
-    let another_new_beneficiary_kp = Keypair::new();
+    let new_admin_kp = Keypair::new();
+    let another_new_admin_kp = Keypair::new();
 
     let mut program_test = ProgramTest::default();
 
@@ -37,10 +33,10 @@ async fn basic_set_protocol_fee_beneficiary() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    // Change protocol fee beneficiary
-    let ix = set_protocol_fee_beneficiary_ix(
-        SetProtocolFeeBeneficiaryFreeArgs {
-            new_beneficiary: new_beneficiary_kp.pubkey(),
+    // Change admin
+    let ix = set_admin_ix(
+        SetAdminFreeArgs {
+            new_admin: new_admin_kp.pubkey(),
             pool_state: KeyedReadonlyAccount {
                 key: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
@@ -48,7 +44,7 @@ async fn basic_set_protocol_fee_beneficiary() {
         }
         .resolve()
         .unwrap(),
-        SetProtocolFeeBeneficiaryIxArgs {},
+        SetAdminIxArgs {},
     )
     .unwrap();
 
@@ -62,15 +58,15 @@ async fn basic_set_protocol_fee_beneficiary() {
     assert_eq!(
         *pool_state,
         PoolState {
-            protocol_fee_beneficiary: new_beneficiary_kp.pubkey(),
+            admin: new_admin_kp.pubkey(),
             ..*pool_state
         }
     );
 
-    // Change protocol fee beneficiary again
-    let ix2 = set_protocol_fee_beneficiary_ix(
-        SetProtocolFeeBeneficiaryFreeArgs {
-            new_beneficiary: another_new_beneficiary_kp.pubkey(),
+    // Change admin again
+    let ix2 = set_admin_ix(
+        SetAdminFreeArgs {
+            new_admin: another_new_admin_kp.pubkey(),
             pool_state: KeyedReadonlyAccount {
                 key: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
@@ -78,12 +74,12 @@ async fn basic_set_protocol_fee_beneficiary() {
         }
         .resolve()
         .unwrap(),
-        SetProtocolFeeBeneficiaryIxArgs {},
+        SetAdminIxArgs {},
     )
     .unwrap();
 
     let mut tx2 = Transaction::new_with_payer(&[ix2], Some(&payer.pubkey()));
-    tx2.sign(&[&payer, &new_beneficiary_kp], last_blockhash);
+    tx2.sign(&[&payer, &new_admin_kp], last_blockhash);
 
     banks_client.process_transaction(tx2).await.unwrap();
 
@@ -92,7 +88,7 @@ async fn basic_set_protocol_fee_beneficiary() {
     assert_eq!(
         *pool_state,
         PoolState {
-            protocol_fee_beneficiary: another_new_beneficiary_kp.pubkey(),
+            admin: another_new_admin_kp.pubkey(),
             ..*pool_state
         }
     );
