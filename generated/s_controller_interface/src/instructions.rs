@@ -4510,8 +4510,8 @@ pub fn end_rebalance_verify_account_privileges<'me, 'info>(
 pub const SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct SetRebalanceAuthorityAccounts<'me, 'info> {
-    ///The pool's rebalance authority or admin
-    pub authority: &'me AccountInfo<'info>,
+    ///Either the pool's rebalance authority or admin
+    pub signer: &'me AccountInfo<'info>,
     ///The new rebalance authority to set to
     pub new_rebalance_authority: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
@@ -4519,8 +4519,8 @@ pub struct SetRebalanceAuthorityAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct SetRebalanceAuthorityKeys {
-    ///The pool's rebalance authority or admin
-    pub authority: Pubkey,
+    ///Either the pool's rebalance authority or admin
+    pub signer: Pubkey,
     ///The new rebalance authority to set to
     pub new_rebalance_authority: Pubkey,
     ///The pool's state singleton PDA
@@ -4529,7 +4529,7 @@ pub struct SetRebalanceAuthorityKeys {
 impl From<&SetRebalanceAuthorityAccounts<'_, '_>> for SetRebalanceAuthorityKeys {
     fn from(accounts: &SetRebalanceAuthorityAccounts) -> Self {
         Self {
-            authority: *accounts.authority.key,
+            signer: *accounts.signer.key,
             new_rebalance_authority: *accounts.new_rebalance_authority.key,
             pool_state: *accounts.pool_state.key,
         }
@@ -4538,7 +4538,7 @@ impl From<&SetRebalanceAuthorityAccounts<'_, '_>> for SetRebalanceAuthorityKeys 
 impl From<&SetRebalanceAuthorityKeys> for [AccountMeta; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] {
     fn from(keys: &SetRebalanceAuthorityKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.authority, true),
+            AccountMeta::new_readonly(keys.signer, true),
             AccountMeta::new_readonly(keys.new_rebalance_authority, false),
             AccountMeta::new(keys.pool_state, false),
         ]
@@ -4547,7 +4547,7 @@ impl From<&SetRebalanceAuthorityKeys> for [AccountMeta; SET_REBALANCE_AUTHORITY_
 impl From<[Pubkey; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN]> for SetRebalanceAuthorityKeys {
     fn from(pubkeys: [Pubkey; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            authority: pubkeys[0],
+            signer: pubkeys[0],
             new_rebalance_authority: pubkeys[1],
             pool_state: pubkeys[2],
         }
@@ -4558,7 +4558,7 @@ impl<'info> From<&SetRebalanceAuthorityAccounts<'_, 'info>>
 {
     fn from(accounts: &SetRebalanceAuthorityAccounts<'_, 'info>) -> Self {
         [
-            accounts.authority.clone(),
+            accounts.signer.clone(),
             accounts.new_rebalance_authority.clone(),
             accounts.pool_state.clone(),
         ]
@@ -4569,7 +4569,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOU
 {
     fn from(arr: &'me [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            authority: &arr[0],
+            signer: &arr[0],
             new_rebalance_authority: &arr[1],
             pool_state: &arr[2],
         }
@@ -4648,7 +4648,7 @@ pub fn set_rebalance_authority_verify_account_keys(
     keys: &SetRebalanceAuthorityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.authority.key, &keys.authority),
+        (accounts.signer.key, &keys.signer),
         (
             accounts.new_rebalance_authority.key,
             &keys.new_rebalance_authority,
@@ -4669,7 +4669,7 @@ pub fn set_rebalance_authority_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.authority] {
+    for should_be_signer in [accounts.signer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }

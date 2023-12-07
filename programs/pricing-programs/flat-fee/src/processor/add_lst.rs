@@ -23,22 +23,13 @@ pub fn process_add_lst(
         output_fee_bps,
     }: AddLstIxArgs,
 ) -> ProgramResult {
-    let checked = verify_add_lst(accounts)?;
-    process_add_lst_unchecked(checked, input_fee_bps, output_fee_bps)
-}
-
-fn process_add_lst_unchecked(
-    AddLstAccounts {
-        manager: _,
+    let AddLstAccounts {
         payer,
         fee_acc,
         lst_mint,
-        state: _,
-        system_program: _,
-    }: AddLstAccounts,
-    input_fee_bps: i16,
-    output_fee_bps: i16,
-) -> ProgramResult {
+        ..
+    } = verify_add_lst(accounts)?;
+
     let create_pda_args: FeeAccountCreatePdaArgs = FeeAccountFindPdaArgs {
         lst_mint: *lst_mint.key,
     }

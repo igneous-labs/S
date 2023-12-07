@@ -17,26 +17,23 @@ use solana_program::{
 
 pub fn process_price_lp_tokens_to_redeem(
     accounts: &[AccountInfo],
-    PriceLpTokensToRedeemIxArgs { amount, sol_value }: PriceLpTokensToRedeemIxArgs,
+    PriceLpTokensToRedeemIxArgs {
+        amount: _,
+        sol_value,
+    }: PriceLpTokensToRedeemIxArgs,
 ) -> ProgramResult {
-    let checked = verify_price_lp_tokens_to_redeem(accounts)?;
-    process_price_lp_tokens_to_redeem_unchecked(checked, amount, sol_value)
-}
-
-fn process_price_lp_tokens_to_redeem_unchecked(
-    PriceLpTokensToRedeemAccounts {
+    let PriceLpTokensToRedeemAccounts {
         output_lst_mint: _,
         state,
-    }: PriceLpTokensToRedeemAccounts,
-    _amount: u64,
-    sol_value: u64,
-) -> ProgramResult {
+    } = verify_price_lp_tokens_to_redeem(accounts)?;
+
     let bytes = state.try_borrow_data()?;
     let state = try_program_state(&bytes)?;
 
     let result = calculate_price_lp_tokens_to_redeem(state.lp_withdrawal_fee_bps, sol_value)?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
+
     Ok(())
 }
 

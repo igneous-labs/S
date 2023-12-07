@@ -18,14 +18,15 @@ See the overview [here](./docs/).
 
 ## Setup
 
-Install solana toolchain 1.16.20
+Match solana + rust toolchain versions of `ellipsislabs/solana:1.16.20` to ensure build close to reproducible build as possible.
 
 ```sh
-$ sh -c "$(curl -sSfL https://release.solana.com/v1.16.20/install)"
-$ cargo-build-sbf --version
+sh -c "$(curl -sSfL https://release.solana.com/v1.16.20/install)"
+cargo-build-sbf --version && rustc --version
+
 solana-cargo-build-sbf 1.16.20
 platform-tools v1.37
-rustc 1.68.0
+rustc 1.68.0 (2c8cc3432 2023-03-06)
 ```
 
 ## Overview of User Authorities

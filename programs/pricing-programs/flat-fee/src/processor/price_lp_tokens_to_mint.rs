@@ -15,20 +15,18 @@ use solana_program::{
 
 pub fn process_price_lp_tokens_to_mint(
     accounts: &[AccountInfo],
-    PriceLpTokensToMintIxArgs { amount, sol_value }: PriceLpTokensToMintIxArgs,
+    PriceLpTokensToMintIxArgs {
+        amount: _,
+        sol_value,
+    }: PriceLpTokensToMintIxArgs,
 ) -> ProgramResult {
-    let checked = verify_price_lp_tokens_to_mint(accounts)?;
-    process_price_lp_tokens_to_mint_unchecked(checked, amount, sol_value)
-}
+    let PriceLpTokensToMintAccounts { input_lst_mint: _ } =
+        verify_price_lp_tokens_to_mint(accounts)?;
 
-fn process_price_lp_tokens_to_mint_unchecked(
-    PriceLpTokensToMintAccounts { input_lst_mint: _ }: PriceLpTokensToMintAccounts,
-    _amount: u64,
-    sol_value: u64,
-) -> ProgramResult {
     let result = calculate_price_lp_tokens_to_mint(sol_value)?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
+
     Ok(())
 }
 

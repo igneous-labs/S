@@ -16,17 +16,12 @@ pub fn process_set_lp_withdrawal_fee(
         lp_withdrawal_fee_bps,
     }: SetLpWithdrawalFeeIxArgs,
 ) -> ProgramResult {
-    let checked = verify_set_lp_withdrawal_fee(accounts)?;
-    process_set_lp_withdrawal_fee_unchecked(checked, lp_withdrawal_fee_bps)
-}
+    let SetLpWithdrawalFeeAccounts { manager: _, state } = verify_set_lp_withdrawal_fee(accounts)?;
 
-fn process_set_lp_withdrawal_fee_unchecked(
-    SetLpWithdrawalFeeAccounts { manager: _, state }: SetLpWithdrawalFeeAccounts,
-    lp_withdrawal_fee_bps: u16,
-) -> ProgramResult {
     let mut bytes = state.try_borrow_mut_data()?;
     let state = try_program_state_mut(&mut bytes)?;
     state.lp_withdrawal_fee_bps = lp_withdrawal_fee_bps;
+
     Ok(())
 }
 

@@ -2,12 +2,8 @@ mod common;
 
 use common::*;
 use s_controller_interface::{disable_pool_ix, DisablePoolIxArgs};
-use s_controller_lib::{
-    program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
-    try_pool_state, DisablePoolFreeArgs, U8Bool,
-};
+use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 #[tokio::test]
@@ -33,24 +29,12 @@ async fn basic_disable_pool() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let disable_pool_authority_list_acc =
-        banks_client_get_disable_pool_list_acc(&mut banks_client).await;
-
     // Disable pool by disable pool authority
     {
         let keys = DisablePoolFreeArgs {
-            authority: disable_pool_authority_kp.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
-                account: pool_state_account.clone(),
-            },
-            disable_pool_authority_list: KeyedReadonlyAccount {
-                key: DISABLE_POOL_AUTHORITY_LIST_ID,
-                account: disable_pool_authority_list_acc.clone(),
-            },
+            signer: disable_pool_authority_kp.pubkey(),
         }
-        .resolve()
-        .unwrap();
+        .resolve();
         let ix = disable_pool_ix(keys, DisablePoolIxArgs {}).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &disable_pool_authority_kp], last_blockhash);
@@ -87,26 +71,14 @@ async fn reject_disable_pool() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let disable_pool_authority_list_acc =
-        banks_client_get_disable_pool_list_acc(&mut banks_client).await;
-
     // Disable pool by disable pool authority
     {
         // A keypair not authorized to disable pool
         let rando_kp = Keypair::new();
         let keys = DisablePoolFreeArgs {
-            authority: disable_pool_authority_kp.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
-                account: pool_state_account.clone(),
-            },
-            disable_pool_authority_list: KeyedReadonlyAccount {
-                key: DISABLE_POOL_AUTHORITY_LIST_ID,
-                account: disable_pool_authority_list_acc.clone(),
-            },
+            signer: disable_pool_authority_kp.pubkey(),
         }
-        .resolve()
-        .unwrap();
+        .resolve();
         let ix = disable_pool_ix(keys, DisablePoolIxArgs {}).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &rando_kp], last_blockhash);
