@@ -1510,6 +1510,11 @@
       "code": 27,
       "name": "UnauthorizedSetRebalanceAuthoritySigner",
       "msg": "Signer is not authorized to set rebalance authority"
+    },
+    {
+      "code": 28,
+      "name": "IncorrectDisablePoolAuthorityList",
+      "msg": "Incorrect disable pool authority list account"
     }
   ],
   "metadata": {
