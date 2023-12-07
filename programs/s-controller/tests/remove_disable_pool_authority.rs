@@ -118,7 +118,7 @@ async fn basic() {
 
         let ix = remove_disable_pool_authority_ix(keys, args).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &target_authority_kp], last_blockhash);
+        tx.sign(&[&payer, target_authority_kp], last_blockhash);
 
         let err = banks_client.process_transaction(tx).await.unwrap_err();
         assert_is_custom_err(
@@ -155,7 +155,7 @@ async fn basic() {
         )
         .unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &target_authority_kp], last_blockhash);
+        tx.sign(&[&payer, target_authority_kp], last_blockhash);
 
         banks_client.process_transaction(tx).await.unwrap();
 

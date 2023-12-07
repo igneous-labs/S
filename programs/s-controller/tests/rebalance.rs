@@ -137,8 +137,8 @@ async fn basic() {
     let start_rebalance_ix = start_rebalance_ix_full(
         start_rebalance_keys,
         StartRebalanceIxFullArgs {
-            src_lst_index: src_lst_index.try_into().unwrap(),
-            dst_lst_index: dst_lst_index.try_into().unwrap(),
+            src_lst_index,
+            dst_lst_index,
             amount: JITOSOL_WITHDRAW_AMT,
         },
         SrcDstLstSolValueCalcAccounts {

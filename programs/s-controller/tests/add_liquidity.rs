@@ -164,7 +164,7 @@ async fn exec_verify_add_liq_success(
     let ix = add_liquidity_ix_full(
         keys,
         AddLiquidityIxFullArgs {
-            lst_index: lst_index.try_into().unwrap(),
+            lst_index,
             lst_amount: lst_account_balance,
         },
         AddRemoveLiquidityExtraAccounts {
