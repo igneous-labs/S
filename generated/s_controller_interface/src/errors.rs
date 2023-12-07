@@ -20,46 +20,48 @@ pub enum SControllerError {
     PoolRebalancing = 5,
     #[error("Pool is currently disabled")]
     PoolDisabled = 6,
+    #[error("Pool is currently enabled ")]
+    PoolEnabled = 7,
     #[error("LST with given index does not exist")]
-    InvalidLstIndex = 7,
+    InvalidLstIndex = 8,
     #[error("Invalid LST reserves account")]
-    InvalidReserves = 8,
+    InvalidReserves = 9,
     #[error("Incorrect SOL value calculator program")]
-    IncorrectSolValueCalculator = 9,
+    IncorrectSolValueCalculator = 10,
     #[error("Faulty SOL value calculator program")]
-    FaultySolValueCalculator = 10,
+    FaultySolValueCalculator = 11,
     #[error("Incorrect LST state list account")]
-    IncorrectLstStateList = 11,
+    IncorrectLstStateList = 12,
     #[error("Incorrect pool state account")]
-    IncorrectPoolState = 12,
+    IncorrectPoolState = 13,
     #[error("Input is currently disabled for this LST")]
-    LstInputDisabled = 13,
+    LstInputDisabled = 14,
     #[error("No succeeding EndRebalance instruction found")]
-    NoSucceedingEndRebalance = 14,
+    NoSucceedingEndRebalance = 15,
     #[error("Incorrect rebalance record account")]
-    IncorrectRebalanceRecord = 15,
+    IncorrectRebalanceRecord = 16,
     #[error("Pool is not currently rebalancing")]
-    PoolNotRebalancing = 16,
+    PoolNotRebalancing = 17,
     #[error("Cannot allow loss of SOL value for pool")]
-    PoolWouldLoseSolValue = 17,
+    PoolWouldLoseSolValue = 18,
     #[error(
         "Cannot remove LST when reserves or protocol fee accumulator not empty or SOL value not synced"
     )]
-    LstStillHasValue = 18,
+    LstStillHasValue = 19,
     #[error("Incorrect pricing program")]
-    IncorrectPricingProgram = 19,
+    IncorrectPricingProgram = 20,
     #[error("Swap would exceed slippage tolerance")]
-    SlippageToleranceExceeded = 20,
+    SlippageToleranceExceeded = 21,
     #[error("Not enough liquidity complete swap")]
-    NotEnoughLiquidity = 21,
+    NotEnoughLiquidity = 22,
     #[error("Provided list index argument is too large")]
-    IndexTooLarge = 22,
+    IndexTooLarge = 23,
     #[error("Disable Pool Authority with given index does not exist")]
-    InvalidDisablePoolAuthorityIndex = 23,
+    InvalidDisablePoolAuthorityIndex = 24,
     #[error("Signer is not authorized to operate on given disable pool authority")]
-    UnauthorizedDisablePoolAuthoritySigner = 24,
+    UnauthorizedDisablePoolAuthoritySigner = 25,
     #[error("Given disable pool authority is not valid")]
-    InvalidDisablePoolAuthority = 25,
+    InvalidDisablePoolAuthority = 26,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
