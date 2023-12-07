@@ -1,8 +1,11 @@
 //! Common verification functions used across multiple instruction processors
 
 use s_controller_interface::{LstState, PoolState, SControllerError};
-use s_controller_lib::{SrcDstLstIndexes, SrcDstLstValueCalcAccs, U8Bool};
-use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use s_controller_lib::{
+    try_disable_pool_authority_list, try_find_element_in_list, SrcDstLstIndexes,
+    SrcDstLstValueCalcAccs, U8Bool,
+};
+use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
 
 use crate::{
     account_traits::{
@@ -30,6 +33,21 @@ pub const fn verify_not_rebalancing_and_not_disabled(
 pub const fn verify_lst_input_not_disabled(lst_state: &LstState) -> Result<(), SControllerError> {
     if U8Bool(lst_state.is_input_disabled).is_true() {
         return Err(SControllerError::LstInputDisabled);
+    }
+    Ok(())
+}
+
+pub fn verify_admin_or_disable_pool_authority(
+    signer: Pubkey,
+    pool_state: &PoolState,
+    disable_pool_authority_list_acc: &AccountInfo,
+) -> Result<(), ProgramError> {
+    if signer != pool_state.admin {
+        let data = disable_pool_authority_list_acc.try_borrow_data()?;
+        let list = try_disable_pool_authority_list(&data)?;
+
+        try_find_element_in_list(signer, list)
+            .ok_or(SControllerError::InvalidDisablePoolAuthority)?;
     }
     Ok(())
 }

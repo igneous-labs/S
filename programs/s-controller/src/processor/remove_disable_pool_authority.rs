@@ -12,7 +12,10 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::list_account::{remove_from_list_pda, RemoveFromListPdaAccounts};
+use crate::{
+    list_account::{remove_from_list_pda, RemoveFromListPdaAccounts},
+    verify::verify_admin_or_disable_pool_authority,
+};
 
 pub fn process_remove_disable_pool_authority(
     accounts: &[AccountInfo],
@@ -50,15 +53,17 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
     remove_disable_pool_authority_verify_account_privileges(&actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
-    // signer should be:
-    //  - authority if it matches given authority to be removed
-    //  - admin
-    if *actual.signer.key != *actual.authority.key {
-        let pool_state_bytes = actual.pool_state.try_borrow_data()?;
-        let pool_state = try_pool_state(&pool_state_bytes)?;
-        if *actual.signer.key != pool_state.admin {
-            return Err(SControllerError::UnauthorizedDisablePoolAuthoritySigner.into());
-        }
+    let pool_state_bytes = actual.pool_state.try_borrow_data()?;
+    let pool_state = try_pool_state(&pool_state_bytes)?;
+
+    // signer should be either admin or disable pool authority that matches the target authority being removed
+    verify_admin_or_disable_pool_authority(
+        *actual.signer.key,
+        pool_state,
+        actual.disable_pool_authority_list,
+    )?;
+    if *actual.signer.key != pool_state.admin && *actual.signer.key != *actual.authority.key {
+        return Err(SControllerError::UnauthorizedDisablePoolAuthoritySigner.into());
     }
 
     Ok((actual, index_to_usize(index)?))

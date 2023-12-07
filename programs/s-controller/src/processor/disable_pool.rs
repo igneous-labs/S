@@ -1,11 +1,7 @@
 use s_controller_interface::{
     disable_pool_verify_account_keys, disable_pool_verify_account_privileges, DisablePoolAccounts,
-    SControllerError,
 };
-use s_controller_lib::{
-    try_disable_pool_authority_list, try_find_element_in_list, try_pool_state, try_pool_state_mut,
-    DisablePoolFreeArgs, U8BoolMut,
-};
+use s_controller_lib::{try_pool_state, try_pool_state_mut, DisablePoolFreeArgs, U8BoolMut};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
@@ -13,7 +9,9 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::verify::verify_not_rebalancing_and_not_disabled;
+use crate::verify::{
+    verify_admin_or_disable_pool_authority, verify_not_rebalancing_and_not_disabled,
+};
 
 pub fn process_disable_pool(accounts: &[AccountInfo]) -> ProgramResult {
     let DisablePoolAccounts {
@@ -49,14 +47,11 @@ fn verify_disable_pool<'me, 'info>(
     verify_not_rebalancing_and_not_disabled(pool_state)?;
 
     // signer should be either admin or disable pool authority
-    if *actual.signer.key != pool_state.admin {
-        let disable_pool_authority_list_data =
-            actual.disable_pool_authority_list.try_borrow_data()?;
-        let list = try_disable_pool_authority_list(&disable_pool_authority_list_data)?;
-
-        try_find_element_in_list(*actual.signer.key, list)
-            .ok_or(SControllerError::InvalidDisablePoolAuthority)?;
-    }
+    verify_admin_or_disable_pool_authority(
+        *actual.signer.key,
+        pool_state,
+        actual.disable_pool_authority_list,
+    )?;
 
     Ok(actual)
 }
