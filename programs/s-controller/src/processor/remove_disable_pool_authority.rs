@@ -34,12 +34,12 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
     RemoveDisablePoolAuthorityIxArgs { index }: RemoveDisablePoolAuthorityIxArgs,
 ) -> Result<(RemoveDisablePoolAuthorityAccounts<'me, 'info>, usize), ProgramError> {
     let actual: RemoveDisablePoolAuthorityAccounts = load_accounts(accounts)?;
+    let index = index_to_usize(index)?;
 
     let free_args = RemoveDisablePoolAuthorityFreeArgs {
         index,
         refund_rent_to: *actual.refund_rent_to.key,
         signer: *actual.signer.key,
-        authority: *actual.authority.key,
         pool_state_acc: actual.pool_state,
         disable_pool_authority_list: actual.disable_pool_authority_list,
     };
@@ -61,5 +61,5 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
         }
     }
 
-    Ok((actual, index_to_usize(index)?))
+    Ok((actual, index))
 }
