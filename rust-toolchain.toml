@@ -1,0 +1,2 @@
+[toolchain]
+channel = "1.68.0" # ellipsislabs/solana:1.16.20 uses rustc 1.68.0 (2c8cc3432 2023-03-06)
