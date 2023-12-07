@@ -980,7 +980,7 @@
       "args": [],
       "accounts": [
         {
-          "name": "authority",
+          "name": "signer",
           "isMut": false,
           "isSigner": true,
           "desc": "The pool's admin or a disable pool authority"

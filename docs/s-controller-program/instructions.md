@@ -494,7 +494,7 @@ Disable functionality of the entire pool.
 
 | Account                     | Description                                                                                | Read/Write (R/W) | Signer (Y/N) |
 | --------------------------- | ------------------------------------------------------------------------------------------ | ---------------- | ------------ |
-| authority                   | The pool's admin or a disable pool authority                                               | R                | Y            |
+| signer                      | The pool's admin or a disable pool authority                                               | R                | Y            |
 | pool_state                  | The pool's state singleton PDA                                                             | W                | N            |
 | disable_pool_authority_list | The pool's disable pool authority list singleton PDA. Optional if authority = pool's admin | R                | N            |
 

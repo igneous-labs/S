@@ -3731,7 +3731,7 @@ pub const DISABLE_POOL_IX_ACCOUNTS_LEN: usize = 3;
 #[derive(Copy, Clone, Debug)]
 pub struct DisablePoolAccounts<'me, 'info> {
     ///The pool's admin or a disable pool authority
-    pub authority: &'me AccountInfo<'info>,
+    pub signer: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///The pool's disable pool authority list singleton PDA
@@ -3740,7 +3740,7 @@ pub struct DisablePoolAccounts<'me, 'info> {
 #[derive(Copy, Clone, Debug)]
 pub struct DisablePoolKeys {
     ///The pool's admin or a disable pool authority
-    pub authority: Pubkey,
+    pub signer: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///The pool's disable pool authority list singleton PDA
@@ -3749,7 +3749,7 @@ pub struct DisablePoolKeys {
 impl From<&DisablePoolAccounts<'_, '_>> for DisablePoolKeys {
     fn from(accounts: &DisablePoolAccounts) -> Self {
         Self {
-            authority: *accounts.authority.key,
+            signer: *accounts.signer.key,
             pool_state: *accounts.pool_state.key,
             disable_pool_authority_list: *accounts.disable_pool_authority_list.key,
         }
@@ -3758,7 +3758,7 @@ impl From<&DisablePoolAccounts<'_, '_>> for DisablePoolKeys {
 impl From<&DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
     fn from(keys: &DisablePoolKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.authority, true),
+            AccountMeta::new_readonly(keys.signer, true),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.disable_pool_authority_list, false),
         ]
@@ -3767,7 +3767,7 @@ impl From<&DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
 impl From<[Pubkey; DISABLE_POOL_IX_ACCOUNTS_LEN]> for DisablePoolKeys {
     fn from(pubkeys: [Pubkey; DISABLE_POOL_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            authority: pubkeys[0],
+            signer: pubkeys[0],
             pool_state: pubkeys[1],
             disable_pool_authority_list: pubkeys[2],
         }
@@ -3778,7 +3778,7 @@ impl<'info> From<&DisablePoolAccounts<'_, 'info>>
 {
     fn from(accounts: &DisablePoolAccounts<'_, 'info>) -> Self {
         [
-            accounts.authority.clone(),
+            accounts.signer.clone(),
             accounts.pool_state.clone(),
             accounts.disable_pool_authority_list.clone(),
         ]
@@ -3789,7 +3789,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN]>
 {
     fn from(arr: &'me [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            authority: &arr[0],
+            signer: &arr[0],
             pool_state: &arr[1],
             disable_pool_authority_list: &arr[2],
         }
@@ -3863,7 +3863,7 @@ pub fn disable_pool_verify_account_keys(
     keys: &DisablePoolKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.authority.key, &keys.authority),
+        (accounts.signer.key, &keys.signer),
         (accounts.pool_state.key, &keys.pool_state),
         (
             accounts.disable_pool_authority_list.key,
@@ -3884,7 +3884,7 @@ pub fn disable_pool_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.authority] {
+    for should_be_signer in [accounts.signer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
