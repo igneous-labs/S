@@ -2,8 +2,8 @@ use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS};
 use marinade_keys::msol;
 use s_controller_lib::{
-    swap_exact_in_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
-    SwapByMintsFreeArgs, SwapExactInAmounts,
+    swap_exact_out_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
+    SwapByMintsFreeArgs, SwapExactOutAmounts,
 };
 use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
@@ -16,15 +16,16 @@ use test_utils::{
     JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
 
-mod common;
-
-use common::*;
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_no_fee() {
     const JITOSOL_POOL_RESERVES: u64 = 10_000_000_000;
     const MSOL_POOL_RESERVES: u64 = 10_000_000_000;
-    const MSOL_TO_SWAP_IN: u64 = 1_000_000_000;
+    const JITOSOL_TO_RECEIVE: u64 = 1_000_000_000;
+    // mSOL worth more than jitoSOL, so this should be enough
+    // to swap into JITOSOL_TO_RECEIVE
+    const MSOL_STARTING_BALANCE: u64 = 1_000_000_000;
 
     let swapper = Keypair::new();
     let lp_token_mint = Pubkey::new_unique();
@@ -60,7 +61,7 @@ async fn basic_no_fee() {
         mock_token_account(MockTokenAccountArgs {
             mint: msol::ID,
             authority: swapper.pubkey(),
-            amount: MSOL_TO_SWAP_IN,
+            amount: MSOL_STARTING_BALANCE,
         }),
     );
 
@@ -107,7 +108,7 @@ async fn basic_no_fee() {
     let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
         (&marinade_sol_val_calc_keys).into();
 
-    let ix = swap_exact_in_ix_by_mint_full(
+    let ix = swap_exact_out_ix_by_mint_full(
         SwapByMintsFreeArgs {
             signer: swapper.pubkey(),
             src_lst_acc: swapper_msol_acc_addr,
@@ -122,10 +123,10 @@ async fn basic_no_fee() {
             },
             lst_state_list: lst_state_list_account,
         },
-        SwapExactInAmounts {
+        SwapExactOutAmounts {
             // mSOL worth more than jitoSOL
-            min_amount_out: MSOL_TO_SWAP_IN,
-            amount: MSOL_TO_SWAP_IN,
+            max_amount_in: JITOSOL_TO_RECEIVE,
+            amount: JITOSOL_TO_RECEIVE,
         },
         SrcDstLstSolValueCalcAccounts {
             dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
@@ -157,26 +158,26 @@ async fn basic_no_fee() {
     banks_client.process_transaction(tx).await.unwrap();
 
     let msol_account = banks_client_get_account(&mut banks_client, swapper_msol_acc_addr).await;
-    assert_eq!(token_account_balance(msol_account).unwrap(), 0);
+    let msol_paid = MSOL_STARTING_BALANCE - token_account_balance(msol_account).unwrap();
+    assert!(msol_paid < JITOSOL_TO_RECEIVE);
 
     let jitosol_account =
         banks_client_get_account(&mut banks_client, swapper_jitosol_acc_addr).await;
     let jitosol_received = token_account_balance(jitosol_account).unwrap();
-    // mSOL worth more than jitoSOL
-    assert!(jitosol_received > MSOL_TO_SWAP_IN);
+    assert_eq!(jitosol_received, JITOSOL_TO_RECEIVE);
 
     let msol_pool_reserves_account =
         banks_client_get_account(&mut banks_client, msol_pool_reserves).await;
     assert_eq!(
         token_account_balance(msol_pool_reserves_account).unwrap(),
-        MSOL_POOL_RESERVES + MSOL_TO_SWAP_IN
+        MSOL_POOL_RESERVES + msol_paid
     );
 
     let jitosol_pool_reserves_account =
         banks_client_get_account(&mut banks_client, jitosol_pool_reserves).await;
     assert_eq!(
         token_account_balance(jitosol_pool_reserves_account).unwrap(),
-        JITOSOL_POOL_RESERVES - jitosol_received
+        JITOSOL_POOL_RESERVES - JITOSOL_TO_RECEIVE
     );
 
     let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;

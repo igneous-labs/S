@@ -14,8 +14,6 @@ use solana_sdk::{
 use spl_token_2022::{native_mint, state::Mint};
 use test_utils::test_fixtures_dir;
 
-mod common;
-
 use crate::common::*;
 
 #[tokio::test]

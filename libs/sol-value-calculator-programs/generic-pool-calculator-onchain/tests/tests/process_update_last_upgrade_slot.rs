@@ -11,7 +11,7 @@ use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transacti
 use spl_stake_pool_keys::spl_stake_pool_program;
 use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
 
-use crate::mock_calculator_program::MockCalculatorProgram;
+use mock_calculator_program::MockCalculatorProgram;
 
 mod mock_calculator_program {
     use generic_pool_calculator_interface::{

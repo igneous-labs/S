@@ -1,11 +1,10 @@
-mod common;
-
-use common::*;
 use s_controller_interface::{disable_pool_ix, DisablePoolIxArgs, SControllerError};
 use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use test_utils::assert_is_custom_err;
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_disable_pool() {

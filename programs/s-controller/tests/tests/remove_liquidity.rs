@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use generic_pool_calculator_interface::SOL_TO_LST_IX_ACCOUNTS_LEN;
 use s_controller_lib::{
     remove_liquidity_ix_full, try_pool_state, AddRemoveLiquidityExtraAccounts,
@@ -16,6 +13,8 @@ use test_utils::{
     banks_client_get_account, jito_stake_pool, jitosol, mock_lp_token_account, mock_token_account,
     MockTokenAccountArgs, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_redeem_full_no_fees() {

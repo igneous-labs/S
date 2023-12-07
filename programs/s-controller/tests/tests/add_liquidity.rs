@@ -16,9 +16,7 @@ use test_utils::{
     MockTokenAccountArgs, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
 
-mod common;
-
-use common::*;
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_add_liquidity_twice() {

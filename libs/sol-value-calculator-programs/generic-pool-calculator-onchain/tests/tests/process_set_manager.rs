@@ -10,7 +10,7 @@ use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
-use crate::mock_calculator_program::MockCalculatorProgram;
+use mock_calculator_program::MockCalculatorProgram;
 
 mod mock_calculator_program {
     use generic_pool_calculator_interface::{SetManagerAccounts, SET_MANAGER_IX_ACCOUNTS_LEN};
