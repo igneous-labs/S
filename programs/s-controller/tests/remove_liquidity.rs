@@ -109,7 +109,7 @@ async fn basic_redeem_full_no_fees() {
     let ix = remove_liquidity_ix_full(
         keys,
         RemoveLiquidityIxFullArgs {
-            lst_index: lst_index.try_into().unwrap(),
+            lst_index,
             lp_token_amount: LP_TOKENS_TO_REMOVE,
         },
         AddRemoveLiquidityExtraAccounts {
