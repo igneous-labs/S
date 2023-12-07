@@ -13,10 +13,7 @@ pub fn zero_padded_return_data<const N: usize>(return_data: &[u8]) -> [u8; N] {
     res
 }
 
-pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(
-    banks_client_err: BanksClientError,
-    expected_err: E,
-) {
+fn extract_ix_err(banks_client_err: BanksClientError) -> InstructionError {
     let tx_err = match banks_client_err {
         BanksClientError::TransactionError(e) => e,
         BanksClientError::SimulationError { err, .. } => err,
@@ -26,6 +23,14 @@ pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(
         TransactionError::InstructionError(_, e) => e,
         _ => panic!("Unexpected TransactionError {tx_err}"),
     };
+    ix_err
+}
+
+pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(
+    banks_client_err: BanksClientError,
+    expected_err: E,
+) {
+    let ix_err = extract_ix_err(banks_client_err);
     let actual_code = match ix_err {
         InstructionError::Custom(c) => c,
         _ => panic!("Unexpected InstructionError {ix_err}"),
@@ -38,5 +43,14 @@ pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(
     assert_eq!(
         actual_code, expected_code,
         "Expected: {expected_err}. Actual: {ix_err}"
+    );
+}
+
+pub fn assert_program_error(banks_client_err: BanksClientError, expected_err: ProgramError) {
+    let ix_err = extract_ix_err(banks_client_err);
+    let actual_err: ProgramError = ix_err.try_into().unwrap();
+    assert_eq!(
+        actual_err, expected_err,
+        "Expected: {expected_err}. Actual: {actual_err}"
     );
 }

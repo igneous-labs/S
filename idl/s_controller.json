@@ -695,7 +695,7 @@
         },
         {
           "name": "pool_state",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "desc": "The pool's state singleton PDA"
         },

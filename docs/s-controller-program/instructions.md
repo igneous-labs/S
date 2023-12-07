@@ -325,7 +325,7 @@ Update the SOL value calculator program for a LST
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ |
 | admin               | The pool's admin                                                                                                                                         | R                | Y            |
 | lst_mint            | Mint of the LST to set SOL value calculator for                                                                                                          | R                | N            |
-| pool_state          | The pool's state singleton PDA                                                                                                                           | R                | N            |
+| pool_state          | The pool's state singleton PDA                                                                                                                           | W                | N            |
 | pool_reserves       | LST reserves token account of the pool                                                                                                                   | R                | N            |
 | lst_state_list      | Dynamic list PDA of LstStates for each LST in the pool                                                                                                   | W                | N            |
 | lst_value_calc_accs | Accounts to invoke token's new SOL value calculator program LstToSol with. First account should be the new calculator program itself. Multiple Accounts. | ...              | ...          |
