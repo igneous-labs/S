@@ -1,6 +1,7 @@
 mod add_disable_pool_authority;
 mod add_liquidity;
 mod add_lst;
+mod disable_enable_lst_input;
 mod enable_pool;
 mod end_rebalance;
 mod initialize;
@@ -14,6 +15,7 @@ mod sync_sol_value;
 pub use add_disable_pool_authority::*;
 pub use add_liquidity::*;
 pub use add_lst::*;
+pub use disable_enable_lst_input::*;
 pub use enable_pool::*;
 pub use end_rebalance::*;
 pub use initialize::*;
