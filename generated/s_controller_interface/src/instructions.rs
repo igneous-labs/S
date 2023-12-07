@@ -2324,7 +2324,7 @@ impl From<&SetSolValueCalculatorKeys> for [AccountMeta; SET_SOL_VALUE_CALCULATOR
         [
             AccountMeta::new_readonly(keys.admin, true),
             AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
+            AccountMeta::new(keys.pool_state, false),
             AccountMeta::new_readonly(keys.pool_reserves, false),
             AccountMeta::new(keys.lst_state_list, false),
         ]
@@ -2370,7 +2370,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_SOL_VALUE_CALCULATOR_IX_ACCO
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetSolValueCalculatorIxArgs {
-    pub index: u32,
+    pub lst_index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetSolValueCalculatorIxData(pub SetSolValueCalculatorIxArgs);
@@ -2457,7 +2457,7 @@ pub fn set_sol_value_calculator_verify_account_keys(
 pub fn set_sol_value_calculator_verify_account_privileges<'me, 'info>(
     accounts: &SetSolValueCalculatorAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [accounts.lst_state_list] {
+    for should_be_writable in [accounts.pool_state, accounts.lst_state_list] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
