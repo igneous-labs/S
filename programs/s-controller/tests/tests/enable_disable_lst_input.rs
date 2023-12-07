@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use s_controller_lib::{
     disable_lst_input_ix_by_mint_full, enable_lst_input_ix_by_mint_full, try_find_lst_mint_on_list,
     try_lst_state_list, DisableEnableLstInputByMintFreeArgs, U8Bool,
@@ -9,6 +6,8 @@ use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{jitosol, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_disable_then_enable() {

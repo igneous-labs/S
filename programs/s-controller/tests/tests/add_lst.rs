@@ -11,9 +11,7 @@ use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{banks_client_get_account, jitosol, test_fixtures_dir, AddAccount};
 
-mod common;
-
-use common::*;
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_add_two() {

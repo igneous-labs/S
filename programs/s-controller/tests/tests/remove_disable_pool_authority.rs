@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use s_controller_interface::{
     remove_disable_pool_authority_ix, RemoveDisablePoolAuthorityIxArgs, SControllerError,
 };
@@ -19,6 +16,8 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use test_utils::{assert_is_custom_err, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic() {

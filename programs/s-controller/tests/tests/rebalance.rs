@@ -19,8 +19,6 @@ use test_utils::{
     JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
 };
 
-mod common;
-
 use crate::common::*;
 
 #[tokio::test]

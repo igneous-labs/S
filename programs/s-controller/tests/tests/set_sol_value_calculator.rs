@@ -1,6 +1,3 @@
-mod common;
-
-use common::*;
 use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS};
 use marinade_keys::msol;
@@ -16,6 +13,8 @@ use sanctum_utils::mint_with_token_program::MintWithTokenProgram;
 use solana_program::{instruction::AccountMeta, program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{assert_program_error, test_fixtures_dir};
+
+use crate::common::*;
 
 #[tokio::test]
 async fn basic_set_marinade() {
