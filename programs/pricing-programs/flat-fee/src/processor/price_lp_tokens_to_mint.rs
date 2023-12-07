@@ -20,7 +20,6 @@ pub fn process_price_lp_tokens_to_mint(
         sol_value,
     }: PriceLpTokensToMintIxArgs,
 ) -> ProgramResult {
-    // TODO: should we check if FeeAccount with input_lst_mint exists? (see PriceLpTokensToMintFreeArgs.resolve)
     let PriceLpTokensToMintAccounts { input_lst_mint: _ } =
         verify_price_lp_tokens_to_mint(accounts)?;
 
