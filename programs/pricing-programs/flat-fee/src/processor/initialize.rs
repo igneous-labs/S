@@ -3,33 +3,25 @@ use flat_fee_interface::{
     InitializeKeys,
 };
 use flat_fee_lib::{
-    account_resolvers::InitializeFreeArgs, initial_constants, program, utils::try_program_state_mut,
+    account_resolvers::InitializeFreeArgs,
+    initial_constants::{initial_manager, INITIAL_LP_WITHDRAWAL_FEE_BPS},
+    program,
+    utils::try_program_state_mut,
 };
 use sanctum_onchain_utils::{
     system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
+use solana_program::program_error::ProgramError;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
-use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
-    let checked = verify_initialize(accounts)?;
-    process_initialize_unchecked(
-        checked,
-        initial_constants::initial_manager::ID,
-        initial_constants::INITIAL_LP_WITHDRAWAL_FEE_BPS,
-    )
-}
-
-fn process_initialize_unchecked(
-    InitializeAccounts {
+    let InitializeAccounts {
         payer,
         state,
         system_program: _,
-    }: InitializeAccounts,
-    initial_manager: Pubkey,
-    initial_lp_withdrawal_fee_bps: u16,
-) -> ProgramResult {
+    } = verify_initialize(accounts)?;
+
     create_pda(
         CreateAccountAccounts {
             from: payer,
@@ -46,8 +38,8 @@ fn process_initialize_unchecked(
     let mut bytes = state.try_borrow_mut_data()?;
     let state = try_program_state_mut(&mut bytes)?;
 
-    state.manager = initial_manager;
-    state.lp_withdrawal_fee_bps = initial_lp_withdrawal_fee_bps;
+    state.manager = initial_manager::ID;
+    state.lp_withdrawal_fee_bps = INITIAL_LP_WITHDRAWAL_FEE_BPS;
 
     Ok(())
 }
