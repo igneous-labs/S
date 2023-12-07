@@ -123,7 +123,7 @@ async fn fail_unauthorized() {
     let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
     let (lst_index, lst_state) = try_find_lst_mint_on_list(
         msol::ID,
-        &try_lst_state_list(&lst_state_list_account.data).unwrap(),
+        try_lst_state_list(&lst_state_list_account.data).unwrap(),
     )
     .unwrap();
     let pool_reserves = create_pool_reserves_address(lst_state, spl_token::ID).unwrap();
