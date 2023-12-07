@@ -2,13 +2,15 @@ use s_controller_interface::{
     set_pricing_program_verify_account_keys, set_pricing_program_verify_account_privileges,
     SetPricingProgramAccounts,
 };
-use s_controller_lib::{try_pool_state_mut, SetPricingProgramFreeArgs};
+use s_controller_lib::{try_pool_state, try_pool_state_mut, SetPricingProgramFreeArgs};
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
+
+use crate::verify::verify_not_rebalancing_and_not_disabled;
 
 pub fn process_set_pricing_program(accounts: &[AccountInfo]) -> ProgramResult {
     let SetPricingProgramAccounts {
@@ -40,6 +42,11 @@ fn verify_set_pricing_program<'me, 'info>(
         .map_err(log_and_return_wrong_acc_err)?;
     set_pricing_program_verify_account_privileges(&actual)
         .map_err(log_and_return_acc_privilege_err)?;
+
+    let pool_state_bytes = actual.pool_state.try_borrow_data()?;
+    let pool_state = try_pool_state(&pool_state_bytes)?;
+
+    verify_not_rebalancing_and_not_disabled(pool_state)?;
 
     Ok(actual)
 }
