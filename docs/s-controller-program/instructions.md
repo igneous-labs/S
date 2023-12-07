@@ -612,11 +612,11 @@ Set a new rebalance authority for the pool.
 
 ### Accounts
 
-| Account                 | Description                             | Read/Write (R/W) | Signer (Y/N) |
-| ----------------------- | --------------------------------------- | ---------------- | ------------ |
-| authority               | The pool's rebalance authority or admin | R                | Y            |
-| new_rebalance_authority | The new rebalance authority to set to   | R                | N            |
-| pool_state              | The pool's state singleton PDA          | W                | N            |
+| Account                 | Description                                    | Read/Write (R/W) | Signer (Y/N) |
+| ----------------------- | ---------------------------------------------- | ---------------- | ------------ |
+| signer                  | Either the pool's rebalance authority or admin | R                | Y            |
+| new_rebalance_authority | The new rebalance authority to set to          | R                | N            |
+| pool_state              | The pool's state singleton PDA                 | W                | N            |
 
 ## Initialize
 
