@@ -77,7 +77,7 @@ async fn reject_disable_pool() {
         // A keypair not authorized to disable pool
         let rando_kp = Keypair::new();
         let keys = DisablePoolFreeArgs {
-            signer: disable_pool_authority_kp.pubkey(),
+            signer: rando_kp.pubkey(),
         }
         .resolve();
         let ix = disable_pool_ix(keys, DisablePoolIxArgs {}).unwrap();
