@@ -1,15 +1,14 @@
 mod common;
 
 use common::*;
-use s_controller_interface::{
-    remove_disable_pool_authority_ix, RemoveDisablePoolAuthorityIxArgs, SControllerError,
-};
+use s_controller_interface::{remove_disable_pool_authority_ix, RemoveDisablePoolAuthorityIxArgs};
 use s_controller_lib::{
     index_to_u32,
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
-    try_disable_pool_authority_list, try_match_element_in_list, RemoveDisablePoolAuthorityFreeArgs,
+    try_disable_pool_authority_list, try_find_element_in_list, RemoveDisablePoolAuthorityFreeArgs,
 };
-use solana_program_test::{processor, ProgramTest};
+use solana_program::pubkey::Pubkey;
+use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -19,7 +18,7 @@ use solana_sdk::{
 use test_utils::test_fixtures_dir;
 
 #[tokio::test]
-async fn basic_add_two() {
+async fn basic_remove_two() {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
@@ -87,21 +86,15 @@ async fn basic_add_two() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let disable_pool_authority_list_acc =
-            banks_client_get_disable_pool_list_acc(&mut banks_client).await;
-        let disable_pool_authority_list =
-            try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
-        assert_eq!(disable_pool_authority_list.len(), before_len - 1);
-        let result =
-            try_match_element_in_list(target_authority, disable_pool_authority_list, target_index);
-        assert_eq!(
-            result,
-            Err(SControllerError::InvalidDisablePoolAuthorityIndex)
-        );
+        verify_disable_authority_removed(&mut banks_client, target_authority, before_len).await;
     }
 
     // Remove an authority by the authority
     {
+        let disable_pool_authority_list_acc =
+            banks_client_get_disable_pool_list_acc(&mut banks_client).await;
+        let disable_pool_authority_list =
+            try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
         let before_len = disable_pool_authority_list.len();
         let target_index = 1;
         let target_authority_kp = &disable_pool_authority_kps[target_index];
@@ -134,19 +127,33 @@ async fn basic_add_two() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let disable_pool_authority_list_acc =
-            banks_client_get_disable_pool_list_acc(&mut banks_client).await;
-        let disable_pool_authority_list =
-            try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
-        assert_eq!(disable_pool_authority_list.len(), before_len - 1);
-        let result = try_match_element_in_list(
+        verify_disable_authority_removed(
+            &mut banks_client,
             target_authority_kp.pubkey(),
-            disable_pool_authority_list,
-            target_index,
-        );
-        assert_eq!(
-            result,
-            Err(SControllerError::InvalidDisablePoolAuthorityIndex)
-        );
+            before_len,
+        )
+        .await;
     }
+}
+
+async fn verify_disable_authority_removed(
+    banks_client: &mut BanksClient,
+    target_authority: Pubkey,
+    list_len_before: usize,
+) {
+    if list_len_before == 1 {
+        assert!(banks_client
+            .get_account(DISABLE_POOL_AUTHORITY_LIST_ID)
+            .await
+            .unwrap()
+            .is_none());
+        return;
+    }
+
+    let disable_pool_authority_list_acc =
+        banks_client_get_disable_pool_list_acc(banks_client).await;
+    let disable_pool_authority_list =
+        try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
+    assert_eq!(disable_pool_authority_list.len(), list_len_before - 1);
+    assert!(try_find_element_in_list(target_authority, disable_pool_authority_list).is_none());
 }
