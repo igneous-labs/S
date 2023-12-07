@@ -676,7 +676,7 @@
       },
       "args": [
         {
-          "name": "index",
+          "name": "lst_index",
           "type": "u32"
         }
       ],

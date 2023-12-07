@@ -317,7 +317,7 @@ Update the SOL value calculator program for a LST
 | Name         | Value                            | Type |
 | ------------ | -------------------------------- | ---- |
 | discriminant | 9                                | u8   |
-| index        | index of lst in `lst_state_list` | u32  |
+| lst_index    | index of lst in `lst_state_list` | u32  |
 
 ### Accounts
 

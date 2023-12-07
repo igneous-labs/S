@@ -2370,7 +2370,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_SOL_VALUE_CALCULATOR_IX_ACCO
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetSolValueCalculatorIxArgs {
-    pub index: u32,
+    pub lst_index: u32,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetSolValueCalculatorIxData(pub SetSolValueCalculatorIxArgs);
