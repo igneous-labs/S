@@ -8,10 +8,12 @@ use thiserror::Error;
 pub enum FlatFeeError {
     #[error("Invalid program state data")]
     InvalidProgramStateData = 0,
+    #[error("Incorrect program state account")]
+    IncorrectProgramState = 1,
     #[error("FeeAccount is not initialized for the given LST mint")]
-    UnsupportedLstMint = 1,
+    UnsupportedLstMint = 2,
     #[error("Math error")]
-    MathError = 2,
+    MathError = 3,
 }
 impl From<FlatFeeError> for ProgramError {
     fn from(e: FlatFeeError) -> Self {
