@@ -3,6 +3,7 @@ use sanctum_token_ratio::{U64RatioFloor, BPS_DENOMINATOR};
 
 use super::BPS_DENOMINATOR_I16;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct CalculatePriceExactInArgs {
     pub input_fee_bps: i16,
     pub output_fee_bps: i16,
