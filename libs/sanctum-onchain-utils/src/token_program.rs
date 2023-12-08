@@ -14,7 +14,6 @@ pub struct TransferTokensAccounts<'me, 'info> {
     pub authority: &'me AccountInfo<'info>,
 }
 
-/// TODO: refactor to use sanctum_utils::TransferKeys
 impl<'me, 'info> TransferTokensAccounts<'me, 'info> {
     pub fn to_ix(&self, amount: u64) -> Result<Instruction, ProgramError> {
         transfer(
