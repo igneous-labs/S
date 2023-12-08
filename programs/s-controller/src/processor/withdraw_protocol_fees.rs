@@ -23,20 +23,9 @@ pub fn process_withdraw_protocol_fees(
 ) -> ProgramResult {
     let accounts = verify_withdraw_protocol_fees(accounts)?;
 
-    println!("accounts: {:?}", accounts);
-    println!(
-        "balance: {:?}",
-        token_account_balance(accounts.protocol_fee_accumulator)?
-    );
-    println!(
-        "balance: {:?}",
-        token_account_balance_program_agnostic(accounts.protocol_fee_accumulator)?
-    );
-
     if args.amount > token_account_balance_program_agnostic(accounts.protocol_fee_accumulator)? {
         return Err(SControllerError::NotEnoughFees.into());
     }
-    println!("ok");
 
     transfer_tokens_signed(
         TransferTokensAccounts {

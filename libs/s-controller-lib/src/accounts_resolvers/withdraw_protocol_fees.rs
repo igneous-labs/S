@@ -1,4 +1,5 @@
 use s_controller_interface::{SControllerError, WithdrawProtocolFeesKeys};
+use sanctum_utils::token::token_account_mint;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -10,14 +11,16 @@ use crate::{
 #[derive(Clone, Copy, Debug)]
 pub struct WithdrawProtocolFeesFreeArgs<
     S: ReadonlyAccountData + KeyedAccount,
-    W: ReadonlyAccountOwner + KeyedAccount,
+    W: ReadonlyAccountData + ReadonlyAccountOwner + KeyedAccount,
 > {
     pub pool_state: S,
     pub withdraw_to: W,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount, W: ReadonlyAccountOwner + KeyedAccount>
-    WithdrawProtocolFeesFreeArgs<S, W>
+impl<
+        S: ReadonlyAccountData + KeyedAccount,
+        W: ReadonlyAccountData + ReadonlyAccountOwner + KeyedAccount,
+    > WithdrawProtocolFeesFreeArgs<S, W>
 {
     pub fn resolve(self) -> Result<WithdrawProtocolFeesKeys, SControllerError> {
         let WithdrawProtocolFeesFreeArgs {
@@ -32,8 +35,10 @@ impl<S: ReadonlyAccountData + KeyedAccount, W: ReadonlyAccountOwner + KeyedAccou
         let pool_state_data = pool_state_acc.data();
         let pool_state = try_pool_state(&pool_state_data)?;
 
+        let lst_mint = token_account_mint(&withdraw_to)
+            .map_err(|_e| SControllerError::InvalidLstStateListData)?;
         let find_pda_keys = FindLstPdaAtaKeys {
-            lst_mint: *withdraw_to.key(),
+            lst_mint,
             token_program: *withdraw_to.owner(),
         };
         let (protocol_fee_accumulator, _protocol_fee_accumulator_bump) =

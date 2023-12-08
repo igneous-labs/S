@@ -4,8 +4,10 @@ use s_controller_lib::{
     find_protocol_fee_accumulator_address, program::POOL_STATE_ID, FindLstPdaAtaKeys,
     WithdrawProtocolFeesFreeArgs,
 };
-use sanctum_utils::token::{token_account_balance, token_account_balance_program_agnostic};
-use solana_program::pubkey::Pubkey;
+use sanctum_utils::token::{
+    token_account_balance, token_account_balance_program_agnostic, token_account_mint,
+};
+use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{
@@ -77,9 +79,10 @@ async fn basic_withdraw_protocol_fees() {
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
+    let lst_mint = token_account_mint(&msol_account).unwrap();
     let find_pda_keys = FindLstPdaAtaKeys {
-        lst_mint: msol::ID,
-        token_program: spl_token::ID,
+        lst_mint,
+        token_program: msol_account.owner,
     };
 
     let (protocol_fee_accumulator, _protocol_fee_accumulator_bump) =
@@ -92,6 +95,11 @@ async fn basic_withdraw_protocol_fees() {
         .unwrap();
     let protocol_fee_accumulator_balance =
         token_account_balance_program_agnostic(protocol_fee_accumulator_acc).unwrap();
+
+    println!(
+        "protocol_fee_accumulator_balance: {}",
+        protocol_fee_accumulator_balance
+    );
 
     banks_client.process_transaction(tx).await.unwrap();
 
