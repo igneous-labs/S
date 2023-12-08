@@ -1,3 +1,4 @@
+/*
 use solana_program_test::{processor, ProgramTest};
 
 use crate::common::*;
@@ -22,3 +23,4 @@ async fn basic() {
     // TODO: write test
     {}
 }
+ */

@@ -1,5 +1,5 @@
 use flat_fee_interface::{FlatFeeError, ProgramState, RemoveLstKeys};
-use solana_program::{pubkey::Pubkey, system_program};
+use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{
@@ -34,7 +34,6 @@ impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstByMintFreeArgs<S> {
             refund_rent_to,
             fee_acc,
             state: STATE_ID,
-            system_program: system_program::ID,
         })
     }
 
@@ -87,7 +86,6 @@ impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstFreeArgs<S> {
             refund_rent_to,
             fee_acc,
             state: STATE_ID,
-            system_program: system_program::ID,
         })
     }
 }

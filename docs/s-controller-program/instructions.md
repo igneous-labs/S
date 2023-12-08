@@ -298,7 +298,6 @@ Remove a LST from the pool
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | pool_state                    | The pool's state singleton PDA                                                 | R                | N            |
 | lst_state_list                | Dynamic list PDA of LstStates for each LST in the pool                         | W                | N            |
-| system_program                | System program                                                                 | R                | N            |
 | lst_token_program             | Token program of the LST to remove                                             | R                | N            |
 
 ### Procedure

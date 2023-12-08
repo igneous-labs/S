@@ -24,7 +24,7 @@ use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
 pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
     let (accounts, cpi, dst_lst_index) = verify_end_rebalance(accounts)?;
-    // TODO: remove these 2 braces if account data borrow across CPI safe
+    // braces to limit scope of pool_state_data borrow
     {
         let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
         let pool_state = try_pool_state_mut(&mut pool_state_data)?;
