@@ -65,6 +65,9 @@ pub fn process_swap_exact_out(accounts: &[AccountInfo], args: SwapExactOutIxArgs
     if src_lst_in > max_amount_in {
         return Err(SControllerError::SlippageToleranceExceeded.into());
     }
+    if src_lst_in == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
 
     let trading_protocol_fee_bps = accounts.pool_state.trading_protocol_fee_bps()?;
     let to_protocol_fees_lst_amount = calc_swap_protocol_fees(CalcSwapProtocolFeesArgs {
@@ -142,6 +145,10 @@ fn verify_swap_exact_out<'a, 'info>(
     ),
     ProgramError,
 > {
+    if amount == 0 || max_amount_in == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
+
     let src_lst_index = index_to_usize(src_lst_index)?;
     let dst_lst_index = index_to_usize(dst_lst_index)?;
 

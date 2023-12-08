@@ -1514,6 +1514,16 @@
       "code": 29,
       "name": "FeeTooHigh",
       "msg": "Attempting to set a fee over 100%"
+    },
+    {
+      "code": 30,
+      "name": "NotEnoughFees",
+      "msg": "Not enough fees to complete protocol fees withdrawal"
+    },
+    {
+      "code": 31,
+      "name": "ZeroValue",
+      "msg": "Input or output value is zero. Size likely too small."
     }
   ],
   "metadata": {
