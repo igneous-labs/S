@@ -89,11 +89,8 @@ async fn basic_withdraw_protocol_fees() {
     let (protocol_fee_accumulator, _protocol_fee_accumulator_bump) =
         find_protocol_fee_accumulator_address(find_pda_keys);
 
-    let protocol_fee_accumulator_acc = banks_client
-        .get_account(protocol_fee_accumulator)
-        .await
-        .unwrap()
-        .unwrap();
+    let protocol_fee_accumulator_acc =
+        banks_client_get_account(&mut banks_client, protocol_fee_accumulator).await;
     let protocol_fee_accumulator_balance =
         token_account_balance_program_agnostic(protocol_fee_accumulator_acc).unwrap();
 
