@@ -9,8 +9,6 @@ use test_utils::{zero_padded_return_data, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
 
-mod common;
-
 #[tokio::test]
 async fn jito_basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
