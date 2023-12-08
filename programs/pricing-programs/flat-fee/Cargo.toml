@@ -17,3 +17,9 @@ flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_inte
 flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib" }
 sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
 solana-program = { workspace = true }
+
+[dev-dependencies]
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+test-utils = { path = "../../../test-utils"}
+tokio = { workspace = true }
