@@ -71,6 +71,15 @@ mod tests {
     }
 
     prop_compose! {
+        fn u64_ratio_lte_one()
+            (denom in any::<u64>())
+            (num in 0..=denom, denom in Just(denom)) -> U64RatioFloor<u64, u64> {
+                U64RatioFloor { num, denom }
+            }
+    }
+
+    prop_compose! {
+        /// max_limit is the max number that ratio can be applied to without overflowing u64
         fn u64_ratio_gte_one_and_overflow_max_limit()
             (u64ratio in u64_ratio_gte_one()) -> (u64, U64RatioFloor<u64, u64>) {
                 if u64ratio.num == 0 {
@@ -94,11 +103,41 @@ mod tests {
 
     proptest! {
         #[test]
-        fn u64_ratio_round_trip((amt, ratio) in u64_ratio_gte_one_amt_no_overflow()) {
+        fn u64_ratio_gte_one_round_trip((amt, ratio) in u64_ratio_gte_one_amt_no_overflow()) {
             let applied = ratio.apply(amt).unwrap();
             let reversed = ratio.pseudo_reverse(applied).unwrap();
-
             prop_assert_eq!(reversed, amt);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn u64_ratio_lte_one_round_trip(amt: u64, ratio in u64_ratio_lte_one()) {
+            let applied = ratio.apply(amt).unwrap();
+            let reversed = ratio.pseudo_reverse(applied).unwrap();
+            // will not always be eq due to floor
+            prop_assert!(reversed <= amt);
+            // but make sure they applying the ratio again yields the same result
+            let apply_on_reversed = ratio.apply(reversed).unwrap();
+            prop_assert_eq!(applied, apply_on_reversed);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn u64_zero_denom(num: u64, denom in Just(0u64), amt: u64) {
+            let ratio = U64RatioFloor { num, denom };
+            prop_assert_eq!(ratio.apply(amt).unwrap(), 0);
+            prop_assert_eq!(ratio.pseudo_reverse(amt).unwrap(), 0);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn u64_zero_num(num in Just(0u64), denom: u64, amt: u64) {
+            let ratio = U64RatioFloor { num, denom };
+            prop_assert_eq!(ratio.apply(amt).unwrap(), 0);
+            prop_assert_eq!(ratio.pseudo_reverse(amt).unwrap(), 0);
         }
     }
 }
