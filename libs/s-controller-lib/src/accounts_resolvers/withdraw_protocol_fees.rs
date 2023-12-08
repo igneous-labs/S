@@ -1,5 +1,6 @@
 use s_controller_interface::{SControllerError, WithdrawProtocolFeesKeys};
 use sanctum_utils::token::token_account_mint;
+use solana_program::program_error::ProgramError;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -22,21 +23,20 @@ impl<
         W: ReadonlyAccountData + ReadonlyAccountOwner + KeyedAccount,
     > WithdrawProtocolFeesFreeArgs<S, W>
 {
-    pub fn resolve(self) -> Result<WithdrawProtocolFeesKeys, SControllerError> {
+    pub fn resolve(self) -> Result<WithdrawProtocolFeesKeys, ProgramError> {
         let WithdrawProtocolFeesFreeArgs {
             pool_state: pool_state_acc,
             withdraw_to,
         } = self;
 
         if *pool_state_acc.key() != POOL_STATE_ID {
-            return Err(SControllerError::IncorrectPoolState);
+            return Err(SControllerError::IncorrectPoolState.into());
         }
 
         let pool_state_data = pool_state_acc.data();
         let pool_state = try_pool_state(&pool_state_data)?;
 
-        let lst_mint = token_account_mint(&withdraw_to)
-            .map_err(|_e| SControllerError::InvalidLstStateListData)?;
+        let lst_mint = token_account_mint(&withdraw_to)?;
         let find_pda_keys = FindLstPdaAtaKeys {
             lst_mint,
             token_program: *withdraw_to.owner(),
