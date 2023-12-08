@@ -12,9 +12,7 @@ use solana_program::{
 
 pub fn process_set_manager(accounts: &[AccountInfo]) -> ProgramResult {
     let SetManagerAccounts {
-        current_manager: _,
-        new_manager,
-        state,
+        new_manager, state, ..
     } = verify_set_manager(accounts)?;
 
     let mut bytes = state.try_borrow_mut_data()?;

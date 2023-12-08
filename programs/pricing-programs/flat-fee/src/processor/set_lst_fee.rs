@@ -17,11 +17,7 @@ pub fn process_set_lst_fee(
         output_fee_bps,
     }: SetLstFeeIxArgs,
 ) -> ProgramResult {
-    let SetLstFeeAccounts {
-        manager: _,
-        fee_acc,
-        state: _,
-    } = verify_set_lst_fee(accounts)?;
+    let SetLstFeeAccounts { fee_acc, .. } = verify_set_lst_fee(accounts)?;
 
     let mut bytes = fee_acc.try_borrow_mut_data()?;
     let fee_acc = try_fee_account_mut(&mut bytes)?;

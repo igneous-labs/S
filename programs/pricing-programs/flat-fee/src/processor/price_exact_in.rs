@@ -17,16 +17,12 @@ use solana_program::{
 
 pub fn process_price_exact_in(
     accounts: &[AccountInfo],
-    PriceExactInIxArgs {
-        amount: _,
-        sol_value,
-    }: PriceExactInIxArgs,
+    PriceExactInIxArgs { sol_value, .. }: PriceExactInIxArgs,
 ) -> ProgramResult {
     let PriceExactInAccounts {
-        input_lst_mint: _,
-        output_lst_mint: _,
         input_fee_acc,
         output_fee_acc,
+        ..
     } = verify_price_exact_in(accounts)?;
 
     let input_fee_acc_bytes = input_fee_acc.try_borrow_data()?;

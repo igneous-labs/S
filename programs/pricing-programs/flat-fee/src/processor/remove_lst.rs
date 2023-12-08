@@ -13,11 +13,9 @@ use solana_program::{
 
 pub fn process_remove_lst(accounts: &[AccountInfo]) -> ProgramResult {
     let RemoveLstAccounts {
-        manager: _,
         fee_acc,
-        state: _,
-        system_program: _,
         refund_rent_to,
+        ..
     } = verify_remove_lst(accounts)?;
 
     close_account(CloseAccountAccounts {
