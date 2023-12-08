@@ -65,7 +65,7 @@ fn verify_add_lst<'me, 'info>(
 
     let free_args = AddLstFreeArgs {
         payer: *actual.payer.key,
-        state: actual.state,
+        state_acc: actual.state,
         lst_mint: *actual.lst_mint.key,
     };
     let expected: AddLstKeys = free_args.resolve()?;

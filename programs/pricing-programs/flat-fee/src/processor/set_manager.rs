@@ -32,7 +32,7 @@ fn verify_set_manager<'me, 'info>(
 
     let free_args = SetManagerFreeArgs {
         new_manager: *actual.new_manager.key,
-        state: actual.state,
+        state_acc: actual.state,
     };
     let expected: SetManagerKeys = free_args.resolve()?;
 

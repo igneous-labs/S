@@ -38,7 +38,7 @@ fn verify_set_lst_fee<'me, 'info>(
     let actual: SetLstFeeAccounts = load_accounts(accounts)?;
 
     let free_args = SetLstFeeFreeArgs {
-        state: actual.state,
+        state_acc: actual.state,
         fee_acc: *actual.fee_acc.key,
     };
     let expected: SetLstFeeKeys = free_args.resolve()?;
