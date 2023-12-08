@@ -10,6 +10,9 @@ pub struct AddLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub lst_mint: Pubkey,
 }
 
+// `KeyedAccount` bound not used here.
+// What I mentioned about account spoofing in https://github.com/igneous-labs/S/pull/88#discussion_r1417083008
+// applies here and to the other commented on instructions.
 impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
     pub fn resolve(&self) -> Result<AddLstKeys, FlatFeeError> {
         let bytes = &self.state.data();

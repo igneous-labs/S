@@ -9,6 +9,7 @@ pub struct SetManagerFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub state: S,
 }
 
+// `KeyedAccount` bound not used here
 impl<S: KeyedAccount + ReadonlyAccountData> SetManagerFreeArgs<S> {
     pub fn resolve(self) -> Result<SetManagerKeys, FlatFeeError> {
         let bytes = &self.state.data();

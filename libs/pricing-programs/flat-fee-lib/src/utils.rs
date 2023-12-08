@@ -13,6 +13,7 @@ pub fn try_program_state_mut(
     try_from_bytes_mut(program_state_acc_data).map_err(|_e| FlatFeeError::InvalidProgramStateData)
 }
 
+// nah i think UnsupportedLstMint is fine
 pub fn try_fee_account(fee_acc_data: &[u8]) -> Result<&FeeAccount, FlatFeeError> {
     try_from_bytes(fee_acc_data).map_err(|_e| FlatFeeError::UnsupportedLstMint) // TODO: should this be InvalidFeeAccountData?
 }

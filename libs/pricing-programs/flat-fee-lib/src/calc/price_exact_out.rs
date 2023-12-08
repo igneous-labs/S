@@ -3,6 +3,8 @@ use sanctum_token_ratio::{U64RatioFloor, BPS_DENOMINATOR};
 
 use super::BPS_DENOMINATOR_I16;
 
+// wanna use an args struct here so we dont have to rmb
+// whether to put input_fee_bps or output_fee_bps first?
 pub fn calculate_price_exact_out(
     input_fee_bps: i16,
     output_fee_bps: i16,

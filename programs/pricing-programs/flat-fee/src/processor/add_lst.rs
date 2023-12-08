@@ -30,6 +30,13 @@ pub fn process_add_lst(
         ..
     } = verify_add_lst(accounts)?;
 
+    // you're calling find_program_address() twice in this instruction processor:
+    // - once in .resolve()
+    // - once in this .into() here
+    // Maybe:
+    // - resolve() can return FeeAccountCreatePdaArgs as well in a tuple
+    // - we probably should reserve `From<>` implementations only for cheap conversions, so maybe
+    //   have the find -> create conversion as a non-trait method instead
     let create_pda_args: FeeAccountCreatePdaArgs = FeeAccountFindPdaArgs {
         lst_mint: *lst_mint.key,
     }

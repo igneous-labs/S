@@ -1,3 +1,8 @@
+// We probably wanna add some bounds checking for the fee bps here:
+// - >10_000 fee makes no sense
+// - Set a lower bound on negative bps to make sure we dont fuck up and give -10,000% rebate
+// Put this in lib so this can be used in our CLI too.
+
 pub mod account_resolvers;
 pub mod calc;
 pub mod pda;

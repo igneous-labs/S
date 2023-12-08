@@ -16,6 +16,10 @@ pub fn process_remove_lst(accounts: &[AccountInfo]) -> ProgramResult {
         manager: _,
         fee_acc,
         state: _,
+        // just realized closing maybe doesn't need system_program since
+        // we're decrementing lamports directly. Not sure about
+        // assigning account owner back to system_program
+        // Need to test this.
         system_program: _,
         refund_rent_to,
     } = verify_remove_lst(accounts)?;

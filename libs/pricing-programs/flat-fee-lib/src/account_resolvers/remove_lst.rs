@@ -14,6 +14,7 @@ pub struct RemoveLstWithMintFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub state: S,
 }
 
+// `KeyedAccount` bound not used here
 impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstWithMintFreeArgs<S> {
     fn resolve_with_fee_acc(&self, fee_acc: Pubkey) -> Result<RemoveLstKeys, FlatFeeError> {
         let bytes = &self.state.data();
@@ -58,6 +59,7 @@ pub struct RemoveLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub state: S,
 }
 
+// `KeyedAccount` bound not used here
 impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstFreeArgs<S> {
     pub fn resolve(&self) -> Result<RemoveLstKeys, FlatFeeError> {
         let bytes = &self.state.data();
