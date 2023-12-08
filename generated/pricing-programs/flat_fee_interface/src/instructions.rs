@@ -1025,7 +1025,7 @@ pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 5;
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 4;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstAccounts<'me, 'info> {
     ///The program manager
@@ -1036,8 +1036,6 @@ pub struct RemoveLstAccounts<'me, 'info> {
     pub fee_acc: &'me AccountInfo<'info>,
     ///The program state PDA
     pub state: &'me AccountInfo<'info>,
-    ///System program
-    pub system_program: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstKeys {
@@ -1049,8 +1047,6 @@ pub struct RemoveLstKeys {
     pub fee_acc: Pubkey,
     ///The program state PDA
     pub state: Pubkey,
-    ///System program
-    pub system_program: Pubkey,
 }
 impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
     fn from(accounts: &RemoveLstAccounts) -> Self {
@@ -1059,7 +1055,6 @@ impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
             refund_rent_to: *accounts.refund_rent_to.key,
             fee_acc: *accounts.fee_acc.key,
             state: *accounts.state.key,
-            system_program: *accounts.system_program.key,
         }
     }
 }
@@ -1070,7 +1065,6 @@ impl From<&RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
             AccountMeta::new(keys.refund_rent_to, true),
             AccountMeta::new(keys.fee_acc, false),
             AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.system_program, false),
         ]
     }
 }
@@ -1081,7 +1075,6 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
             refund_rent_to: pubkeys[1],
             fee_acc: pubkeys[2],
             state: pubkeys[3],
-            system_program: pubkeys[4],
         }
     }
 }
@@ -1094,7 +1087,6 @@ impl<'info> From<&RemoveLstAccounts<'_, 'info>>
             accounts.refund_rent_to.clone(),
             accounts.fee_acc.clone(),
             accounts.state.clone(),
-            accounts.system_program.clone(),
         ]
     }
 }
@@ -1107,7 +1099,6 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
             refund_rent_to: &arr[1],
             fee_acc: &arr[2],
             state: &arr[3],
-            system_program: &arr[4],
         }
     }
 }
@@ -1183,7 +1174,6 @@ pub fn remove_lst_verify_account_keys(
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.fee_acc.key, &keys.fee_acc),
         (accounts.state.key, &keys.state),
-        (accounts.system_program.key, &keys.system_program),
     ] {
         if actual != expected {
             return Err((*actual, *expected));

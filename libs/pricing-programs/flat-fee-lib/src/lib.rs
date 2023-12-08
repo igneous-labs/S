@@ -13,6 +13,11 @@ pub mod program {
         STATE_SIZE,
     );
 
+    static_assertions::const_assert_eq!(
+        std::mem::size_of::<flat_fee_interface::FeeAccount>(),
+        FEE_ACCOUNT_SIZE,
+    );
+
     sanctum_macros::declare_program_keys!(
         "f1tUoNEKrDp1oeGn4zxr7bh41eN6VcfHjfrL3ZqQday",
         [("state", b"state")]

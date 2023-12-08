@@ -20,6 +20,7 @@ solana-program = { workspace = true }
 
 [dev-dependencies]
 solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 test-utils = { path = "../../../test-utils"}
 tokio = { workspace = true }

@@ -239,12 +239,6 @@
           "isMut": false,
           "isSigner": false,
           "desc": "The program state PDA"
-        },
-        {
-          "name": "system_program",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "System program"
         }
       ]
     },
