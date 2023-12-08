@@ -18,6 +18,7 @@ mod set_sol_value_calculator;
 mod start_rebalance;
 mod swap;
 mod sync_sol_value;
+mod withdraw_protocol_fees;
 
 pub use add_disable_pool_authority::*;
 pub use add_liquidity::*;
@@ -39,3 +40,4 @@ pub use set_sol_value_calculator::*;
 pub use start_rebalance::*;
 pub use swap::*;
 pub use sync_sol_value::*;
+pub use withdraw_protocol_fees::*;
