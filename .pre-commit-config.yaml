@@ -5,4 +5,4 @@ repos:
     hooks:
       - id: fmt
       - id: clippy
-        args: ["--tests"]
+        args: ["--tests", "--", "-Dwarnings"]
