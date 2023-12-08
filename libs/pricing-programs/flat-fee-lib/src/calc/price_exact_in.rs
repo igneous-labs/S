@@ -3,10 +3,18 @@ use sanctum_token_ratio::{U64RatioFloor, BPS_DENOMINATOR};
 
 use super::BPS_DENOMINATOR_I16;
 
+pub struct CalculatePriceExactInArgs {
+    pub input_fee_bps: i16,
+    pub output_fee_bps: i16,
+    pub sol_value: u64,
+}
+
 pub fn calculate_price_exact_in(
-    input_fee_bps: i16,
-    output_fee_bps: i16,
-    sol_value: u64,
+    CalculatePriceExactInArgs {
+        input_fee_bps,
+        output_fee_bps,
+        sol_value,
+    }: CalculatePriceExactInArgs,
 ) -> Result<u64, FlatFeeError> {
     let fee_bps = input_fee_bps
         .checked_add(output_fee_bps)
