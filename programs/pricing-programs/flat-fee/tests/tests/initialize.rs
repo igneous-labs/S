@@ -8,10 +8,6 @@ use crate::common::*;
 
 #[tokio::test]
 async fn basic() {
-    let mock_auth_kp =
-        read_keypair_file(test_fixtures_dir().join("flat-fee-test-initial-manager-key.json"))
-            .unwrap();
-
     let mut program_test = ProgramTest::default();
 
     program_test.add_program(
@@ -34,7 +30,7 @@ async fn basic() {
         .unwrap();
 
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+        tx.sign(&[&payer], last_blockhash);
 
         banks_client.process_transaction(tx).await.unwrap();
 

@@ -6,7 +6,7 @@ pub mod utils;
 
 pub mod program {
     pub const STATE_SIZE: usize = 34;
-    pub const FEE_ACCOUNT_SIZE: usize = 0; // TODO
+    pub const FEE_ACCOUNT_SIZE: usize = 6;
 
     static_assertions::const_assert_eq!(
         std::mem::size_of::<flat_fee_interface::ProgramState>(),
@@ -14,7 +14,7 @@ pub mod program {
     );
 
     sanctum_macros::declare_program_keys!(
-        "TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111",
+        "f1tUoNEKrDp1oeGn4zxr7bh41eN6VcfHjfrL3ZqQday",
         [("state", b"state")]
     );
 }
