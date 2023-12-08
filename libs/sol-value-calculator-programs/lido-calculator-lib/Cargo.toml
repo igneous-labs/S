@@ -1,0 +1,21 @@
+[package]
+name = "lido-calculator-lib"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+borsh = { workspace = true }
+generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
+lido_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/lido_calculator_interface" }
+lido-keys = { path = "../../../keys/lido-keys" }
+sanctum-macros = { workspace = true }
+sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
+sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
+solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

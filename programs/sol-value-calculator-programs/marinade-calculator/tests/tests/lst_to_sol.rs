@@ -10,8 +10,6 @@ use test_utils::zero_padded_return_data;
 
 use crate::common::marinade_normal_program_test;
 
-mod common;
-
 #[tokio::test]
 async fn basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;

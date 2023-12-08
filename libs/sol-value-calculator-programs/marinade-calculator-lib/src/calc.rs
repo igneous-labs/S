@@ -10,7 +10,6 @@ pub const MAX_BP_CENTS: u32 = 1_000_000;
 
 /// Reference
 /// https://github.com/marinade-finance/liquid-staking-program/blob/26147376b75d8c971963da458623e646f2795e15/programs/marinade-finance/src/state/mod.rs#L96
-/// TODO: check disabled
 impl MarinadeStateCalc {
     pub const fn verify_marinade_not_paused(&self) -> Result<(), MarinadeCalculatorError> {
         if self.0.paused {

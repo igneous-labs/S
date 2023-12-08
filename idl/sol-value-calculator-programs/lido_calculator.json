@@ -1,0 +1,257 @@
+{
+  "version": "1.0.0",
+  "name": "lido_calculator",
+  "types": [
+    {
+      "name": "Lido",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account_type",
+            "type": "u8"
+          },
+          {
+            "name": "lido_version",
+            "type": "u8"
+          },
+          {
+            "name": "manager",
+            "type": "publicKey"
+          },
+          {
+            "name": "st_sol_mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "exchange_rate",
+            "type": {
+              "defined": "ExchangeRate"
+            }
+          },
+          {
+            "name": "sol_reserve_account_bump_seed",
+            "type": "u8"
+          },
+          {
+            "name": "stake_authority_bump_seed",
+            "type": "u8"
+          },
+          {
+            "name": "mint_authority_bump_seed",
+            "type": "u8"
+          },
+          {
+            "name": "reward_distribution",
+            "type": {
+              "defined": "RewardDistribution"
+            }
+          },
+          {
+            "name": "fee_recipients",
+            "type": {
+              "defined": "FeeRecipients"
+            }
+          },
+          {
+            "name": "metrics",
+            "type": {
+              "defined": "Metrics"
+            }
+          },
+          {
+            "name": "criteria",
+            "type": {
+              "defined": "Criteria"
+            }
+          },
+          {
+            "name": "validator_list",
+            "type": "publicKey"
+          },
+          {
+            "name": "validator_perf_list",
+            "type": "publicKey"
+          },
+          {
+            "name": "maintainer_list",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExchangeRate",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "computed_in_epoch",
+            "type": "u64"
+          },
+          {
+            "name": "st_sol_supply",
+            "type": "u64"
+          },
+          {
+            "name": "sol_balance",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RewardDistribution",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury_fee",
+            "type": "u32"
+          },
+          {
+            "name": "developer_fee",
+            "type": "u32"
+          },
+          {
+            "name": "st_sol_appreciation",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeRecipients",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury_account",
+            "type": "publicKey"
+          },
+          {
+            "name": "developer_account",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Metrics",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_treasury_total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_validation_total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_developer_total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "st_sol_appreciation_total_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_treasury_total_st_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_validation_total_st_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_developer_total_st_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "deposit_amount",
+            "type": {
+              "defined": "LamportsHistogram"
+            }
+          },
+          {
+            "name": "withdraw_amount",
+            "type": {
+              "defined": "WithdrawMetric"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LamportsHistogram",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "counts",
+            "type": {
+              "array": ["u64", 12]
+            }
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawMetric",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total_st_sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "total_sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "count",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Criteria",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_commission",
+            "type": "u8"
+          },
+          {
+            "name": "min_block_production_rate",
+            "type": "u64"
+          },
+          {
+            "name": "min_vote_success_rate",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "ExchangeRateNotUpdatedInThisEpoch",
+      "msg": "Lido exchange rate not yet updated"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "TH1S1DLoNLYCoNTA1NSERRoRANDCoP1EDTYPES11111"
+  }
+}
