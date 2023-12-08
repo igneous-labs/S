@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use num_traits::ToPrimitive;
 use solana_program::{
     instruction::{Instruction, InstructionError},
     program_error::ProgramError,
@@ -34,20 +35,38 @@ fn extract_ix_err(banks_client_err: BanksClientError) -> InstructionError {
     }
 }
 
-pub fn assert_is_custom_err<E: Into<ProgramError> + Display + Copy>(
+fn extract_ix_err_code(ix_err: &InstructionError) -> u32 {
+    match ix_err {
+        InstructionError::Custom(c) => *c,
+        _ => panic!("Unexpected InstructionError {ix_err}"),
+    }
+}
+
+pub fn assert_custom_err<E: Into<ProgramError> + Display + Copy>(
     banks_client_err: BanksClientError,
     expected_err: E,
 ) {
     let ix_err = extract_ix_err(banks_client_err);
-    let actual_code = match ix_err {
-        InstructionError::Custom(c) => c,
-        _ => panic!("Unexpected InstructionError {ix_err}"),
-    };
+    let actual_code = extract_ix_err_code(&ix_err);
     let expected_program_err: ProgramError = expected_err.into();
     let expected_code = match expected_program_err {
         ProgramError::Custom(c) => c,
         _ => panic!("Unexpected ProgramError {expected_program_err}. This doesn't look like a custom error type.")
     };
+    assert_eq!(
+        actual_code, expected_code,
+        "Expected: {expected_err}. Actual: {ix_err}"
+    );
+}
+
+/// Some types like SystemError implement different traits
+pub fn assert_built_in_prog_err<E: ToPrimitive + Display>(
+    banks_client_err: BanksClientError,
+    expected_err: E,
+) {
+    let ix_err = extract_ix_err(banks_client_err);
+    let actual_code = extract_ix_err_code(&ix_err);
+    let expected_code = expected_err.to_u32().unwrap();
     assert_eq!(
         actual_code, expected_code,
         "Expected: {expected_err}. Actual: {ix_err}"

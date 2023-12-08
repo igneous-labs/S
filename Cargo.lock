@@ -5228,6 +5228,7 @@ dependencies = [
 name = "test-utils"
 version = "1.0.0"
 dependencies = [
+ "num-traits",
  "proptest",
  "sanctum-macros",
  "serde",
