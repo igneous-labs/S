@@ -5,7 +5,8 @@ use s_controller_lib::{
     WithdrawProtocolFeesFreeArgs,
 };
 use sanctum_utils::token::{
-    token_account_balance, token_account_balance_program_agnostic, token_account_mint,
+    token_account_balance, token_account_balance_program_agnostic,
+    token_account_mint_program_agnostic,
 };
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
@@ -79,7 +80,7 @@ async fn basic_withdraw_protocol_fees() {
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
-    let lst_mint = token_account_mint(&msol_account).unwrap();
+    let lst_mint = token_account_mint_program_agnostic(&msol_account).unwrap();
     let find_pda_keys = FindLstPdaAtaKeys {
         lst_mint,
         token_program: msol_account.owner,

@@ -51,6 +51,18 @@ pub fn token_2022_mint_supply<D: ReadonlyAccountData>(
     Ok(state.base.supply)
 }
 
+pub fn token_account_mint_program_agnostic<D: ReadonlyAccountData>(
+    token_account: D,
+) -> Result<Pubkey, ProgramError> {
+    // First try to deserialize tokenkeg then token_2022 if failed,
+    // instead of deserializing based on account owner directly,
+    // in order to support custom deploys of token_program and/or token_2022
+    if let Ok(mint) = token_account_mint(&token_account) {
+        return Ok(mint);
+    }
+    token_2022_account_mint(token_account)
+}
+
 /// Sometimes you just want to read the mint of a token account without caring about the other fields.
 pub fn token_account_mint<D: ReadonlyAccountData>(
     token_account: D,
