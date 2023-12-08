@@ -3,9 +3,7 @@ use flat_fee_interface::{
     AddLstKeys,
 };
 use flat_fee_lib::{
-    account_resolvers::AddLstFreeArgs,
-    pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
-    program,
+    account_resolvers::AddLstFreeArgs, pda::FeeAccountCreatePdaArgs, program,
     utils::try_fee_account_mut,
 };
 use sanctum_onchain_utils::{
@@ -23,17 +21,8 @@ pub fn process_add_lst(
         output_fee_bps,
     }: AddLstIxArgs,
 ) -> ProgramResult {
-    let AddLstAccounts {
-        payer,
-        fee_acc,
-        lst_mint,
-        ..
-    } = verify_add_lst(accounts)?;
+    let (AddLstAccounts { payer, fee_acc, .. }, create_pda_args) = verify_add_lst(accounts)?;
 
-    let create_pda_args: FeeAccountCreatePdaArgs = FeeAccountFindPdaArgs {
-        lst_mint: *lst_mint.key,
-    }
-    .into();
     create_pda(
         CreateAccountAccounts {
             from: payer,
@@ -60,7 +49,7 @@ pub fn process_add_lst(
 
 fn verify_add_lst<'me, 'info>(
     accounts: &'me [AccountInfo<'info>],
-) -> Result<AddLstAccounts<'me, 'info>, ProgramError> {
+) -> Result<(AddLstAccounts<'me, 'info>, FeeAccountCreatePdaArgs), ProgramError> {
     let actual: AddLstAccounts = load_accounts(accounts)?;
 
     let free_args = AddLstFreeArgs {
@@ -68,10 +57,11 @@ fn verify_add_lst<'me, 'info>(
         state_acc: actual.state,
         lst_mint: *actual.lst_mint.key,
     };
-    let expected: AddLstKeys = free_args.resolve()?;
+    let (expected, fee_account_create_pda_args): (AddLstKeys, FeeAccountCreatePdaArgs) =
+        free_args.resolve()?;
 
     add_lst_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     add_lst_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
 
-    Ok(actual)
+    Ok((actual, fee_account_create_pda_args))
 }
