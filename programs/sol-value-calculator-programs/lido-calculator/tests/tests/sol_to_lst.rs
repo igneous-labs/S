@@ -1,6 +1,6 @@
-use generic_pool_calculator_interface::{LstToSolIxArgs, LstToSolKeys};
+use generic_pool_calculator_interface::{SolToLstIxArgs, SolToLstKeys};
 use lido_calculator_lib::{
-    lido_lst_to_sol_ix, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS,
+    lido_sol_to_lst_ix, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
 use solana_program::clock::Clock;
 use solana_program_test::ProgramTestContext;
@@ -10,8 +10,8 @@ use crate::common::lido_normal_program_test;
 
 #[tokio::test]
 async fn basic() {
-    const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_147_696_330;
+    const LAMPORTS_AMOUNT: u64 = 1_147_696_330;
+    const EXPECTED_LST_AMOUNT: u64 = 1_000_000_000;
 
     let program_test = lido_normal_program_test();
 
@@ -28,18 +28,24 @@ async fn basic() {
         ..
     } = ctx;
 
-    let accounts: LstToSolKeys = LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS
+    let accounts: SolToLstKeys = LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS
         .resolve::<LidoSolValCalc>()
         .into();
 
-    let ix = lido_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
+    let ix = lido_sol_to_lst_ix(
+        accounts,
+        SolToLstIxArgs {
+            amount: LAMPORTS_AMOUNT,
+        },
+    )
+    .unwrap();
 
     exec_verify_u64_le_return_data(
         &mut banks_client,
         &payer,
         last_blockhash,
         ix,
-        EXPECTED_LAMPORTS_AMOUNT,
+        EXPECTED_LST_AMOUNT,
     )
     .await;
 }

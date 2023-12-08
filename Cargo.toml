@@ -41,7 +41,7 @@ tokio = "^1"
 solana-readonly-account = { git = "https://github.com/igneous-labs/solana-readonly-account", branch = "master" }
 
 # solana libraries (not pure rust)
-# Use * for flexibility for library users, but lock to 1.16 for development
+# Use * for flexibility for library users, but lock to 1.16.20 for deploy
 solana-account-decoder = "*"
 solana-program = "*"
 solana-program-test = "*"

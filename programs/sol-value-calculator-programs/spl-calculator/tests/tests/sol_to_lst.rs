@@ -1,16 +1,16 @@
-use generic_pool_calculator_interface::{LstToSolIxArgs, LstToSolKeys};
+use generic_pool_calculator_interface::{SolToLstIxArgs, SolToLstKeys};
 use solana_program::clock::Clock;
 use solana_program_test::ProgramTestContext;
 
-use spl_calculator_lib::{spl_lst_to_sol_ix, SplLstSolCommonFreeArgs, SplSolValCalc};
+use spl_calculator_lib::{spl_sol_to_lst_ix, SplLstSolCommonFreeArgs, SplSolValCalc};
 use test_utils::{exec_verify_u64_le_return_data, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
 
 #[tokio::test]
 async fn jito_basic() {
-    const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_072_326_756;
+    const LAMPORTS_AMOUNT: u64 = 1_072_326_756;
+    const EXPECTED_LST_AMOUNT: u64 = 1_000_000_000;
 
     let JitoNormalProgramTest {
         program_test,
@@ -36,16 +36,22 @@ async fn jito_basic() {
         spl_stake_pool_prog,
     };
     let (intermediate, _stake_pool) = free_args.resolve().unwrap();
-    let accounts: LstToSolKeys = intermediate.resolve::<SplSolValCalc>().unwrap().into();
+    let accounts: SolToLstKeys = intermediate.resolve::<SplSolValCalc>().unwrap().into();
 
-    let ix = spl_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
+    let ix = spl_sol_to_lst_ix(
+        accounts,
+        SolToLstIxArgs {
+            amount: LAMPORTS_AMOUNT,
+        },
+    )
+    .unwrap();
 
     exec_verify_u64_le_return_data(
         &mut banks_client,
         &payer,
         last_blockhash,
         ix,
-        EXPECTED_LAMPORTS_AMOUNT,
+        EXPECTED_LST_AMOUNT,
     )
     .await;
 }

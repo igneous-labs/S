@@ -2,7 +2,7 @@ use s_controller_interface::{disable_pool_ix, DisablePoolIxArgs, SControllerErro
 use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::assert_is_custom_err;
+use test_utils::assert_custom_err;
 
 use crate::common::*;
 
@@ -85,7 +85,7 @@ async fn reject_disable_pool() {
 
         let err = banks_client.process_transaction(tx).await.unwrap_err();
 
-        assert_is_custom_err(err, SControllerError::InvalidDisablePoolAuthority);
+        assert_custom_err(err, SControllerError::InvalidDisablePoolAuthority);
 
         let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();

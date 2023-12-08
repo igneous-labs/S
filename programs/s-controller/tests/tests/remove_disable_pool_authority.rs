@@ -15,7 +15,7 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{assert_is_custom_err, test_fixtures_dir};
+use test_utils::{assert_custom_err, test_fixtures_dir};
 
 use crate::common::*;
 
@@ -120,7 +120,7 @@ async fn basic() {
         tx.sign(&[&payer, target_authority_kp], last_blockhash);
 
         let err = banks_client.process_transaction(tx).await.unwrap_err();
-        assert_is_custom_err(
+        assert_custom_err(
             err,
             SControllerError::UnauthorizedDisablePoolAuthoritySigner,
         );
