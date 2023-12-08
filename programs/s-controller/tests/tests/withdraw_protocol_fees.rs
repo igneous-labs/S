@@ -7,7 +7,7 @@ use s_controller_lib::{
 use sanctum_utils::token::{
     token_account_balance, token_account_balance_program_agnostic, token_account_mint,
 };
-use solana_program::{program_pack::Pack, pubkey::Pubkey};
+use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{

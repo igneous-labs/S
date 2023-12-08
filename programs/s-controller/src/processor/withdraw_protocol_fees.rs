@@ -10,7 +10,7 @@ use sanctum_onchain_utils::{
     token_program::{transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::{token_account_balance, token_account_balance_program_agnostic};
+use sanctum_utils::token::token_account_balance_program_agnostic;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -32,7 +32,7 @@ pub fn process_withdraw_protocol_fees(
             from: accounts.protocol_fee_accumulator,
             to: accounts.withdraw_to,
             token_program: accounts.token_program,
-            authority: accounts.pool_state,
+            authority: accounts.protocol_fee_accumulator_auth,
         },
         args.amount,
         &[&[PROTOCOL_FEE_SEED, &[PROTOCOL_FEE_BUMP]]],
