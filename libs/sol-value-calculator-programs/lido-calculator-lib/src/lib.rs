@@ -21,9 +21,9 @@ pub mod initial_manager {
     sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
 }
 
-pub struct SplSolValCalc;
+pub struct LidoSolValCalc;
 
-impl GenericPoolSolValCalc for SplSolValCalc {
+impl GenericPoolSolValCalc for LidoSolValCalc {
     const POOL_PROGRAM_ID: Pubkey = lido_program::ID;
     const POOL_PROGRAM_PROGDATA_ID: Pubkey = lido_program_progdata::ID;
     const CALCULATOR_STATE_PDA: Pubkey = program::LIDO_CALCULATOR_STATE_ID;

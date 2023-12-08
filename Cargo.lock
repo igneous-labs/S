@@ -2051,6 +2051,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "lido-calculator"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "lido-calculator-lib",
+ "lido_calculator_interface",
+ "sanctum-onchain-utils",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "lido-calculator-lib"
 version = "1.0.0"
 dependencies = [

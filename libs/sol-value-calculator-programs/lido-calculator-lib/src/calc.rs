@@ -6,6 +6,8 @@ use solana_program::{clock::Clock, program_error::ProgramError};
 #[derive(Debug, Clone)]
 pub struct LidoCalc(pub Lido);
 
+/// Reference
+/// https://github.com/lidofinance/solido/blob/4e071bed845fca1e30215ec4e0be6b63e659bc18/program/src/processor.rs#L1034
 impl LidoCalc {
     pub const fn verify_pool_updated_for_this_epoch(
         &self,
