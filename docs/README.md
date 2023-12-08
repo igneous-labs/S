@@ -21,8 +21,11 @@ The SOL value of a LST can be thought of as "how much unstaked SOL will I get in
 ### SOL Value Calculator Programs
 
 Each LST program will have its corresponding SOL value calculator program that:
+
 - calculates SOL value of a given LST amount
 - calculates LST amount of a given SOL value
+
+[Full interface definition](/docs/sol-value-calculator-programs/README.md)
 
 ### Pricing Programs
 
@@ -31,11 +34,12 @@ Separated from the controller program for the sake of keeping separation of conc
 At any time, a single pricing program is active for the pool.
 
 The pricing program has instructions that:
-  - determine how much SOL value should be exchanged for a given amount of LST and its SOL value + any other parameters it might require. This could include pool fee information, pool's target LST allocations, etc.
-  - determine how much SOL value should be redeemed for a given amount of LP tokens given the desired output LST + any other parameters it might require.
-  - determine how much SOL value should be minted in new LP tokens for a given amount of input LST and its SOL value, + any other parameters it might require.
 
-These instructions are guarded by a controller program PDA signer check to ensure that they're only ever invoked via CPI from the controller program.
+- determine how much SOL value should be exchanged for a given amount of LST and its SOL value + any other accounts it might require. This could include pool fee information, pool's target LST allocations, etc.
+- determine how much SOL value should be redeemed for a given amount of LP tokens given the desired output LST + any other accounts it might require.
+- determine how much SOL value should be minted in new LP tokens for a given amount of input LST and its SOL value, + any other accounts it might require.
+
+[Full interface definition](/docs/pricing-programs/README.md)
 
 ## General Guidelines
 
