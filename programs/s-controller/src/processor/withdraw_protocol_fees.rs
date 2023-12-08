@@ -3,14 +3,14 @@ use s_controller_interface::{
     SControllerError, WithdrawProtocolFeesAccounts, WithdrawProtocolFeesIxArgs,
 };
 use s_controller_lib::{
-    program::{POOL_STATE_BUMP, POOL_STATE_SEED},
+    program::{PROTOCOL_FEE_BUMP, PROTOCOL_FEE_SEED},
     try_pool_state, WithdrawProtocolFeesFreeArgs,
 };
 use sanctum_onchain_utils::{
     token_program::{transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_account_balance_program_agnostic;
+use sanctum_utils::token::{token_account_balance, token_account_balance_program_agnostic};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -23,9 +23,20 @@ pub fn process_withdraw_protocol_fees(
 ) -> ProgramResult {
     let accounts = verify_withdraw_protocol_fees(accounts)?;
 
+    println!("accounts: {:?}", accounts);
+    println!(
+        "balance: {:?}",
+        token_account_balance(accounts.protocol_fee_accumulator)?
+    );
+    println!(
+        "balance: {:?}",
+        token_account_balance_program_agnostic(accounts.protocol_fee_accumulator)?
+    );
+
     if args.amount > token_account_balance_program_agnostic(accounts.protocol_fee_accumulator)? {
         return Err(SControllerError::NotEnoughFees.into());
     }
+    println!("ok");
 
     transfer_tokens_signed(
         TransferTokensAccounts {
@@ -35,7 +46,7 @@ pub fn process_withdraw_protocol_fees(
             authority: accounts.pool_state,
         },
         args.amount,
-        &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
+        &[&[PROTOCOL_FEE_SEED, &[PROTOCOL_FEE_BUMP]]],
     )?;
 
     Ok(())
@@ -49,7 +60,6 @@ fn verify_withdraw_protocol_fees<'a, 'info>(
     let free_args = WithdrawProtocolFeesFreeArgs {
         pool_state: actual.pool_state,
         withdraw_to: actual.withdraw_to,
-        token_program: actual.token_program,
     };
     let expected = free_args.resolve()?;
 
