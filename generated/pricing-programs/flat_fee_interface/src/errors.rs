@@ -12,8 +12,10 @@ pub enum FlatFeeError {
     IncorrectProgramState = 1,
     #[error("FeeAccount is not initialized for the given LST mint")]
     UnsupportedLstMint = 2,
+    #[error("Given fee value is out of bound")]
+    SignedFeeOutOfBound = 3,
     #[error("Math error")]
-    MathError = 3,
+    MathError = 4,
 }
 impl From<FlatFeeError> for ProgramError {
     fn from(e: FlatFeeError) -> Self {

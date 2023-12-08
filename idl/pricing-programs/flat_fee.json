@@ -420,6 +420,11 @@
     },
     {
       "code": 3,
+      "name": "SignedFeeOutOfBound",
+      "msg": "Given fee value is out of bound"
+    },
+    {
+      "code": 4,
       "name": "MathError",
       "msg": "Math error"
     }
