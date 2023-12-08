@@ -655,12 +655,6 @@
           "desc": "Dynamic list PDA of LstStates for each LST in the pool"
         },
         {
-          "name": "system_program",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "System program"
-        },
-        {
           "name": "lst_token_program",
           "isMut": false,
           "isSigner": false,

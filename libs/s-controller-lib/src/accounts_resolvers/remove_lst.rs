@@ -1,5 +1,5 @@
 use s_controller_interface::{RemoveLstIxArgs, RemoveLstKeys, SControllerError};
-use solana_program::{pubkey::Pubkey, system_program};
+use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -64,7 +64,6 @@ impl<
             protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
             pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
-            system_program: system_program::ID,
             lst_token_program: *lst_mint.owner(),
         })
     }
@@ -118,7 +117,6 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
                 protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
                 pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
-                system_program: system_program::ID,
                 lst_token_program: *lst_mint.owner(),
             },
             RemoveLstIxArgs {
