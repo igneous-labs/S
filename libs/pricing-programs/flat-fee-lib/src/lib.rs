@@ -1,5 +1,6 @@
 pub mod account_resolvers;
 pub mod calc;
+pub mod fee_bound;
 pub mod pda;
 pub mod utils;
 

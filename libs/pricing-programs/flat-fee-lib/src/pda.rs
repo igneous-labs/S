@@ -18,17 +18,6 @@ impl FeeAccountFindPdaArgs {
     }
 }
 
-impl From<FeeAccountFindPdaArgs> for FeeAccountCreatePdaArgs {
-    fn from(find_pda_args: FeeAccountFindPdaArgs) -> Self {
-        let (_, bump) = find_pda_args.get_fee_account_address_and_bump_seed();
-
-        Self {
-            find_pda_args,
-            bump: [bump],
-        }
-    }
-}
-
 pub struct FeeAccountCreatePdaArgs {
     pub find_pda_args: FeeAccountFindPdaArgs,
     pub bump: [u8; 1],

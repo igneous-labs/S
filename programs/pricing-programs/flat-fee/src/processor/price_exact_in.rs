@@ -4,7 +4,7 @@ use flat_fee_interface::{
 };
 use flat_fee_lib::{
     account_resolvers::{PriceExactInFreeArgs, PriceExactInWithBumpFreeArgs},
-    calc::calculate_price_exact_in,
+    calc::{calculate_price_exact_in, CalculatePriceExactInArgs},
     utils::try_fee_account,
 };
 use sanctum_onchain_utils::utils::{
@@ -17,16 +17,12 @@ use solana_program::{
 
 pub fn process_price_exact_in(
     accounts: &[AccountInfo],
-    PriceExactInIxArgs {
-        amount: _,
-        sol_value,
-    }: PriceExactInIxArgs,
+    PriceExactInIxArgs { sol_value, .. }: PriceExactInIxArgs,
 ) -> ProgramResult {
     let PriceExactInAccounts {
-        input_lst_mint: _,
-        output_lst_mint: _,
         input_fee_acc,
         output_fee_acc,
+        ..
     } = verify_price_exact_in(accounts)?;
 
     let input_fee_acc_bytes = input_fee_acc.try_borrow_data()?;
@@ -34,11 +30,11 @@ pub fn process_price_exact_in(
     let output_fee_acc_bytes = output_fee_acc.try_borrow_data()?;
     let output_fee_acc = try_fee_account(&output_fee_acc_bytes)?;
 
-    let result = calculate_price_exact_in(
-        input_fee_acc.input_fee_bps,
-        output_fee_acc.output_fee_bps,
+    let result = calculate_price_exact_in(CalculatePriceExactInArgs {
+        input_fee_bps: input_fee_acc.input_fee_bps,
+        output_fee_bps: output_fee_acc.output_fee_bps,
         sol_value,
-    )?;
+    })?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
 

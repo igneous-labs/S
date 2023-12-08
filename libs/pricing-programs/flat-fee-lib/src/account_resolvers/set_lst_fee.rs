@@ -4,28 +4,37 @@ use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
 
 use crate::{
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
-    program,
+    program::STATE_ID,
     utils::try_program_state,
 };
 
-pub struct SetLstFeeWithMintFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct SetLstFeeByMintFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub lst_mint: Pubkey,
-    pub state: S,
+    pub state_acc: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeWithMintFreeArgs<S> {
-    fn resolve_with_fee_acc(&self, fee_acc: Pubkey) -> Result<SetLstFeeKeys, FlatFeeError> {
-        let bytes = &self.state.data();
+impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> {
+    fn resolve_with_fee_acc(self, fee_acc: Pubkey) -> Result<SetLstFeeKeys, FlatFeeError> {
+        let SetLstFeeByMintFreeArgs {
+            lst_mint: _,
+            state_acc,
+        } = self;
+
+        if *state_acc.key() != STATE_ID {
+            return Err(FlatFeeError::IncorrectProgramState);
+        }
+
+        let bytes = &state_acc.data();
         let state: &ProgramState = try_program_state(bytes)?;
 
         Ok(SetLstFeeKeys {
             manager: state.manager,
             fee_acc,
-            state: program::STATE_ID,
+            state: STATE_ID,
         })
     }
 
-    pub fn resolve(&self) -> Result<SetLstFeeKeys, FlatFeeError> {
+    pub fn resolve(self) -> Result<SetLstFeeKeys, FlatFeeError> {
         let find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.lst_mint,
         };
@@ -34,7 +43,7 @@ impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeWithMintFreeArgs<S> {
         self.resolve_with_fee_acc(fee_acc)
     }
 
-    pub fn resolve_with_fee_acc_bump(&self, bump: u8) -> Result<SetLstFeeKeys, FlatFeeError> {
+    pub fn resolve_with_fee_acc_bump(self, bump: u8) -> Result<SetLstFeeKeys, FlatFeeError> {
         let create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.lst_mint,
@@ -51,18 +60,27 @@ impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeWithMintFreeArgs<S> {
 
 pub struct SetLstFeeFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
     pub fee_acc: Pubkey,
-    pub state: S,
+    pub state_acc: S,
 }
 
 impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeFreeArgs<S> {
-    pub fn resolve(&self) -> Result<SetLstFeeKeys, FlatFeeError> {
-        let bytes = &self.state.data();
+    pub fn resolve(self) -> Result<SetLstFeeKeys, FlatFeeError> {
+        let SetLstFeeFreeArgs {
+            fee_acc: _,
+            state_acc,
+        } = self;
+
+        if *state_acc.key() != STATE_ID {
+            return Err(FlatFeeError::IncorrectProgramState);
+        }
+
+        let bytes = &state_acc.data();
         let state: &ProgramState = try_program_state(bytes)?;
 
         Ok(SetLstFeeKeys {
             manager: state.manager,
             fee_acc: self.fee_acc,
-            state: program::STATE_ID,
+            state: STATE_ID,
         })
     }
 }

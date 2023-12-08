@@ -1357,6 +1357,10 @@ dependencies = [
  "flat_fee_interface",
  "sanctum-onchain-utils",
  "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]

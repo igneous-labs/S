@@ -17,15 +17,9 @@ use solana_program::{
 
 pub fn process_price_lp_tokens_to_redeem(
     accounts: &[AccountInfo],
-    PriceLpTokensToRedeemIxArgs {
-        amount: _,
-        sol_value,
-    }: PriceLpTokensToRedeemIxArgs,
+    PriceLpTokensToRedeemIxArgs { sol_value, .. }: PriceLpTokensToRedeemIxArgs,
 ) -> ProgramResult {
-    let PriceLpTokensToRedeemAccounts {
-        output_lst_mint: _,
-        state,
-    } = verify_price_lp_tokens_to_redeem(accounts)?;
+    let PriceLpTokensToRedeemAccounts { state, .. } = verify_price_lp_tokens_to_redeem(accounts)?;
 
     let bytes = state.try_borrow_data()?;
     let state = try_program_state(&bytes)?;

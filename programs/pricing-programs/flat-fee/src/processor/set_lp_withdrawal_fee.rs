@@ -16,7 +16,7 @@ pub fn process_set_lp_withdrawal_fee(
         lp_withdrawal_fee_bps,
     }: SetLpWithdrawalFeeIxArgs,
 ) -> ProgramResult {
-    let SetLpWithdrawalFeeAccounts { manager: _, state } = verify_set_lp_withdrawal_fee(accounts)?;
+    let SetLpWithdrawalFeeAccounts { state, .. } = verify_set_lp_withdrawal_fee(accounts)?;
 
     let mut bytes = state.try_borrow_mut_data()?;
     let state = try_program_state_mut(&mut bytes)?;

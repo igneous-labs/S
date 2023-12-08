@@ -16,11 +16,7 @@ use solana_program::program_error::ProgramError;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
-    let InitializeAccounts {
-        payer,
-        state,
-        system_program: _,
-    } = verify_initialize(accounts)?;
+    let InitializeAccounts { payer, state, .. } = verify_initialize(accounts)?;
 
     create_pda(
         CreateAccountAccounts {
