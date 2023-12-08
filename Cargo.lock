@@ -2051,6 +2051,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "lido-calculator-lib"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "generic-pool-calculator-lib",
+ "generic_pool_calculator_interface",
+ "lido-keys",
+ "lido_calculator_interface",
+ "proptest",
+ "sanctum-macros",
+ "sanctum-token-ratio",
+ "sol-value-calculator-lib",
+ "solana-program",
+ "solana-readonly-account",
+]
+
+[[package]]
+name = "lido-keys"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "solana-program",
+]
+
+[[package]]
+name = "lido_calculator_interface"
+version = "1.0.0"
+dependencies = [
+ "borsh 0.9.3",
+ "num-derive 0.3.3",
+ "num-traits",
+ "serde",
+ "solana-program",
+ "thiserror",
+]
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
