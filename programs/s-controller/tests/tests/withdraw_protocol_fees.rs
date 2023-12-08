@@ -97,11 +97,6 @@ async fn basic_withdraw_protocol_fees() {
     let protocol_fee_accumulator_balance =
         token_account_balance_program_agnostic(protocol_fee_accumulator_acc).unwrap();
 
-    println!(
-        "protocol_fee_accumulator_balance: {}",
-        protocol_fee_accumulator_balance
-    );
-
     banks_client.process_transaction(tx).await.unwrap();
 
     let msol_account = banks_client_get_account(&mut banks_client, auth_msol_acc_addr).await;
