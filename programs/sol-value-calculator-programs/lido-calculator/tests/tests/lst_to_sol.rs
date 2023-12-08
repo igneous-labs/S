@@ -3,11 +3,8 @@ use lido_calculator_lib::{
     lido_lst_to_sol_ix, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
 use solana_program::clock::Clock;
-use solana_program_test::{BanksTransactionResultWithMetadata, ProgramTestContext};
-use solana_sdk::{
-    signer::Signer, transaction::Transaction, transaction_context::TransactionReturnData,
-};
-use test_utils::{zero_padded_return_data, LIDO_STATE_LAST_UPDATE_EPOCH};
+use solana_program_test::ProgramTestContext;
+use test_utils::{exec_verify_u64_le_return_data, LIDO_STATE_LAST_UPDATE_EPOCH};
 
 use crate::common::lido_normal_program_test;
 
@@ -36,17 +33,13 @@ async fn basic() {
         .into();
 
     let ix = lido_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
-    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-    tx.sign(&[&payer], last_blockhash);
 
-    let BanksTransactionResultWithMetadata { result, metadata } = banks_client
-        .process_transaction_with_metadata(tx)
-        .await
-        .unwrap();
-
-    assert!(result.is_ok());
-    let TransactionReturnData { program_id, data } = metadata.unwrap().return_data.unwrap();
-    assert_eq!(program_id, lido_calculator_lib::program::ID);
-    let lamports = u64::from_le_bytes(zero_padded_return_data(&data));
-    assert_eq!(lamports, EXPECTED_LAMPORTS_AMOUNT);
+    exec_verify_u64_le_return_data(
+        &mut banks_client,
+        &payer,
+        last_blockhash,
+        ix,
+        EXPECTED_LAMPORTS_AMOUNT,
+    )
+    .await;
 }
