@@ -68,6 +68,8 @@ pub enum SControllerError {
     IncorrectDisablePoolAuthorityList = 28,
     #[error("Attempting to set a fee over 100%")]
     FeeTooHigh = 29,
+    #[error("Not enough fees to complete protocol fees withdrawal")]
+    NotEnoughFees = 30,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

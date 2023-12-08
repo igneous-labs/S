@@ -18,3 +18,4 @@ mod set_sol_value_calculator;
 mod swap_exact_in;
 mod swap_exact_out;
 mod sync_sol_value;
+mod withdraw_protocol_fees;
