@@ -1515,6 +1515,11 @@
       "code": 28,
       "name": "IncorrectDisablePoolAuthorityList",
       "msg": "Incorrect disable pool authority list account"
+    },
+    {
+      "code": 29,
+      "name": "FeeTooHigh",
+      "msg": "Attempting to set a fee over 100%"
     }
   ],
   "metadata": {
