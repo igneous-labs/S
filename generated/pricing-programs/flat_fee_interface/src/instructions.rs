@@ -421,6 +421,7 @@ pub fn price_exact_out_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_exact_out_verify_account_privileges<'me, 'info>(
     accounts: &PriceExactOutAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
@@ -554,6 +555,7 @@ pub fn price_lp_tokens_to_mint_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_lp_tokens_to_mint_verify_account_privileges<'me, 'info>(
     accounts: &PriceLpTokensToMintAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
@@ -700,6 +702,7 @@ pub fn price_lp_tokens_to_redeem_verify_account_keys(
     }
     Ok(())
 }
+#[allow(unused)]
 pub fn price_lp_tokens_to_redeem_verify_account_privileges<'me, 'info>(
     accounts: &PriceLpTokensToRedeemAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
