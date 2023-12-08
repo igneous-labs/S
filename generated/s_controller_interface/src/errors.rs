@@ -66,6 +66,8 @@ pub enum SControllerError {
     UnauthorizedSetRebalanceAuthoritySigner = 27,
     #[error("Incorrect disable pool authority list account")]
     IncorrectDisablePoolAuthorityList = 28,
+    #[error("Attempting to set a fee over 100%")]
+    FeeTooHigh = 29,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
