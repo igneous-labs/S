@@ -20,6 +20,7 @@ sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
 solana-program = { workspace = true }
 
 [dev-dependencies]
+flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib", features = ["testing"] }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
