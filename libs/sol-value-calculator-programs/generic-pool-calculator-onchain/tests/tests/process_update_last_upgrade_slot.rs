@@ -72,7 +72,8 @@ fn mock_prog_program_test_with_spl(manager: Pubkey) -> ProgramTest {
         last_upgrade_slot: INITIAL_LAST_UPGRADE_SLOT,
         owner: mock_calculator_program::ID,
     });
-    program_test.add_account(mock_calculator_program::STATE_ID, mock_state.clone());
+    program_test.add_account(mock_calculator_program::STATE_ID, mock_state);
+
     program_test
 }
 

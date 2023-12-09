@@ -3,10 +3,10 @@ use s_controller_interface::{
     AddLiquidityAccounts, AddLiquidityIxArgs, SControllerError, ADD_LIQUIDITY_IX_ACCOUNTS_LEN,
 };
 use s_controller_lib::{
-    calc_add_liquidity, calc_lp_tokens_to_mint, index_to_usize,
+    calc_add_liquidity_protocol_fees, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
-    CalcAddLiquidityArgs, CalcAddLiquidityResult, LpTokenRateArgs, PoolStateAccount,
+    CalcAddLiquidityArgs, CalcAddLiquidityProtocolFeesResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
     token_2022::{mint_to_signed, MintToAccounts},
@@ -51,11 +51,15 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
             amount: lst_amount,
             sol_value: lst_amount_sol_value,
         })?;
+    // Will dilute existing LPs if unchecked
+    if lst_amount_sol_value_after_fees > lst_amount_sol_value {
+        return Err(SControllerError::PoolWouldLoseSolValue.into());
+    }
 
-    let CalcAddLiquidityResult {
+    let CalcAddLiquidityProtocolFeesResult {
         to_reserves_lst_amount,
         to_protocol_fees_lst_amount,
-    } = calc_add_liquidity(CalcAddLiquidityArgs {
+    } = calc_add_liquidity_protocol_fees(CalcAddLiquidityArgs {
         lst_amount,
         lst_amount_sol_value,
         lst_amount_sol_value_after_fees,
@@ -71,6 +75,10 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         },
         lst_amount_sol_value_after_fees,
     )?;
+
+    if to_reserves_lst_amount == 0 || lp_tokens_to_mint == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
 
     transfer_tokens(
         TransferTokensAccounts {
@@ -125,6 +133,10 @@ fn verify_add_liquidity<'a, 'info>(
     ),
     ProgramError,
 > {
+    if lst_amount == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
+
     let lst_index = index_to_usize(lst_index)?;
 
     let actual: AddLiquidityAccounts = load_accounts(accounts)?;

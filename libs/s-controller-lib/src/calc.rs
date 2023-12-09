@@ -7,7 +7,8 @@ pub struct LpTokenRateArgs {
 }
 
 /// Args:
-/// - `final_sol_value`: result of calling `PriceLpTokensToMint(LstToSol(lst_amount_to_add))`
+/// - `final_sol_value`: sol_value of the LST that is being added to the pool_reserves,
+///                      result of calling `PriceLpTokensToMint(LstToSol(lst_amount_to_add))`
 ///
 /// Returns amount of LP tokens to mint
 pub fn calc_lp_tokens_to_mint(
@@ -17,7 +18,7 @@ pub fn calc_lp_tokens_to_mint(
     }: LpTokenRateArgs,
     final_sol_value_to_add: u64,
 ) -> Result<u64, MathError> {
-    // edge-case: 0, just do 1:1
+    // edge-case: either sol_value or token_supply 0, just do 1:1
     if pool_total_sol_value == 0 || lp_token_supply == 0 {
         return Ok(final_sol_value_to_add);
     }
@@ -54,14 +55,15 @@ pub struct CalcAddLiquidityArgs {
     /// Result of CPI LstToSol(lst_amount)
     pub lst_amount_sol_value: u64,
 
-    /// Result of CPI PriceLpTokensToMint(lst_amount, sol_value_to_add)
+    /// Result of CPI PriceLpTokensToMint(lst_amount, sol_value_to_add).
+    /// lst_amount_sol_value = lst_amount_sol_value_after_fees + protocol_fees + non_protocol_fees
     pub lst_amount_sol_value_after_fees: u64,
 
     pub lp_protocol_fee_bps: u16,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CalcAddLiquidityResult {
+pub struct CalcAddLiquidityProtocolFeesResult {
     /// Amount of LST to transfer to pool_reserves
     pub to_reserves_lst_amount: u64,
 
@@ -69,14 +71,14 @@ pub struct CalcAddLiquidityResult {
     pub to_protocol_fees_lst_amount: u64,
 }
 
-pub fn calc_add_liquidity(
+pub fn calc_add_liquidity_protocol_fees(
     CalcAddLiquidityArgs {
         lst_amount,
         lst_amount_sol_value,
         lst_amount_sol_value_after_fees,
         lp_protocol_fee_bps,
     }: CalcAddLiquidityArgs,
-) -> Result<CalcAddLiquidityResult, MathError> {
+) -> Result<CalcAddLiquidityProtocolFeesResult, MathError> {
     let lp_fees_sol_value = lst_amount_sol_value.saturating_sub(lst_amount_sol_value_after_fees);
     let AmtsAfterFee {
         fees_charged: protocol_fees_sol_value,
@@ -90,7 +92,7 @@ pub fn calc_add_liquidity(
     let to_reserves_lst_amount = lst_amount
         .checked_sub(to_protocol_fees_lst_amount)
         .ok_or(MathError)?;
-    Ok(CalcAddLiquidityResult {
+    Ok(CalcAddLiquidityProtocolFeesResult {
         to_protocol_fees_lst_amount,
         to_reserves_lst_amount,
     })

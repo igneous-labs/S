@@ -71,6 +71,10 @@ pub fn process_remove_liquidity(
             lp_protocol_fee_bps: accounts.pool_state.lp_protocol_fee_bps()?,
         })?;
 
+    if to_user_lst_amount == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
+
     burn_tokens(
         BurnTokensAccounts {
             mint: accounts.lp_token_mint,
@@ -121,6 +125,10 @@ fn verify_remove_liquidity<'a, 'info>(
     ),
     ProgramError,
 > {
+    if lp_token_amount == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
+
     let lst_index = index_to_usize(lst_index)?;
 
     let actual: RemoveLiquidityAccounts = load_accounts(accounts)?;
