@@ -1,15 +1,11 @@
 use flat_fee_interface::{remove_lst_ix, RemoveLstIxArgs};
-use flat_fee_lib::{
-    account_resolvers::RemoveLstByMintFreeArgs, pda::FeeAccountFindPdaArgs, program::STATE_ID,
-};
+use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
-use solana_program::pubkey::Pubkey;
-use solana_program_test::BanksClient;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use test_utils::{banks_client_get_account, jitosol};
 
-use crate::common::normal_program_test;
+use crate::common::{normal_program_test, verify_fee_account_does_not_exist};
 
 #[tokio::test]
 async fn remove_lst_basic() {
@@ -42,11 +38,5 @@ async fn remove_lst_basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    verify_lst_removed(&mut banks_client, jitosol::ID).await;
-}
-
-async fn verify_lst_removed(banks_client: &mut BanksClient, lst_mint: Pubkey) {
-    let (addr, _bump) = FeeAccountFindPdaArgs { lst_mint }.get_fee_account_address_and_bump_seed();
-    let deleted_fee_account = banks_client.get_account(addr).await.unwrap();
-    assert!(deleted_fee_account.is_none());
+    verify_fee_account_does_not_exist(&mut banks_client, jitosol::ID).await;
 }
