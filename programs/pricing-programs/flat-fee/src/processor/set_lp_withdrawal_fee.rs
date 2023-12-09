@@ -31,9 +31,9 @@ fn verify_set_lp_withdrawal_fee<'me, 'info>(
     let actual: SetLpWithdrawalFeeAccounts = load_accounts(accounts)?;
 
     let free_args = SetLpWithdrawalFeeFreeArgs {
-        manager: *actual.manager.key,
+        state_acc: actual.state,
     };
-    let expected: SetLpWithdrawalFeeKeys = free_args.resolve();
+    let expected: SetLpWithdrawalFeeKeys = free_args.resolve()?;
 
     set_lp_withdrawal_fee_verify_account_keys(&actual, &expected)
         .map_err(log_and_return_wrong_acc_err)?;
