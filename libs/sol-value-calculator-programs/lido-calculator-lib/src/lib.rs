@@ -32,12 +32,24 @@ impl GenericPoolSolValCalc for LidoSolValCalc {
 }
 
 mod account_resolvers {
+    use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
     use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
     use lido_keys::{lido_state, stsol};
+    use solana_program::instruction::AccountMeta;
+
+    use crate::LidoSolValCalc;
 
     pub const LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS: LstSolCommonIntermediateKeys =
         LstSolCommonIntermediateKeys {
             lst_mint: stsol::ID,
             pool_state: lido_state::ID,
         };
+
+    pub fn lido_sol_val_calc_account_metas() -> [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
+        let lido_sol_val_calc_keys: generic_pool_calculator_interface::SolToLstKeys =
+            LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS
+                .resolve::<LidoSolValCalc>()
+                .into();
+        (&lido_sol_val_calc_keys).into()
+    }
 }

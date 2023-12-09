@@ -3343,6 +3343,10 @@ version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
  "bytemuck",
+ "flat-fee",
+ "flat-fee-lib",
+ "flat-fee-test-utils",
+ "flat_fee_interface",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "marinade-calculator",

@@ -7,20 +7,30 @@ use crate::{AmtsAfterFee, MathError, U64FeeCeil, BPS_DENOMINATOR};
 pub struct U64BpsFeeCeil(pub u16);
 
 impl U64BpsFeeCeil {
-    /// Errors if value > 10_000 (fee > 100%)
-    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFee, MathError> {
+    pub const fn as_u64_fee_ceil(&self) -> U64FeeCeil<u16, u16> {
         U64FeeCeil {
             fee_num: self.0,
             fee_denom: BPS_DENOMINATOR,
         }
-        .apply(amt)
+    }
+
+    /// Errors if value > 10_000 (fee > 100%)
+    pub fn apply(&self, amt: u64) -> Result<AmtsAfterFee, MathError> {
+        self.as_u64_fee_ceil().apply(amt)
     }
 
     pub fn is_valid(&self) -> bool {
         self.0 <= BPS_DENOMINATOR
     }
 
-    // TODO: pseudo_reverse()
+    /// Returns a possible amount that was fed into self.apply()
+    ///
+    /// Returns `amt_after_apply` if fee_num == 0 || fee_denom == 0
+    ///
+    /// Errors if fee_num > fee_denom (fee > 100%)
+    pub fn pseudo_reverse(&self, amt_after_fee: u64) -> Result<u64, MathError> {
+        self.as_u64_fee_ceil().pseudo_reverse(amt_after_fee)
+    }
 }
 
 #[cfg(test)]

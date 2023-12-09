@@ -16,7 +16,7 @@ pub struct AddLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
 
 impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
     pub fn resolve(self) -> Result<(AddLstKeys, FeeAccountCreatePdaArgs), FlatFeeError> {
-        let AddLstFreeArgs {
+        let Self {
             payer,
             state_acc,
             lst_mint,
