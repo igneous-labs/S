@@ -10,7 +10,7 @@ pub struct LpTokenRateArgs {
 /// - `final_sol_value`: sol_value of the LST that is being added to the pool_reserves,
 ///                      result of calling `PriceLpTokensToMint(LstToSol(lst_amount_to_add))`
 ///
-/// Returns amount of LP tokens to mint
+/// Returns amount of LP tokens to mint to the user
 pub fn calc_lp_tokens_to_mint(
     LpTokenRateArgs {
         lp_token_supply,
@@ -18,8 +18,16 @@ pub fn calc_lp_tokens_to_mint(
     }: LpTokenRateArgs,
     final_sol_value_to_add: u64,
 ) -> Result<u64, MathError> {
-    // edge-case: either sol_value or token_supply 0, just do 1:1
-    if pool_total_sol_value == 0 || lp_token_supply == 0 {
+    // edge-case: if LP supply 0,
+    // make it s.t. lp_token:sol_value 1:1 exchange rate
+    if lp_token_supply == 0 {
+        return pool_total_sol_value
+            .checked_add(final_sol_value_to_add)
+            .ok_or(MathError);
+    }
+    // edge-case: if LP supply nonzero but pool sol value 0,
+    // mint == final_sol_value_to_add. This dilutes the LPer
+    if pool_total_sol_value == 0 {
         return Ok(final_sol_value_to_add);
     }
     let res = U64RatioFloor {
@@ -30,6 +38,7 @@ pub fn calc_lp_tokens_to_mint(
     Ok(res)
 }
 
+/// Returns SOL value of `lp_tokens_amount`
 pub fn calc_lp_tokens_sol_value(
     LpTokenRateArgs {
         lp_token_supply,

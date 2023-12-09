@@ -5,24 +5,24 @@ use solana_program_test::{processor, ProgramTest};
 
 use crate::common::{pool_state_to_account, MockProtocolFeeBps};
 
-use super::{jito_marinade_base_program_test, JitoMarinadeProgramTestArgs};
+use super::{lido_wsol_base_program_test, LidoWsolProgramTestArgs};
 
 /// dont forget to
 ///
 /// ```rust ignore
 /// let ctx = program_test.start_with_context();
 /// ctx.set_sysvar(&Clock {
-///     epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+///     epoch: LIDO_STATE_LAST_UPDATE_EPOCH,
 ///     ..Default::default()
 /// });
 /// ```
-pub fn jito_marinade_flat_fee_program_test(
-    args: JitoMarinadeProgramTestArgs,
+pub fn lido_wsol_flat_fee_program_test(
+    args: LidoWsolProgramTestArgs,
     flat_fee_state: flat_fee_interface::ProgramState,
     mock_fee_accounts: [MockFeeAccountArgs; 2],
     MockProtocolFeeBps { trading, lp }: MockProtocolFeeBps,
 ) -> ProgramTest {
-    let (mut program_test, mut pool_state) = jito_marinade_base_program_test(args);
+    let (mut program_test, mut pool_state) = lido_wsol_base_program_test(args);
     program_test.add_program(
         "flat_fee",
         flat_fee_interface::ID,

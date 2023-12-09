@@ -15,6 +15,12 @@ use spl_token_2022::extension::{
 use spl_token_metadata_interface::state::TokenMetadata;
 use test_utils::{banks_client_get_account, est_rent_exempt_lamports};
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct MockProtocolFeeBps {
+    pub trading: u16,
+    pub lp: u16,
+}
+
 pub const DEFAULT_POOL_STATE: PoolState = PoolState {
     total_sol_value: 0,
     trading_protocol_fee_bps: 0,

@@ -34,17 +34,22 @@ flat-fee-lib = { path = "../../libs/pricing-programs/flat-fee-lib" }
 flat-fee-test-utils = { path = "../../libs/pricing-programs/flat-fee-test-utils" }
 generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
-s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }
-solana-program-test = { workspace = true }
-solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
-solana-sdk = { workspace = true }
+lido-calculator = { path = "../sol-value-calculator-programs/lido-calculator", features = ["no-entrypoint"] }
+lido-calculator-lib = { path = "../../libs/sol-value-calculator-programs/lido-calculator-lib" }
+lido-keys = { path = "../../keys/lido-keys" }
 marinade-calculator = { path = "../sol-value-calculator-programs/marinade-calculator", features = ["no-entrypoint"] }
 marinade-calculator-lib = { path = "../../libs/sol-value-calculator-programs/marinade-calculator-lib" }
 marinade-keys = { path = "../../keys/marinade-keys" }
 no-fee-pricing-program = { path = "../pricing-programs/no-fee-pricing-program", features = ["no-entrypoint"] }
+s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }
+solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+solana-sdk = { workspace = true }
 spl-calculator = { path = "../sol-value-calculator-programs/spl-calculator", features = ["no-entrypoint"] }
 spl-calculator-lib = { path = "../../libs/sol-value-calculator-programs/spl-calculator-lib" }
 spl-pod = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
 test-utils = { path = "../../test-utils" }
 tokio = { workspace = true }
+wsol-calculator = { path = "../sol-value-calculator-programs/wsol-calculator", features = ["no-entrypoint"] }
+wsol-calculator-lib = { path = "../../libs/sol-value-calculator-programs/wsol-calculator-lib" }

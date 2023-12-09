@@ -3349,6 +3349,9 @@ dependencies = [
  "flat_fee_interface",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
+ "lido-calculator",
+ "lido-calculator-lib",
+ "lido-keys",
  "marinade-calculator",
  "marinade-calculator-lib",
  "marinade-keys",
@@ -3372,6 +3375,8 @@ dependencies = [
  "spl-token-metadata-interface",
  "test-utils",
  "tokio",
+ "wsol-calculator",
+ "wsol-calculator-lib",
 ]
 
 [[package]]

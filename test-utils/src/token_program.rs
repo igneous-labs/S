@@ -36,8 +36,12 @@ pub fn mock_token_account(
     };
     let mut data = vec![0u8; spl_token::state::Account::LEN];
     spl_token::state::Account::pack(token_account, &mut data).unwrap();
+    let mut lamports = TOKEN_ACC_RENT_EXEMPT_LAMPORTS;
+    if is_native {
+        lamports += amount;
+    }
     Account {
-        lamports: TOKEN_ACC_RENT_EXEMPT_LAMPORTS,
+        lamports,
         data,
         owner: spl_token::ID,
         executable: false,
