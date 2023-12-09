@@ -94,7 +94,7 @@ async fn add_lst_fail_invalid_fee() {
         tx.sign(&[&payer, &manager], last_blockhash);
 
         let err = banks_client.process_transaction(tx).await.unwrap_err();
-        assert_custom_err(err, FlatFeeError::MathError);
+        assert_custom_err(err, FlatFeeError::SignedFeeOutOfBound);
 
         verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
     }
