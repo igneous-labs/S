@@ -2,13 +2,14 @@ use flat_fee_interface::{remove_lst_ix, RemoveLstIxArgs};
 use flat_fee_lib::{
     account_resolvers::RemoveLstByMintFreeArgs, pda::FeeAccountFindPdaArgs, program::STATE_ID,
 };
+use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use test_utils::{banks_client_get_account, jitosol};
 
-use crate::common::{normal_program_test, MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
+use crate::common::normal_program_test;
 
 #[tokio::test]
 async fn remove_lst_basic() {

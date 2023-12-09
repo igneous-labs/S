@@ -13,7 +13,7 @@ pub const DEFAULT_PROGRAM_STATE: ProgramState = ProgramState {
     lp_withdrawal_fee_bps: INITIAL_LP_WITHDRAWAL_FEE_BPS,
 };
 
-pub fn program_state_to_account(state: ProgramState) -> Account {
+pub fn flat_fee_program_state_to_account(state: ProgramState) -> Account {
     let mut data = vec![0u8; STATE_SIZE];
     let dst = try_program_state_mut(&mut data).unwrap();
     *dst = state;
@@ -26,6 +26,6 @@ pub fn program_state_to_account(state: ProgramState) -> Account {
     }
 }
 
-pub async fn banks_client_get_program_state_acc(banks_client: &mut BanksClient) -> Account {
+pub async fn banks_client_get_flat_fee_program_state(banks_client: &mut BanksClient) -> Account {
     banks_client_get_account(banks_client, flat_fee_lib::program::STATE_ID).await
 }
