@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 no-entrypoint = []
+testing = ["flat-fee-lib/testing"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -19,6 +20,7 @@ sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
 solana-program = { workspace = true }
 
 [dev-dependencies]
+flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib", features = ["testing"] }
 flat-fee-test-utils = { path = "../../../libs/pricing-programs/flat-fee-test-utils" }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
