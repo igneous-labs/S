@@ -1,8 +1,20 @@
-use flat_fee_interface::{set_lst_fee_ix, SetLstFeeIxArgs};
-use flat_fee_lib::account_resolvers::SetLstFeeFreeArgs;
-use solana_program_test::{processor, ProgramTest};
-use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::test_fixtures_dir;
+use flat_fee_interface::{set_lst_fee_ix, FlatFeeError, SetLstFeeIxArgs};
+use flat_fee_lib::{
+    account_resolvers::SetLstFeeByMintFreeArgs, program::STATE_ID, utils::try_fee_account,
+};
+use flat_fee_test_utils::{
+    flat_fee_program_state_to_account, MockFeeAccountArgs, DEFAULT_PROGRAM_STATE,
+};
+use solana_program::program_error::ProgramError;
+use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_sdk::{
+    signature::{read_keypair_file, Keypair},
+    signer::Signer,
+    transaction::Transaction,
+};
+use test_utils::{
+    assert_custom_err, assert_program_error, banks_client_get_account, jitosol, test_fixtures_dir,
+};
 
 use crate::common::*;
 
@@ -11,41 +23,131 @@ async fn basic() {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("flat-fee-test-initial-manager-key.json"))
             .unwrap();
-    // TODO: mock_lst_mint
 
-    let mut program_test = ProgramTest::default();
-
-    program_test.add_program(
-        "flat_fee",
-        flat_fee_lib::program::ID,
-        processor!(flat_fee::entrypoint::process_instruction),
-    );
-    // TODO: add FeeAccount for mock_lst_mint
-
-    let program_state_acc = program_state_to_account(DEFAULT_PROGRAM_STATE);
-    program_test.add_account(flat_fee_lib::program::STATE_ID, program_state_acc.clone());
+    const INITIAL_FEE_BPS: i16 = 1;
+    let mock_fee_account_args = MockFeeAccountArgs {
+        input_fee_bps: INITIAL_FEE_BPS,
+        output_fee_bps: INITIAL_FEE_BPS,
+        lst_mint: jitosol::ID,
+    };
+    let (_, mock_fee_account_pk) = mock_fee_account_args.to_fee_account_and_addr();
+    let program_test = normal_program_test(DEFAULT_PROGRAM_STATE, &[mock_fee_account_args]);
+    let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     // set lst fee
-    // {
-    //     let ix = set_lst_fee_ix(
-    //         SetLstFeeFreeArgs {
-    //             fee_acc: todo!(),
-    //             state_acc: todo!(),
-    //         }
-    //         .resolve()
-    //         .unwrap(),
-    //         SetLstFeeIxArgs {
-    //             input_fee_bps: todo!(),
-    //             output_fee_bps: todo!(),
-    //         },
-    //     )
-    //     .unwrap();
+    {
+        const NEW_INPUT_FEE_BPS: i16 = -2;
+        const NEW_OUTPUT_FEE_BPS: i16 = 10000;
 
-    //     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-    //     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+        let ix = set_lst_fee_ix(
+            SetLstFeeByMintFreeArgs {
+                lst_mint: jitosol::ID,
+                state_acc: KeyedReadonlyAccount {
+                    key: STATE_ID,
+                    account: program_state_acc.clone(),
+                },
+            }
+            .resolve()
+            .unwrap(),
+            SetLstFeeIxArgs {
+                input_fee_bps: NEW_INPUT_FEE_BPS,
+                output_fee_bps: NEW_OUTPUT_FEE_BPS,
+            },
+        )
+        .unwrap();
 
-    //     banks_client.process_transaction(tx).await.unwrap();
-    // }
+        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+        tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+        banks_client.process_transaction(tx).await.unwrap();
+
+        let fee_account_acc =
+            banks_client_get_account(&mut banks_client, mock_fee_account_pk).await;
+        let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
+
+        assert_eq!(fee_account.input_fee_bps, NEW_INPUT_FEE_BPS);
+        assert_eq!(fee_account.output_fee_bps, NEW_OUTPUT_FEE_BPS);
+    }
+
+    // reject out of bound
+    {
+        const NEW_INPUT_FEE_BPS: i16 = 10001;
+        const NEW_OUTPUT_FEE_BPS: i16 = 10;
+
+        let ix = set_lst_fee_ix(
+            SetLstFeeByMintFreeArgs {
+                lst_mint: jitosol::ID,
+                state_acc: KeyedReadonlyAccount {
+                    key: STATE_ID,
+                    account: program_state_acc.clone(),
+                },
+            }
+            .resolve()
+            .unwrap(),
+            SetLstFeeIxArgs {
+                input_fee_bps: NEW_INPUT_FEE_BPS,
+                output_fee_bps: NEW_OUTPUT_FEE_BPS,
+            },
+        )
+        .unwrap();
+
+        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+        tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+        let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+        assert_custom_err(err, FlatFeeError::SignedFeeOutOfBound);
+
+        let fee_account_acc =
+            banks_client_get_account(&mut banks_client, mock_fee_account_pk).await;
+        let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
+
+        assert_ne!(fee_account.input_fee_bps, NEW_INPUT_FEE_BPS);
+        assert_ne!(fee_account.output_fee_bps, NEW_OUTPUT_FEE_BPS);
+    }
+
+    // reject unauthorized
+    {
+        const NEW_INPUT_FEE_BPS: i16 = -200;
+        const NEW_OUTPUT_FEE_BPS: i16 = -201;
+
+        let rando_kp = Keypair::new();
+
+        let mut keys = SetLstFeeByMintFreeArgs {
+            lst_mint: jitosol::ID,
+            state_acc: KeyedReadonlyAccount {
+                key: STATE_ID,
+                account: program_state_acc.clone(),
+            },
+        }
+        .resolve()
+        .unwrap();
+
+        keys.manager = rando_kp.pubkey();
+
+        let ix = set_lst_fee_ix(
+            keys,
+            SetLstFeeIxArgs {
+                input_fee_bps: NEW_INPUT_FEE_BPS,
+                output_fee_bps: NEW_OUTPUT_FEE_BPS,
+            },
+        )
+        .unwrap();
+
+        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+        tx.sign(&[&payer, &rando_kp], last_blockhash);
+
+        let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+        assert_program_error(err, ProgramError::InvalidArgument);
+
+        let fee_account_acc =
+            banks_client_get_account(&mut banks_client, mock_fee_account_pk).await;
+        let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
+
+        assert_ne!(fee_account.input_fee_bps, NEW_INPUT_FEE_BPS);
+        assert_ne!(fee_account.output_fee_bps, NEW_OUTPUT_FEE_BPS);
+    }
 }

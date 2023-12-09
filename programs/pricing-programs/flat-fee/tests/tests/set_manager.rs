@@ -31,7 +31,7 @@ async fn basic() {
     );
 
     let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
-    program_test.add_account(flat_fee_lib::program::STATE_ID, program_state_acc.clone());
+    program_test.add_account(STATE_ID, program_state_acc.clone());
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
