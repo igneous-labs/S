@@ -1,8 +1,14 @@
-use flat_fee_interface::PriceExactOutKeys;
-use solana_program::pubkey::{Pubkey, PubkeyError};
+use flat_fee_interface::{PriceExactOutKeys, PRICE_EXACT_OUT_IX_ACCOUNTS_LEN};
+use solana_program::{
+    instruction::AccountMeta,
+    pubkey::{Pubkey, PubkeyError},
+};
 
 use crate::pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs};
 
+/// Uses find_program_address, for use with
+/// - initial creation
+/// - client side
 pub struct PriceExactOutFreeArgs {
     pub input_lst_mint: Pubkey,
     pub output_lst_mint: Pubkey,
@@ -26,6 +32,11 @@ impl PriceExactOutFreeArgs {
             input_fee_acc,
             output_fee_acc,
         }
+    }
+
+    pub fn resolve_to_account_metas(self) -> [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] {
+        let keys = self.resolve();
+        (&keys).into()
     }
 }
 

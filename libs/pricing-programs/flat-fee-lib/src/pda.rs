@@ -31,6 +31,6 @@ impl FeeAccountCreatePdaArgs {
     }
 
     pub fn get_fee_account_address(&self) -> Result<Pubkey, PubkeyError> {
-        Pubkey::create_program_address(self.to_signer_seeds().as_slice(), &program::ID)
+        Pubkey::create_program_address(&self.to_signer_seeds(), &program::ID)
     }
 }

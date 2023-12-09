@@ -35,11 +35,28 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeCeil<N, D> {
         })
     }
 
+    /// Returns a possible amount that was fed into self.apply()
+    ///
+    /// Returns `amt_after_apply` if fee_num == 0 || fee_denom == 0
+    ///
+    /// Errors if fee_num > fee_denom (fee > 100%)
+    pub fn pseudo_reverse(&self, amt_after_fee: u64) -> Result<u64, MathError> {
+        let n: u128 = self.fee_num.into();
+        let d: u128 = self.fee_denom.into();
+        if n == 0 || d == 0 {
+            return Ok(amt_after_fee);
+        }
+        let num = d.checked_sub(n).ok_or(MathError)?;
+        U64RatioFloor {
+            num,
+            denom: self.fee_denom,
+        }
+        .pseudo_reverse(amt_after_fee)
+    }
+
     pub fn is_valid(&self) -> bool {
         self.fee_num.into() <= self.fee_denom.into()
     }
-
-    // TODO: pseudo_reverse()
 }
 
 #[cfg(test)]
