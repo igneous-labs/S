@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 no-entrypoint = []
+testing = ["flat-fee-lib/testing"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
