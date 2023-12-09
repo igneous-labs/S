@@ -1,11 +1,14 @@
 use borsh::BorshDeserialize;
-use generic_pool_calculator_interface::GenericPoolCalculatorError;
+use generic_pool_calculator_interface::{GenericPoolCalculatorError, LST_TO_SOL_IX_ACCOUNTS_LEN};
 use generic_pool_calculator_lib::account_resolvers::{
     LstSolCommonIntermediateArgs, LstSolCommonIntermediateKeys,
 };
+use solana_program::instruction::AccountMeta;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 use spl_calculator_interface::{AccountType, SplStakePool};
 use spl_stake_pool_keys::spl_stake_pool_program;
+
+use crate::SplSolValCalc;
 
 fn deserialize_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
     spl_stake_pool: S,
@@ -67,5 +70,13 @@ impl<S: KeyedAccount + ReadonlyAccountData + ReadonlyAccountOwner> SplLstSolComm
             lst_mint: stake_pool.pool_mint,
             pool_state: *self.spl_stake_pool.key(),
         })
+    }
+
+    pub fn resolve_to_account_metas(
+        self,
+    ) -> Result<[AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN], GenericPoolCalculatorError> {
+        let keys: generic_pool_calculator_interface::LstToSolKeys =
+            self.resolve()?.resolve::<SplSolValCalc>().into();
+        Ok((&keys).into())
     }
 }

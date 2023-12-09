@@ -70,7 +70,7 @@ pub fn mock_lp_mint(mint_addr: Pubkey, supply: u64) -> Account {
         freeze_authority: COption::Some(POOL_STATE_ID),
     };
     state.pack_base();
-    state.init_account_type();
+    state.init_account_type().unwrap();
     let token_metadata = TokenMetadata {
         name: DEFAULT_LP_TOKEN_METADATA_NAME.into(),
         symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.into(),

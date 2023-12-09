@@ -3,7 +3,6 @@ use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address, try_lst_state_list_mut,
     FindLstPdaAtaKeys, LST_STATE_SIZE,
 };
-use sanctum_utils::associated_token::{find_ata_address, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::account::Account;

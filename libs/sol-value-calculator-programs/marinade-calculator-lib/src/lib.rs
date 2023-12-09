@@ -32,12 +32,24 @@ impl GenericPoolSolValCalc for MarinadeSolValCalc {
 }
 
 mod account_resolvers {
+    use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
     use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
     use marinade_keys::{marinade_state, msol};
+    use solana_program::instruction::AccountMeta;
+
+    use crate::MarinadeSolValCalc;
 
     pub const MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS: LstSolCommonIntermediateKeys =
         LstSolCommonIntermediateKeys {
             lst_mint: msol::ID,
             pool_state: marinade_state::ID,
         };
+
+    pub fn marinade_sol_val_calc_account_metas() -> [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
+        let marinade_sol_val_calc_keys: generic_pool_calculator_interface::SolToLstKeys =
+            MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
+                .resolve::<MarinadeSolValCalc>()
+                .into();
+        (&marinade_sol_val_calc_keys).into()
+    }
 }

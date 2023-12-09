@@ -7,7 +7,7 @@ use s_controller_lib::{
 };
 use sanctum_utils::token::{token_2022_account_balance, token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
-use solana_program_test::{processor, ProgramTestContext};
+use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
@@ -29,7 +29,7 @@ async fn basic_add_liquidity_twice() {
     let liquidity_provider_msol_acc_addr = Pubkey::new_unique();
     let liquidity_provider_lp_token_acc_addr = Pubkey::new_unique();
 
-    let mut program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 0,
         msol_sol_value: 0,
         jitosol_reserves: 0,
@@ -39,11 +39,6 @@ async fn basic_add_liquidity_twice() {
         lp_token_mint,
         lp_token_supply: 0,
     });
-    program_test.add_program(
-        "no_fee_pricing_program",
-        no_fee_pricing_program::ID,
-        processor!(no_fee_pricing_program::process_instruction),
-    );
     program_test.add_account(
         liquidity_provider_jitosol_acc_addr,
         mock_token_account(MockTokenAccountArgs {

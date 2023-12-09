@@ -28,6 +28,10 @@ spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]
+flat_fee_interface = { path = "../../generated/pricing-programs/flat_fee_interface" }
+flat-fee = { path = "../pricing-programs/flat-fee", features = ["no-entrypoint"] }
+flat-fee-lib = { path = "../../libs/pricing-programs/flat-fee-lib" }
+flat-fee-test-utils = { path = "../../libs/pricing-programs/flat-fee-test-utils" }
 generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
 generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
 s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }

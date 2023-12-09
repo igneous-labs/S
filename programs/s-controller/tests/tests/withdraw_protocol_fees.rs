@@ -32,7 +32,7 @@ async fn basic_withdraw_protocol_fees() {
 
     let auth_msol_acc_addr = Pubkey::new_unique();
 
-    let mut program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 0,
         msol_sol_value: 0,
         jitosol_reserves: 0,

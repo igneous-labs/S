@@ -2,6 +2,10 @@ use flat_fee_interface::{set_manager_ix, SetManagerIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetManagerFreeArgs, program::STATE_ID, utils::try_program_state,
 };
+use flat_fee_test_utils::{
+    banks_client_get_flat_fee_program_state, flat_fee_program_state_to_account,
+    DEFAULT_PROGRAM_STATE,
+};
 use solana_program::program_error::ProgramError;
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
@@ -11,8 +15,6 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use test_utils::{assert_program_error, test_fixtures_dir};
-
-use crate::common::*;
 
 #[tokio::test]
 async fn basic() {
@@ -28,7 +30,7 @@ async fn basic() {
         processor!(flat_fee::entrypoint::process_instruction),
     );
 
-    let program_state_acc = program_state_to_account(DEFAULT_PROGRAM_STATE);
+    let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
     program_test.add_account(flat_fee_lib::program::STATE_ID, program_state_acc.clone());
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
@@ -55,7 +57,7 @@ async fn basic() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let state_acc = banks_client_get_program_state_acc(&mut banks_client).await;
+        let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
         let state = try_program_state(&state_acc.data).unwrap();
 
         assert_eq!(state.manager, new_manager_kp.pubkey());
@@ -63,7 +65,7 @@ async fn basic() {
 
     // set admin rejection
     {
-        let state_acc = banks_client_get_program_state_acc(&mut banks_client).await;
+        let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
         let state = try_program_state(&state_acc.data).unwrap();
         let original_manager = state.manager;
 
@@ -90,7 +92,7 @@ async fn basic() {
 
         assert_program_error(err, ProgramError::InvalidArgument);
 
-        let state_acc = banks_client_get_program_state_acc(&mut banks_client).await;
+        let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
         let state = try_program_state(&state_acc.data).unwrap();
 
         assert_eq!(state.manager, original_manager);
