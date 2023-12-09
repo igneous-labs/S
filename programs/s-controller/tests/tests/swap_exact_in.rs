@@ -20,18 +20,18 @@ use test_utils::{
 use crate::common::*;
 
 #[tokio::test]
-async fn basic_no_fee() {
-    const JITOSOL_POOL_RESERVES: u64 = 10_000_000_000;
-    const MSOL_POOL_RESERVES: u64 = 10_000_000_000;
+async fn basic_swap_exact_in_no_fee() {
+    const JITOSOL_STARTING_POOL_RESERVES: u64 = 10_000_000_000;
+    const MSOL_STARTING_POOL_RESERVES: u64 = 10_000_000_000;
     const MSOL_TO_SWAP_IN: u64 = 1_000_000_000;
 
     let swapper = Keypair::new();
 
     let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
-        jitosol_reserves: JITOSOL_POOL_RESERVES,
-        msol_reserves: MSOL_POOL_RESERVES,
-        jitosol_sol_value: JITOSOL_POOL_RESERVES, // updated on sync
-        msol_sol_value: MSOL_POOL_RESERVES,       // updated on sync
+        jitosol_reserves: JITOSOL_STARTING_POOL_RESERVES,
+        msol_reserves: MSOL_STARTING_POOL_RESERVES,
+        jitosol_sol_value: JITOSOL_STARTING_POOL_RESERVES, // updated on sync
+        msol_sol_value: MSOL_STARTING_POOL_RESERVES,       // updated on sync
         // dont cares
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
@@ -150,14 +150,14 @@ async fn basic_no_fee() {
         banks_client_get_account(&mut banks_client, msol_pool_reserves).await;
     assert_eq!(
         token_account_balance(msol_pool_reserves_account).unwrap(),
-        MSOL_POOL_RESERVES + MSOL_TO_SWAP_IN
+        MSOL_STARTING_POOL_RESERVES + MSOL_TO_SWAP_IN
     );
 
     let jitosol_pool_reserves_account =
         banks_client_get_account(&mut banks_client, jitosol_pool_reserves).await;
     assert_eq!(
         token_account_balance(jitosol_pool_reserves_account).unwrap(),
-        JITOSOL_POOL_RESERVES - jitosol_received
+        JITOSOL_STARTING_POOL_RESERVES - jitosol_received
     );
 
     let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
@@ -168,9 +168,9 @@ async fn basic_no_fee() {
 }
 
 #[tokio::test]
-async fn basic_flat_fee() {
-    const JITOSOL_POOL_RESERVES: u64 = 10_000_000_000;
-    const MSOL_POOL_RESERVES: u64 = 10_000_000_000;
+async fn basic_swap_exact_in_flat_fee() {
+    const JITOSOL_STARTING_POOL_RESERVES: u64 = 10_000_000_000;
+    const MSOL_STARTING_POOL_RESERVES: u64 = 10_000_000_000;
     const MSOL_TO_SWAP_IN: u64 = 1_000_000_000;
 
     const JITOSOL_OUT_FEE_BPS: i16 = 6;
@@ -181,10 +181,10 @@ async fn basic_flat_fee() {
 
     let mut program_test = jito_marinade_flat_fee_program_test(
         JitoMarinadeProgramTestArgs {
-            jitosol_reserves: JITOSOL_POOL_RESERVES,
-            msol_reserves: MSOL_POOL_RESERVES,
-            jitosol_sol_value: JITOSOL_POOL_RESERVES, // updated on sync
-            msol_sol_value: MSOL_POOL_RESERVES,       // updated on sync
+            jitosol_reserves: JITOSOL_STARTING_POOL_RESERVES,
+            msol_reserves: MSOL_STARTING_POOL_RESERVES,
+            jitosol_sol_value: JITOSOL_STARTING_POOL_RESERVES, // updated on sync
+            msol_sol_value: MSOL_STARTING_POOL_RESERVES,       // updated on sync
             // dont cares
             jitosol_protocol_fee_accumulator: 0,
             msol_protocol_fee_accumulator: 0,
@@ -318,7 +318,7 @@ async fn basic_flat_fee() {
         banks_client_get_account(&mut banks_client, msol_pool_reserves).await;
     assert_eq!(
         token_account_balance(msol_pool_reserves_account).unwrap(),
-        MSOL_POOL_RESERVES + MSOL_TO_SWAP_IN
+        MSOL_STARTING_POOL_RESERVES + MSOL_TO_SWAP_IN
     );
 
     let jitosol_pool_reserves_account =
@@ -332,7 +332,7 @@ async fn basic_flat_fee() {
     assert!(protocol_fee_accumulator_balance > 0);
     assert_eq!(
         jitosol_pool_reserves_balance + jitosol_received + protocol_fee_accumulator_balance,
-        JITOSOL_POOL_RESERVES
+        JITOSOL_STARTING_POOL_RESERVES
     );
 
     // TODO: verify fee percentages and amounts
