@@ -25,7 +25,7 @@ async fn basic_set_marinade() {
             .unwrap();
 
     let program_test = program_test_add_mock_lst_states(
-        jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+        jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
             // these are overriden below
             msol_reserves: MSOL_POOL_RESERVES,
             msol_sol_value: MSOL_POOL_RESERVES,
@@ -99,7 +99,7 @@ async fn basic_set_marinade() {
 
 #[tokio::test]
 async fn fail_unauthorized() {
-    let program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         // dont cares
         msol_reserves: 0,
         msol_sol_value: 0,

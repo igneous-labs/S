@@ -97,16 +97,9 @@ impl JitoMarinadeProgramTestArgs {
     }
 }
 
-/// dont forget to
-///
-/// ```rust ignore
-/// let ctx = program_test.start_with_context();
-/// ctx.set_sysvar(&Clock {
-///     epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
-///     ..Default::default()
-/// });
-/// ```
-pub fn jito_marinade_program_test(
+/// Need to set pricing_program_id on returned PoolState
+/// before adding
+fn jito_marinade_base_program_test(
     JitoMarinadeProgramTestArgs {
         jitosol_sol_value,
         msol_sol_value,
@@ -117,15 +110,15 @@ pub fn jito_marinade_program_test(
         lp_token_mint,
         lp_token_supply,
     }: JitoMarinadeProgramTestArgs,
-) -> ProgramTest {
+) -> (ProgramTest, PoolState) {
     let mut program_test = ProgramTest::default();
-
     // name must match <name>.so filename
     program_test.add_program(
         "s_controller",
         s_controller_lib::program::ID,
         processor!(s_controller::entrypoint::process_instruction),
     );
+
     program_test = add_spl_progs(program_test);
     program_test = add_marinade_progs(program_test);
     program_test = add_jito_stake_pool(program_test);
@@ -151,20 +144,38 @@ pub fn jito_marinade_program_test(
             },
         ],
     );
+    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
+
     let total_sol_value = jitosol_sol_value + msol_sol_value;
 
     let mut pool_state = DEFAULT_POOL_STATE;
-    // TODO: set other state vars
     pool_state.total_sol_value = total_sol_value;
     pool_state.lp_token_mint = lp_token_mint;
-    pool_state.pricing_program = no_fee_pricing_program::ID;
 
+    (program_test, pool_state)
+}
+
+/// dont forget to
+///
+/// ```rust ignore
+/// let ctx = program_test.start_with_context();
+/// ctx.set_sysvar(&Clock {
+///     epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+///     ..Default::default()
+/// });
+/// ```
+pub fn jito_marinade_no_fee_program_test(args: JitoMarinadeProgramTestArgs) -> ProgramTest {
+    let (mut program_test, mut pool_state) = jito_marinade_base_program_test(args);
+    program_test.add_program(
+        "no_fee_pricing_program",
+        no_fee_pricing_program::ID,
+        processor!(no_fee_pricing_program::process_instruction),
+    );
+    pool_state.pricing_program = no_fee_pricing_program::ID;
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_to_account(pool_state),
     );
-    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
-
     program_test
 }
 

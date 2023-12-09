@@ -22,7 +22,7 @@ async fn basic_two_clear_from_front() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 0,
         msol_sol_value: 0,
         jitosol_reserves: 0,
@@ -54,7 +54,7 @@ async fn basic_two_clear_from_back() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 0,
         msol_sol_value: 0,
         jitosol_reserves: 0,

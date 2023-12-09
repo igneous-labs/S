@@ -30,7 +30,7 @@ async fn basic() {
 
     let donor_token_auth = Keypair::new();
 
-    let mut program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: JITOSOL_START_SOL_VALUE,
         msol_sol_value: MSOL_START_SOL_VALUE,
         jitosol_reserves: 1_000_000_000,

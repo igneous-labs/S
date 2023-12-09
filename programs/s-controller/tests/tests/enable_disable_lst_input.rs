@@ -14,7 +14,7 @@ async fn basic_disable_then_enable() {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
-    let program_test = jito_marinade_program_test(
+    let program_test = jito_marinade_no_fee_program_test(
         JitoMarinadeProgramTestArgs::default().with_lp_token_mint(Pubkey::new_unique()),
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
