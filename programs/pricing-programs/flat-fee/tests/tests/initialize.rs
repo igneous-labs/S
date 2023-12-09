@@ -1,8 +1,7 @@
 use flat_fee_interface::{initialize_ix, InitializeIxArgs};
 use flat_fee_lib::{account_resolvers::InitializeFreeArgs, utils::try_program_state};
 use solana_program_test::{processor, ProgramTest};
-use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::test_fixtures_dir;
+use solana_sdk::{signer::Signer, transaction::Transaction};
 
 use crate::common::*;
 

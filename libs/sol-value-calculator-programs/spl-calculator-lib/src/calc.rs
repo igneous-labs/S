@@ -3,15 +3,52 @@ use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
 
-#[derive(Debug, Clone)]
-pub struct SplStakePoolCalc(pub SplStakePool);
+/// Parameters from SplStakePool required to calculate SOL value
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct SplStakePoolCalc {
+    pub last_update_epoch: u64,
+    pub total_lamports: u64,
+    pub pool_token_supply: u64,
+    pub stake_withdrawal_fee_numerator: u64,
+    pub stake_withdrawal_fee_denominator: u64,
+}
+
+impl From<&SplStakePool> for SplStakePoolCalc {
+    fn from(
+        SplStakePool {
+            total_lamports,
+            pool_token_supply,
+            last_update_epoch,
+            stake_withdrawal_fee:
+                Fee {
+                    denominator,
+                    numerator,
+                },
+            ..
+        }: &SplStakePool,
+    ) -> Self {
+        Self {
+            last_update_epoch: *last_update_epoch,
+            total_lamports: *total_lamports,
+            pool_token_supply: *pool_token_supply,
+            stake_withdrawal_fee_numerator: *numerator,
+            stake_withdrawal_fee_denominator: *denominator,
+        }
+    }
+}
+
+impl From<SplStakePool> for SplStakePoolCalc {
+    fn from(value: SplStakePool) -> Self {
+        (&value).into()
+    }
+}
 
 impl SplStakePoolCalc {
     pub const fn verify_pool_updated_for_this_epoch(
         &self,
         clock: &Clock,
     ) -> Result<(), SplCalculatorError> {
-        if self.0.last_update_epoch == clock.epoch {
+        if self.last_update_epoch == clock.epoch {
             Ok(())
         } else {
             Err(SplCalculatorError::PoolNotUpdated)
@@ -19,29 +56,26 @@ impl SplStakePoolCalc {
     }
 
     pub const fn lst_to_lamports_ratio(&self) -> U64RatioFloor<u64, u64> {
-        let SplStakePool {
+        let Self {
             total_lamports,
             pool_token_supply,
             ..
-        } = self.0;
+        } = self;
         U64RatioFloor {
-            num: total_lamports,
-            denom: pool_token_supply,
+            num: *total_lamports,
+            denom: *pool_token_supply,
         }
     }
 
     pub const fn stake_withdrawal_fee(&self) -> U64FeeFloor<u64, u64> {
-        let SplStakePool {
-            stake_withdrawal_fee,
+        let Self {
+            stake_withdrawal_fee_numerator,
+            stake_withdrawal_fee_denominator,
             ..
-        } = &self.0;
-        let Fee {
-            denominator,
-            numerator,
-        } = stake_withdrawal_fee;
+        } = self;
         U64FeeFloor {
-            fee_num: *numerator,
-            fee_denom: *denominator,
+            fee_num: *stake_withdrawal_fee_numerator,
+            fee_denom: *stake_withdrawal_fee_denominator,
         }
     }
 }
@@ -75,7 +109,6 @@ impl SolValueCalculator for SplStakePoolCalc {
 mod tests {
     use super::*;
     use proptest::prelude::*;
-    use spl_calculator_interface::{AccountType, FutureEpochFee, Lockup};
 
     prop_compose! {
         fn fee_rate_lte_one()
@@ -87,53 +120,21 @@ mod tests {
 
     prop_compose! {
         fn spl_stake_pool_calc()
-            (stake_withdrawal_fee in fee_rate_lte_one(), total_lamports: u64, pool_token_supply: u64) -> SplStakePoolCalc {
-                let zero_fee = Fee { numerator: 0, denominator: 0 };
-                SplStakePoolCalc(
-                    SplStakePool {
-                        total_lamports,
-                        pool_token_supply,
-                        stake_withdrawal_fee,
-                        account_type: AccountType::StakePool,
-                        manager: Default::default(),
-                        staker: Default::default(),
-                        stake_deposit_authority: Default::default(),
-                        stake_withdraw_bump_seed: Default::default(),
-                        validator_list: Default::default(),
-                        reserve_stake: Default::default(),
-                        pool_mint: Default::default(),
-                        manager_fee_account: Default::default(),
-                        token_program_id: Default::default(),
-                        last_update_epoch: Default::default(),
-                        lockup: Lockup {
-                            unix_timestamp: Default::default(),
-                            epoch: Default::default(),
-                            custodian: Default::default(),
-                        },
-                        epoch_fee: zero_fee.clone(),
-                        next_epoch_fee: FutureEpochFee::None,
-                        preferred_deposit_validator_vote_address: Default::default(),
-                        preferred_withdraw_validator_vote_address: Default::default(),
-                        stake_deposit_fee: zero_fee.clone(),
-                        next_stake_withdrawal_fee: FutureEpochFee::None,
-                        stake_referral_fee: Default::default(),
-                        sol_deposit_authority: Default::default(),
-                        sol_deposit_fee: zero_fee.clone(),
-                        sol_referral_fee: Default::default(),
-                        sol_withdraw_authority: Default::default(),
-                        sol_withdrawal_fee: zero_fee,
-                        next_sol_withdrawal_fee: FutureEpochFee::None,
-                        last_epoch_pool_token_supply: Default::default(),
-                        last_epoch_total_lamports: Default::default()
-                    }
-                )
+            (Fee { denominator, numerator } in fee_rate_lte_one(), total_lamports: u64, pool_token_supply: u64) -> SplStakePoolCalc {
+                SplStakePoolCalc {
+                    last_update_epoch: 0,
+                    total_lamports,
+                    pool_token_supply,
+                    stake_withdrawal_fee_numerator: numerator,
+                    stake_withdrawal_fee_denominator: denominator,
+                }
             }
     }
 
     prop_compose! {
         fn spl_stake_pool_and_lst_amount()
             (calc in spl_stake_pool_calc())
-            (pool_token in 0..=calc.0.pool_token_supply, calc in Just(calc)) -> (u64, SplStakePoolCalc) {
+            (pool_token in 0..=calc.pool_token_supply, calc in Just(calc)) -> (u64, SplStakePoolCalc) {
                 (pool_token, calc)
             }
     }

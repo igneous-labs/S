@@ -1,18 +1,74 @@
-use marinade_calculator_interface::{MarinadeCalculatorError, MarinadeState};
+use marinade_calculator_interface::{
+    FeeCents, MarinadeCalculatorError, MarinadeState, StakeSystem, ValidatorSystem,
+};
 use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
-#[derive(Debug, Clone)]
-pub struct MarinadeStateCalc(pub MarinadeState);
-
 pub const MAX_BP_CENTS: u32 = 1_000_000;
+
+/// Parameters from MarinadeState required to calculate SOL value
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct MarinadeStateCalc {
+    pub paused: bool,
+    pub delayed_unstake_cooling_down: u64,
+    pub emergency_cooling_down: u64,
+    pub total_active_balance: u64,
+    pub available_reserve_balance: u64,
+    pub circulating_ticket_balance: u64,
+    pub msol_supply: u64,
+    pub delayed_unstake_fee_bp_cents: u32,
+}
+
+impl From<&MarinadeState> for MarinadeStateCalc {
+    fn from(
+        MarinadeState {
+            paused,
+            available_reserve_balance,
+            validator_system:
+                ValidatorSystem {
+                    total_active_balance,
+                    ..
+                },
+            emergency_cooling_down,
+            stake_system:
+                StakeSystem {
+                    delayed_unstake_cooling_down,
+                    ..
+                },
+            circulating_ticket_balance,
+            msol_supply,
+            delayed_unstake_fee:
+                FeeCents {
+                    bp_cents: delayed_unstake_fee_bp_cents,
+                },
+            ..
+        }: &MarinadeState,
+    ) -> Self {
+        Self {
+            paused: *paused,
+            delayed_unstake_cooling_down: *delayed_unstake_cooling_down,
+            emergency_cooling_down: *emergency_cooling_down,
+            total_active_balance: *total_active_balance,
+            available_reserve_balance: *available_reserve_balance,
+            circulating_ticket_balance: *circulating_ticket_balance,
+            msol_supply: *msol_supply,
+            delayed_unstake_fee_bp_cents: *delayed_unstake_fee_bp_cents,
+        }
+    }
+}
+
+impl From<MarinadeState> for MarinadeStateCalc {
+    fn from(marinade_state: MarinadeState) -> Self {
+        (&marinade_state).into()
+    }
+}
 
 /// Reference
 /// https://github.com/marinade-finance/liquid-staking-program/blob/26147376b75d8c971963da458623e646f2795e15/programs/marinade-finance/src/state/mod.rs#L96
 impl MarinadeStateCalc {
     pub const fn verify_marinade_not_paused(&self) -> Result<(), MarinadeCalculatorError> {
-        if self.0.paused {
+        if self.paused {
             Err(MarinadeCalculatorError::MarinadePaused)
         } else {
             Ok(())
@@ -20,30 +76,28 @@ impl MarinadeStateCalc {
     }
 
     pub const fn total_cooling_down(&self) -> u64 {
-        self.0.stake_system.delayed_unstake_cooling_down + self.0.emergency_cooling_down
+        self.delayed_unstake_cooling_down + self.emergency_cooling_down
     }
 
     pub const fn total_lamports_under_control(&self) -> u64 {
-        self.0.validator_system.total_active_balance
-            + self.total_cooling_down()
-            + self.0.available_reserve_balance
+        self.total_active_balance + self.total_cooling_down() + self.available_reserve_balance
     }
 
     pub const fn total_virtual_staked_lamports(&self) -> u64 {
         self.total_lamports_under_control()
-            .saturating_sub(self.0.circulating_ticket_balance)
+            .saturating_sub(self.circulating_ticket_balance)
     }
 
     pub const fn msol_to_sol_ratio(&self) -> U64RatioFloor<u64, u64> {
         U64RatioFloor {
             num: self.total_virtual_staked_lamports(),
-            denom: self.0.msol_supply,
+            denom: self.msol_supply,
         }
     }
 
     pub const fn delayed_unstake_fee(&self) -> U64FeeFloor<u32, u32> {
         U64FeeFloor {
-            fee_num: self.0.delayed_unstake_fee.bp_cents,
+            fee_num: self.delayed_unstake_fee_bp_cents,
             fee_denom: MAX_BP_CENTS,
         }
     }
@@ -73,9 +127,6 @@ impl SolValueCalculator for MarinadeStateCalc {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use marinade_calculator_interface::{
-        Fee, FeeCents, LiqPool, List, StakeSystem, ValidatorSystem,
-    };
     use proptest::prelude::*;
     use test_utils::prop_assert_diff_at_most;
 
@@ -126,87 +177,25 @@ mod tests {
                 ) in total_lamports_under_control(),
                 circulating_ticket_balance: u64,
                 msol_supply: u64,
-                bp_cents in 0..=MAX_BP_CENTS
+                delayed_unstake_fee_bp_cents in 0..=MAX_BP_CENTS
             ) -> MarinadeStateCalc {
-                let zero_fee = Fee { basis_points: Default::default() };
-                let default_list = List {
-                    account: Default::default(),
-                    item_size: Default::default(),
-                    count: Default::default(),
-                    reserved1: Default::default(),
-                    reserved2: Default::default()
-                };
-
-                MarinadeStateCalc(MarinadeState {
-                    available_reserve_balance,
-                    validator_system: ValidatorSystem {
-                        total_active_balance,
-                        // dont care
-                        validator_list: default_list.clone(),
-                        manager_authority: Default::default(),
-                        total_validator_score: Default::default(),
-                        auto_add_validator_enabled: Default::default(),
-                    },
+                MarinadeStateCalc {
+                    paused: false,
+                    delayed_unstake_cooling_down,
                     emergency_cooling_down,
-                    stake_system: StakeSystem {
-                        delayed_unstake_cooling_down,
-                        // dont care
-                        stake_list: default_list,
-                        stake_deposit_bump_seed: Default::default(),
-                        stake_withdraw_bump_seed: Default::default(),
-                        slots_for_stake_delta: Default::default(),
-                        last_stake_delta_epoch: Default::default(),
-                        min_stake: Default::default(),
-                        extra_stake_delta_runs:  Default::default()
-                    },
+                    total_active_balance,
+                    available_reserve_balance,
                     circulating_ticket_balance,
                     msol_supply,
-                    delayed_unstake_fee: FeeCents { bp_cents },
-                    // dont care
-                    discriminant: Default::default(),
-                    msol_mint: Default::default(),
-                    admin_authority: Default::default(),
-                    operational_sol_account: Default::default(),
-                    treasury_msol_account: Default::default(),
-                    reserve_bump_seed: Default::default(),
-                    msol_mint_authority_bump_seed: Default::default(),
-                    rent_exempt_for_token_acc: Default::default(),
-                    reward_fee: zero_fee.clone(),
-                    liq_pool: LiqPool {
-                        lp_mint: Default::default(),
-                        lp_mint_authority_bump_seed: Default::default(),
-                        sol_leg_bump_seed: Default::default(),
-                        msol_leg_authority_bump_seed: Default::default(),
-                        msol_leg: Default::default(),
-                        lp_liquidity_target: Default::default(),
-                        lp_max_fee: zero_fee.clone(),
-                        lp_min_fee: zero_fee.clone(),
-                        treasury_cut: zero_fee.clone(),
-                        lp_supply: Default::default(),
-                        lent_from_sol_leg: Default::default(),
-                        liquidity_sol_cap: Default::default(),
-                    },
-                    msol_price: Default::default(),
-                    circulating_ticket_count: Default::default(),
-                    lent_from_reserve: Default::default(),
-                    min_deposit: Default::default(),
-                    min_withdraw: Default::default(),
-                    staking_sol_cap: Default::default(),
-                    pause_authority: Default::default(),
-                    paused: Default::default(),
-                    withdraw_stake_account_fee: FeeCents { bp_cents: Default::default() },
-                    withdraw_stake_account_enabled: Default::default(),
-                    last_stake_move_epoch: Default::default(),
-                    stake_moved: Default::default(),
-                    max_stake_moved_per_epoch: zero_fee,
-                })
+                    delayed_unstake_fee_bp_cents,
+                }
             }
     }
 
     prop_compose! {
         fn marinade_state_and_lst_amount()
             (calc in marinade_calc())
-            (msol_amount in 0..=calc.0.msol_supply, calc in Just(calc)) -> (u64, MarinadeStateCalc) {
+            (msol_amount in 0..=calc.msol_supply, calc in Just(calc)) -> (u64, MarinadeStateCalc) {
                 (msol_amount, calc)
             }
     }

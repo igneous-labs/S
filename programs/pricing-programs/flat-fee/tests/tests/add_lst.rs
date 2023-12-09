@@ -1,3 +1,4 @@
+/*
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::signature::read_keypair_file;
 use test_utils::test_fixtures_dir;
@@ -29,3 +30,4 @@ async fn basic() {
     // TODO: write test
     {}
 }
+ */
