@@ -30,7 +30,7 @@ pub fn verify_lst_sol_common(
     })?;
 
     let state = MarinadeState::deserialize(&mut actual.pool_state.try_borrow_data()?.as_ref())?;
-    let calc = MarinadeStateCalc(state);
+    let calc: MarinadeStateCalc = state.into();
 
     calc.verify_marinade_not_paused()?;
 

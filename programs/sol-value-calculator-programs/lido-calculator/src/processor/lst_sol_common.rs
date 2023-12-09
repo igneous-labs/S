@@ -28,7 +28,7 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<LidoCalc, P
     })?;
 
     let state = Lido::deserialize(&mut actual.pool_state.try_borrow_data()?.as_ref())?;
-    let calc = LidoCalc(state);
+    let calc: LidoCalc = state.into();
 
     calc.verify_pool_updated_for_this_epoch(&Clock::get()?)?;
 
