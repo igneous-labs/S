@@ -2,9 +2,7 @@ use flat_fee_interface::{set_lst_fee_ix, AddLstIxArgs, FlatFeeError, SetLstFeeIx
 use flat_fee_lib::{
     account_resolvers::SetLstFeeByMintFreeArgs, program::STATE_ID, utils::try_fee_account,
 };
-use flat_fee_test_utils::{
-    flat_fee_program_state_to_account, MockFeeAccountArgs, DEFAULT_PROGRAM_STATE,
-};
+use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use solana_program::program_error::ProgramError;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{
@@ -32,9 +30,14 @@ async fn basic() {
     };
     let (_, mock_fee_account_pk) = mock_fee_account_args.to_fee_account_and_addr();
     let program_test = normal_program_test(DEFAULT_PROGRAM_STATE, &[mock_fee_account_args]);
-    let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+
+    let keyed_state = KeyedReadonlyAccount {
+        key: STATE_ID,
+        account: state_acc,
+    };
 
     // set lst fee
     {
@@ -44,10 +47,7 @@ async fn basic() {
         let ix = set_lst_fee_ix(
             SetLstFeeByMintFreeArgs {
                 lst_mint: jitosol::ID,
-                state_acc: KeyedReadonlyAccount {
-                    key: STATE_ID,
-                    account: program_state_acc.clone(),
-                },
+                state_acc: &keyed_state,
             }
             .resolve()
             .unwrap(),
@@ -82,10 +82,7 @@ async fn basic() {
         let ix = set_lst_fee_ix(
             SetLstFeeByMintFreeArgs {
                 lst_mint: jitosol::ID,
-                state_acc: KeyedReadonlyAccount {
-                    key: STATE_ID,
-                    account: program_state_acc.clone(),
-                },
+                state_acc: &keyed_state,
             }
             .resolve()
             .unwrap(),
@@ -120,10 +117,7 @@ async fn basic() {
 
         let mut keys = SetLstFeeByMintFreeArgs {
             lst_mint: jitosol::ID,
-            state_acc: KeyedReadonlyAccount {
-                key: STATE_ID,
-                account: program_state_acc.clone(),
-            },
+            state_acc: &keyed_state,
         }
         .resolve()
         .unwrap();
