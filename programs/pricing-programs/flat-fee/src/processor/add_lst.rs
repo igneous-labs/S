@@ -3,8 +3,8 @@ use flat_fee_interface::{
     AddLstKeys,
 };
 use flat_fee_lib::{
-    account_resolvers::AddLstFreeArgs, pda::FeeAccountCreatePdaArgs, program,
-    utils::try_fee_account_mut,
+    account_resolvers::AddLstFreeArgs, fee_bound::verify_signed_fee_bps_bound,
+    pda::FeeAccountCreatePdaArgs, program, utils::try_fee_account_mut,
 };
 use sanctum_onchain_utils::{
     system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
@@ -14,14 +14,15 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-pub fn process_add_lst(
-    accounts: &[AccountInfo],
-    AddLstIxArgs {
-        input_fee_bps,
-        output_fee_bps,
-    }: AddLstIxArgs,
-) -> ProgramResult {
-    let (AddLstAccounts { payer, fee_acc, .. }, create_pda_args) = verify_add_lst(accounts)?;
+pub fn process_add_lst(accounts: &[AccountInfo], args: AddLstIxArgs) -> ProgramResult {
+    let (
+        AddLstAccounts { payer, fee_acc, .. },
+        AddLstIxArgs {
+            input_fee_bps,
+            output_fee_bps,
+        },
+        create_pda_args,
+    ) = verify_add_lst(accounts, args)?;
 
     create_pda(
         CreateAccountAccounts {
@@ -49,7 +50,15 @@ pub fn process_add_lst(
 
 fn verify_add_lst<'me, 'info>(
     accounts: &'me [AccountInfo<'info>],
-) -> Result<(AddLstAccounts<'me, 'info>, FeeAccountCreatePdaArgs), ProgramError> {
+    args: AddLstIxArgs,
+) -> Result<
+    (
+        AddLstAccounts<'me, 'info>,
+        AddLstIxArgs,
+        FeeAccountCreatePdaArgs,
+    ),
+    ProgramError,
+> {
     let actual: AddLstAccounts = load_accounts(accounts)?;
 
     let free_args = AddLstFreeArgs {
@@ -63,5 +72,8 @@ fn verify_add_lst<'me, 'info>(
     add_lst_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     add_lst_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
 
-    Ok((actual, fee_account_create_pda_args))
+    verify_signed_fee_bps_bound(args.input_fee_bps)?;
+    verify_signed_fee_bps_bound(args.output_fee_bps)?;
+
+    Ok((actual, args, fee_account_create_pda_args))
 }
