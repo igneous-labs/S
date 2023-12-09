@@ -19,7 +19,7 @@ async fn basic() {
     const EXPECTED_NEW_JITOSOL_SOL_VALUE: u64 = 1_072_326_756;
     const EXPECTED_NEW_TOTAL_SOL_VALUE: u64 = 2_072_326_756;
 
-    let program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 1_000_000_000,
         msol_sol_value: 1_000_000_000,
         jitosol_reserves: 1_000_000_000,

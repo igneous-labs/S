@@ -7,7 +7,7 @@ use s_controller_lib::{
 };
 use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
-use solana_program_test::{processor, ProgramTestContext};
+use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
@@ -29,7 +29,7 @@ async fn basic_no_fee() {
     let swapper_jitosol_acc_addr = Pubkey::new_unique();
     let swapper_msol_acc_addr = Pubkey::new_unique();
 
-    let mut program_test = jito_marinade_program_test(JitoMarinadeProgramTestArgs {
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_reserves: JITOSOL_POOL_RESERVES,
         msol_reserves: MSOL_POOL_RESERVES,
         jitosol_sol_value: JITOSOL_POOL_RESERVES, // updated on sync
@@ -40,11 +40,6 @@ async fn basic_no_fee() {
         lp_token_mint,
         lp_token_supply: 0,
     });
-    program_test.add_program(
-        "no_fee_pricing_program",
-        no_fee_pricing_program::ID,
-        processor!(no_fee_pricing_program::process_instruction),
-    );
     program_test.add_account(
         swapper_jitosol_acc_addr,
         mock_token_account(MockTokenAccountArgs {

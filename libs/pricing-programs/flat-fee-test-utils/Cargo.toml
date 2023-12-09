@@ -1,0 +1,12 @@
+[package]
+name = "flat-fee-test-utils"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
+flat-fee-lib = { path = "../flat-fee-lib" }
+solana-program = { workspace = true }
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+test-utils = { path = "../../../test-utils" }
