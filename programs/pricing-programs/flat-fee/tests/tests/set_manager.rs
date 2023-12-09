@@ -2,10 +2,7 @@ use flat_fee_interface::{set_manager_ix, SetManagerIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetManagerFreeArgs, program::STATE_ID, utils::try_program_state,
 };
-use flat_fee_test_utils::{
-    banks_client_get_flat_fee_program_state, flat_fee_program_state_to_account,
-    DEFAULT_PROGRAM_STATE,
-};
+use flat_fee_test_utils::{banks_client_get_flat_fee_program_state, DEFAULT_PROGRAM_STATE};
 use solana_program::program_error::ProgramError;
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
@@ -14,7 +11,9 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{assert_program_error, test_fixtures_dir};
+use test_utils::{assert_program_error, banks_client_get_account, test_fixtures_dir};
+
+use crate::common::normal_program_test;
 
 #[tokio::test]
 async fn basic() {
@@ -30,20 +29,20 @@ async fn basic() {
         processor!(flat_fee::entrypoint::process_instruction),
     );
 
-    let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
-    program_test.add_account(STATE_ID, program_state_acc.clone());
+    let program_test = normal_program_test(DEFAULT_PROGRAM_STATE, &[]);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     // set admin success
     {
+        let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
         let new_manager_kp = Keypair::new();
         let ix = set_manager_ix(
             SetManagerFreeArgs {
                 new_manager: new_manager_kp.pubkey(),
                 state_acc: KeyedReadonlyAccount {
                     key: STATE_ID,
-                    account: program_state_acc.clone(),
+                    account: state_acc,
                 },
             }
             .resolve()
@@ -76,7 +75,7 @@ async fn basic() {
             new_manager: new_manager_kp.pubkey(),
             state_acc: KeyedReadonlyAccount {
                 key: STATE_ID,
-                account: program_state_acc.clone(),
+                account: state_acc,
             },
         }
         .resolve()

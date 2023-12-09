@@ -1,4 +1,4 @@
-use flat_fee_interface::{set_lst_fee_ix, FlatFeeError, SetLstFeeIxArgs};
+use flat_fee_interface::{set_lst_fee_ix, AddLstIxArgs, FlatFeeError, SetLstFeeIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetLstFeeByMintFreeArgs, program::STATE_ID, utils::try_fee_account,
 };
@@ -63,12 +63,15 @@ async fn basic() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let fee_account_acc =
-            banks_client_get_account(&mut banks_client, mock_fee_account_pk).await;
-        let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
-
-        assert_eq!(fee_account.input_fee_bps, NEW_INPUT_FEE_BPS);
-        assert_eq!(fee_account.output_fee_bps, NEW_OUTPUT_FEE_BPS);
+        verify_fee_account(
+            &mut banks_client,
+            jitosol::ID,
+            AddLstIxArgs {
+                input_fee_bps: NEW_INPUT_FEE_BPS,
+                output_fee_bps: NEW_OUTPUT_FEE_BPS,
+            },
+        )
+        .await;
     }
 
     // reject out of bound
