@@ -50,7 +50,7 @@ pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
     }
 
     close_account(CloseAccountAccounts {
-        refund_rent_to: accounts.refund_rent_to,
+        refund_rent_to: accounts.pool_state,
         close: accounts.rebalance_record,
     })
 }
@@ -68,12 +68,11 @@ fn verify_end_rebalance<'a, 'info>(
     let actual: EndRebalanceAccounts = load_accounts(accounts)?;
 
     let free_args = EndRebalanceFreeArgs {
-        refund_rent_to: *actual.refund_rent_to.key,
         lst_state_list: actual.lst_state_list,
         rebalance_record: actual.rebalance_record,
         dst_lst_mint: actual.dst_lst_mint,
     };
-    let expected = free_args.resolve()?;
+    let (expected, dst_lst_index) = free_args.resolve()?;
 
     end_rebalance_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
     end_rebalance_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
@@ -81,13 +80,6 @@ fn verify_end_rebalance<'a, 'info>(
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
     verify_is_rebalancing(pool_state)?;
-
-    let rebalance_record_bytes = actual.rebalance_record.try_borrow_data()?;
-    let rebalance_record = try_rebalance_record(&rebalance_record_bytes)?;
-    let dst_lst_index: usize = rebalance_record
-        .dst_lst_index
-        .try_into()
-        .map_err(|_e| SControllerError::InvalidLstIndex)?;
 
     let accounts_suffix_slice = accounts
         .get(END_REBALANCE_IX_ACCOUNTS_LEN..)

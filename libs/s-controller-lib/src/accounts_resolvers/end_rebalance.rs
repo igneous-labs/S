@@ -1,7 +1,6 @@
 use s_controller_interface::{
     EndRebalanceKeys, RebalanceRecord, SControllerError, StartRebalanceKeys,
 };
-use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
 
 use crate::{
@@ -18,7 +17,6 @@ pub struct EndRebalanceFreeArgs<
     R: ReadonlyAccountData + KeyedAccount,
     M: ReadonlyAccountOwner + KeyedAccount,
 > {
-    pub refund_rent_to: Pubkey,
     pub lst_state_list: L,
     pub rebalance_record: R,
     pub dst_lst_mint: M,
@@ -30,7 +28,8 @@ impl<
         M: ReadonlyAccountOwner + KeyedAccount,
     > EndRebalanceFreeArgs<L, R, M>
 {
-    pub fn resolve(self) -> Result<EndRebalanceKeys, SControllerError> {
+    /// Returns (keys, dst_lst_index)
+    pub fn resolve(self) -> Result<(EndRebalanceKeys, usize), SControllerError> {
         if *self.lst_state_list.key() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
@@ -51,14 +50,16 @@ impl<
         let dst_pool_reserves =
             create_pool_reserves_address(dst_lst_state, *self.dst_lst_mint.owner())?;
 
-        Ok(EndRebalanceKeys {
-            refund_rent_to: self.refund_rent_to,
-            dst_lst_mint: dst_lst_state.mint,
-            dst_pool_reserves,
-            pool_state: POOL_STATE_ID,
-            lst_state_list: LST_STATE_LIST_ID,
-            rebalance_record: REBALANCE_RECORD_ID,
-        })
+        Ok((
+            EndRebalanceKeys {
+                dst_lst_mint: dst_lst_state.mint,
+                dst_pool_reserves,
+                pool_state: POOL_STATE_ID,
+                lst_state_list: LST_STATE_LIST_ID,
+                rebalance_record: REBALANCE_RECORD_ID,
+            },
+            dst_lst_index,
+        ))
     }
 }
 
@@ -70,13 +71,11 @@ pub struct EndRebalanceFromStartRebalanceKeys<'a>(pub &'a StartRebalanceKeys);
 impl<'a> EndRebalanceFromStartRebalanceKeys<'a> {
     pub fn resolve(self) -> EndRebalanceKeys {
         let Self(StartRebalanceKeys {
-            payer,
             dst_lst_mint,
             dst_pool_reserves,
             ..
         }) = self;
         EndRebalanceKeys {
-            refund_rent_to: *payer,
             dst_lst_mint: *dst_lst_mint,
             dst_pool_reserves: *dst_pool_reserves,
             pool_state: POOL_STATE_ID,

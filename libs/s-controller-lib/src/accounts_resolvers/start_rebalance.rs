@@ -16,7 +16,6 @@ pub struct StartRebalanceFreeArgs<
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
 > {
-    pub payer: Pubkey,
     pub withdraw_to: Pubkey,
     pub src_lst_index: usize,
     pub dst_lst_index: usize,
@@ -58,7 +57,6 @@ impl<
         let pool_state = try_pool_state(&pool_state_acc_data)?;
 
         Ok(StartRebalanceKeys {
-            payer: self.payer,
             rebalance_authority: pool_state.rebalance_authority,
             pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
@@ -84,7 +82,6 @@ pub struct StartRebalanceByMintsFreeArgs<
     S: ReadonlyAccountData + KeyedAccount,
     L: ReadonlyAccountData + KeyedAccount,
 > {
-    pub payer: Pubkey,
     pub withdraw_to: Pubkey,
     pub lst_state_list: L,
     pub pool_state: S,
@@ -125,7 +122,6 @@ impl<
 
         Ok((
             StartRebalanceKeys {
-                payer: self.payer,
                 rebalance_authority: pool_state.rebalance_authority,
                 pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,

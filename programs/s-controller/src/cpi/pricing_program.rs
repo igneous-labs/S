@@ -116,7 +116,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultySolValueCalculator)?;
+        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 
@@ -225,7 +225,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultySolValueCalculator)?;
+        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 
