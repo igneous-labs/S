@@ -72,6 +72,8 @@ pub enum SControllerError {
     NotEnoughFees = 30,
     #[error("Input or output value is zero. Size likely too small.")]
     ZeroValue = 31,
+    #[error("Faulty pricing program")]
+    FaultyPricingProgram = 32,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
