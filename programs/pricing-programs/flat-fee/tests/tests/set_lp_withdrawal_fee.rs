@@ -1,61 +1,50 @@
-use flat_fee_interface::{set_lp_withdrawal_fee_ix, SetLpWithdrawalFeeIxArgs};
+use flat_fee_interface::{set_lp_withdrawal_fee_ix, ProgramState, SetLpWithdrawalFeeIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetLpWithdrawalFeeFreeArgs, program::STATE_ID, utils::try_program_state,
 };
-use flat_fee_test_utils::{
-    banks_client_get_flat_fee_program_state, flat_fee_program_state_to_account,
-    DEFAULT_PROGRAM_STATE,
-};
-use solana_program_test::{processor, ProgramTest};
+use flat_fee_test_utils::banks_client_get_flat_fee_program_state;
 use solana_readonly_account::sdk::KeyedReadonlyAccount;
-use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::test_fixtures_dir;
+use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
+
+use crate::common::normal_program_test;
 
 #[tokio::test]
-async fn basic() {
-    let mock_auth_kp =
-        read_keypair_file(test_fixtures_dir().join("flat-fee-test-initial-manager-key.json"))
-            .unwrap();
+async fn set_lp_withdrawal_fee_basic() {
+    const NEW_LP_WITHDRAWAL_FEE_BPS: u16 = 420;
+    let manager = Keypair::new();
 
-    let mut program_test = ProgramTest::default();
-
-    program_test.add_program(
-        "flat_fee",
-        flat_fee_lib::program::ID,
-        processor!(flat_fee::entrypoint::process_instruction),
+    let program_test = normal_program_test(
+        ProgramState {
+            manager: manager.pubkey(),
+            lp_withdrawal_fee_bps: Default::default(),
+        },
+        &[],
     );
-
-    let program_state_acc = flat_fee_program_state_to_account(DEFAULT_PROGRAM_STATE);
-    program_test.add_account(flat_fee_lib::program::STATE_ID, program_state_acc.clone());
-
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    // set lp withdrawal fee
-    {
-        let new_lp_withdrawal_fee_bps = 100;
-        let ix = set_lp_withdrawal_fee_ix(
-            SetLpWithdrawalFeeFreeArgs {
-                state_acc: KeyedReadonlyAccount {
-                    key: STATE_ID,
-                    account: program_state_acc.clone(),
-                },
-            }
-            .resolve()
-            .unwrap(),
-            SetLpWithdrawalFeeIxArgs {
-                lp_withdrawal_fee_bps: new_lp_withdrawal_fee_bps,
+    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let ix = set_lp_withdrawal_fee_ix(
+        SetLpWithdrawalFeeFreeArgs {
+            state_acc: KeyedReadonlyAccount {
+                key: STATE_ID,
+                account: state_acc,
             },
-        )
-        .unwrap();
+        }
+        .resolve()
+        .unwrap(),
+        SetLpWithdrawalFeeIxArgs {
+            lp_withdrawal_fee_bps: NEW_LP_WITHDRAWAL_FEE_BPS,
+        },
+    )
+    .unwrap();
 
-        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &manager], last_blockhash);
 
-        banks_client.process_transaction(tx).await.unwrap();
+    banks_client.process_transaction(tx).await.unwrap();
 
-        let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
-        let state = try_program_state(&state_acc.data).unwrap();
+    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state = try_program_state(&state_acc.data).unwrap();
 
-        assert_eq!(state.lp_withdrawal_fee_bps, new_lp_withdrawal_fee_bps);
-    }
+    assert_eq!(state.lp_withdrawal_fee_bps, NEW_LP_WITHDRAWAL_FEE_BPS);
 }
