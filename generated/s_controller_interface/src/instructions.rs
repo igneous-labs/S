@@ -4029,11 +4029,9 @@ pub fn enable_pool_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const START_REBALANCE_IX_ACCOUNTS_LEN: usize = 13;
+pub const START_REBALANCE_IX_ACCOUNTS_LEN: usize = 12;
 #[derive(Copy, Clone, Debug)]
 pub struct StartRebalanceAccounts<'me, 'info> {
-    ///Account paying the 1 lamport rent for RebalanceRecord
-    pub payer: &'me AccountInfo<'info>,
     ///The pool's rebalance authority
     pub rebalance_authority: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
@@ -4061,8 +4059,6 @@ pub struct StartRebalanceAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct StartRebalanceKeys {
-    ///Account paying the 1 lamport rent for RebalanceRecord
-    pub payer: Pubkey,
     ///The pool's rebalance authority
     pub rebalance_authority: Pubkey,
     ///The pool's state singleton PDA
@@ -4091,7 +4087,6 @@ pub struct StartRebalanceKeys {
 impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
     fn from(accounts: &StartRebalanceAccounts) -> Self {
         Self {
-            payer: *accounts.payer.key,
             rebalance_authority: *accounts.rebalance_authority.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
@@ -4110,7 +4105,6 @@ impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
 impl From<&StartRebalanceKeys> for [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN] {
     fn from(keys: &StartRebalanceKeys) -> Self {
         [
-            AccountMeta::new(keys.payer, true),
             AccountMeta::new_readonly(keys.rebalance_authority, true),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
@@ -4129,19 +4123,18 @@ impl From<&StartRebalanceKeys> for [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN
 impl From<[Pubkey; START_REBALANCE_IX_ACCOUNTS_LEN]> for StartRebalanceKeys {
     fn from(pubkeys: [Pubkey; START_REBALANCE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            payer: pubkeys[0],
-            rebalance_authority: pubkeys[1],
-            pool_state: pubkeys[2],
-            lst_state_list: pubkeys[3],
-            rebalance_record: pubkeys[4],
-            src_lst_mint: pubkeys[5],
-            dst_lst_mint: pubkeys[6],
-            src_pool_reserves: pubkeys[7],
-            dst_pool_reserves: pubkeys[8],
-            withdraw_to: pubkeys[9],
-            instructions: pubkeys[10],
-            system_program: pubkeys[11],
-            src_lst_token_program: pubkeys[12],
+            rebalance_authority: pubkeys[0],
+            pool_state: pubkeys[1],
+            lst_state_list: pubkeys[2],
+            rebalance_record: pubkeys[3],
+            src_lst_mint: pubkeys[4],
+            dst_lst_mint: pubkeys[5],
+            src_pool_reserves: pubkeys[6],
+            dst_pool_reserves: pubkeys[7],
+            withdraw_to: pubkeys[8],
+            instructions: pubkeys[9],
+            system_program: pubkeys[10],
+            src_lst_token_program: pubkeys[11],
         }
     }
 }
@@ -4150,7 +4143,6 @@ impl<'info> From<&StartRebalanceAccounts<'_, 'info>>
 {
     fn from(accounts: &StartRebalanceAccounts<'_, 'info>) -> Self {
         [
-            accounts.payer.clone(),
             accounts.rebalance_authority.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
@@ -4171,19 +4163,18 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
 {
     fn from(arr: &'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            payer: &arr[0],
-            rebalance_authority: &arr[1],
-            pool_state: &arr[2],
-            lst_state_list: &arr[3],
-            rebalance_record: &arr[4],
-            src_lst_mint: &arr[5],
-            dst_lst_mint: &arr[6],
-            src_pool_reserves: &arr[7],
-            dst_pool_reserves: &arr[8],
-            withdraw_to: &arr[9],
-            instructions: &arr[10],
-            system_program: &arr[11],
-            src_lst_token_program: &arr[12],
+            rebalance_authority: &arr[0],
+            pool_state: &arr[1],
+            lst_state_list: &arr[2],
+            rebalance_record: &arr[3],
+            src_lst_mint: &arr[4],
+            dst_lst_mint: &arr[5],
+            src_pool_reserves: &arr[6],
+            dst_pool_reserves: &arr[7],
+            withdraw_to: &arr[8],
+            instructions: &arr[9],
+            system_program: &arr[10],
+            src_lst_token_program: &arr[11],
         }
     }
 }
@@ -4260,7 +4251,6 @@ pub fn start_rebalance_verify_account_keys(
     keys: &StartRebalanceKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.payer.key, &keys.payer),
         (accounts.rebalance_authority.key, &keys.rebalance_authority),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
@@ -4287,7 +4277,6 @@ pub fn start_rebalance_verify_account_privileges<'me, 'info>(
     accounts: &StartRebalanceAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
-        accounts.payer,
         accounts.pool_state,
         accounts.lst_state_list,
         accounts.rebalance_record,
@@ -4299,18 +4288,16 @@ pub fn start_rebalance_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.payer, accounts.rebalance_authority] {
+    for should_be_signer in [accounts.rebalance_authority] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
     Ok(())
 }
-pub const END_REBALANCE_IX_ACCOUNTS_LEN: usize = 6;
+pub const END_REBALANCE_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct EndRebalanceAccounts<'me, 'info> {
-    ///The account to refund the 1 lamport rent for RebalanceRecord
-    pub refund_rent_to: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
     ///Dynamic list PDA of LstStates for each lst in the pool
@@ -4324,8 +4311,6 @@ pub struct EndRebalanceAccounts<'me, 'info> {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct EndRebalanceKeys {
-    ///The account to refund the 1 lamport rent for RebalanceRecord
-    pub refund_rent_to: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
     ///Dynamic list PDA of LstStates for each lst in the pool
@@ -4340,7 +4325,6 @@ pub struct EndRebalanceKeys {
 impl From<&EndRebalanceAccounts<'_, '_>> for EndRebalanceKeys {
     fn from(accounts: &EndRebalanceAccounts) -> Self {
         Self {
-            refund_rent_to: *accounts.refund_rent_to.key,
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
             rebalance_record: *accounts.rebalance_record.key,
@@ -4352,7 +4336,6 @@ impl From<&EndRebalanceAccounts<'_, '_>> for EndRebalanceKeys {
 impl From<&EndRebalanceKeys> for [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] {
     fn from(keys: &EndRebalanceKeys) -> Self {
         [
-            AccountMeta::new(keys.refund_rent_to, false),
             AccountMeta::new(keys.pool_state, false),
             AccountMeta::new(keys.lst_state_list, false),
             AccountMeta::new(keys.rebalance_record, false),
@@ -4364,12 +4347,11 @@ impl From<&EndRebalanceKeys> for [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] {
 impl From<[Pubkey; END_REBALANCE_IX_ACCOUNTS_LEN]> for EndRebalanceKeys {
     fn from(pubkeys: [Pubkey; END_REBALANCE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            refund_rent_to: pubkeys[0],
-            pool_state: pubkeys[1],
-            lst_state_list: pubkeys[2],
-            rebalance_record: pubkeys[3],
-            dst_lst_mint: pubkeys[4],
-            dst_pool_reserves: pubkeys[5],
+            pool_state: pubkeys[0],
+            lst_state_list: pubkeys[1],
+            rebalance_record: pubkeys[2],
+            dst_lst_mint: pubkeys[3],
+            dst_pool_reserves: pubkeys[4],
         }
     }
 }
@@ -4378,7 +4360,6 @@ impl<'info> From<&EndRebalanceAccounts<'_, 'info>>
 {
     fn from(accounts: &EndRebalanceAccounts<'_, 'info>) -> Self {
         [
-            accounts.refund_rent_to.clone(),
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
             accounts.rebalance_record.clone(),
@@ -4392,12 +4373,11 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN]>
 {
     fn from(arr: &'me [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN]) -> Self {
         Self {
-            refund_rent_to: &arr[0],
-            pool_state: &arr[1],
-            lst_state_list: &arr[2],
-            rebalance_record: &arr[3],
-            dst_lst_mint: &arr[4],
-            dst_pool_reserves: &arr[5],
+            pool_state: &arr[0],
+            lst_state_list: &arr[1],
+            rebalance_record: &arr[2],
+            dst_lst_mint: &arr[3],
+            dst_pool_reserves: &arr[4],
         }
     }
 }
@@ -4469,7 +4449,6 @@ pub fn end_rebalance_verify_account_keys(
     keys: &EndRebalanceKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
-        (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.pool_state.key, &keys.pool_state),
         (accounts.lst_state_list.key, &keys.lst_state_list),
         (accounts.rebalance_record.key, &keys.rebalance_record),
@@ -4486,7 +4465,6 @@ pub fn end_rebalance_verify_account_privileges<'me, 'info>(
     accounts: &EndRebalanceAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
-        accounts.refund_rent_to,
         accounts.pool_state,
         accounts.lst_state_list,
         accounts.rebalance_record,

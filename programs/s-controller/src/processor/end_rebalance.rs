@@ -50,7 +50,7 @@ pub fn process_end_rebalance(accounts: &[AccountInfo]) -> ProgramResult {
     }
 
     close_account(CloseAccountAccounts {
-        refund_rent_to: accounts.refund_rent_to,
+        refund_rent_to: accounts.pool_state,
         close: accounts.rebalance_record,
     })
 }
@@ -68,7 +68,6 @@ fn verify_end_rebalance<'a, 'info>(
     let actual: EndRebalanceAccounts = load_accounts(accounts)?;
 
     let free_args = EndRebalanceFreeArgs {
-        refund_rent_to: *actual.refund_rent_to.key,
         lst_state_list: actual.lst_state_list,
         rebalance_record: actual.rebalance_record,
         dst_lst_mint: actual.dst_lst_mint,

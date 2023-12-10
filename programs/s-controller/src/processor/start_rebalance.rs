@@ -10,7 +10,7 @@ use s_controller_lib::{
     PoolStateAccount, SrcDstLstIndexes, StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
 use sanctum_onchain_utils::{
-    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
+    system_program::{allocate_pda, assign_pda, transfer_direct_increment, TransferAccounts},
     token_program::{transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
@@ -73,17 +73,22 @@ pub fn process_start_rebalance(
 
     sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
 
-    create_pda(
-        CreateAccountAccounts {
-            from: accounts.payer,
+    allocate_pda(
+        accounts.rebalance_record,
+        REBALANCE_RECORD_SIZE,
+        &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
+    )?;
+    assign_pda(
+        accounts.rebalance_record,
+        s_controller_lib::program::ID,
+        &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
+    )?;
+    transfer_direct_increment(
+        TransferAccounts {
+            from: accounts.pool_state,
             to: accounts.rebalance_record,
         },
-        CreateAccountArgs {
-            space: REBALANCE_RECORD_SIZE,
-            owner: s_controller_lib::program::ID,
-            lamports: Some(1),
-        },
-        &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
+        1,
     )?;
 
     let mut rebalance_record_data = accounts.rebalance_record.try_borrow_mut_data()?;
@@ -120,7 +125,6 @@ fn verify_start_rebalance<'a, 'info>(
     let actual: StartRebalanceAccounts = load_accounts(accounts)?;
 
     let free_args = StartRebalanceFreeArgs {
-        payer: *actual.payer.key,
         withdraw_to: *actual.withdraw_to.key,
         src_lst_index,
         dst_lst_index,

@@ -104,7 +104,6 @@ async fn basic() {
         (&marinade_sol_val_calc_keys).into();
 
     let args = StartRebalanceByMintsFreeArgs {
-        payer: payer.pubkey(),
         withdraw_to: withdraw_jitosol_to_addr,
         lst_state_list: KeyedReadonlyAccount {
             key: LST_STATE_LIST_ID,
