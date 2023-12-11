@@ -13,7 +13,7 @@ use sanctum_onchain_utils::{
     token_program::{transfer_tokens, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_2022_mint_supply;
+use sanctum_utils::token::mint_supply;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -67,7 +67,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
     })?;
 
     let pool_total_sol_value = accounts.pool_state.total_sol_value()?;
-    let lp_token_supply = token_2022_mint_supply(accounts.lp_token_mint)?;
+    let lp_token_supply = mint_supply(accounts.lp_token_mint)?;
     let lp_tokens_to_mint = calc_lp_tokens_to_mint(
         LpTokenRateArgs {
             lp_token_supply,

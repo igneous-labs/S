@@ -7,7 +7,7 @@ use s_controller_lib::{
     add_liquidity_ix_full, create_pool_reserves_address, try_lst_state_list, try_pool_state,
     AddLiquidityByMintFreeArgs, AddLiquidityIxFullArgs, AddRemoveLiquidityExtraAccounts,
 };
-use sanctum_utils::token::{token_2022_account_balance, token_account_balance};
+use sanctum_utils::token::token_account_balance;
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;
@@ -249,7 +249,7 @@ async fn exec_verify_add_liq_success_no_fees(
 ) {
     let lp_token_account =
         banks_client_get_account(banks_client, liquidity_provider_lp_token_acc_addr).await;
-    let lp_token_acc_balance = token_2022_account_balance(&lp_token_account).unwrap();
+    let lp_token_acc_balance = token_account_balance(&lp_token_account).unwrap();
     let lst_account = banks_client_get_account(banks_client, lst_account_to_add_from).await;
     let lst_account_starting_balance = token_account_balance(lst_account).unwrap();
     assert!(lst_account_starting_balance > 0);
@@ -302,7 +302,7 @@ async fn exec_verify_add_liq_success_no_fees(
 
     let lp_token_account =
         banks_client_get_account(banks_client, liquidity_provider_lp_token_acc_addr).await;
-    let lp_token_acc_balance_after = token_2022_account_balance(&lp_token_account).unwrap();
+    let lp_token_acc_balance_after = token_account_balance(&lp_token_account).unwrap();
     let lp_token_increase = lp_token_acc_balance_after - lp_token_acc_balance;
     // since we are adding from 0 so lp_token should be 1:1 SOL value
     if lst_mint == native_mint::ID {

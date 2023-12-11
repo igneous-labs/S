@@ -9,7 +9,7 @@ use s_controller_lib::{
 use sanctum_onchain_utils::utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::token_account_balance_program_agnostic;
+use sanctum_utils::token::token_account_balance;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -67,7 +67,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
     cpi: SolValueCalculatorCpi<'a, 'info>,
     lst_index: usize,
 ) -> Result<(), ProgramError> {
-    let lst_balance = token_account_balance_program_agnostic(pool_reserves)?;
+    let lst_balance = token_account_balance(pool_reserves)?;
     let returned_sol_value = cpi.invoke_lst_to_sol(lst_balance)?;
 
     let mut pool_state_bytes = pool_state.try_borrow_mut_data()?;

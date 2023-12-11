@@ -8,7 +8,7 @@ use s_controller_lib::{
 use sanctum_token_ratio::{AmtsAfterFee, U64BpsFeeCeil};
 use sanctum_utils::{
     mint_with_token_program::MintWithTokenProgram,
-    token::{token_2022_mint_supply, token_account_balance},
+    token::{mint_supply, token_account_balance},
 };
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
@@ -142,7 +142,7 @@ async fn basic_redeem_full_no_fees() {
     );
 
     let lp_mint_account = banks_client_get_account(&mut banks_client, lp_token_mint).await;
-    assert_eq!(token_2022_mint_supply(lp_mint_account).unwrap(), 0);
+    assert_eq!(mint_supply(lp_mint_account).unwrap(), 0);
 
     let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
