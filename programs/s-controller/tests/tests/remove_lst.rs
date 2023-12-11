@@ -6,7 +6,7 @@ use s_controller_lib::{
 };
 use solana_program::{clock::Clock, hash::Hash, pubkey::Pubkey};
 use solana_program_test::{BanksClient, ProgramTestContext};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -102,16 +102,16 @@ async fn exec_verify_remove(
     let keys = RemoveLstFreeArgs {
         lst_index,
         refund_rent_to: payer.pubkey(),
-        pool_state: KeyedReadonlyAccount {
-            key: POOL_STATE_ID,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
             account: banks_client_get_pool_state_acc(banks_client).await,
         },
-        lst_state_list: KeyedReadonlyAccount {
-            key: LST_STATE_LIST_ID,
+        lst_state_list: KeyedAccount {
+            pubkey: LST_STATE_LIST_ID,
             account: lst_state_list_acc,
         },
-        lst_mint: KeyedReadonlyAccount {
-            key: lst_state.mint,
+        lst_mint: KeyedAccount {
+            pubkey: lst_state.mint,
             account: mint_acc,
         },
     }

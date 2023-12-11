@@ -1,6 +1,6 @@
 use flat_fee_interface::{FlatFeeError, ProgramState, SetLstFeeKeys};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
@@ -8,19 +8,19 @@ use crate::{
     utils::try_program_state,
 };
 
-pub struct SetLstFeeByMintFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct SetLstFeeByMintFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub lst_mint: Pubkey,
     pub state_acc: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> {
     fn resolve_with_fee_acc(self, fee_acc: Pubkey) -> Result<SetLstFeeKeys, FlatFeeError> {
         let SetLstFeeByMintFreeArgs {
             lst_mint: _,
             state_acc,
         } = self;
 
-        if *state_acc.key() != STATE_ID {
+        if *state_acc.pubkey() != STATE_ID {
             return Err(FlatFeeError::IncorrectProgramState);
         }
 
@@ -58,19 +58,19 @@ impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> {
     }
 }
 
-pub struct SetLstFeeFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct SetLstFeeFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub fee_acc: Pubkey,
     pub state_acc: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> SetLstFeeFreeArgs<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> SetLstFeeFreeArgs<S> {
     pub fn resolve(self) -> Result<SetLstFeeKeys, FlatFeeError> {
         let SetLstFeeFreeArgs {
             fee_acc: _,
             state_acc,
         } = self;
 
-        if *state_acc.key() != STATE_ID {
+        if *state_acc.pubkey() != STATE_ID {
             return Err(FlatFeeError::IncorrectProgramState);
         }
 

@@ -4,7 +4,7 @@ use flat_fee_lib::{
 };
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use solana_program::program_error::ProgramError;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -34,8 +34,8 @@ async fn basic() {
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
     let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
 
-    let keyed_state = KeyedReadonlyAccount {
-        key: STATE_ID,
+    let keyed_state = KeyedAccount {
+        pubkey: STATE_ID,
         account: state_acc,
     };
 

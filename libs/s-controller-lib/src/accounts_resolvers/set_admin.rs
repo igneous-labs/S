@@ -1,23 +1,23 @@
 use s_controller_interface::{SControllerError, SetAdminKeys};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{program::POOL_STATE_ID, try_pool_state};
 
 #[derive(Clone, Copy, Debug)]
-pub struct SetAdminFreeArgs<S: ReadonlyAccountData + KeyedAccount> {
+pub struct SetAdminFreeArgs<S: ReadonlyAccountData + ReadonlyAccountPubkey> {
     pub new_admin: Pubkey,
     pub pool_state: S,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount> SetAdminFreeArgs<S> {
+impl<S: ReadonlyAccountData + ReadonlyAccountPubkey> SetAdminFreeArgs<S> {
     pub fn resolve(self) -> Result<SetAdminKeys, SControllerError> {
         let SetAdminFreeArgs {
             new_admin,
             pool_state: pool_state_acc,
         } = self;
 
-        if *pool_state_acc.key() != POOL_STATE_ID {
+        if *pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 

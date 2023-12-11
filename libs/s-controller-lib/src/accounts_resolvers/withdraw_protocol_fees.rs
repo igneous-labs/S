@@ -1,7 +1,7 @@
 use s_controller_interface::{SControllerError, WithdrawProtocolFeesKeys};
 use sanctum_utils::token::token_account_mint_program_agnostic;
 use solana_program::program_error::ProgramError;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     find_protocol_fee_accumulator_address,
@@ -11,16 +11,16 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct WithdrawProtocolFeesFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    W: ReadonlyAccountData + ReadonlyAccountOwner + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    W: ReadonlyAccountData + ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub pool_state: S,
     pub withdraw_to: W,
 }
 
 impl<
-        S: ReadonlyAccountData + KeyedAccount,
-        W: ReadonlyAccountData + ReadonlyAccountOwner + KeyedAccount,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        W: ReadonlyAccountData + ReadonlyAccountOwner + ReadonlyAccountPubkey,
     > WithdrawProtocolFeesFreeArgs<S, W>
 {
     pub fn resolve(self) -> Result<WithdrawProtocolFeesKeys, ProgramError> {
@@ -29,7 +29,7 @@ impl<
             withdraw_to,
         } = self;
 
-        if *pool_state_acc.key() != POOL_STATE_ID {
+        if *pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState.into());
         }
 
@@ -50,7 +50,7 @@ impl<
             protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
             protocol_fee_beneficiary: pool_state.protocol_fee_beneficiary,
             token_program: *withdraw_to.owner(),
-            withdraw_to: *withdraw_to.key(),
+            withdraw_to: *withdraw_to.pubkey(),
         })
     }
 }

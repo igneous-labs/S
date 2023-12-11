@@ -12,7 +12,7 @@ use sanctum_utils::{
 };
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use spl_token::native_mint;
@@ -100,8 +100,8 @@ async fn basic_redeem_full_no_fees() {
             lst_calculator_program_id: spl_calculator_lib::program::ID,
             pricing_program_id: no_fee_pricing_program::ID,
             lst_calculator_accounts: &SplLstSolCommonFreeArgsConst {
-                spl_stake_pool: KeyedReadonlyAccount {
-                    key: jito_stake_pool::ID,
+                spl_stake_pool: KeyedAccount {
+                    pubkey: jito_stake_pool::ID,
                     account: jito_stake_pool_acc,
                 },
             }

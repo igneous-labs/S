@@ -1,5 +1,5 @@
 use generic_pool_calculator_interface::{GenericPoolCalculatorError, UpdateLastUpgradeSlotKeys};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     utils::{read_programdata_addr, try_calculator_state},
@@ -7,23 +7,25 @@ use crate::{
 };
 
 pub struct UpdateLastUpgradeSlotFreeArgs<
-    S: KeyedAccount + ReadonlyAccountData,
-    Q: KeyedAccount + ReadonlyAccountData,
+    S: ReadonlyAccountPubkey + ReadonlyAccountData,
+    Q: ReadonlyAccountPubkey + ReadonlyAccountData,
 > {
     pub state: S,
     pub pool_program: Q,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountData>
-    UpdateLastUpgradeSlotFreeArgs<S, Q>
+impl<
+        S: ReadonlyAccountPubkey + ReadonlyAccountData,
+        Q: ReadonlyAccountPubkey + ReadonlyAccountData,
+    > UpdateLastUpgradeSlotFreeArgs<S, Q>
 {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {
-        if *self.state.key() != P::CALCULATOR_STATE_PDA {
+        if *self.state.pubkey() != P::CALCULATOR_STATE_PDA {
             return Err(GenericPoolCalculatorError::WrongCalculatorStatePda);
         }
-        if *self.pool_program.key() != P::POOL_PROGRAM_ID {
+        if *self.pool_program.pubkey() != P::POOL_PROGRAM_ID {
             return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
 
@@ -43,15 +45,15 @@ impl<S: KeyedAccount + ReadonlyAccountData, Q: KeyedAccount + ReadonlyAccountDat
 
 /// Struct that uses defined const for POOL_PROGRAM_PROGDATA
 /// so that it can be used without fetching POOL_PROGRAM
-pub struct UpdateLastUpgradeSlotFreeArgsConst<S: KeyedAccount + ReadonlyAccountData> {
+pub struct UpdateLastUpgradeSlotFreeArgsConst<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub state: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> UpdateLastUpgradeSlotFreeArgsConst<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> UpdateLastUpgradeSlotFreeArgsConst<S> {
     pub fn resolve<P: GenericPoolSolValCalc>(
         self,
     ) -> Result<UpdateLastUpgradeSlotKeys, GenericPoolCalculatorError> {
-        if *self.state.key() != P::CALCULATOR_STATE_PDA {
+        if *self.state.pubkey() != P::CALCULATOR_STATE_PDA {
             return Err(GenericPoolCalculatorError::WrongCalculatorStatePda);
         }
 

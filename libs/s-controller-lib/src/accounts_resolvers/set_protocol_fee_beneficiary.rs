@@ -1,23 +1,23 @@
 use s_controller_interface::{SControllerError, SetProtocolFeeBeneficiaryKeys};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{program::POOL_STATE_ID, try_pool_state};
 
 #[derive(Clone, Copy, Debug)]
-pub struct SetProtocolFeeBeneficiaryFreeArgs<S: ReadonlyAccountData + KeyedAccount> {
+pub struct SetProtocolFeeBeneficiaryFreeArgs<S: ReadonlyAccountData + ReadonlyAccountPubkey> {
     pub new_beneficiary: Pubkey,
     pub pool_state: S,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount> SetProtocolFeeBeneficiaryFreeArgs<S> {
+impl<S: ReadonlyAccountData + ReadonlyAccountPubkey> SetProtocolFeeBeneficiaryFreeArgs<S> {
     pub fn resolve(self) -> Result<SetProtocolFeeBeneficiaryKeys, SControllerError> {
         let SetProtocolFeeBeneficiaryFreeArgs {
             new_beneficiary,
             pool_state: pool_state_acc,
         } = self;
 
-        if *pool_state_acc.key() != POOL_STATE_ID {
+        if *pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 

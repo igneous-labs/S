@@ -13,7 +13,7 @@ use solana_program::{
     clock::Clock, instruction::Instruction, program_error::ProgramError, pubkey::Pubkey,
 };
 use solana_program_test::ProgramTestContext;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     account::Account,
     signature::{read_keypair_file, Keypair},
@@ -52,8 +52,8 @@ fn create_rebalance_donate_ixs(
     }: CreateRebalanceDonateIxsArgs,
 ) -> [Instruction; 3] {
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
-        spl_stake_pool: KeyedReadonlyAccount {
-            key: jito_stake_pool::ID,
+        spl_stake_pool: KeyedAccount {
+            pubkey: jito_stake_pool::ID,
             account: jito_stake_pool_acc,
         },
     }
@@ -64,12 +64,12 @@ fn create_rebalance_donate_ixs(
 
     let args = StartRebalanceByMintsFreeArgs {
         withdraw_to: withdraw_jitosol_to_addr,
-        lst_state_list: KeyedReadonlyAccount {
-            key: LST_STATE_LIST_ID,
+        lst_state_list: KeyedAccount {
+            pubkey: LST_STATE_LIST_ID,
             account: lst_state_list_acc,
         },
-        pool_state: KeyedReadonlyAccount {
-            key: POOL_STATE_ID,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
             account: pool_state_acc,
         },
         src_lst_mint: MintWithTokenProgram {
@@ -258,8 +258,8 @@ async fn rebalance_fail_no_end() {
         banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
 
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
-        spl_stake_pool: KeyedReadonlyAccount {
-            key: jito_stake_pool::ID,
+        spl_stake_pool: KeyedAccount {
+            pubkey: jito_stake_pool::ID,
             account: jito_stake_pool_acc,
         },
     }
@@ -270,12 +270,12 @@ async fn rebalance_fail_no_end() {
 
     let args = StartRebalanceByMintsFreeArgs {
         withdraw_to: withdraw_jitosol_to_addr,
-        lst_state_list: KeyedReadonlyAccount {
-            key: LST_STATE_LIST_ID,
+        lst_state_list: KeyedAccount {
+            pubkey: LST_STATE_LIST_ID,
             account: lst_state_list_acc,
         },
-        pool_state: KeyedReadonlyAccount {
-            key: POOL_STATE_ID,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
             account: pool_state_acc,
         },
         src_lst_mint: MintWithTokenProgram {

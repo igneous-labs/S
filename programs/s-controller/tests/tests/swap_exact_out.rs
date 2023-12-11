@@ -13,7 +13,7 @@ use s_controller_lib::{
 use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
 use test_utils::{
@@ -87,8 +87,8 @@ async fn basic_swap_exact_out_no_fee() {
     let jito_stake_pool_acc =
         banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
     let jito_sol_val_calc_args = SplLstSolCommonFreeArgsConst {
-        spl_stake_pool: KeyedReadonlyAccount {
-            key: jito_stake_pool::ID,
+        spl_stake_pool: KeyedAccount {
+            pubkey: jito_stake_pool::ID,
             account: jito_stake_pool_acc,
         },
     };
@@ -275,8 +275,8 @@ async fn basic_swap_exact_out_flat_fee() {
     let jito_stake_pool_acc =
         banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
-        spl_stake_pool: KeyedReadonlyAccount {
-            key: jito_stake_pool::ID,
+        spl_stake_pool: KeyedAccount {
+            pubkey: jito_stake_pool::ID,
             account: jito_stake_pool_acc,
         },
     }

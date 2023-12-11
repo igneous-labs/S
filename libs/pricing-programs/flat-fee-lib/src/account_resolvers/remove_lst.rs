@@ -1,6 +1,6 @@
 use flat_fee_interface::{FlatFeeError, ProgramState, RemoveLstKeys};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
@@ -8,13 +8,13 @@ use crate::{
     utils::try_program_state,
 };
 
-pub struct RemoveLstByMintFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct RemoveLstByMintFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub refund_rent_to: Pubkey,
     pub lst_mint: Pubkey,
     pub state_acc: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstByMintFreeArgs<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> RemoveLstByMintFreeArgs<S> {
     fn resolve_with_fee_acc(self, fee_acc: Pubkey) -> Result<RemoveLstKeys, FlatFeeError> {
         let RemoveLstByMintFreeArgs {
             refund_rent_to,
@@ -22,7 +22,7 @@ impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstByMintFreeArgs<S> {
             state_acc,
         } = self;
 
-        if *state_acc.key() != STATE_ID {
+        if *state_acc.pubkey() != STATE_ID {
             return Err(FlatFeeError::IncorrectProgramState);
         }
 
@@ -61,20 +61,20 @@ impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstByMintFreeArgs<S> {
     }
 }
 
-pub struct RemoveLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct RemoveLstFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub refund_rent_to: Pubkey,
     pub fee_acc: Pubkey,
     pub state_acc: S,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> RemoveLstFreeArgs<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> RemoveLstFreeArgs<S> {
     pub fn resolve(self) -> Result<RemoveLstKeys, FlatFeeError> {
         let RemoveLstFreeArgs {
             refund_rent_to,
             fee_acc,
             state_acc,
         } = self;
-        if *state_acc.key() != STATE_ID {
+        if *state_acc.pubkey() != STATE_ID {
             return Err(FlatFeeError::IncorrectProgramState);
         }
 

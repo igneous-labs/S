@@ -1,6 +1,6 @@
 use s_controller_interface::{AddLiquidityKeys, SControllerError};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     create_pool_reserves_address, create_protocol_fee_accumulator_address,
@@ -10,9 +10,9 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct AddLiquidityFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub lst_index: usize,
     pub signer: Pubkey,
@@ -24,9 +24,9 @@ pub struct AddLiquidityFreeArgs<
 }
 
 impl<
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
-        M: ReadonlyAccountOwner + KeyedAccount,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
     > AddLiquidityFreeArgs<S, L, M>
 {
     pub fn resolve(self) -> Result<AddLiquidityKeys, SControllerError> {
@@ -39,16 +39,16 @@ impl<
             lst_state_list: lst_state_list_account,
             lst_mint,
         } = self;
-        if *pool_state_account.key() != POOL_STATE_ID {
+        if *pool_state_account.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
-        if *lst_state_list_account.key() != LST_STATE_LIST_ID {
+        if *lst_state_list_account.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
 
         let lst_state_list_acc_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
-        let lst_state = try_match_lst_mint_on_list(*lst_mint.key(), lst_state_list, lst_index)?;
+        let lst_state = try_match_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list, lst_index)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
         let protocol_fee_accumulator =
             create_protocol_fee_accumulator_address(lst_state, *lst_mint.owner())?;
@@ -58,7 +58,7 @@ impl<
 
         Ok(AddLiquidityKeys {
             signer,
-            lst_mint: *lst_mint.key(),
+            lst_mint: *lst_mint.pubkey(),
             src_lst_acc,
             dst_lp_acc,
             lp_token_mint: pool_state.lp_token_mint,
@@ -78,7 +78,7 @@ impl<
 pub struct AddLiquidityByMintFreeArgs<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub signer: Pubkey,
     pub src_lst_acc: Pubkey,
@@ -88,8 +88,11 @@ pub struct AddLiquidityByMintFreeArgs<
     pub lst_mint: M,
 }
 
-impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
-    AddLiquidityByMintFreeArgs<S, L, M>
+impl<
+        S: ReadonlyAccountData,
+        L: ReadonlyAccountData,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    > AddLiquidityByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
     /// Returns partial instructions keys + index of lst on lst_state_list
@@ -104,7 +107,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
         } = self;
         let lst_state_list_acc_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
-        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.key(), lst_state_list)?;
+        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
         let protocol_fee_accumulator =
             create_protocol_fee_accumulator_address(lst_state, *lst_mint.owner())?;
@@ -115,7 +118,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
         Ok((
             AddLiquidityKeys {
                 signer,
-                lst_mint: *lst_mint.key(),
+                lst_mint: *lst_mint.pubkey(),
                 src_lst_acc,
                 dst_lp_acc,
                 lp_token_mint: pool_state.lp_token_mint,

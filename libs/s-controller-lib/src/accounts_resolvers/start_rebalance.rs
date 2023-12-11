@@ -1,6 +1,6 @@
 use s_controller_interface::{SControllerError, StartRebalanceKeys};
 use solana_program::{pubkey::Pubkey, system_program, sysvar};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     create_pool_reserves_address,
@@ -11,10 +11,10 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceFreeArgs<
-    SM: ReadonlyAccountOwner + KeyedAccount,
-    DM: ReadonlyAccountOwner + KeyedAccount,
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
+    SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
 > {
     pub withdraw_to: Pubkey,
     pub src_lst_index: usize,
@@ -26,17 +26,17 @@ pub struct StartRebalanceFreeArgs<
 }
 
 impl<
-        SM: ReadonlyAccountOwner + KeyedAccount,
-        DM: ReadonlyAccountOwner + KeyedAccount,
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
+        SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+        DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
     > StartRebalanceFreeArgs<SM, DM, S, L>
 {
     pub fn resolve(self) -> Result<StartRebalanceKeys, SControllerError> {
-        if *self.lst_state_list.key() != LST_STATE_LIST_ID {
+        if *self.lst_state_list.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
-        if *self.pool_state.key() != POOL_STATE_ID {
+        if *self.pool_state.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -44,12 +44,12 @@ impl<
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
         let src_lst_state =
-            try_match_lst_mint_on_list(*self.src_lst_mint.key(), list, self.src_lst_index)?;
+            try_match_lst_mint_on_list(*self.src_lst_mint.pubkey(), list, self.src_lst_index)?;
         let src_pool_reserves =
             create_pool_reserves_address(src_lst_state, *self.src_lst_mint.owner())?;
 
         let dst_lst_state =
-            try_match_lst_mint_on_list(*self.dst_lst_mint.key(), list, self.dst_lst_index)?;
+            try_match_lst_mint_on_list(*self.dst_lst_mint.pubkey(), list, self.dst_lst_index)?;
         let dst_pool_reserves =
             create_pool_reserves_address(dst_lst_state, *self.dst_lst_mint.owner())?;
 
@@ -77,10 +77,10 @@ impl<
 /// Suitable for use on client side
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceByMintsFreeArgs<
-    SM: ReadonlyAccountOwner + KeyedAccount,
-    DM: ReadonlyAccountOwner + KeyedAccount,
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
+    SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
 > {
     pub withdraw_to: Pubkey,
     pub lst_state_list: L,
@@ -90,17 +90,17 @@ pub struct StartRebalanceByMintsFreeArgs<
 }
 
 impl<
-        SM: ReadonlyAccountOwner + KeyedAccount,
-        DM: ReadonlyAccountOwner + KeyedAccount,
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
+        SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+        DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
     > StartRebalanceByMintsFreeArgs<SM, DM, S, L>
 {
     pub fn resolve(self) -> Result<(StartRebalanceKeys, SrcDstLstIndexes), SControllerError> {
-        if *self.lst_state_list.key() != LST_STATE_LIST_ID {
+        if *self.lst_state_list.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
-        if *self.pool_state.key() != POOL_STATE_ID {
+        if *self.pool_state.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -108,12 +108,12 @@ impl<
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
         let (src_lst_index, src_lst_state) =
-            try_find_lst_mint_on_list(*self.src_lst_mint.key(), list)?;
+            try_find_lst_mint_on_list(*self.src_lst_mint.pubkey(), list)?;
         let src_pool_reserves =
             create_pool_reserves_address(src_lst_state, *self.src_lst_mint.owner())?;
 
         let (dst_lst_index, dst_lst_state) =
-            try_find_lst_mint_on_list(*self.dst_lst_mint.key(), list)?;
+            try_find_lst_mint_on_list(*self.dst_lst_mint.pubkey(), list)?;
         let dst_pool_reserves =
             create_pool_reserves_address(dst_lst_state, *self.dst_lst_mint.owner())?;
 

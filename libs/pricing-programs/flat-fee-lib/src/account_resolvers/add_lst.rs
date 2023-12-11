@@ -1,6 +1,6 @@
 use flat_fee_interface::{AddLstKeys, FlatFeeError, ProgramState};
 use solana_program::{pubkey::Pubkey, system_program};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
@@ -8,13 +8,13 @@ use crate::{
     utils::try_program_state,
 };
 
-pub struct AddLstFreeArgs<S: KeyedAccount + ReadonlyAccountData> {
+pub struct AddLstFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
     pub payer: Pubkey,
     pub state_acc: S,
     pub lst_mint: Pubkey,
 }
 
-impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
+impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> AddLstFreeArgs<S> {
     pub fn resolve(self) -> Result<(AddLstKeys, FeeAccountCreatePdaArgs), FlatFeeError> {
         let Self {
             payer,
@@ -22,7 +22,7 @@ impl<S: KeyedAccount + ReadonlyAccountData> AddLstFreeArgs<S> {
             lst_mint,
         } = self;
 
-        if *state_acc.key() != STATE_ID {
+        if *state_acc.pubkey() != STATE_ID {
             return Err(FlatFeeError::IncorrectProgramState);
         }
 

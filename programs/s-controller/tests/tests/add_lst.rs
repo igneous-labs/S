@@ -7,7 +7,7 @@ use s_controller_lib::{
 };
 use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{banks_client_get_account, jitosol, test_fixtures_dir, AddAccount};
 
@@ -53,12 +53,12 @@ async fn basic_add_two() {
     let (keys, _bumps) = AddLstFreeArgs {
         payer: payer.pubkey(),
         sol_value_calculator: spl_calculator_lib::program::ID,
-        pool_state: KeyedReadonlyAccount {
-            key: POOL_STATE_ID,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
             account: pool_state_account.clone(),
         },
-        lst_mint: KeyedReadonlyAccount {
-            key: jitosol::ID,
+        lst_mint: KeyedAccount {
+            pubkey: jitosol::ID,
             account: jitosol_mint_acc,
         },
     }
@@ -91,12 +91,12 @@ async fn basic_add_two() {
     let (keys, _bumps) = AddLstFreeArgs {
         payer: payer.pubkey(),
         sol_value_calculator: marinade_calculator_lib::program::ID,
-        pool_state: KeyedReadonlyAccount {
-            key: POOL_STATE_ID,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
             account: pool_state_account,
         },
-        lst_mint: KeyedReadonlyAccount {
-            key: msol::ID,
+        lst_mint: KeyedAccount {
+            pubkey: msol::ID,
             account: msol_mint_acc,
         },
     }

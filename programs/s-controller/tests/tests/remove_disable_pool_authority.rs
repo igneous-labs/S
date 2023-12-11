@@ -9,7 +9,7 @@ use s_controller_lib::{
 };
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, BanksClient, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -63,12 +63,12 @@ async fn basic() {
             index: target_index,
             refund_rent_to: payer.pubkey(),
             signer: mock_auth_kp.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
-            disable_pool_authority_list: KeyedReadonlyAccount {
-                key: DISABLE_POOL_AUTHORITY_LIST_ID,
+            disable_pool_authority_list: KeyedAccount {
+                pubkey: DISABLE_POOL_AUTHORITY_LIST_ID,
                 account: disable_pool_authority_list_acc.clone(),
             },
         }
@@ -103,12 +103,12 @@ async fn basic() {
             refund_rent_to: payer.pubkey(),
             signer: target_authority_kp.pubkey(),
             authority: disable_pool_authority_kps[1].pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
-            disable_pool_authority_list: KeyedReadonlyAccount {
-                key: DISABLE_POOL_AUTHORITY_LIST_ID,
+            disable_pool_authority_list: KeyedAccount {
+                pubkey: DISABLE_POOL_AUTHORITY_LIST_ID,
                 account: disable_pool_authority_list_acc.clone(),
             },
         }
@@ -134,12 +134,12 @@ async fn basic() {
             index: target_index,
             refund_rent_to: payer.pubkey(),
             signer: target_authority_kp.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
-            disable_pool_authority_list: KeyedReadonlyAccount {
-                key: DISABLE_POOL_AUTHORITY_LIST_ID,
+            disable_pool_authority_list: KeyedAccount {
+                pubkey: DISABLE_POOL_AUTHORITY_LIST_ID,
                 account: disable_pool_authority_list_acc.clone(),
             },
         }

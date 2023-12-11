@@ -4,7 +4,7 @@ use s_controller_interface::{
     StartRebalanceKeys,
 };
 use solana_program::{instruction::Instruction, program_error::ProgramError};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{index_to_u32, SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
 
@@ -53,10 +53,10 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
 }
 
 pub fn start_rebalance_ix_by_mints_full<
-    SM: ReadonlyAccountOwner + KeyedAccount,
-    DM: ReadonlyAccountOwner + KeyedAccount,
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
+    SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
 >(
     free_args: StartRebalanceByMintsFreeArgs<SM, DM, S, L>,
     amount: u64,

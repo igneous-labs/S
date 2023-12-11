@@ -1,20 +1,20 @@
 use s_controller_interface::{SControllerError, SetProtocolFeeKeys};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{program::POOL_STATE_ID, try_pool_state};
 
 #[derive(Clone, Copy, Debug)]
-pub struct SetProtocolFeeFreeArgs<S: ReadonlyAccountData + KeyedAccount> {
+pub struct SetProtocolFeeFreeArgs<S: ReadonlyAccountData + ReadonlyAccountPubkey> {
     pub pool_state: S,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount> SetProtocolFeeFreeArgs<S> {
+impl<S: ReadonlyAccountData + ReadonlyAccountPubkey> SetProtocolFeeFreeArgs<S> {
     pub fn resolve(self) -> Result<SetProtocolFeeKeys, SControllerError> {
         let SetProtocolFeeFreeArgs {
             pool_state: pool_state_acc,
         } = self;
 
-        if *pool_state_acc.key() != POOL_STATE_ID {
+        if *pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 

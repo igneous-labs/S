@@ -4,7 +4,7 @@ use s_controller_lib::{
     AddDisablePoolAuthorityFreeArgs,
 };
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -42,8 +42,8 @@ async fn basic_add_two() {
         let keys = AddDisablePoolAuthorityFreeArgs {
             payer: payer.pubkey(),
             new_authority: new_authority_keypair.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
         }
@@ -77,8 +77,8 @@ async fn basic_add_two() {
         let keys = AddDisablePoolAuthorityFreeArgs {
             payer: payer.pubkey(),
             new_authority: new_authority_keypair.pubkey(),
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
         }

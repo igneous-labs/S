@@ -2,7 +2,7 @@ use s_controller_interface::{set_admin_ix, PoolState, SetAdminIxArgs};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs};
 
 use solana_program_test::*;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair, Signer},
     transaction::Transaction,
@@ -37,8 +37,8 @@ async fn basic_set_admin() {
     let ix = set_admin_ix(
         SetAdminFreeArgs {
             new_admin: new_admin_kp.pubkey(),
-            pool_state: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
         }
@@ -67,8 +67,8 @@ async fn basic_set_admin() {
     let ix2 = set_admin_ix(
         SetAdminFreeArgs {
             new_admin: another_new_admin_kp.pubkey(),
-            pool_state: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
         }

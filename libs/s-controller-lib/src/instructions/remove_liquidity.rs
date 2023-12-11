@@ -4,7 +4,7 @@ use s_controller_interface::{
     SControllerError,
 };
 use solana_program::{instruction::Instruction, program_error::ProgramError};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     index_to_u32, ix_extend_with_pricing_program_price_lp_accounts,
@@ -66,7 +66,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
 pub fn remove_liquidity_ix_by_mint_full<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 >(
     free_args: RemoveLiquidityByMintFreeArgs<S, L, M>,
     lp_amount: u64,

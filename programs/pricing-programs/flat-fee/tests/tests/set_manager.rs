@@ -5,7 +5,7 @@ use flat_fee_lib::{
 use flat_fee_test_utils::{banks_client_get_flat_fee_program_state, DEFAULT_PROGRAM_STATE};
 use solana_program::program_error::ProgramError;
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -40,8 +40,8 @@ async fn basic() {
         let ix = set_manager_ix(
             SetManagerFreeArgs {
                 new_manager: new_manager_kp.pubkey(),
-                state_acc: KeyedReadonlyAccount {
-                    key: STATE_ID,
+                state_acc: KeyedAccount {
+                    pubkey: STATE_ID,
                     account: state_acc,
                 },
             }
@@ -73,8 +73,8 @@ async fn basic() {
         let new_manager_kp = Keypair::new();
         let mut keys = SetManagerFreeArgs {
             new_manager: new_manager_kp.pubkey(),
-            state_acc: KeyedReadonlyAccount {
-                key: STATE_ID,
+            state_acc: KeyedAccount {
+                pubkey: STATE_ID,
                 account: state_acc,
             },
         }

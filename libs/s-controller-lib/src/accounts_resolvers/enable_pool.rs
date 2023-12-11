@@ -1,16 +1,16 @@
 use s_controller_interface::{EnablePoolKeys, SControllerError};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{program::POOL_STATE_ID, try_pool_state};
 
 #[derive(Clone, Copy, Debug)]
-pub struct EnablePoolFreeArgs<S: ReadonlyAccountData + KeyedAccount> {
+pub struct EnablePoolFreeArgs<S: ReadonlyAccountData + ReadonlyAccountPubkey> {
     pub pool_state_acc: S,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount> EnablePoolFreeArgs<S> {
+impl<S: ReadonlyAccountData + ReadonlyAccountPubkey> EnablePoolFreeArgs<S> {
     pub fn resolve(&self) -> Result<EnablePoolKeys, SControllerError> {
-        if *self.pool_state_acc.key() != POOL_STATE_ID {
+        if *self.pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -19,7 +19,7 @@ impl<S: ReadonlyAccountData + KeyedAccount> EnablePoolFreeArgs<S> {
 
         Ok(EnablePoolKeys {
             admin: pool_state.admin,
-            pool_state: *self.pool_state_acc.key(),
+            pool_state: *self.pool_state_acc.pubkey(),
         })
     }
 }
