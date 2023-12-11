@@ -1,5 +1,5 @@
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 /// A mint and its owner token program
 #[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Hash)]
@@ -17,8 +17,8 @@ impl ReadonlyAccountOwner for MintWithTokenProgram {
     }
 }
 
-impl KeyedAccount for MintWithTokenProgram {
-    fn key(&self) -> &Pubkey {
+impl ReadonlyAccountPubkey for MintWithTokenProgram {
+    fn pubkey(&self) -> &Pubkey {
         &self.pubkey
     }
 }

@@ -3,14 +3,14 @@ use generic_pool_calculator_test_utils::{
 };
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use spl_calculator_lib::SplSolValCalc;
 use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
 
 pub struct JitoNormalProgramTest {
     pub program_test: ProgramTest,
-    pub jito_stake_pool: KeyedReadonlyAccount,
-    pub spl_stake_pool_prog: KeyedReadonlyAccount,
+    pub jito_stake_pool: KeyedAccount,
+    pub spl_stake_pool_prog: KeyedAccount,
 }
 
 pub fn jito_normal_program_test() -> JitoNormalProgramTest {
@@ -26,8 +26,8 @@ pub fn jito_normal_program_test() -> JitoNormalProgramTest {
         KeyedUiAccount::from_test_fixtures_file("spl-stake-pool-prog.json");
     let jito_stake_pool_ui_acc = KeyedUiAccount::from_test_fixtures_file("jito-stake-pool.json");
 
-    let spl_stake_pool_prog = spl_stake_pool_prog_ui_acc.to_keyed_readonly_account();
-    let jito_stake_pool = jito_stake_pool_ui_acc.to_keyed_readonly_account();
+    let spl_stake_pool_prog = spl_stake_pool_prog_ui_acc.to_keyed_account();
+    let jito_stake_pool = jito_stake_pool_ui_acc.to_keyed_account();
 
     program_test_add_mock_calculator_state::<SplSolValCalc>(
         ProgramTestAddMockCalculatorStateArgs {

@@ -2,7 +2,7 @@ use s_controller_interface::{
     DisableLstInputKeys, EnableLstInputKeys, LstState, PoolState, SControllerError,
 };
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
@@ -15,16 +15,18 @@ struct DisableEnableLstInputComputedKeys {
 }
 
 pub struct DisableEnableLstInputFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
 > {
     pub lst_index: usize,
     pub pool_state: S,
     pub lst_state_list: L,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccount>
-    DisableEnableLstInputFreeArgs<S, L>
+impl<
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
+    > DisableEnableLstInputFreeArgs<S, L>
 {
     fn compute_keys(&self) -> Result<DisableEnableLstInputComputedKeys, SControllerError> {
         let Self {
@@ -32,10 +34,10 @@ impl<S: ReadonlyAccountData + KeyedAccount, L: ReadonlyAccountData + KeyedAccoun
             pool_state: pool_state_account,
             lst_state_list: lst_state_list_account,
         } = self;
-        if *pool_state_account.key() != POOL_STATE_ID {
+        if *pool_state_account.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
-        if *lst_state_list_account.key() != LST_STATE_LIST_ID {
+        if *lst_state_list_account.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
 

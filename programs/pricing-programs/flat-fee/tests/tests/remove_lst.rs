@@ -1,7 +1,7 @@
 use flat_fee_interface::{remove_lst_ix, RemoveLstIxArgs};
 use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use test_utils::{banks_client_get_account, jitosol};
 
@@ -27,8 +27,8 @@ async fn remove_lst_basic() {
     let free_args = RemoveLstByMintFreeArgs {
         refund_rent_to: payer.pubkey(),
         lst_mint: jitosol::ID,
-        state_acc: KeyedReadonlyAccount {
-            key: STATE_ID,
+        state_acc: KeyedAccount {
+            pubkey: STATE_ID,
             account: banks_client_get_account(&mut banks_client, STATE_ID).await,
         },
     };

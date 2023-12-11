@@ -1,7 +1,7 @@
 use s_controller_interface::{enable_pool_ix, EnablePoolIxArgs, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, EnablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::test_fixtures_dir;
 
@@ -34,8 +34,8 @@ async fn basic_enable_pool() {
     // Enable pool
     {
         let keys = EnablePoolFreeArgs {
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
         }

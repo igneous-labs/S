@@ -1,6 +1,6 @@
 use s_controller_interface::{AddLstKeys, SControllerError};
 use solana_program::{pubkey::Pubkey, system_program};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address,
@@ -16,8 +16,8 @@ pub struct LstStateBumps {
 
 #[derive(Clone, Copy, Debug)]
 pub struct AddLstFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub payer: Pubkey,
     pub sol_value_calculator: Pubkey,
@@ -25,8 +25,10 @@ pub struct AddLstFreeArgs<
     pub lst_mint: M,
 }
 
-impl<S: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccount>
-    AddLstFreeArgs<S, M>
+impl<
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    > AddLstFreeArgs<S, M>
 {
     pub fn resolve(self) -> Result<(AddLstKeys, LstStateBumps), SControllerError> {
         let AddLstFreeArgs {
@@ -36,7 +38,7 @@ impl<S: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccou
             lst_mint,
         } = self;
 
-        if *pool_state_acc.key() != POOL_STATE_ID {
+        if *pool_state_acc.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
 
@@ -44,7 +46,7 @@ impl<S: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccou
         let pool_state = try_pool_state(&pool_state_data)?;
 
         let find_pda_keys = FindLstPdaAtaKeys {
-            lst_mint: *lst_mint.key(),
+            lst_mint: *lst_mint.pubkey(),
             token_program: *lst_mint.owner(),
         };
         let (pool_reserves, pool_reserves_bump) = find_pool_reserves_address(find_pda_keys);
@@ -55,7 +57,7 @@ impl<S: ReadonlyAccountData + KeyedAccount, M: ReadonlyAccountOwner + KeyedAccou
             AddLstKeys {
                 payer,
                 sol_value_calculator,
-                lst_mint: *lst_mint.key(),
+                lst_mint: *lst_mint.pubkey(),
                 admin: pool_state.admin,
                 pool_reserves,
                 protocol_fee_accumulator,

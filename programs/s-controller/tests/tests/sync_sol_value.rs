@@ -5,7 +5,7 @@ use s_controller_lib::{
 };
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
 use test_utils::{
@@ -46,8 +46,8 @@ async fn basic() {
 
     let free_args = SyncSolValueByMintFreeArgs {
         lst_state_list: lst_state_list_acc,
-        lst_mint: KeyedReadonlyAccount {
-            key: jitosol::ID,
+        lst_mint: KeyedAccount {
+            pubkey: jitosol::ID,
             account: jitosol_mint_acc,
         },
     };
@@ -55,8 +55,8 @@ async fn basic() {
     let jito_stake_pool_acc =
         banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
     let jito_sol_val_calc_args = SplLstSolCommonFreeArgsConst {
-        spl_stake_pool: KeyedReadonlyAccount {
-            key: jito_stake_pool::ID,
+        spl_stake_pool: KeyedAccount {
+            pubkey: jito_stake_pool::ID,
             account: jito_stake_pool_acc,
         },
     };

@@ -7,7 +7,7 @@ use generic_pool_calculator_test_utils::{
 };
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 use mock_calculator_program::MockCalculatorProgram;
@@ -85,8 +85,8 @@ async fn set_manager_basic() {
 
     let free_args = SetManagerFreeArgs {
         new_manager,
-        state: KeyedReadonlyAccount {
-            key: mock_calculator_program::STATE_ID,
+        state: KeyedAccount {
+            pubkey: mock_calculator_program::STATE_ID,
             account: mock_state,
         },
     };

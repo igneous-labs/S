@@ -4,7 +4,7 @@ use s_controller_interface::{
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeFreeArgs};
 use solana_program::program_error::ProgramError;
 use solana_program_test::BanksClient;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use test_utils::{assert_program_error, test_fixtures_dir};
 
@@ -29,8 +29,8 @@ async fn admin_set_both() {
     };
     let ix = set_protocol_fee_ix(
         SetProtocolFeeFreeArgs {
-            pool_state: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_to_account(old_pool_state),
             },
         }

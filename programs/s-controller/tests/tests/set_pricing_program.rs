@@ -5,7 +5,7 @@ use s_controller_lib::{
 
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -44,8 +44,8 @@ async fn basic() {
         assert_ne!(TEST_PRICING_PROGRAM_SUCCESS, DEFAULT_PRICING_PROGRAM);
         let keys = SetPricingProgramFreeArgs {
             new_pricing_program: TEST_PRICING_PROGRAM_SUCCESS,
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
         }
@@ -73,8 +73,8 @@ async fn basic() {
 
         let mut keys = SetPricingProgramFreeArgs {
             new_pricing_program: TEST_PRICING_PROGRAM_FAILURE,
-            pool_state_acc: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state_acc: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_account.clone(),
             },
         }

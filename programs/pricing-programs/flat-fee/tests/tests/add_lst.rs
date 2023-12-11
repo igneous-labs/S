@@ -4,7 +4,7 @@ use flat_fee_lib::{
 };
 use flat_fee_test_utils::banks_client_get_flat_fee_program_state;
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use test_utils::{assert_custom_err, assert_program_error};
 
@@ -35,8 +35,8 @@ async fn add_lst_basic() {
     let free_args = AddLstFreeArgs {
         payer: payer.pubkey(),
         lst_mint,
-        state_acc: KeyedReadonlyAccount {
-            key: STATE_ID,
+        state_acc: KeyedAccount {
+            pubkey: STATE_ID,
             account: state_acc,
         },
     };
@@ -76,8 +76,8 @@ async fn add_lst_fail_invalid_fee() {
 
     verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
     let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
-    let keyed_state_acc = KeyedReadonlyAccount {
-        key: STATE_ID,
+    let keyed_state_acc = KeyedAccount {
+        pubkey: STATE_ID,
         account: state_acc,
     };
 

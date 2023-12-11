@@ -1,5 +1,5 @@
 use s_controller_interface::{SControllerError, SetSolValueCalculatorKeys};
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     create_pool_reserves_address,
@@ -9,9 +9,9 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct SetSolValueCalculatorFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub lst_index: usize,
     pub pool_state: S,
@@ -20,9 +20,9 @@ pub struct SetSolValueCalculatorFreeArgs<
 }
 
 impl<
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
-        M: ReadonlyAccountOwner + KeyedAccount,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
     > SetSolValueCalculatorFreeArgs<S, L, M>
 {
     pub fn resolve(&self) -> Result<SetSolValueCalculatorKeys, SControllerError> {
@@ -32,16 +32,16 @@ impl<
             lst_state_list: lst_state_list_account,
             lst_mint,
         } = self;
-        if *pool_state_account.key() != POOL_STATE_ID {
+        if *pool_state_account.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
-        if *lst_state_list_account.key() != LST_STATE_LIST_ID {
+        if *lst_state_list_account.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
 
         let lst_state_list_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_data)?;
-        let lst_state = try_match_lst_mint_on_list(*lst_mint.key(), lst_state_list, *lst_index)?;
+        let lst_state = try_match_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list, *lst_index)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
 
         let pool_state_data = pool_state_account.data();
@@ -64,15 +64,18 @@ impl<
 pub struct SetSolValueCalculatorByMintFreeArgs<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub pool_state: S,
     pub lst_state_list: L,
     pub lst_mint: M,
 }
 
-impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
-    SetSolValueCalculatorByMintFreeArgs<S, L, M>
+impl<
+        S: ReadonlyAccountData,
+        L: ReadonlyAccountData,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    > SetSolValueCalculatorByMintFreeArgs<S, L, M>
 {
     /// Returns (keys, lst_index)
     pub fn resolve(&self) -> Result<(SetSolValueCalculatorKeys, usize), SControllerError> {
@@ -84,7 +87,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
 
         let lst_state_list_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_data)?;
-        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.key(), lst_state_list)?;
+        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
 
         let pool_state_data = pool_state_account.data();

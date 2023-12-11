@@ -4,7 +4,7 @@ use s_controller_interface::{
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
 
 use solana_program_test::*;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair, Signer},
     transaction::Transaction,
@@ -39,8 +39,8 @@ async fn basic_set_protocol_fee_beneficiary() {
     let ix = set_protocol_fee_beneficiary_ix(
         SetProtocolFeeBeneficiaryFreeArgs {
             new_beneficiary: new_beneficiary_kp.pubkey(),
-            pool_state: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
         }
@@ -69,8 +69,8 @@ async fn basic_set_protocol_fee_beneficiary() {
     let ix2 = set_protocol_fee_beneficiary_ix(
         SetProtocolFeeBeneficiaryFreeArgs {
             new_beneficiary: another_new_beneficiary_kp.pubkey(),
-            pool_state: KeyedReadonlyAccount {
-                key: POOL_STATE_ID,
+            pool_state: KeyedAccount {
+                pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
         }

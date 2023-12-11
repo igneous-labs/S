@@ -1,6 +1,6 @@
 use s_controller_interface::{RemoveLstIxArgs, RemoveLstKeys, SControllerError};
 use solana_program::pubkey::Pubkey;
-use solana_readonly_account::{KeyedAccount, ReadonlyAccountData, ReadonlyAccountOwner};
+use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
     create_pool_reserves_address, create_protocol_fee_accumulator_address,
@@ -12,9 +12,9 @@ use crate::{
 /// are empty before calling
 #[derive(Clone, Copy, Debug)]
 pub struct RemoveLstFreeArgs<
-    S: ReadonlyAccountData + KeyedAccount,
-    L: ReadonlyAccountData + KeyedAccount,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub lst_index: usize,
     pub refund_rent_to: Pubkey,
@@ -24,9 +24,9 @@ pub struct RemoveLstFreeArgs<
 }
 
 impl<
-        S: ReadonlyAccountData + KeyedAccount,
-        L: ReadonlyAccountData + KeyedAccount,
-        M: ReadonlyAccountOwner + KeyedAccount,
+        S: ReadonlyAccountData + ReadonlyAccountPubkey,
+        L: ReadonlyAccountData + ReadonlyAccountPubkey,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
     > RemoveLstFreeArgs<S, L, M>
 {
     pub fn resolve(self) -> Result<RemoveLstKeys, SControllerError> {
@@ -37,16 +37,16 @@ impl<
             lst_state_list: lst_state_list_account,
             lst_mint,
         } = self;
-        if *pool_state_account.key() != POOL_STATE_ID {
+        if *pool_state_account.pubkey() != POOL_STATE_ID {
             return Err(SControllerError::IncorrectPoolState);
         }
-        if *lst_state_list_account.key() != LST_STATE_LIST_ID {
+        if *lst_state_list_account.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
         let lst_state_list_acc_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
 
-        let lst_state = try_match_lst_mint_on_list(*lst_mint.key(), lst_state_list, lst_index)?;
+        let lst_state = try_match_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list, lst_index)?;
 
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
         let protocol_fee_accumulator =
@@ -58,7 +58,7 @@ impl<
         Ok(RemoveLstKeys {
             admin: pool_state.admin,
             refund_rent_to,
-            lst_mint: *lst_mint.key(),
+            lst_mint: *lst_mint.pubkey(),
             pool_reserves,
             protocol_fee_accumulator,
             protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
@@ -76,7 +76,7 @@ impl<
 pub struct RemoveLstByMintFreeArgs<
     S: ReadonlyAccountData,
     L: ReadonlyAccountData,
-    M: ReadonlyAccountOwner + KeyedAccount,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 > {
     pub refund_rent_to: Pubkey,
     pub pool_state: S,
@@ -84,8 +84,11 @@ pub struct RemoveLstByMintFreeArgs<
     pub lst_mint: M,
 }
 
-impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + KeyedAccount>
-    RemoveLstByMintFreeArgs<S, L, M>
+impl<
+        S: ReadonlyAccountData,
+        L: ReadonlyAccountData,
+        M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    > RemoveLstByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
     pub fn resolve(self) -> Result<(RemoveLstKeys, RemoveLstIxArgs), SControllerError> {
@@ -99,7 +102,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
         let lst_state_list_acc_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
 
-        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.key(), lst_state_list)?;
+        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
         let protocol_fee_accumulator =
             create_protocol_fee_accumulator_address(lst_state, *lst_mint.owner())?;
@@ -111,7 +114,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData, M: ReadonlyAccountOwner + K
             RemoveLstKeys {
                 admin: pool_state.admin,
                 refund_rent_to,
-                lst_mint: *lst_mint.key(),
+                lst_mint: *lst_mint.pubkey(),
                 pool_reserves,
                 protocol_fee_accumulator,
                 protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,

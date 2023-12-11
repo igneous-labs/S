@@ -10,7 +10,7 @@ use s_controller_lib::{
 use sanctum_utils::token::{token_2022_account_balance, token_account_balance};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
-use solana_readonly_account::sdk::KeyedReadonlyAccount;
+use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use spl_token::native_mint;
@@ -81,8 +81,8 @@ async fn basic_add_liquidity_twice_no_fee() {
         lst_mint: jitosol::ID,
         lst_calculator_program_id: spl_calculator_lib::program::ID,
         lst_calculator_accounts: &SplLstSolCommonFreeArgsConst {
-            spl_stake_pool: KeyedReadonlyAccount {
-                key: jito_stake_pool::ID,
+            spl_stake_pool: KeyedAccount {
+                pubkey: jito_stake_pool::ID,
                 account: jito_stake_pool_acc,
             },
         }
@@ -267,8 +267,8 @@ async fn exec_verify_add_liq_success_no_fees(
         dst_lp_acc: liquidity_provider_lp_token_acc_addr,
         pool_state: pool_state_account,
         lst_state_list: &lst_state_list_account,
-        lst_mint: KeyedReadonlyAccount {
-            key: lst_mint,
+        lst_mint: KeyedAccount {
+            pubkey: lst_mint,
             account: lst_mint_account,
         },
     };
