@@ -11,7 +11,7 @@ use sanctum_onchain_utils::{
     token_program::{close_token_account_signed, CloseTokenAccountAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_account_balance_program_agnostic;
+use sanctum_utils::token::token_account_balance;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -76,8 +76,8 @@ fn verify_remove_lst<'a, 'info>(
     let lst_state = lst_state_list[lst_index]; // index checked during accounts resolution
 
     if lst_state.sol_value != 0
-        || token_account_balance_program_agnostic(actual.pool_reserves)? != 0
-        || token_account_balance_program_agnostic(actual.protocol_fee_accumulator)? != 0
+        || token_account_balance(actual.pool_reserves)? != 0
+        || token_account_balance(actual.protocol_fee_accumulator)? != 0
     {
         return Err(SControllerError::LstStillHasValue.into());
     }

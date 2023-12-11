@@ -10,7 +10,7 @@ use sanctum_onchain_utils::{
     token_program::{transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_account_balance_program_agnostic;
+use sanctum_utils::token::token_account_balance;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -23,7 +23,7 @@ pub fn process_withdraw_protocol_fees(
 ) -> ProgramResult {
     let accounts = verify_withdraw_protocol_fees(accounts)?;
 
-    if args.amount > token_account_balance_program_agnostic(accounts.protocol_fee_accumulator)? {
+    if args.amount > token_account_balance(accounts.protocol_fee_accumulator)? {
         return Err(SControllerError::NotEnoughFees.into());
     }
 

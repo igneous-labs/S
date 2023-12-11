@@ -12,7 +12,7 @@ use sanctum_onchain_utils::{
     token_program::{transfer_tokens, transfer_tokens_signed, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
-use sanctum_utils::token::token_account_balance_program_agnostic;
+use sanctum_utils::token::token_account_balance;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -80,7 +80,7 @@ pub fn process_swap_exact_out(accounts: &[AccountInfo], args: SwapExactOutIxArgs
     let total_dst_lst_out = amount
         .checked_add(to_protocol_fees_lst_amount)
         .ok_or(SControllerError::MathError)?;
-    if total_dst_lst_out > token_account_balance_program_agnostic(accounts.dst_pool_reserves)? {
+    if total_dst_lst_out > token_account_balance(accounts.dst_pool_reserves)? {
         return Err(SControllerError::NotEnoughLiquidity.into());
     }
 
