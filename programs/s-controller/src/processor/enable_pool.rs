@@ -34,8 +34,8 @@ fn verify_enable_pool<'me, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    enable_pool_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    enable_pool_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    enable_pool_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    enable_pool_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_data = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_data)?;

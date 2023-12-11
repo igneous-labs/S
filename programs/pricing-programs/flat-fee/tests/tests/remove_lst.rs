@@ -1,4 +1,4 @@
-use flat_fee_interface::{remove_lst_ix, RemoveLstIxArgs};
+use flat_fee_interface::remove_lst_ix;
 use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -32,7 +32,7 @@ async fn remove_lst_basic() {
             account: banks_client_get_account(&mut banks_client, STATE_ID).await,
         },
     };
-    let ix = remove_lst_ix(free_args.resolve().unwrap(), RemoveLstIxArgs {}).unwrap();
+    let ix = remove_lst_ix(free_args.resolve().unwrap()).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &auth], last_blockhash);
 

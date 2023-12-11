@@ -16,7 +16,7 @@ pub fn process_instruction(
     _accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
-    let ix = PricingProgramsProgramIx::deserialize(&mut &instruction_data[..])?;
+    let ix = PricingProgramsProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
     let sol_value = match ix {

@@ -1,5 +1,5 @@
 use marinade_keys::msol;
-use s_controller_interface::{add_lst_ix, AddLstIxArgs, LstState};
+use s_controller_interface::{add_lst_ix, LstState};
 use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address,
     program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
@@ -64,7 +64,7 @@ async fn basic_add_two() {
     }
     .resolve()
     .unwrap();
-    let ix = add_lst_ix(keys, AddLstIxArgs {}).unwrap();
+    let ix = add_lst_ix(keys).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
@@ -102,7 +102,7 @@ async fn basic_add_two() {
     }
     .resolve()
     .unwrap();
-    let ix = add_lst_ix(keys, AddLstIxArgs {}).unwrap();
+    let ix = add_lst_ix(keys).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 

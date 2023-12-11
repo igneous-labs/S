@@ -1,4 +1,4 @@
-use s_controller_interface::{disable_pool_ix, DisablePoolIxArgs, SControllerError};
+use s_controller_interface::{disable_pool_ix, SControllerError};
 use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
@@ -35,7 +35,7 @@ async fn basic_disable_pool() {
             signer: disable_pool_authority_kp.pubkey(),
         }
         .resolve();
-        let ix = disable_pool_ix(keys, DisablePoolIxArgs {}).unwrap();
+        let ix = disable_pool_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &disable_pool_authority_kp], last_blockhash);
 
@@ -79,7 +79,7 @@ async fn reject_disable_pool() {
             signer: rando_kp.pubkey(),
         }
         .resolve();
-        let ix = disable_pool_ix(keys, DisablePoolIxArgs {}).unwrap();
+        let ix = disable_pool_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &rando_kp], last_blockhash);
 

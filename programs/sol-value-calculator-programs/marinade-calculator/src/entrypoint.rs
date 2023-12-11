@@ -21,16 +21,16 @@ pub fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let ix = GenericPoolCalculatorProgramIx::deserialize(&mut &instruction_data[..])?;
+    let ix = GenericPoolCalculatorProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
     match ix {
         GenericPoolCalculatorProgramIx::LstToSol(args) => process_lst_to_sol(accounts, args),
         GenericPoolCalculatorProgramIx::SolToLst(args) => process_sol_to_lst(accounts, args),
-        GenericPoolCalculatorProgramIx::UpdateLastUpgradeSlot(_args) => {
+        GenericPoolCalculatorProgramIx::UpdateLastUpgradeSlot => {
             process_update_last_upgrade_slot(accounts)
         }
-        GenericPoolCalculatorProgramIx::SetManager(_args) => process_set_manager(accounts),
-        GenericPoolCalculatorProgramIx::Init(_args) => process_init(accounts),
+        GenericPoolCalculatorProgramIx::SetManager => process_set_manager(accounts),
+        GenericPoolCalculatorProgramIx::Init => process_init(accounts),
     }
 }

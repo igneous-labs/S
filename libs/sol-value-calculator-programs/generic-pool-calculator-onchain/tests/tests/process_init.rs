@@ -1,4 +1,4 @@
-use generic_pool_calculator_interface::{init_ix, InitIxArgs};
+use generic_pool_calculator_interface::init_ix;
 use generic_pool_calculator_lib::{account_resolvers::InitFreeArgs, utils::try_calculator_state};
 use solana_program::{
     hash::Hash,
@@ -57,7 +57,7 @@ async fn exec_init_success(banks_client: &mut BanksClient, payer: &Keypair, last
     let free_args = InitFreeArgs {
         payer: payer.pubkey(),
     };
-    let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>(), InitIxArgs {}).unwrap();
+    let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>()).unwrap();
     ix.program_id = mock_calculator_program::ID;
 
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
@@ -94,7 +94,7 @@ async fn fail_init_second_time() {
     let free_args = InitFreeArgs {
         payer: payer.pubkey(),
     };
-    let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>(), InitIxArgs {}).unwrap();
+    let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>()).unwrap();
     ix.program_id = mock_calculator_program::ID;
     // Must change the transaction else
     // runtime will treat it as a duplicate and return previous Ok(()) result

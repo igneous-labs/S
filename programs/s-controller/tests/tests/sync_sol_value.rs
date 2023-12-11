@@ -67,7 +67,7 @@ async fn basic() {
             .resolve::<SplSolValCalc>()
             .into();
     let jito_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        (&jito_sol_val_calc_keys).into();
+        jito_sol_val_calc_keys.into();
 
     let ix = sync_sol_value_ix_by_mint_full(
         free_args,

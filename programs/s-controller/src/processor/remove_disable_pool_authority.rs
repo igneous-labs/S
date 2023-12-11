@@ -48,9 +48,9 @@ fn verify_remove_disable_pool_authority<'me, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    remove_disable_pool_authority_verify_account_keys(&actual, &expected)
+    remove_disable_pool_authority_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    remove_disable_pool_authority_verify_account_privileges(&actual)
+    remove_disable_pool_authority_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;

@@ -1,4 +1,4 @@
-use s_controller_interface::{enable_pool_ix, EnablePoolIxArgs, PoolState};
+use s_controller_interface::{enable_pool_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, EnablePoolFreeArgs, U8Bool};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -41,7 +41,7 @@ async fn basic_enable_pool() {
         }
         .resolve()
         .unwrap();
-        let ix = enable_pool_ix(keys, EnablePoolIxArgs {}).unwrap();
+        let ix = enable_pool_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 

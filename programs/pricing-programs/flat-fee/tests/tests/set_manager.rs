@@ -1,4 +1,4 @@
-use flat_fee_interface::{set_manager_ix, SetManagerIxArgs};
+use flat_fee_interface::set_manager_ix;
 use flat_fee_lib::{
     account_resolvers::SetManagerFreeArgs, program::STATE_ID, utils::try_program_state,
 };
@@ -47,7 +47,6 @@ async fn basic() {
             }
             .resolve()
             .unwrap(),
-            SetManagerIxArgs {},
         )
         .unwrap();
 
@@ -82,7 +81,7 @@ async fn basic() {
         .unwrap();
         keys.current_manager = rando_kp.pubkey();
 
-        let ix = set_manager_ix(keys, SetManagerIxArgs {}).unwrap();
+        let ix = set_manager_ix(keys).unwrap();
 
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &rando_kp], last_blockhash);

@@ -60,7 +60,7 @@ async fn basic_set_marinade() {
             .resolve::<MarinadeSolValCalc>()
             .into();
     let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        (&marinade_sol_val_calc_keys).into();
+        marinade_sol_val_calc_keys.into();
 
     let ix = set_sol_value_calculator_ix_by_mint_full(
         &SetSolValueCalculatorByMintFreeArgs {
@@ -118,7 +118,7 @@ async fn fail_unauthorized() {
             .resolve::<MarinadeSolValCalc>()
             .into();
     let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        (&marinade_sol_val_calc_keys).into();
+        marinade_sol_val_calc_keys.into();
 
     let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
     let (lst_index, lst_state) = try_find_lst_mint_on_list(

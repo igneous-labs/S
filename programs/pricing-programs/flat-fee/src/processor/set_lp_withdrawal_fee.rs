@@ -35,9 +35,9 @@ fn verify_set_lp_withdrawal_fee<'me, 'info>(
     };
     let expected: SetLpWithdrawalFeeKeys = free_args.resolve()?;
 
-    set_lp_withdrawal_fee_verify_account_keys(&actual, &expected)
+    set_lp_withdrawal_fee_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    set_lp_withdrawal_fee_verify_account_privileges(&actual)
+    set_lp_withdrawal_fee_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)

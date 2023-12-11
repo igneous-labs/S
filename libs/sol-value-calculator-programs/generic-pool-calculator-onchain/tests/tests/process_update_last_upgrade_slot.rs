@@ -1,6 +1,4 @@
-use generic_pool_calculator_interface::{
-    update_last_upgrade_slot_ix, UpdateLastUpgradeSlotIxArgs, UpdateLastUpgradeSlotKeys,
-};
+use generic_pool_calculator_interface::{update_last_upgrade_slot_ix, UpdateLastUpgradeSlotKeys};
 use generic_pool_calculator_lib::{
     account_resolvers::UpdateLastUpgradeSlotFreeArgs, utils::try_calculator_state,
 };
@@ -110,11 +108,8 @@ async fn update_last_upgrade_slot_success() {
             account: spl_stake_pool_prog_acc,
         },
     };
-    let mut ix = update_last_upgrade_slot_ix(
-        free_args.resolve::<MockCalculatorProgram>().unwrap(),
-        UpdateLastUpgradeSlotIxArgs {},
-    )
-    .unwrap();
+    let mut ix =
+        update_last_upgrade_slot_ix(free_args.resolve::<MockCalculatorProgram>().unwrap()).unwrap();
     ix.program_id = mock_calculator_program::ID;
 
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
@@ -134,15 +129,12 @@ async fn update_last_upgrade_slot_unauthorized() {
 
     verify_last_upgrade_slot(&mut banks_client, INITIAL_LAST_UPGRADE_SLOT).await;
 
-    let mut ix = update_last_upgrade_slot_ix(
-        UpdateLastUpgradeSlotKeys {
-            manager: payer.pubkey(),
-            state: mock_calculator_program::STATE_ID,
-            pool_program: spl_stake_pool_program::ID,
-            pool_program_data: spl_stake_pool_program_progdata::ID,
-        },
-        UpdateLastUpgradeSlotIxArgs {},
-    )
+    let mut ix = update_last_upgrade_slot_ix(UpdateLastUpgradeSlotKeys {
+        manager: payer.pubkey(),
+        state: mock_calculator_program::STATE_ID,
+        pool_program: spl_stake_pool_program::ID,
+        pool_program_data: spl_stake_pool_program_progdata::ID,
+    })
     .unwrap();
     ix.program_id = mock_calculator_program::ID;
 
@@ -163,15 +155,12 @@ async fn fail_update_last_upgrade_slot_missing_signature() {
 
     verify_last_upgrade_slot(&mut banks_client, INITIAL_LAST_UPGRADE_SLOT).await;
 
-    let mut ix = update_last_upgrade_slot_ix(
-        UpdateLastUpgradeSlotKeys {
-            manager,
-            state: mock_calculator_program::STATE_ID,
-            pool_program: spl_stake_pool_program::ID,
-            pool_program_data: spl_stake_pool_program_progdata::ID,
-        },
-        UpdateLastUpgradeSlotIxArgs {},
-    )
+    let mut ix = update_last_upgrade_slot_ix(UpdateLastUpgradeSlotKeys {
+        manager,
+        state: mock_calculator_program::STATE_ID,
+        pool_program: spl_stake_pool_program::ID,
+        pool_program_data: spl_stake_pool_program_progdata::ID,
+    })
     .unwrap();
     ix.program_id = mock_calculator_program::ID;
     ix.accounts[0].is_signer = false;
