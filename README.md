@@ -53,6 +53,7 @@ Program intended to be used by the authorities to manage the pool.
 We use a `testing` feature flag for test vs prod env in the following programs:
 
 - s-controller
+- flat-fee pricing program
 
 Unfortunately it seems like `cargo-test-sbf` has some issues with workspaces: running `cargo-test-sbf --features testing` in workspace root results in `error: none of the selected packages contains these features: testing`.
 
