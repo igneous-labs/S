@@ -2,31 +2,19 @@ use solana_program::pubkey::{Pubkey, PubkeyError};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CreateAtaAddressArgs {
-    pub wallet: Pubkey,
-    pub mint: Pubkey,
-    pub token_program: Pubkey,
-    pub bump: u8,
+    pub find_ata_args: FindAtaAddressArgs,
+    pub bump: [u8; 1],
 }
 
-/// spl-associated-token-account only exports the find_program_address version.
-/// This uses create_program_address with a known bump to reduce compute used
-pub fn create_ata_address(
-    CreateAtaAddressArgs {
-        wallet,
-        mint,
-        token_program,
-        bump,
-    }: CreateAtaAddressArgs,
-) -> Result<Pubkey, PubkeyError> {
-    Pubkey::create_program_address(
-        &[
-            &wallet.to_bytes(),
-            &token_program.to_bytes(),
-            &mint.to_bytes(),
-            &[bump],
-        ],
-        &spl_associated_token_account::ID,
-    )
+impl CreateAtaAddressArgs {
+    pub fn to_signer_seeds(&self) -> [&[u8]; 4] {
+        let [wallet, token_program, mint] = self.find_ata_args.to_seeds();
+        [wallet, token_program, mint, &self.bump]
+    }
+
+    pub fn create_ata_address(&self) -> Result<Pubkey, PubkeyError> {
+        Pubkey::create_program_address(&self.to_signer_seeds(), &spl_associated_token_account::ID)
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -36,21 +24,18 @@ pub struct FindAtaAddressArgs {
     pub token_program: Pubkey,
 }
 
-/// spl-associated-token-account doesnt export a find_program_address
-/// that also returns the found bump
-pub fn find_ata_address(
-    FindAtaAddressArgs {
-        wallet,
-        mint,
-        token_program,
-    }: FindAtaAddressArgs,
-) -> (Pubkey, u8) {
-    Pubkey::find_program_address(
-        &[
-            &wallet.to_bytes(),
-            &token_program.to_bytes(),
-            &mint.to_bytes(),
-        ],
-        &spl_associated_token_account::ID,
-    )
+impl FindAtaAddressArgs {
+    pub fn to_seeds(&self) -> [&[u8]; 3] {
+        [
+            self.wallet.as_ref(),
+            self.token_program.as_ref(),
+            self.mint.as_ref(),
+        ]
+    }
+
+    /// spl-associated-token-account doesnt export a find_program_address
+    /// that also returns the found bump
+    pub fn find_ata_address(&self) -> (Pubkey, u8) {
+        Pubkey::find_program_address(&self.to_seeds(), &spl_associated_token_account::ID)
+    }
 }

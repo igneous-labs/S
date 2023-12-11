@@ -1,7 +1,5 @@
 use s_controller_interface::{LstState, SControllerError};
-use sanctum_utils::associated_token::{
-    create_ata_address, find_ata_address, CreateAtaAddressArgs, FindAtaAddressArgs,
-};
+use sanctum_utils::associated_token::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 
 use crate::program::{POOL_STATE_ID, PROTOCOL_FEE_ID};
@@ -14,12 +12,15 @@ pub fn create_pool_reserves_address(
     }: &LstState,
     token_program: Pubkey,
 ) -> Result<Pubkey, SControllerError> {
-    create_ata_address(CreateAtaAddressArgs {
-        wallet: POOL_STATE_ID,
-        mint: *mint,
-        token_program,
-        bump: *pool_reserves_bump,
-    })
+    CreateAtaAddressArgs {
+        find_ata_args: FindAtaAddressArgs {
+            wallet: POOL_STATE_ID,
+            mint: *mint,
+            token_program,
+        },
+        bump: [*pool_reserves_bump],
+    }
+    .create_ata_address()
     .map_err(|_e| SControllerError::InvalidReserves)
 }
 
@@ -31,12 +32,15 @@ pub fn create_protocol_fee_accumulator_address(
     }: &LstState,
     token_program: Pubkey,
 ) -> Result<Pubkey, SControllerError> {
-    create_ata_address(CreateAtaAddressArgs {
-        wallet: PROTOCOL_FEE_ID,
-        mint: *mint,
-        token_program,
-        bump: *protocol_fee_accumulator_bump,
-    })
+    CreateAtaAddressArgs {
+        find_ata_args: FindAtaAddressArgs {
+            wallet: PROTOCOL_FEE_ID,
+            mint: *mint,
+            token_program,
+        },
+        bump: [*protocol_fee_accumulator_bump],
+    }
+    .create_ata_address()
     .map_err(|_e| SControllerError::InvalidReserves)
 }
 
@@ -52,11 +56,12 @@ pub fn find_pool_reserves_address(
         token_program,
     }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
-    find_ata_address(FindAtaAddressArgs {
+    FindAtaAddressArgs {
         wallet: POOL_STATE_ID,
         mint: lst_mint,
         token_program,
-    })
+    }
+    .find_ata_address()
 }
 
 pub fn find_protocol_fee_accumulator_address(
@@ -65,9 +70,10 @@ pub fn find_protocol_fee_accumulator_address(
         token_program,
     }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
-    find_ata_address(FindAtaAddressArgs {
+    FindAtaAddressArgs {
         wallet: PROTOCOL_FEE_ID,
         mint: lst_mint,
         token_program,
-    })
+    }
+    .find_ata_address()
 }
