@@ -10,6 +10,8 @@ pub struct CreateAtaAccounts<'me, 'info> {
     pub token_program: &'me AccountInfo<'info>,
 }
 
+/// Works for both token-2022 and tokenkeg accounts,
+/// ATA program will allocate the correct length
 pub fn create_ata(
     CreateAtaAccounts {
         payer,
