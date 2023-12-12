@@ -1,4 +1,5 @@
-use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState, RemoveLstIxArgs};
+// use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState, RemoveLstIxArgs};
+use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState};
 use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use solana_program::program_error::ProgramError;
@@ -34,7 +35,7 @@ async fn remove_lst_basic() {
             account: banks_client_get_account(&mut banks_client, STATE_ID).await,
         },
     };
-    let ix = remove_lst_ix(free_args.resolve().unwrap(), RemoveLstIxArgs {}).unwrap();
+    let ix = remove_lst_ix(free_args.resolve().unwrap()).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &manager], last_blockhash);
 
@@ -73,7 +74,7 @@ async fn remove_lst_fail_unauthorized() {
     .resolve()
     .unwrap();
     keys.manager = payer.pubkey();
-    let ix = remove_lst_ix(keys, RemoveLstIxArgs {}).unwrap();
+    let ix = remove_lst_ix(keys).unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer], last_blockhash);
 

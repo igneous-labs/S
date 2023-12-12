@@ -1,4 +1,4 @@
-use s_controller_interface::{set_admin_ix, PoolState, SetAdminIxArgs};
+use s_controller_interface::{set_admin_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs};
 
 use solana_program_test::*;
@@ -44,7 +44,6 @@ async fn basic_set_admin() {
         }
         .resolve()
         .unwrap(),
-        SetAdminIxArgs {},
     )
     .unwrap();
 
@@ -74,7 +73,6 @@ async fn basic_set_admin() {
         }
         .resolve()
         .unwrap(),
-        SetAdminIxArgs {},
     )
     .unwrap();
 

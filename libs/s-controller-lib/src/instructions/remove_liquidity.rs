@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use s_controller_interface::{
     remove_liquidity_ix, RemoveLiquidityIxArgs, RemoveLiquidityIxData, RemoveLiquidityKeys,
     SControllerError,

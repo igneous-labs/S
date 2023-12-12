@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use s_controller_interface::{
     start_rebalance_ix, SControllerError, StartRebalanceIxArgs, StartRebalanceIxData,
     StartRebalanceKeys,

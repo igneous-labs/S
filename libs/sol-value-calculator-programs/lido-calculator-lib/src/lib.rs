@@ -50,6 +50,6 @@ mod account_resolvers {
             LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS
                 .resolve::<LidoSolValCalc>()
                 .into();
-        (&lido_sol_val_calc_keys).into()
+        lido_sol_val_calc_keys.into()
     }
 }

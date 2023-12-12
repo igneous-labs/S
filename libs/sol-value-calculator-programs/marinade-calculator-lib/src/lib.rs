@@ -50,6 +50,6 @@ mod account_resolvers {
             MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
                 .resolve::<MarinadeSolValCalc>()
                 .into();
-        (&marinade_sol_val_calc_keys).into()
+        marinade_sol_val_calc_keys.into()
     }
 }

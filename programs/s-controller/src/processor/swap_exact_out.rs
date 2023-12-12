@@ -166,8 +166,8 @@ fn verify_swap_exact_out<'a, 'info>(
     };
     let expected = free_args.resolve_exact_out()?;
 
-    swap_exact_out_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    swap_exact_out_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    swap_exact_out_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    swap_exact_out_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;

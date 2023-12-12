@@ -1,4 +1,4 @@
-use s_controller_interface::{initialize_ix, InitializeIxArgs, PoolState};
+use s_controller_interface::{initialize_ix, PoolState};
 use s_controller_lib::{
     initial_authority, program::POOL_STATE_ID, try_pool_state, InitializeFreeArgs,
     CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS, DEFAULT_PRICING_PROGRAM,
@@ -39,7 +39,6 @@ async fn basic() {
             lp_token_mint: lp_token_mint_kp.pubkey(),
         }
         .resolve(),
-        InitializeIxArgs {},
     )
     .unwrap();
 

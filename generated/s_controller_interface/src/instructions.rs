@@ -7,6 +7,7 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
 };
+use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum SControllerProgramIx {
     SyncSolValue(SyncSolValueIxArgs),
@@ -16,181 +17,157 @@ pub enum SControllerProgramIx {
     RemoveLiquidity(RemoveLiquidityIxArgs),
     DisableLstInput(DisableLstInputIxArgs),
     EnableLstInput(EnableLstInputIxArgs),
-    AddLst(AddLstIxArgs),
+    AddLst,
     RemoveLst(RemoveLstIxArgs),
     SetSolValueCalculator(SetSolValueCalculatorIxArgs),
-    SetAdmin(SetAdminIxArgs),
+    SetAdmin,
     SetProtocolFee(SetProtocolFeeIxArgs),
-    SetProtocolFeeBeneficiary(SetProtocolFeeBeneficiaryIxArgs),
-    SetPricingProgram(SetPricingProgramIxArgs),
+    SetProtocolFeeBeneficiary,
+    SetPricingProgram,
     WithdrawProtocolFees(WithdrawProtocolFeesIxArgs),
-    AddDisablePoolAuthority(AddDisablePoolAuthorityIxArgs),
+    AddDisablePoolAuthority,
     RemoveDisablePoolAuthority(RemoveDisablePoolAuthorityIxArgs),
-    DisablePool(DisablePoolIxArgs),
-    EnablePool(EnablePoolIxArgs),
+    DisablePool,
+    EnablePool,
     StartRebalance(StartRebalanceIxArgs),
-    EndRebalance(EndRebalanceIxArgs),
-    SetRebalanceAuthority(SetRebalanceAuthorityIxArgs),
-    Initialize(InitializeIxArgs),
-}
-impl BorshSerialize for SControllerProgramIx {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        match self {
-            Self::SyncSolValue(args) => {
-                SYNC_SOL_VALUE_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SwapExactIn(args) => {
-                SWAP_EXACT_IN_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SwapExactOut(args) => {
-                SWAP_EXACT_OUT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::AddLiquidity(args) => {
-                ADD_LIQUIDITY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::RemoveLiquidity(args) => {
-                REMOVE_LIQUIDITY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::DisableLstInput(args) => {
-                DISABLE_LST_INPUT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::EnableLstInput(args) => {
-                ENABLE_LST_INPUT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::AddLst(args) => {
-                ADD_LST_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::RemoveLst(args) => {
-                REMOVE_LST_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetSolValueCalculator(args) => {
-                SET_SOL_VALUE_CALCULATOR_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetAdmin(args) => {
-                SET_ADMIN_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetProtocolFee(args) => {
-                SET_PROTOCOL_FEE_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetProtocolFeeBeneficiary(args) => {
-                SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetPricingProgram(args) => {
-                SET_PRICING_PROGRAM_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::WithdrawProtocolFees(args) => {
-                WITHDRAW_PROTOCOL_FEES_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::AddDisablePoolAuthority(args) => {
-                ADD_DISABLE_POOL_AUTHORITY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::RemoveDisablePoolAuthority(args) => {
-                REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::DisablePool(args) => {
-                DISABLE_POOL_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::EnablePool(args) => {
-                ENABLE_POOL_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::StartRebalance(args) => {
-                START_REBALANCE_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::EndRebalance(args) => {
-                END_REBALANCE_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetRebalanceAuthority(args) => {
-                SET_REBALANCE_AUTHORITY_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::Initialize(args) => {
-                INITIALIZE_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-        }
-    }
+    EndRebalance,
+    SetRebalanceAuthority,
+    Initialize,
 }
 impl SControllerProgramIx {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         match maybe_discm {
-            SYNC_SOL_VALUE_IX_DISCM => {
-                Ok(Self::SyncSolValue(SyncSolValueIxArgs::deserialize(buf)?))
-            }
-            SWAP_EXACT_IN_IX_DISCM => Ok(Self::SwapExactIn(SwapExactInIxArgs::deserialize(buf)?)),
-            SWAP_EXACT_OUT_IX_DISCM => {
-                Ok(Self::SwapExactOut(SwapExactOutIxArgs::deserialize(buf)?))
-            }
-            ADD_LIQUIDITY_IX_DISCM => Ok(Self::AddLiquidity(AddLiquidityIxArgs::deserialize(buf)?)),
+            SYNC_SOL_VALUE_IX_DISCM => Ok(Self::SyncSolValue(SyncSolValueIxArgs::deserialize(
+                &mut reader,
+            )?)),
+            SWAP_EXACT_IN_IX_DISCM => Ok(Self::SwapExactIn(SwapExactInIxArgs::deserialize(
+                &mut reader,
+            )?)),
+            SWAP_EXACT_OUT_IX_DISCM => Ok(Self::SwapExactOut(SwapExactOutIxArgs::deserialize(
+                &mut reader,
+            )?)),
+            ADD_LIQUIDITY_IX_DISCM => Ok(Self::AddLiquidity(AddLiquidityIxArgs::deserialize(
+                &mut reader,
+            )?)),
             REMOVE_LIQUIDITY_IX_DISCM => Ok(Self::RemoveLiquidity(
-                RemoveLiquidityIxArgs::deserialize(buf)?,
+                RemoveLiquidityIxArgs::deserialize(&mut reader)?,
             )),
             DISABLE_LST_INPUT_IX_DISCM => Ok(Self::DisableLstInput(
-                DisableLstInputIxArgs::deserialize(buf)?,
+                DisableLstInputIxArgs::deserialize(&mut reader)?,
             )),
             ENABLE_LST_INPUT_IX_DISCM => Ok(Self::EnableLstInput(
-                EnableLstInputIxArgs::deserialize(buf)?,
+                EnableLstInputIxArgs::deserialize(&mut reader)?,
             )),
-            ADD_LST_IX_DISCM => Ok(Self::AddLst(AddLstIxArgs::deserialize(buf)?)),
-            REMOVE_LST_IX_DISCM => Ok(Self::RemoveLst(RemoveLstIxArgs::deserialize(buf)?)),
+            ADD_LST_IX_DISCM => Ok(Self::AddLst),
+            REMOVE_LST_IX_DISCM => Ok(Self::RemoveLst(RemoveLstIxArgs::deserialize(&mut reader)?)),
             SET_SOL_VALUE_CALCULATOR_IX_DISCM => Ok(Self::SetSolValueCalculator(
-                SetSolValueCalculatorIxArgs::deserialize(buf)?,
+                SetSolValueCalculatorIxArgs::deserialize(&mut reader)?,
             )),
-            SET_ADMIN_IX_DISCM => Ok(Self::SetAdmin(SetAdminIxArgs::deserialize(buf)?)),
+            SET_ADMIN_IX_DISCM => Ok(Self::SetAdmin),
             SET_PROTOCOL_FEE_IX_DISCM => Ok(Self::SetProtocolFee(
-                SetProtocolFeeIxArgs::deserialize(buf)?,
+                SetProtocolFeeIxArgs::deserialize(&mut reader)?,
             )),
-            SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM => Ok(Self::SetProtocolFeeBeneficiary(
-                SetProtocolFeeBeneficiaryIxArgs::deserialize(buf)?,
-            )),
-            SET_PRICING_PROGRAM_IX_DISCM => Ok(Self::SetPricingProgram(
-                SetPricingProgramIxArgs::deserialize(buf)?,
-            )),
+            SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM => Ok(Self::SetProtocolFeeBeneficiary),
+            SET_PRICING_PROGRAM_IX_DISCM => Ok(Self::SetPricingProgram),
             WITHDRAW_PROTOCOL_FEES_IX_DISCM => Ok(Self::WithdrawProtocolFees(
-                WithdrawProtocolFeesIxArgs::deserialize(buf)?,
+                WithdrawProtocolFeesIxArgs::deserialize(&mut reader)?,
             )),
-            ADD_DISABLE_POOL_AUTHORITY_IX_DISCM => Ok(Self::AddDisablePoolAuthority(
-                AddDisablePoolAuthorityIxArgs::deserialize(buf)?,
-            )),
+            ADD_DISABLE_POOL_AUTHORITY_IX_DISCM => Ok(Self::AddDisablePoolAuthority),
             REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM => Ok(Self::RemoveDisablePoolAuthority(
-                RemoveDisablePoolAuthorityIxArgs::deserialize(buf)?,
+                RemoveDisablePoolAuthorityIxArgs::deserialize(&mut reader)?,
             )),
-            DISABLE_POOL_IX_DISCM => Ok(Self::DisablePool(DisablePoolIxArgs::deserialize(buf)?)),
-            ENABLE_POOL_IX_DISCM => Ok(Self::EnablePool(EnablePoolIxArgs::deserialize(buf)?)),
+            DISABLE_POOL_IX_DISCM => Ok(Self::DisablePool),
+            ENABLE_POOL_IX_DISCM => Ok(Self::EnablePool),
             START_REBALANCE_IX_DISCM => Ok(Self::StartRebalance(
-                StartRebalanceIxArgs::deserialize(buf)?,
+                StartRebalanceIxArgs::deserialize(&mut reader)?,
             )),
-            END_REBALANCE_IX_DISCM => Ok(Self::EndRebalance(EndRebalanceIxArgs::deserialize(buf)?)),
-            SET_REBALANCE_AUTHORITY_IX_DISCM => Ok(Self::SetRebalanceAuthority(
-                SetRebalanceAuthorityIxArgs::deserialize(buf)?,
-            )),
-            INITIALIZE_IX_DISCM => Ok(Self::Initialize(InitializeIxArgs::deserialize(buf)?)),
+            END_REBALANCE_IX_DISCM => Ok(Self::EndRebalance),
+            SET_REBALANCE_AUTHORITY_IX_DISCM => Ok(Self::SetRebalanceAuthority),
+            INITIALIZE_IX_DISCM => Ok(Self::Initialize),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("discm {:?} not found", maybe_discm),
             )),
         }
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        match self {
+            Self::SyncSolValue(args) => {
+                writer.write_all(&[SYNC_SOL_VALUE_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SwapExactIn(args) => {
+                writer.write_all(&[SWAP_EXACT_IN_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SwapExactOut(args) => {
+                writer.write_all(&[SWAP_EXACT_OUT_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::AddLiquidity(args) => {
+                writer.write_all(&[ADD_LIQUIDITY_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::RemoveLiquidity(args) => {
+                writer.write_all(&[REMOVE_LIQUIDITY_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::DisableLstInput(args) => {
+                writer.write_all(&[DISABLE_LST_INPUT_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::EnableLstInput(args) => {
+                writer.write_all(&[ENABLE_LST_INPUT_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::AddLst => writer.write_all(&[ADD_LST_IX_DISCM]),
+            Self::RemoveLst(args) => {
+                writer.write_all(&[REMOVE_LST_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SetSolValueCalculator(args) => {
+                writer.write_all(&[SET_SOL_VALUE_CALCULATOR_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SetAdmin => writer.write_all(&[SET_ADMIN_IX_DISCM]),
+            Self::SetProtocolFee(args) => {
+                writer.write_all(&[SET_PROTOCOL_FEE_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SetProtocolFeeBeneficiary => {
+                writer.write_all(&[SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM])
+            }
+            Self::SetPricingProgram => writer.write_all(&[SET_PRICING_PROGRAM_IX_DISCM]),
+            Self::WithdrawProtocolFees(args) => {
+                writer.write_all(&[WITHDRAW_PROTOCOL_FEES_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::AddDisablePoolAuthority => {
+                writer.write_all(&[ADD_DISABLE_POOL_AUTHORITY_IX_DISCM])
+            }
+            Self::RemoveDisablePoolAuthority(args) => {
+                writer.write_all(&[REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::DisablePool => writer.write_all(&[DISABLE_POOL_IX_DISCM]),
+            Self::EnablePool => writer.write_all(&[ENABLE_POOL_IX_DISCM]),
+            Self::StartRebalance(args) => {
+                writer.write_all(&[START_REBALANCE_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::EndRebalance => writer.write_all(&[END_REBALANCE_IX_DISCM]),
+            Self::SetRebalanceAuthority => writer.write_all(&[SET_REBALANCE_AUTHORITY_IX_DISCM]),
+            Self::Initialize => writer.write_all(&[INITIALIZE_IX_DISCM]),
+        }
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub const SYNC_SOL_VALUE_IX_ACCOUNTS_LEN: usize = 4;
@@ -216,8 +193,8 @@ pub struct SyncSolValueKeys {
     ///LST reserves token account of the pool
     pub pool_reserves: Pubkey,
 }
-impl From<&SyncSolValueAccounts<'_, '_>> for SyncSolValueKeys {
-    fn from(accounts: &SyncSolValueAccounts) -> Self {
+impl From<SyncSolValueAccounts<'_, '_>> for SyncSolValueKeys {
+    fn from(accounts: SyncSolValueAccounts) -> Self {
         Self {
             lst_mint: *accounts.lst_mint.key,
             pool_state: *accounts.pool_state.key,
@@ -226,13 +203,29 @@ impl From<&SyncSolValueAccounts<'_, '_>> for SyncSolValueKeys {
         }
     }
 }
-impl From<&SyncSolValueKeys> for [AccountMeta; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SyncSolValueKeys) -> Self {
+impl From<SyncSolValueKeys> for [AccountMeta; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN] {
+    fn from(keys: SyncSolValueKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new_readonly(keys.pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -246,10 +239,10 @@ impl From<[Pubkey; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN]> for SyncSolValueKeys {
         }
     }
 }
-impl<'info> From<&SyncSolValueAccounts<'_, 'info>>
+impl<'info> From<SyncSolValueAccounts<'_, 'info>>
     for [AccountInfo<'info>; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SyncSolValueAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SyncSolValueAccounts<'_, 'info>) -> Self {
         [
             accounts.lst_mint.clone(),
             accounts.pool_state.clone(),
@@ -270,6 +263,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const SYNC_SOL_VALUE_IX_DISCM: u8 = 0u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SyncSolValueIxArgs {
@@ -277,21 +271,17 @@ pub struct SyncSolValueIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SyncSolValueIxData(pub SyncSolValueIxArgs);
-pub const SYNC_SOL_VALUE_IX_DISCM: u8 = 0u8;
 impl From<SyncSolValueIxArgs> for SyncSolValueIxData {
     fn from(args: SyncSolValueIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SyncSolValueIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SYNC_SOL_VALUE_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SyncSolValueIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SYNC_SOL_VALUE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -301,7 +291,16 @@ impl SyncSolValueIxData {
                 ),
             ));
         }
-        Ok(Self(SyncSolValueIxArgs::deserialize(buf)?))
+        Ok(Self(SyncSolValueIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SYNC_SOL_VALUE_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn sync_sol_value_ix<K: Into<SyncSolValueKeys>, A: Into<SyncSolValueIxArgs>>(
@@ -309,7 +308,7 @@ pub fn sync_sol_value_ix<K: Into<SyncSolValueKeys>, A: Into<SyncSolValueIxArgs>>
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SyncSolValueKeys = accounts.into();
-    let metas: [AccountMeta; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SYNC_SOL_VALUE_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SyncSolValueIxArgs = args.into();
     let data: SyncSolValueIxData = args_full.into();
     Ok(Instruction {
@@ -319,7 +318,7 @@ pub fn sync_sol_value_ix<K: Into<SyncSolValueKeys>, A: Into<SyncSolValueIxArgs>>
     })
 }
 pub fn sync_sol_value_invoke<'info, A: Into<SyncSolValueIxArgs>>(
-    accounts: &SyncSolValueAccounts<'_, 'info>,
+    accounts: SyncSolValueAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = sync_sol_value_ix(accounts, args)?;
@@ -327,7 +326,7 @@ pub fn sync_sol_value_invoke<'info, A: Into<SyncSolValueIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn sync_sol_value_invoke_signed<'info, A: Into<SyncSolValueIxArgs>>(
-    accounts: &SyncSolValueAccounts<'_, 'info>,
+    accounts: SyncSolValueAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -336,8 +335,8 @@ pub fn sync_sol_value_invoke_signed<'info, A: Into<SyncSolValueIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn sync_sol_value_verify_account_keys(
-    accounts: &SyncSolValueAccounts<'_, '_>,
-    keys: &SyncSolValueKeys,
+    accounts: SyncSolValueAccounts<'_, '_>,
+    keys: SyncSolValueKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.lst_mint.key, &keys.lst_mint),
@@ -352,7 +351,7 @@ pub fn sync_sol_value_verify_account_keys(
     Ok(())
 }
 pub fn sync_sol_value_verify_account_privileges<'me, 'info>(
-    accounts: &SyncSolValueAccounts<'me, 'info>,
+    accounts: SyncSolValueAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state, accounts.lst_state_list] {
         if !should_be_writable.is_writable {
@@ -416,8 +415,8 @@ pub struct SwapExactInKeys {
     ///Destination LST reserves token account of the pool
     pub dst_pool_reserves: Pubkey,
 }
-impl From<&SwapExactInAccounts<'_, '_>> for SwapExactInKeys {
-    fn from(accounts: &SwapExactInAccounts) -> Self {
+impl From<SwapExactInAccounts<'_, '_>> for SwapExactInKeys {
+    fn from(accounts: SwapExactInAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             src_lst_mint: *accounts.src_lst_mint.key,
@@ -434,21 +433,69 @@ impl From<&SwapExactInAccounts<'_, '_>> for SwapExactInKeys {
         }
     }
 }
-impl From<&SwapExactInKeys> for [AccountMeta; SWAP_EXACT_IN_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SwapExactInKeys) -> Self {
+impl From<SwapExactInKeys> for [AccountMeta; SWAP_EXACT_IN_IX_ACCOUNTS_LEN] {
+    fn from(keys: SwapExactInKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.src_lst_mint, false),
-            AccountMeta::new_readonly(keys.dst_lst_mint, false),
-            AccountMeta::new(keys.src_lst_acc, false),
-            AccountMeta::new(keys.dst_lst_acc, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new_readonly(keys.src_lst_token_program, false),
-            AccountMeta::new_readonly(keys.dst_lst_token_program, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.src_pool_reserves, false),
-            AccountMeta::new(keys.dst_pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -470,10 +517,10 @@ impl From<[Pubkey; SWAP_EXACT_IN_IX_ACCOUNTS_LEN]> for SwapExactInKeys {
         }
     }
 }
-impl<'info> From<&SwapExactInAccounts<'_, 'info>>
+impl<'info> From<SwapExactInAccounts<'_, 'info>>
     for [AccountInfo<'info>; SWAP_EXACT_IN_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SwapExactInAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SwapExactInAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.src_lst_mint.clone(),
@@ -510,6 +557,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SWAP_EXACT_IN_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const SWAP_EXACT_IN_IX_DISCM: u8 = 1u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SwapExactInIxArgs {
@@ -522,21 +570,17 @@ pub struct SwapExactInIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SwapExactInIxData(pub SwapExactInIxArgs);
-pub const SWAP_EXACT_IN_IX_DISCM: u8 = 1u8;
 impl From<SwapExactInIxArgs> for SwapExactInIxData {
     fn from(args: SwapExactInIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SwapExactInIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SWAP_EXACT_IN_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SwapExactInIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SWAP_EXACT_IN_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -546,7 +590,16 @@ impl SwapExactInIxData {
                 ),
             ));
         }
-        Ok(Self(SwapExactInIxArgs::deserialize(buf)?))
+        Ok(Self(SwapExactInIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SWAP_EXACT_IN_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn swap_exact_in_ix<K: Into<SwapExactInKeys>, A: Into<SwapExactInIxArgs>>(
@@ -554,7 +607,7 @@ pub fn swap_exact_in_ix<K: Into<SwapExactInKeys>, A: Into<SwapExactInIxArgs>>(
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SwapExactInKeys = accounts.into();
-    let metas: [AccountMeta; SWAP_EXACT_IN_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SWAP_EXACT_IN_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SwapExactInIxArgs = args.into();
     let data: SwapExactInIxData = args_full.into();
     Ok(Instruction {
@@ -564,7 +617,7 @@ pub fn swap_exact_in_ix<K: Into<SwapExactInKeys>, A: Into<SwapExactInIxArgs>>(
     })
 }
 pub fn swap_exact_in_invoke<'info, A: Into<SwapExactInIxArgs>>(
-    accounts: &SwapExactInAccounts<'_, 'info>,
+    accounts: SwapExactInAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = swap_exact_in_ix(accounts, args)?;
@@ -572,7 +625,7 @@ pub fn swap_exact_in_invoke<'info, A: Into<SwapExactInIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn swap_exact_in_invoke_signed<'info, A: Into<SwapExactInIxArgs>>(
-    accounts: &SwapExactInAccounts<'_, 'info>,
+    accounts: SwapExactInAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -581,8 +634,8 @@ pub fn swap_exact_in_invoke_signed<'info, A: Into<SwapExactInIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn swap_exact_in_verify_account_keys(
-    accounts: &SwapExactInAccounts<'_, '_>,
-    keys: &SwapExactInKeys,
+    accounts: SwapExactInAccounts<'_, '_>,
+    keys: SwapExactInKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -614,7 +667,7 @@ pub fn swap_exact_in_verify_account_keys(
     Ok(())
 }
 pub fn swap_exact_in_verify_account_privileges<'me, 'info>(
-    accounts: &SwapExactInAccounts<'me, 'info>,
+    accounts: SwapExactInAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.src_lst_acc,
@@ -691,8 +744,8 @@ pub struct SwapExactOutKeys {
     ///Destination LST reserves token account of the pool
     pub dst_pool_reserves: Pubkey,
 }
-impl From<&SwapExactOutAccounts<'_, '_>> for SwapExactOutKeys {
-    fn from(accounts: &SwapExactOutAccounts) -> Self {
+impl From<SwapExactOutAccounts<'_, '_>> for SwapExactOutKeys {
+    fn from(accounts: SwapExactOutAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             src_lst_mint: *accounts.src_lst_mint.key,
@@ -709,21 +762,69 @@ impl From<&SwapExactOutAccounts<'_, '_>> for SwapExactOutKeys {
         }
     }
 }
-impl From<&SwapExactOutKeys> for [AccountMeta; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SwapExactOutKeys) -> Self {
+impl From<SwapExactOutKeys> for [AccountMeta; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN] {
+    fn from(keys: SwapExactOutKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.src_lst_mint, false),
-            AccountMeta::new_readonly(keys.dst_lst_mint, false),
-            AccountMeta::new(keys.src_lst_acc, false),
-            AccountMeta::new(keys.dst_lst_acc, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new_readonly(keys.src_lst_token_program, false),
-            AccountMeta::new_readonly(keys.dst_lst_token_program, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.src_pool_reserves, false),
-            AccountMeta::new(keys.dst_pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -745,10 +846,10 @@ impl From<[Pubkey; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN]> for SwapExactOutKeys {
         }
     }
 }
-impl<'info> From<&SwapExactOutAccounts<'_, 'info>>
+impl<'info> From<SwapExactOutAccounts<'_, 'info>>
     for [AccountInfo<'info>; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SwapExactOutAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SwapExactOutAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.src_lst_mint.clone(),
@@ -785,6 +886,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const SWAP_EXACT_OUT_IX_DISCM: u8 = 2u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SwapExactOutIxArgs {
@@ -797,21 +899,17 @@ pub struct SwapExactOutIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SwapExactOutIxData(pub SwapExactOutIxArgs);
-pub const SWAP_EXACT_OUT_IX_DISCM: u8 = 2u8;
 impl From<SwapExactOutIxArgs> for SwapExactOutIxData {
     fn from(args: SwapExactOutIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SwapExactOutIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SWAP_EXACT_OUT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SwapExactOutIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SWAP_EXACT_OUT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -821,7 +919,16 @@ impl SwapExactOutIxData {
                 ),
             ));
         }
-        Ok(Self(SwapExactOutIxArgs::deserialize(buf)?))
+        Ok(Self(SwapExactOutIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SWAP_EXACT_OUT_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn swap_exact_out_ix<K: Into<SwapExactOutKeys>, A: Into<SwapExactOutIxArgs>>(
@@ -829,7 +936,7 @@ pub fn swap_exact_out_ix<K: Into<SwapExactOutKeys>, A: Into<SwapExactOutIxArgs>>
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SwapExactOutKeys = accounts.into();
-    let metas: [AccountMeta; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SWAP_EXACT_OUT_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SwapExactOutIxArgs = args.into();
     let data: SwapExactOutIxData = args_full.into();
     Ok(Instruction {
@@ -839,7 +946,7 @@ pub fn swap_exact_out_ix<K: Into<SwapExactOutKeys>, A: Into<SwapExactOutIxArgs>>
     })
 }
 pub fn swap_exact_out_invoke<'info, A: Into<SwapExactOutIxArgs>>(
-    accounts: &SwapExactOutAccounts<'_, 'info>,
+    accounts: SwapExactOutAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = swap_exact_out_ix(accounts, args)?;
@@ -847,7 +954,7 @@ pub fn swap_exact_out_invoke<'info, A: Into<SwapExactOutIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn swap_exact_out_invoke_signed<'info, A: Into<SwapExactOutIxArgs>>(
-    accounts: &SwapExactOutAccounts<'_, 'info>,
+    accounts: SwapExactOutAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -856,8 +963,8 @@ pub fn swap_exact_out_invoke_signed<'info, A: Into<SwapExactOutIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn swap_exact_out_verify_account_keys(
-    accounts: &SwapExactOutAccounts<'_, '_>,
-    keys: &SwapExactOutKeys,
+    accounts: SwapExactOutAccounts<'_, '_>,
+    keys: SwapExactOutKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -889,7 +996,7 @@ pub fn swap_exact_out_verify_account_keys(
     Ok(())
 }
 pub fn swap_exact_out_verify_account_privileges<'me, 'info>(
-    accounts: &SwapExactOutAccounts<'me, 'info>,
+    accounts: SwapExactOutAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.src_lst_acc,
@@ -962,8 +1069,8 @@ pub struct AddLiquidityKeys {
     ///LST reserves token account of the pool
     pub pool_reserves: Pubkey,
 }
-impl From<&AddLiquidityAccounts<'_, '_>> for AddLiquidityKeys {
-    fn from(accounts: &AddLiquidityAccounts) -> Self {
+impl From<AddLiquidityAccounts<'_, '_>> for AddLiquidityKeys {
+    fn from(accounts: AddLiquidityAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             lst_mint: *accounts.lst_mint.key,
@@ -979,20 +1086,64 @@ impl From<&AddLiquidityAccounts<'_, '_>> for AddLiquidityKeys {
         }
     }
 }
-impl From<&AddLiquidityKeys> for [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] {
-    fn from(keys: &AddLiquidityKeys) -> Self {
+impl From<AddLiquidityKeys> for [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] {
+    fn from(keys: AddLiquidityKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.src_lst_acc, false),
-            AccountMeta::new(keys.dst_lp_acc, false),
-            AccountMeta::new(keys.lp_token_mint, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new_readonly(keys.lst_token_program, false),
-            AccountMeta::new_readonly(keys.token_2022, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lp_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lp_token_mint,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.token_2022,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -1013,10 +1164,10 @@ impl From<[Pubkey; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]> for AddLiquidityKeys {
         }
     }
 }
-impl<'info> From<&AddLiquidityAccounts<'_, 'info>>
+impl<'info> From<AddLiquidityAccounts<'_, 'info>>
     for [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &AddLiquidityAccounts<'_, 'info>) -> Self {
+    fn from(accounts: AddLiquidityAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.lst_mint.clone(),
@@ -1051,6 +1202,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LIQUIDITY_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const ADD_LIQUIDITY_IX_DISCM: u8 = 3u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AddLiquidityIxArgs {
@@ -1060,21 +1212,17 @@ pub struct AddLiquidityIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct AddLiquidityIxData(pub AddLiquidityIxArgs);
-pub const ADD_LIQUIDITY_IX_DISCM: u8 = 3u8;
 impl From<AddLiquidityIxArgs> for AddLiquidityIxData {
     fn from(args: AddLiquidityIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for AddLiquidityIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[ADD_LIQUIDITY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl AddLiquidityIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != ADD_LIQUIDITY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -1084,7 +1232,16 @@ impl AddLiquidityIxData {
                 ),
             ));
         }
-        Ok(Self(AddLiquidityIxArgs::deserialize(buf)?))
+        Ok(Self(AddLiquidityIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[ADD_LIQUIDITY_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn add_liquidity_ix<K: Into<AddLiquidityKeys>, A: Into<AddLiquidityIxArgs>>(
@@ -1092,7 +1249,7 @@ pub fn add_liquidity_ix<K: Into<AddLiquidityKeys>, A: Into<AddLiquidityIxArgs>>(
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: AddLiquidityKeys = accounts.into();
-    let metas: [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; ADD_LIQUIDITY_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: AddLiquidityIxArgs = args.into();
     let data: AddLiquidityIxData = args_full.into();
     Ok(Instruction {
@@ -1102,7 +1259,7 @@ pub fn add_liquidity_ix<K: Into<AddLiquidityKeys>, A: Into<AddLiquidityIxArgs>>(
     })
 }
 pub fn add_liquidity_invoke<'info, A: Into<AddLiquidityIxArgs>>(
-    accounts: &AddLiquidityAccounts<'_, 'info>,
+    accounts: AddLiquidityAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = add_liquidity_ix(accounts, args)?;
@@ -1110,7 +1267,7 @@ pub fn add_liquidity_invoke<'info, A: Into<AddLiquidityIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn add_liquidity_invoke_signed<'info, A: Into<AddLiquidityIxArgs>>(
-    accounts: &AddLiquidityAccounts<'_, 'info>,
+    accounts: AddLiquidityAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -1119,8 +1276,8 @@ pub fn add_liquidity_invoke_signed<'info, A: Into<AddLiquidityIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn add_liquidity_verify_account_keys(
-    accounts: &AddLiquidityAccounts<'_, '_>,
-    keys: &AddLiquidityKeys,
+    accounts: AddLiquidityAccounts<'_, '_>,
+    keys: AddLiquidityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -1145,7 +1302,7 @@ pub fn add_liquidity_verify_account_keys(
     Ok(())
 }
 pub fn add_liquidity_verify_account_privileges<'me, 'info>(
-    accounts: &AddLiquidityAccounts<'me, 'info>,
+    accounts: AddLiquidityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.src_lst_acc,
@@ -1218,8 +1375,8 @@ pub struct RemoveLiquidityKeys {
     ///LST reserves token account of the pool
     pub pool_reserves: Pubkey,
 }
-impl From<&RemoveLiquidityAccounts<'_, '_>> for RemoveLiquidityKeys {
-    fn from(accounts: &RemoveLiquidityAccounts) -> Self {
+impl From<RemoveLiquidityAccounts<'_, '_>> for RemoveLiquidityKeys {
+    fn from(accounts: RemoveLiquidityAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             lst_mint: *accounts.lst_mint.key,
@@ -1235,20 +1392,64 @@ impl From<&RemoveLiquidityAccounts<'_, '_>> for RemoveLiquidityKeys {
         }
     }
 }
-impl From<&RemoveLiquidityKeys> for [AccountMeta; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN] {
-    fn from(keys: &RemoveLiquidityKeys) -> Self {
+impl From<RemoveLiquidityKeys> for [AccountMeta; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN] {
+    fn from(keys: RemoveLiquidityKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.dst_lst_acc, false),
-            AccountMeta::new(keys.src_lp_acc, false),
-            AccountMeta::new(keys.lp_token_mint, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new_readonly(keys.lst_token_program, false),
-            AccountMeta::new_readonly(keys.token_2022, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_lp_acc,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lp_token_mint,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.token_2022,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -1269,10 +1470,10 @@ impl From<[Pubkey; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN]> for RemoveLiquidityKeys {
         }
     }
 }
-impl<'info> From<&RemoveLiquidityAccounts<'_, 'info>>
+impl<'info> From<RemoveLiquidityAccounts<'_, 'info>>
     for [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &RemoveLiquidityAccounts<'_, 'info>) -> Self {
+    fn from(accounts: RemoveLiquidityAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.lst_mint.clone(),
@@ -1307,6 +1508,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN
         }
     }
 }
+pub const REMOVE_LIQUIDITY_IX_DISCM: u8 = 4u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveLiquidityIxArgs {
@@ -1316,21 +1518,17 @@ pub struct RemoveLiquidityIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLiquidityIxData(pub RemoveLiquidityIxArgs);
-pub const REMOVE_LIQUIDITY_IX_DISCM: u8 = 4u8;
 impl From<RemoveLiquidityIxArgs> for RemoveLiquidityIxData {
     fn from(args: RemoveLiquidityIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for RemoveLiquidityIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[REMOVE_LIQUIDITY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl RemoveLiquidityIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != REMOVE_LIQUIDITY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -1340,7 +1538,16 @@ impl RemoveLiquidityIxData {
                 ),
             ));
         }
-        Ok(Self(RemoveLiquidityIxArgs::deserialize(buf)?))
+        Ok(Self(RemoveLiquidityIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[REMOVE_LIQUIDITY_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn remove_liquidity_ix<K: Into<RemoveLiquidityKeys>, A: Into<RemoveLiquidityIxArgs>>(
@@ -1348,7 +1555,7 @@ pub fn remove_liquidity_ix<K: Into<RemoveLiquidityKeys>, A: Into<RemoveLiquidity
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: RemoveLiquidityKeys = accounts.into();
-    let metas: [AccountMeta; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; REMOVE_LIQUIDITY_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: RemoveLiquidityIxArgs = args.into();
     let data: RemoveLiquidityIxData = args_full.into();
     Ok(Instruction {
@@ -1358,7 +1565,7 @@ pub fn remove_liquidity_ix<K: Into<RemoveLiquidityKeys>, A: Into<RemoveLiquidity
     })
 }
 pub fn remove_liquidity_invoke<'info, A: Into<RemoveLiquidityIxArgs>>(
-    accounts: &RemoveLiquidityAccounts<'_, 'info>,
+    accounts: RemoveLiquidityAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = remove_liquidity_ix(accounts, args)?;
@@ -1366,7 +1573,7 @@ pub fn remove_liquidity_invoke<'info, A: Into<RemoveLiquidityIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn remove_liquidity_invoke_signed<'info, A: Into<RemoveLiquidityIxArgs>>(
-    accounts: &RemoveLiquidityAccounts<'_, 'info>,
+    accounts: RemoveLiquidityAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -1375,8 +1582,8 @@ pub fn remove_liquidity_invoke_signed<'info, A: Into<RemoveLiquidityIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn remove_liquidity_verify_account_keys(
-    accounts: &RemoveLiquidityAccounts<'_, '_>,
-    keys: &RemoveLiquidityKeys,
+    accounts: RemoveLiquidityAccounts<'_, '_>,
+    keys: RemoveLiquidityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -1401,7 +1608,7 @@ pub fn remove_liquidity_verify_account_keys(
     Ok(())
 }
 pub fn remove_liquidity_verify_account_privileges<'me, 'info>(
-    accounts: &RemoveLiquidityAccounts<'me, 'info>,
+    accounts: RemoveLiquidityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.dst_lst_acc,
@@ -1446,8 +1653,8 @@ pub struct DisableLstInputKeys {
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: Pubkey,
 }
-impl From<&DisableLstInputAccounts<'_, '_>> for DisableLstInputKeys {
-    fn from(accounts: &DisableLstInputAccounts) -> Self {
+impl From<DisableLstInputAccounts<'_, '_>> for DisableLstInputKeys {
+    fn from(accounts: DisableLstInputAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             lst_mint: *accounts.lst_mint.key,
@@ -1456,13 +1663,29 @@ impl From<&DisableLstInputAccounts<'_, '_>> for DisableLstInputKeys {
         }
     }
 }
-impl From<&DisableLstInputKeys> for [AccountMeta; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &DisableLstInputKeys) -> Self {
+impl From<DisableLstInputKeys> for [AccountMeta; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN] {
+    fn from(keys: DisableLstInputKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -1476,10 +1699,10 @@ impl From<[Pubkey; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN]> for DisableLstInputKeys {
         }
     }
 }
-impl<'info> From<&DisableLstInputAccounts<'_, 'info>>
+impl<'info> From<DisableLstInputAccounts<'_, 'info>>
     for [AccountInfo<'info>; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &DisableLstInputAccounts<'_, 'info>) -> Self {
+    fn from(accounts: DisableLstInputAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.lst_mint.clone(),
@@ -1500,6 +1723,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; DISABLE_LST_INPUT_IX_ACCOUNTS_LE
         }
     }
 }
+pub const DISABLE_LST_INPUT_IX_DISCM: u8 = 5u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DisableLstInputIxArgs {
@@ -1507,21 +1731,17 @@ pub struct DisableLstInputIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct DisableLstInputIxData(pub DisableLstInputIxArgs);
-pub const DISABLE_LST_INPUT_IX_DISCM: u8 = 5u8;
 impl From<DisableLstInputIxArgs> for DisableLstInputIxData {
     fn from(args: DisableLstInputIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for DisableLstInputIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[DISABLE_LST_INPUT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl DisableLstInputIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != DISABLE_LST_INPUT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -1531,7 +1751,16 @@ impl DisableLstInputIxData {
                 ),
             ));
         }
-        Ok(Self(DisableLstInputIxArgs::deserialize(buf)?))
+        Ok(Self(DisableLstInputIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[DISABLE_LST_INPUT_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn disable_lst_input_ix<K: Into<DisableLstInputKeys>, A: Into<DisableLstInputIxArgs>>(
@@ -1539,7 +1768,7 @@ pub fn disable_lst_input_ix<K: Into<DisableLstInputKeys>, A: Into<DisableLstInpu
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: DisableLstInputKeys = accounts.into();
-    let metas: [AccountMeta; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; DISABLE_LST_INPUT_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: DisableLstInputIxArgs = args.into();
     let data: DisableLstInputIxData = args_full.into();
     Ok(Instruction {
@@ -1549,7 +1778,7 @@ pub fn disable_lst_input_ix<K: Into<DisableLstInputKeys>, A: Into<DisableLstInpu
     })
 }
 pub fn disable_lst_input_invoke<'info, A: Into<DisableLstInputIxArgs>>(
-    accounts: &DisableLstInputAccounts<'_, 'info>,
+    accounts: DisableLstInputAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = disable_lst_input_ix(accounts, args)?;
@@ -1557,7 +1786,7 @@ pub fn disable_lst_input_invoke<'info, A: Into<DisableLstInputIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn disable_lst_input_invoke_signed<'info, A: Into<DisableLstInputIxArgs>>(
-    accounts: &DisableLstInputAccounts<'_, 'info>,
+    accounts: DisableLstInputAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -1566,8 +1795,8 @@ pub fn disable_lst_input_invoke_signed<'info, A: Into<DisableLstInputIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn disable_lst_input_verify_account_keys(
-    accounts: &DisableLstInputAccounts<'_, '_>,
-    keys: &DisableLstInputKeys,
+    accounts: DisableLstInputAccounts<'_, '_>,
+    keys: DisableLstInputKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -1582,7 +1811,7 @@ pub fn disable_lst_input_verify_account_keys(
     Ok(())
 }
 pub fn disable_lst_input_verify_account_privileges<'me, 'info>(
-    accounts: &DisableLstInputAccounts<'me, 'info>,
+    accounts: DisableLstInputAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state, accounts.lst_state_list] {
         if !should_be_writable.is_writable {
@@ -1619,8 +1848,8 @@ pub struct EnableLstInputKeys {
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: Pubkey,
 }
-impl From<&EnableLstInputAccounts<'_, '_>> for EnableLstInputKeys {
-    fn from(accounts: &EnableLstInputAccounts) -> Self {
+impl From<EnableLstInputAccounts<'_, '_>> for EnableLstInputKeys {
+    fn from(accounts: EnableLstInputAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             lst_mint: *accounts.lst_mint.key,
@@ -1629,13 +1858,29 @@ impl From<&EnableLstInputAccounts<'_, '_>> for EnableLstInputKeys {
         }
     }
 }
-impl From<&EnableLstInputKeys> for [AccountMeta; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &EnableLstInputKeys) -> Self {
+impl From<EnableLstInputKeys> for [AccountMeta; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN] {
+    fn from(keys: EnableLstInputKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -1649,10 +1894,10 @@ impl From<[Pubkey; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN]> for EnableLstInputKeys {
         }
     }
 }
-impl<'info> From<&EnableLstInputAccounts<'_, 'info>>
+impl<'info> From<EnableLstInputAccounts<'_, 'info>>
     for [AccountInfo<'info>; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &EnableLstInputAccounts<'_, 'info>) -> Self {
+    fn from(accounts: EnableLstInputAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.lst_mint.clone(),
@@ -1673,6 +1918,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN
         }
     }
 }
+pub const ENABLE_LST_INPUT_IX_DISCM: u8 = 6u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EnableLstInputIxArgs {
@@ -1680,21 +1926,17 @@ pub struct EnableLstInputIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct EnableLstInputIxData(pub EnableLstInputIxArgs);
-pub const ENABLE_LST_INPUT_IX_DISCM: u8 = 6u8;
 impl From<EnableLstInputIxArgs> for EnableLstInputIxData {
     fn from(args: EnableLstInputIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for EnableLstInputIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[ENABLE_LST_INPUT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl EnableLstInputIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != ENABLE_LST_INPUT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -1704,7 +1946,16 @@ impl EnableLstInputIxData {
                 ),
             ));
         }
-        Ok(Self(EnableLstInputIxArgs::deserialize(buf)?))
+        Ok(Self(EnableLstInputIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[ENABLE_LST_INPUT_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn enable_lst_input_ix<K: Into<EnableLstInputKeys>, A: Into<EnableLstInputIxArgs>>(
@@ -1712,7 +1963,7 @@ pub fn enable_lst_input_ix<K: Into<EnableLstInputKeys>, A: Into<EnableLstInputIx
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: EnableLstInputKeys = accounts.into();
-    let metas: [AccountMeta; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; ENABLE_LST_INPUT_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: EnableLstInputIxArgs = args.into();
     let data: EnableLstInputIxData = args_full.into();
     Ok(Instruction {
@@ -1722,7 +1973,7 @@ pub fn enable_lst_input_ix<K: Into<EnableLstInputKeys>, A: Into<EnableLstInputIx
     })
 }
 pub fn enable_lst_input_invoke<'info, A: Into<EnableLstInputIxArgs>>(
-    accounts: &EnableLstInputAccounts<'_, 'info>,
+    accounts: EnableLstInputAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = enable_lst_input_ix(accounts, args)?;
@@ -1730,7 +1981,7 @@ pub fn enable_lst_input_invoke<'info, A: Into<EnableLstInputIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn enable_lst_input_invoke_signed<'info, A: Into<EnableLstInputIxArgs>>(
-    accounts: &EnableLstInputAccounts<'_, 'info>,
+    accounts: EnableLstInputAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -1739,8 +1990,8 @@ pub fn enable_lst_input_invoke_signed<'info, A: Into<EnableLstInputIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn enable_lst_input_verify_account_keys(
-    accounts: &EnableLstInputAccounts<'_, '_>,
-    keys: &EnableLstInputKeys,
+    accounts: EnableLstInputAccounts<'_, '_>,
+    keys: EnableLstInputKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -1755,7 +2006,7 @@ pub fn enable_lst_input_verify_account_keys(
     Ok(())
 }
 pub fn enable_lst_input_verify_account_privileges<'me, 'info>(
-    accounts: &EnableLstInputAccounts<'me, 'info>,
+    accounts: EnableLstInputAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state, accounts.lst_state_list] {
         if !should_be_writable.is_writable {
@@ -1824,8 +2075,8 @@ pub struct AddLstKeys {
     ///Token program of the new LST to add
     pub lst_token_program: Pubkey,
 }
-impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
-    fn from(accounts: &AddLstAccounts) -> Self {
+impl From<AddLstAccounts<'_, '_>> for AddLstKeys {
+    fn from(accounts: AddLstAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             payer: *accounts.payer.key,
@@ -1842,21 +2093,69 @@ impl From<&AddLstAccounts<'_, '_>> for AddLstKeys {
         }
     }
 }
-impl From<&AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
-    fn from(keys: &AddLstKeys) -> Self {
+impl From<AddLstKeys> for [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] {
+    fn from(keys: AddLstKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new(keys.payer, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_reserves, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new(keys.protocol_fee_accumulator_auth, false),
-            AccountMeta::new_readonly(keys.sol_value_calculator, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new_readonly(keys.associated_token_program, false),
-            AccountMeta::new_readonly(keys.system_program, false),
-            AccountMeta::new_readonly(keys.lst_token_program, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.payer,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator_auth,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.sol_value_calculator,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.associated_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.system_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -1878,8 +2177,8 @@ impl From<[Pubkey; ADD_LST_IX_ACCOUNTS_LEN]> for AddLstKeys {
         }
     }
 }
-impl<'info> From<&AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] {
-    fn from(accounts: &AddLstAccounts<'_, 'info>) -> Self {
+impl<'info> From<AddLstAccounts<'_, 'info>> for [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] {
+    fn from(accounts: AddLstAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.payer.clone(),
@@ -1916,26 +2215,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AddLstIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct AddLstIxData(pub AddLstIxArgs);
 pub const ADD_LST_IX_DISCM: u8 = 7u8;
-impl From<AddLstIxArgs> for AddLstIxData {
-    fn from(args: AddLstIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for AddLstIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[ADD_LST_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct AddLstIxData;
 impl AddLstIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != ADD_LST_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -1945,43 +2233,42 @@ impl AddLstIxData {
                 ),
             ));
         }
-        Ok(Self(AddLstIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[ADD_LST_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn add_lst_ix<K: Into<AddLstKeys>, A: Into<AddLstIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn add_lst_ix<K: Into<AddLstKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: AddLstKeys = accounts.into();
-    let metas: [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: AddLstIxArgs = args.into();
-    let data: AddLstIxData = args_full.into();
+    let metas: [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: AddLstIxData.try_to_vec()?,
     })
 }
-pub fn add_lst_invoke<'info, A: Into<AddLstIxArgs>>(
-    accounts: &AddLstAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = add_lst_ix(accounts, args)?;
+pub fn add_lst_invoke<'info>(accounts: AddLstAccounts<'_, 'info>) -> ProgramResult {
+    let ix = add_lst_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn add_lst_invoke_signed<'info, A: Into<AddLstIxArgs>>(
-    accounts: &AddLstAccounts<'_, 'info>,
-    args: A,
+pub fn add_lst_invoke_signed<'info>(
+    accounts: AddLstAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = add_lst_ix(accounts, args)?;
+    let ix = add_lst_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn add_lst_verify_account_keys(
-    accounts: &AddLstAccounts<'_, '_>,
-    keys: &AddLstKeys,
+    accounts: AddLstAccounts<'_, '_>,
+    keys: AddLstKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -2016,7 +2303,7 @@ pub fn add_lst_verify_account_keys(
     Ok(())
 }
 pub fn add_lst_verify_account_privileges<'me, 'info>(
-    accounts: &AddLstAccounts<'me, 'info>,
+    accounts: AddLstAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.payer,
@@ -2079,8 +2366,8 @@ pub struct RemoveLstKeys {
     ///Token program of the LST to remove
     pub lst_token_program: Pubkey,
 }
-impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
-    fn from(accounts: &RemoveLstAccounts) -> Self {
+impl From<RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
+    fn from(accounts: RemoveLstAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             refund_rent_to: *accounts.refund_rent_to.key,
@@ -2094,18 +2381,54 @@ impl From<&RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
         }
     }
 }
-impl From<&RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
-    fn from(keys: &RemoveLstKeys) -> Self {
+impl From<RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
+    fn from(keys: RemoveLstKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new(keys.refund_rent_to, false),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_reserves, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new(keys.protocol_fee_accumulator_auth, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new_readonly(keys.lst_token_program, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.refund_rent_to,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator_auth,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -2124,10 +2447,10 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
         }
     }
 }
-impl<'info> From<&RemoveLstAccounts<'_, 'info>>
+impl<'info> From<RemoveLstAccounts<'_, 'info>>
     for [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &RemoveLstAccounts<'_, 'info>) -> Self {
+    fn from(accounts: RemoveLstAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.refund_rent_to.clone(),
@@ -2158,6 +2481,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const REMOVE_LST_IX_DISCM: u8 = 8u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveLstIxArgs {
@@ -2165,21 +2489,17 @@ pub struct RemoveLstIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLstIxData(pub RemoveLstIxArgs);
-pub const REMOVE_LST_IX_DISCM: u8 = 8u8;
 impl From<RemoveLstIxArgs> for RemoveLstIxData {
     fn from(args: RemoveLstIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for RemoveLstIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[REMOVE_LST_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl RemoveLstIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != REMOVE_LST_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -2189,7 +2509,16 @@ impl RemoveLstIxData {
                 ),
             ));
         }
-        Ok(Self(RemoveLstIxArgs::deserialize(buf)?))
+        Ok(Self(RemoveLstIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[REMOVE_LST_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn remove_lst_ix<K: Into<RemoveLstKeys>, A: Into<RemoveLstIxArgs>>(
@@ -2197,7 +2526,7 @@ pub fn remove_lst_ix<K: Into<RemoveLstKeys>, A: Into<RemoveLstIxArgs>>(
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: RemoveLstKeys = accounts.into();
-    let metas: [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: RemoveLstIxArgs = args.into();
     let data: RemoveLstIxData = args_full.into();
     Ok(Instruction {
@@ -2207,7 +2536,7 @@ pub fn remove_lst_ix<K: Into<RemoveLstKeys>, A: Into<RemoveLstIxArgs>>(
     })
 }
 pub fn remove_lst_invoke<'info, A: Into<RemoveLstIxArgs>>(
-    accounts: &RemoveLstAccounts<'_, 'info>,
+    accounts: RemoveLstAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = remove_lst_ix(accounts, args)?;
@@ -2215,7 +2544,7 @@ pub fn remove_lst_invoke<'info, A: Into<RemoveLstIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn remove_lst_invoke_signed<'info, A: Into<RemoveLstIxArgs>>(
-    accounts: &RemoveLstAccounts<'_, 'info>,
+    accounts: RemoveLstAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -2224,8 +2553,8 @@ pub fn remove_lst_invoke_signed<'info, A: Into<RemoveLstIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn remove_lst_verify_account_keys(
-    accounts: &RemoveLstAccounts<'_, '_>,
-    keys: &RemoveLstKeys,
+    accounts: RemoveLstAccounts<'_, '_>,
+    keys: RemoveLstKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -2251,7 +2580,7 @@ pub fn remove_lst_verify_account_keys(
     Ok(())
 }
 pub fn remove_lst_verify_account_privileges<'me, 'info>(
-    accounts: &RemoveLstAccounts<'me, 'info>,
+    accounts: RemoveLstAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.refund_rent_to,
@@ -2298,8 +2627,8 @@ pub struct SetSolValueCalculatorKeys {
     ///Dynamic list PDA of LstStates for each LST in the pool
     pub lst_state_list: Pubkey,
 }
-impl From<&SetSolValueCalculatorAccounts<'_, '_>> for SetSolValueCalculatorKeys {
-    fn from(accounts: &SetSolValueCalculatorAccounts) -> Self {
+impl From<SetSolValueCalculatorAccounts<'_, '_>> for SetSolValueCalculatorKeys {
+    fn from(accounts: SetSolValueCalculatorAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             lst_mint: *accounts.lst_mint.key,
@@ -2309,14 +2638,34 @@ impl From<&SetSolValueCalculatorAccounts<'_, '_>> for SetSolValueCalculatorKeys 
         }
     }
 }
-impl From<&SetSolValueCalculatorKeys> for [AccountMeta; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetSolValueCalculatorKeys) -> Self {
+impl From<SetSolValueCalculatorKeys> for [AccountMeta; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetSolValueCalculatorKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new_readonly(keys.pool_reserves, false),
-            AccountMeta::new(keys.lst_state_list, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_reserves,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -2331,10 +2680,10 @@ impl From<[Pubkey; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN]> for SetSolValueCal
         }
     }
 }
-impl<'info> From<&SetSolValueCalculatorAccounts<'_, 'info>>
+impl<'info> From<SetSolValueCalculatorAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetSolValueCalculatorAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetSolValueCalculatorAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.lst_mint.clone(),
@@ -2357,6 +2706,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_SOL_VALUE_CALCULATOR_IX_ACCO
         }
     }
 }
+pub const SET_SOL_VALUE_CALCULATOR_IX_DISCM: u8 = 9u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetSolValueCalculatorIxArgs {
@@ -2364,21 +2714,17 @@ pub struct SetSolValueCalculatorIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetSolValueCalculatorIxData(pub SetSolValueCalculatorIxArgs);
-pub const SET_SOL_VALUE_CALCULATOR_IX_DISCM: u8 = 9u8;
 impl From<SetSolValueCalculatorIxArgs> for SetSolValueCalculatorIxData {
     fn from(args: SetSolValueCalculatorIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SetSolValueCalculatorIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_SOL_VALUE_CALCULATOR_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SetSolValueCalculatorIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_SOL_VALUE_CALCULATOR_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -2388,7 +2734,16 @@ impl SetSolValueCalculatorIxData {
                 ),
             ));
         }
-        Ok(Self(SetSolValueCalculatorIxArgs::deserialize(buf)?))
+        Ok(Self(SetSolValueCalculatorIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_SOL_VALUE_CALCULATOR_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn set_sol_value_calculator_ix<
@@ -2399,7 +2754,7 @@ pub fn set_sol_value_calculator_ix<
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SetSolValueCalculatorKeys = accounts.into();
-    let metas: [AccountMeta; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SET_SOL_VALUE_CALCULATOR_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SetSolValueCalculatorIxArgs = args.into();
     let data: SetSolValueCalculatorIxData = args_full.into();
     Ok(Instruction {
@@ -2409,7 +2764,7 @@ pub fn set_sol_value_calculator_ix<
     })
 }
 pub fn set_sol_value_calculator_invoke<'info, A: Into<SetSolValueCalculatorIxArgs>>(
-    accounts: &SetSolValueCalculatorAccounts<'_, 'info>,
+    accounts: SetSolValueCalculatorAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = set_sol_value_calculator_ix(accounts, args)?;
@@ -2418,7 +2773,7 @@ pub fn set_sol_value_calculator_invoke<'info, A: Into<SetSolValueCalculatorIxArg
     invoke(&ix, &account_info)
 }
 pub fn set_sol_value_calculator_invoke_signed<'info, A: Into<SetSolValueCalculatorIxArgs>>(
-    accounts: &SetSolValueCalculatorAccounts<'_, 'info>,
+    accounts: SetSolValueCalculatorAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -2428,8 +2783,8 @@ pub fn set_sol_value_calculator_invoke_signed<'info, A: Into<SetSolValueCalculat
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_sol_value_calculator_verify_account_keys(
-    accounts: &SetSolValueCalculatorAccounts<'_, '_>,
-    keys: &SetSolValueCalculatorKeys,
+    accounts: SetSolValueCalculatorAccounts<'_, '_>,
+    keys: SetSolValueCalculatorKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -2445,7 +2800,7 @@ pub fn set_sol_value_calculator_verify_account_keys(
     Ok(())
 }
 pub fn set_sol_value_calculator_verify_account_privileges<'me, 'info>(
-    accounts: &SetSolValueCalculatorAccounts<'me, 'info>,
+    accounts: SetSolValueCalculatorAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state, accounts.lst_state_list] {
         if !should_be_writable.is_writable {
@@ -2478,8 +2833,8 @@ pub struct SetAdminKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&SetAdminAccounts<'_, '_>> for SetAdminKeys {
-    fn from(accounts: &SetAdminAccounts) -> Self {
+impl From<SetAdminAccounts<'_, '_>> for SetAdminKeys {
+    fn from(accounts: SetAdminAccounts) -> Self {
         Self {
             current_admin: *accounts.current_admin.key,
             new_admin: *accounts.new_admin.key,
@@ -2487,12 +2842,24 @@ impl From<&SetAdminAccounts<'_, '_>> for SetAdminKeys {
         }
     }
 }
-impl From<&SetAdminKeys> for [AccountMeta; SET_ADMIN_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetAdminKeys) -> Self {
+impl From<SetAdminKeys> for [AccountMeta; SET_ADMIN_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetAdminKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.current_admin, true),
-            AccountMeta::new_readonly(keys.new_admin, false),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.current_admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_admin,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -2505,8 +2872,8 @@ impl From<[Pubkey; SET_ADMIN_IX_ACCOUNTS_LEN]> for SetAdminKeys {
         }
     }
 }
-impl<'info> From<&SetAdminAccounts<'_, 'info>> for [AccountInfo<'info>; SET_ADMIN_IX_ACCOUNTS_LEN] {
-    fn from(accounts: &SetAdminAccounts<'_, 'info>) -> Self {
+impl<'info> From<SetAdminAccounts<'_, 'info>> for [AccountInfo<'info>; SET_ADMIN_IX_ACCOUNTS_LEN] {
+    fn from(accounts: SetAdminAccounts<'_, 'info>) -> Self {
         [
             accounts.current_admin.clone(),
             accounts.new_admin.clone(),
@@ -2525,26 +2892,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_ADMIN_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetAdminIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct SetAdminIxData(pub SetAdminIxArgs);
 pub const SET_ADMIN_IX_DISCM: u8 = 10u8;
-impl From<SetAdminIxArgs> for SetAdminIxData {
-    fn from(args: SetAdminIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for SetAdminIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_ADMIN_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct SetAdminIxData;
 impl SetAdminIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_ADMIN_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -2554,43 +2910,42 @@ impl SetAdminIxData {
                 ),
             ));
         }
-        Ok(Self(SetAdminIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_ADMIN_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn set_admin_ix<K: Into<SetAdminKeys>, A: Into<SetAdminIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn set_admin_ix<K: Into<SetAdminKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: SetAdminKeys = accounts.into();
-    let metas: [AccountMeta; SET_ADMIN_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetAdminIxArgs = args.into();
-    let data: SetAdminIxData = args_full.into();
+    let metas: [AccountMeta; SET_ADMIN_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: SetAdminIxData.try_to_vec()?,
     })
 }
-pub fn set_admin_invoke<'info, A: Into<SetAdminIxArgs>>(
-    accounts: &SetAdminAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = set_admin_ix(accounts, args)?;
+pub fn set_admin_invoke<'info>(accounts: SetAdminAccounts<'_, 'info>) -> ProgramResult {
+    let ix = set_admin_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_ADMIN_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_admin_invoke_signed<'info, A: Into<SetAdminIxArgs>>(
-    accounts: &SetAdminAccounts<'_, 'info>,
-    args: A,
+pub fn set_admin_invoke_signed<'info>(
+    accounts: SetAdminAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_admin_ix(accounts, args)?;
+    let ix = set_admin_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_ADMIN_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_admin_verify_account_keys(
-    accounts: &SetAdminAccounts<'_, '_>,
-    keys: &SetAdminKeys,
+    accounts: SetAdminAccounts<'_, '_>,
+    keys: SetAdminKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.current_admin.key, &keys.current_admin),
@@ -2604,7 +2959,7 @@ pub fn set_admin_verify_account_keys(
     Ok(())
 }
 pub fn set_admin_verify_account_privileges<'me, 'info>(
-    accounts: &SetAdminAccounts<'me, 'info>,
+    accounts: SetAdminAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -2633,19 +2988,27 @@ pub struct SetProtocolFeeKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&SetProtocolFeeAccounts<'_, '_>> for SetProtocolFeeKeys {
-    fn from(accounts: &SetProtocolFeeAccounts) -> Self {
+impl From<SetProtocolFeeAccounts<'_, '_>> for SetProtocolFeeKeys {
+    fn from(accounts: SetProtocolFeeAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             pool_state: *accounts.pool_state.key,
         }
     }
 }
-impl From<&SetProtocolFeeKeys> for [AccountMeta; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetProtocolFeeKeys) -> Self {
+impl From<SetProtocolFeeKeys> for [AccountMeta; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetProtocolFeeKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -2657,10 +3020,10 @@ impl From<[Pubkey; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN]> for SetProtocolFeeKeys {
         }
     }
 }
-impl<'info> From<&SetProtocolFeeAccounts<'_, 'info>>
+impl<'info> From<SetProtocolFeeAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetProtocolFeeAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetProtocolFeeAccounts<'_, 'info>) -> Self {
         [accounts.admin.clone(), accounts.pool_state.clone()]
     }
 }
@@ -2674,6 +3037,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN
         }
     }
 }
+pub const SET_PROTOCOL_FEE_IX_DISCM: u8 = 11u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProtocolFeeIxArgs {
@@ -2682,21 +3046,17 @@ pub struct SetProtocolFeeIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetProtocolFeeIxData(pub SetProtocolFeeIxArgs);
-pub const SET_PROTOCOL_FEE_IX_DISCM: u8 = 11u8;
 impl From<SetProtocolFeeIxArgs> for SetProtocolFeeIxData {
     fn from(args: SetProtocolFeeIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SetProtocolFeeIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_PROTOCOL_FEE_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SetProtocolFeeIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_PROTOCOL_FEE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -2706,7 +3066,16 @@ impl SetProtocolFeeIxData {
                 ),
             ));
         }
-        Ok(Self(SetProtocolFeeIxArgs::deserialize(buf)?))
+        Ok(Self(SetProtocolFeeIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_PROTOCOL_FEE_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn set_protocol_fee_ix<K: Into<SetProtocolFeeKeys>, A: Into<SetProtocolFeeIxArgs>>(
@@ -2714,7 +3083,7 @@ pub fn set_protocol_fee_ix<K: Into<SetProtocolFeeKeys>, A: Into<SetProtocolFeeIx
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SetProtocolFeeKeys = accounts.into();
-    let metas: [AccountMeta; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SET_PROTOCOL_FEE_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SetProtocolFeeIxArgs = args.into();
     let data: SetProtocolFeeIxData = args_full.into();
     Ok(Instruction {
@@ -2724,7 +3093,7 @@ pub fn set_protocol_fee_ix<K: Into<SetProtocolFeeKeys>, A: Into<SetProtocolFeeIx
     })
 }
 pub fn set_protocol_fee_invoke<'info, A: Into<SetProtocolFeeIxArgs>>(
-    accounts: &SetProtocolFeeAccounts<'_, 'info>,
+    accounts: SetProtocolFeeAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = set_protocol_fee_ix(accounts, args)?;
@@ -2732,7 +3101,7 @@ pub fn set_protocol_fee_invoke<'info, A: Into<SetProtocolFeeIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn set_protocol_fee_invoke_signed<'info, A: Into<SetProtocolFeeIxArgs>>(
-    accounts: &SetProtocolFeeAccounts<'_, 'info>,
+    accounts: SetProtocolFeeAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -2741,8 +3110,8 @@ pub fn set_protocol_fee_invoke_signed<'info, A: Into<SetProtocolFeeIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_protocol_fee_verify_account_keys(
-    accounts: &SetProtocolFeeAccounts<'_, '_>,
-    keys: &SetProtocolFeeKeys,
+    accounts: SetProtocolFeeAccounts<'_, '_>,
+    keys: SetProtocolFeeKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -2755,7 +3124,7 @@ pub fn set_protocol_fee_verify_account_keys(
     Ok(())
 }
 pub fn set_protocol_fee_verify_account_privileges<'me, 'info>(
-    accounts: &SetProtocolFeeAccounts<'me, 'info>,
+    accounts: SetProtocolFeeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -2788,8 +3157,8 @@ pub struct SetProtocolFeeBeneficiaryKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&SetProtocolFeeBeneficiaryAccounts<'_, '_>> for SetProtocolFeeBeneficiaryKeys {
-    fn from(accounts: &SetProtocolFeeBeneficiaryAccounts) -> Self {
+impl From<SetProtocolFeeBeneficiaryAccounts<'_, '_>> for SetProtocolFeeBeneficiaryKeys {
+    fn from(accounts: SetProtocolFeeBeneficiaryAccounts) -> Self {
         Self {
             current_beneficiary: *accounts.current_beneficiary.key,
             new_beneficiary: *accounts.new_beneficiary.key,
@@ -2797,14 +3166,26 @@ impl From<&SetProtocolFeeBeneficiaryAccounts<'_, '_>> for SetProtocolFeeBenefici
         }
     }
 }
-impl From<&SetProtocolFeeBeneficiaryKeys>
+impl From<SetProtocolFeeBeneficiaryKeys>
     for [AccountMeta; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN]
 {
-    fn from(keys: &SetProtocolFeeBeneficiaryKeys) -> Self {
+    fn from(keys: SetProtocolFeeBeneficiaryKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.current_beneficiary, true),
-            AccountMeta::new_readonly(keys.new_beneficiary, false),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.current_beneficiary,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_beneficiary,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -2819,10 +3200,10 @@ impl From<[Pubkey; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN]>
         }
     }
 }
-impl<'info> From<&SetProtocolFeeBeneficiaryAccounts<'_, 'info>>
+impl<'info> From<SetProtocolFeeBeneficiaryAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetProtocolFeeBeneficiaryAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetProtocolFeeBeneficiaryAccounts<'_, 'info>) -> Self {
         [
             accounts.current_beneficiary.clone(),
             accounts.new_beneficiary.clone(),
@@ -2841,26 +3222,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_PROTOCOL_FEE_BENEFICIARY_IX_
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetProtocolFeeBeneficiaryIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct SetProtocolFeeBeneficiaryIxData(pub SetProtocolFeeBeneficiaryIxArgs);
 pub const SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM: u8 = 12u8;
-impl From<SetProtocolFeeBeneficiaryIxArgs> for SetProtocolFeeBeneficiaryIxData {
-    fn from(args: SetProtocolFeeBeneficiaryIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for SetProtocolFeeBeneficiaryIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct SetProtocolFeeBeneficiaryIxData;
 impl SetProtocolFeeBeneficiaryIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -2870,51 +3240,48 @@ impl SetProtocolFeeBeneficiaryIxData {
                 ),
             ));
         }
-        Ok(Self(SetProtocolFeeBeneficiaryIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_PROTOCOL_FEE_BENEFICIARY_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn set_protocol_fee_beneficiary_ix<
-    K: Into<SetProtocolFeeBeneficiaryKeys>,
-    A: Into<SetProtocolFeeBeneficiaryIxArgs>,
->(
+pub fn set_protocol_fee_beneficiary_ix<K: Into<SetProtocolFeeBeneficiaryKeys>>(
     accounts: K,
-    args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SetProtocolFeeBeneficiaryKeys = accounts.into();
-    let metas: [AccountMeta; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetProtocolFeeBeneficiaryIxArgs = args.into();
-    let data: SetProtocolFeeBeneficiaryIxData = args_full.into();
+    let metas: [AccountMeta; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: SetProtocolFeeBeneficiaryIxData.try_to_vec()?,
     })
 }
-pub fn set_protocol_fee_beneficiary_invoke<'info, A: Into<SetProtocolFeeBeneficiaryIxArgs>>(
-    accounts: &SetProtocolFeeBeneficiaryAccounts<'_, 'info>,
-    args: A,
+pub fn set_protocol_fee_beneficiary_invoke<'info>(
+    accounts: SetProtocolFeeBeneficiaryAccounts<'_, 'info>,
 ) -> ProgramResult {
-    let ix = set_protocol_fee_beneficiary_ix(accounts, args)?;
+    let ix = set_protocol_fee_beneficiary_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_protocol_fee_beneficiary_invoke_signed<
-    'info,
-    A: Into<SetProtocolFeeBeneficiaryIxArgs>,
->(
-    accounts: &SetProtocolFeeBeneficiaryAccounts<'_, 'info>,
-    args: A,
+pub fn set_protocol_fee_beneficiary_invoke_signed<'info>(
+    accounts: SetProtocolFeeBeneficiaryAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_protocol_fee_beneficiary_ix(accounts, args)?;
+    let ix = set_protocol_fee_beneficiary_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_PROTOCOL_FEE_BENEFICIARY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_protocol_fee_beneficiary_verify_account_keys(
-    accounts: &SetProtocolFeeBeneficiaryAccounts<'_, '_>,
-    keys: &SetProtocolFeeBeneficiaryKeys,
+    accounts: SetProtocolFeeBeneficiaryAccounts<'_, '_>,
+    keys: SetProtocolFeeBeneficiaryKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.current_beneficiary.key, &keys.current_beneficiary),
@@ -2928,7 +3295,7 @@ pub fn set_protocol_fee_beneficiary_verify_account_keys(
     Ok(())
 }
 pub fn set_protocol_fee_beneficiary_verify_account_privileges<'me, 'info>(
-    accounts: &SetProtocolFeeBeneficiaryAccounts<'me, 'info>,
+    accounts: SetProtocolFeeBeneficiaryAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -2961,8 +3328,8 @@ pub struct SetPricingProgramKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&SetPricingProgramAccounts<'_, '_>> for SetPricingProgramKeys {
-    fn from(accounts: &SetPricingProgramAccounts) -> Self {
+impl From<SetPricingProgramAccounts<'_, '_>> for SetPricingProgramKeys {
+    fn from(accounts: SetPricingProgramAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             new_pricing_program: *accounts.new_pricing_program.key,
@@ -2970,12 +3337,24 @@ impl From<&SetPricingProgramAccounts<'_, '_>> for SetPricingProgramKeys {
         }
     }
 }
-impl From<&SetPricingProgramKeys> for [AccountMeta; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetPricingProgramKeys) -> Self {
+impl From<SetPricingProgramKeys> for [AccountMeta; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetPricingProgramKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.new_pricing_program, false),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_pricing_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -2988,10 +3367,10 @@ impl From<[Pubkey; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN]> for SetPricingProgramKe
         }
     }
 }
-impl<'info> From<&SetPricingProgramAccounts<'_, 'info>>
+impl<'info> From<SetPricingProgramAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetPricingProgramAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetPricingProgramAccounts<'_, 'info>) -> Self {
         [
             accounts.admin.clone(),
             accounts.new_pricing_program.clone(),
@@ -3010,26 +3389,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_PRICING_PROGRAM_IX_ACCOUNTS_
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetPricingProgramIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct SetPricingProgramIxData(pub SetPricingProgramIxArgs);
 pub const SET_PRICING_PROGRAM_IX_DISCM: u8 = 13u8;
-impl From<SetPricingProgramIxArgs> for SetPricingProgramIxData {
-    fn from(args: SetPricingProgramIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for SetPricingProgramIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_PRICING_PROGRAM_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct SetPricingProgramIxData;
 impl SetPricingProgramIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_PRICING_PROGRAM_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3039,43 +3407,46 @@ impl SetPricingProgramIxData {
                 ),
             ));
         }
-        Ok(Self(SetPricingProgramIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_PRICING_PROGRAM_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn set_pricing_program_ix<K: Into<SetPricingProgramKeys>, A: Into<SetPricingProgramIxArgs>>(
+pub fn set_pricing_program_ix<K: Into<SetPricingProgramKeys>>(
     accounts: K,
-    args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SetPricingProgramKeys = accounts.into();
-    let metas: [AccountMeta; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetPricingProgramIxArgs = args.into();
-    let data: SetPricingProgramIxData = args_full.into();
+    let metas: [AccountMeta; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: SetPricingProgramIxData.try_to_vec()?,
     })
 }
-pub fn set_pricing_program_invoke<'info, A: Into<SetPricingProgramIxArgs>>(
-    accounts: &SetPricingProgramAccounts<'_, 'info>,
-    args: A,
+pub fn set_pricing_program_invoke<'info>(
+    accounts: SetPricingProgramAccounts<'_, 'info>,
 ) -> ProgramResult {
-    let ix = set_pricing_program_ix(accounts, args)?;
+    let ix = set_pricing_program_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_pricing_program_invoke_signed<'info, A: Into<SetPricingProgramIxArgs>>(
-    accounts: &SetPricingProgramAccounts<'_, 'info>,
-    args: A,
+pub fn set_pricing_program_invoke_signed<'info>(
+    accounts: SetPricingProgramAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_pricing_program_ix(accounts, args)?;
+    let ix = set_pricing_program_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_PRICING_PROGRAM_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_pricing_program_verify_account_keys(
-    accounts: &SetPricingProgramAccounts<'_, '_>,
-    keys: &SetPricingProgramKeys,
+    accounts: SetPricingProgramAccounts<'_, '_>,
+    keys: SetPricingProgramKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -3089,7 +3460,7 @@ pub fn set_pricing_program_verify_account_keys(
     Ok(())
 }
 pub fn set_pricing_program_verify_account_privileges<'me, 'info>(
-    accounts: &SetPricingProgramAccounts<'me, 'info>,
+    accounts: SetPricingProgramAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -3134,8 +3505,8 @@ pub struct WithdrawProtocolFeesKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
-    fn from(accounts: &WithdrawProtocolFeesAccounts) -> Self {
+impl From<WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
+    fn from(accounts: WithdrawProtocolFeesAccounts) -> Self {
         Self {
             protocol_fee_beneficiary: *accounts.protocol_fee_beneficiary.key,
             withdraw_to: *accounts.withdraw_to.key,
@@ -3146,15 +3517,39 @@ impl From<&WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
         }
     }
 }
-impl From<&WithdrawProtocolFeesKeys> for [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] {
-    fn from(keys: &WithdrawProtocolFeesKeys) -> Self {
+impl From<WithdrawProtocolFeesKeys> for [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] {
+    fn from(keys: WithdrawProtocolFeesKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.protocol_fee_beneficiary, true),
-            AccountMeta::new(keys.withdraw_to, false),
-            AccountMeta::new(keys.protocol_fee_accumulator, false),
-            AccountMeta::new(keys.protocol_fee_accumulator_auth, false),
-            AccountMeta::new_readonly(keys.token_program, false),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.protocol_fee_beneficiary,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.withdraw_to,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.protocol_fee_accumulator_auth,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -3170,10 +3565,10 @@ impl From<[Pubkey; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]> for WithdrawProtocol
         }
     }
 }
-impl<'info> From<&WithdrawProtocolFeesAccounts<'_, 'info>>
+impl<'info> From<WithdrawProtocolFeesAccounts<'_, 'info>>
     for [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &WithdrawProtocolFeesAccounts<'_, 'info>) -> Self {
+    fn from(accounts: WithdrawProtocolFeesAccounts<'_, 'info>) -> Self {
         [
             accounts.protocol_fee_beneficiary.clone(),
             accounts.withdraw_to.clone(),
@@ -3198,6 +3593,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUN
         }
     }
 }
+pub const WITHDRAW_PROTOCOL_FEES_IX_DISCM: u8 = 14u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct WithdrawProtocolFeesIxArgs {
@@ -3205,21 +3601,17 @@ pub struct WithdrawProtocolFeesIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct WithdrawProtocolFeesIxData(pub WithdrawProtocolFeesIxArgs);
-pub const WITHDRAW_PROTOCOL_FEES_IX_DISCM: u8 = 14u8;
 impl From<WithdrawProtocolFeesIxArgs> for WithdrawProtocolFeesIxData {
     fn from(args: WithdrawProtocolFeesIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for WithdrawProtocolFeesIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[WITHDRAW_PROTOCOL_FEES_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl WithdrawProtocolFeesIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != WITHDRAW_PROTOCOL_FEES_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3229,7 +3621,16 @@ impl WithdrawProtocolFeesIxData {
                 ),
             ));
         }
-        Ok(Self(WithdrawProtocolFeesIxArgs::deserialize(buf)?))
+        Ok(Self(WithdrawProtocolFeesIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[WITHDRAW_PROTOCOL_FEES_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn withdraw_protocol_fees_ix<
@@ -3240,7 +3641,7 @@ pub fn withdraw_protocol_fees_ix<
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: WithdrawProtocolFeesKeys = accounts.into();
-    let metas: [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: WithdrawProtocolFeesIxArgs = args.into();
     let data: WithdrawProtocolFeesIxData = args_full.into();
     Ok(Instruction {
@@ -3250,7 +3651,7 @@ pub fn withdraw_protocol_fees_ix<
     })
 }
 pub fn withdraw_protocol_fees_invoke<'info, A: Into<WithdrawProtocolFeesIxArgs>>(
-    accounts: &WithdrawProtocolFeesAccounts<'_, 'info>,
+    accounts: WithdrawProtocolFeesAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = withdraw_protocol_fees_ix(accounts, args)?;
@@ -3259,7 +3660,7 @@ pub fn withdraw_protocol_fees_invoke<'info, A: Into<WithdrawProtocolFeesIxArgs>>
     invoke(&ix, &account_info)
 }
 pub fn withdraw_protocol_fees_invoke_signed<'info, A: Into<WithdrawProtocolFeesIxArgs>>(
-    accounts: &WithdrawProtocolFeesAccounts<'_, 'info>,
+    accounts: WithdrawProtocolFeesAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -3269,8 +3670,8 @@ pub fn withdraw_protocol_fees_invoke_signed<'info, A: Into<WithdrawProtocolFeesI
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn withdraw_protocol_fees_verify_account_keys(
-    accounts: &WithdrawProtocolFeesAccounts<'_, '_>,
-    keys: &WithdrawProtocolFeesKeys,
+    accounts: WithdrawProtocolFeesAccounts<'_, '_>,
+    keys: WithdrawProtocolFeesKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (
@@ -3296,7 +3697,7 @@ pub fn withdraw_protocol_fees_verify_account_keys(
     Ok(())
 }
 pub fn withdraw_protocol_fees_verify_account_privileges<'me, 'info>(
-    accounts: &WithdrawProtocolFeesAccounts<'me, 'info>,
+    accounts: WithdrawProtocolFeesAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.withdraw_to,
@@ -3346,8 +3747,8 @@ pub struct AddDisablePoolAuthorityKeys {
     ///System program
     pub system_program: Pubkey,
 }
-impl From<&AddDisablePoolAuthorityAccounts<'_, '_>> for AddDisablePoolAuthorityKeys {
-    fn from(accounts: &AddDisablePoolAuthorityAccounts) -> Self {
+impl From<AddDisablePoolAuthorityAccounts<'_, '_>> for AddDisablePoolAuthorityKeys {
+    fn from(accounts: AddDisablePoolAuthorityAccounts) -> Self {
         Self {
             payer: *accounts.payer.key,
             admin: *accounts.admin.key,
@@ -3358,17 +3759,41 @@ impl From<&AddDisablePoolAuthorityAccounts<'_, '_>> for AddDisablePoolAuthorityK
         }
     }
 }
-impl From<&AddDisablePoolAuthorityKeys>
+impl From<AddDisablePoolAuthorityKeys>
     for [AccountMeta; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]
 {
-    fn from(keys: &AddDisablePoolAuthorityKeys) -> Self {
+    fn from(keys: AddDisablePoolAuthorityKeys) -> Self {
         [
-            AccountMeta::new(keys.payer, true),
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new_readonly(keys.new_authority, false),
-            AccountMeta::new(keys.disable_pool_authority_list, false),
-            AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta {
+                pubkey: keys.payer,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_authority,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.disable_pool_authority_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.system_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -3384,10 +3809,10 @@ impl From<[Pubkey; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]> for AddDisablePo
         }
     }
 }
-impl<'info> From<&AddDisablePoolAuthorityAccounts<'_, 'info>>
+impl<'info> From<AddDisablePoolAuthorityAccounts<'_, 'info>>
     for [AccountInfo<'info>; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &AddDisablePoolAuthorityAccounts<'_, 'info>) -> Self {
+    fn from(accounts: AddDisablePoolAuthorityAccounts<'_, 'info>) -> Self {
         [
             accounts.payer.clone(),
             accounts.admin.clone(),
@@ -3412,26 +3837,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ADD_DISABLE_POOL_AUTHORITY_IX_AC
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AddDisablePoolAuthorityIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct AddDisablePoolAuthorityIxData(pub AddDisablePoolAuthorityIxArgs);
 pub const ADD_DISABLE_POOL_AUTHORITY_IX_DISCM: u8 = 15u8;
-impl From<AddDisablePoolAuthorityIxArgs> for AddDisablePoolAuthorityIxData {
-    fn from(args: AddDisablePoolAuthorityIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for AddDisablePoolAuthorityIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[ADD_DISABLE_POOL_AUTHORITY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct AddDisablePoolAuthorityIxData;
 impl AddDisablePoolAuthorityIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != ADD_DISABLE_POOL_AUTHORITY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3441,48 +3855,48 @@ impl AddDisablePoolAuthorityIxData {
                 ),
             ));
         }
-        Ok(Self(AddDisablePoolAuthorityIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[ADD_DISABLE_POOL_AUTHORITY_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn add_disable_pool_authority_ix<
-    K: Into<AddDisablePoolAuthorityKeys>,
-    A: Into<AddDisablePoolAuthorityIxArgs>,
->(
+pub fn add_disable_pool_authority_ix<K: Into<AddDisablePoolAuthorityKeys>>(
     accounts: K,
-    args: A,
 ) -> std::io::Result<Instruction> {
     let keys: AddDisablePoolAuthorityKeys = accounts.into();
-    let metas: [AccountMeta; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: AddDisablePoolAuthorityIxArgs = args.into();
-    let data: AddDisablePoolAuthorityIxData = args_full.into();
+    let metas: [AccountMeta; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: AddDisablePoolAuthorityIxData.try_to_vec()?,
     })
 }
-pub fn add_disable_pool_authority_invoke<'info, A: Into<AddDisablePoolAuthorityIxArgs>>(
-    accounts: &AddDisablePoolAuthorityAccounts<'_, 'info>,
-    args: A,
+pub fn add_disable_pool_authority_invoke<'info>(
+    accounts: AddDisablePoolAuthorityAccounts<'_, 'info>,
 ) -> ProgramResult {
-    let ix = add_disable_pool_authority_ix(accounts, args)?;
+    let ix = add_disable_pool_authority_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn add_disable_pool_authority_invoke_signed<'info, A: Into<AddDisablePoolAuthorityIxArgs>>(
-    accounts: &AddDisablePoolAuthorityAccounts<'_, 'info>,
-    args: A,
+pub fn add_disable_pool_authority_invoke_signed<'info>(
+    accounts: AddDisablePoolAuthorityAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = add_disable_pool_authority_ix(accounts, args)?;
+    let ix = add_disable_pool_authority_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ADD_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn add_disable_pool_authority_verify_account_keys(
-    accounts: &AddDisablePoolAuthorityAccounts<'_, '_>,
-    keys: &AddDisablePoolAuthorityKeys,
+    accounts: AddDisablePoolAuthorityAccounts<'_, '_>,
+    keys: AddDisablePoolAuthorityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
@@ -3502,7 +3916,7 @@ pub fn add_disable_pool_authority_verify_account_keys(
     Ok(())
 }
 pub fn add_disable_pool_authority_verify_account_privileges<'me, 'info>(
-    accounts: &AddDisablePoolAuthorityAccounts<'me, 'info>,
+    accounts: AddDisablePoolAuthorityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.disable_pool_authority_list] {
         if !should_be_writable.is_writable {
@@ -3543,8 +3957,8 @@ pub struct RemoveDisablePoolAuthorityKeys {
     ///The pool's disable pool authority list singleton PDA
     pub disable_pool_authority_list: Pubkey,
 }
-impl From<&RemoveDisablePoolAuthorityAccounts<'_, '_>> for RemoveDisablePoolAuthorityKeys {
-    fn from(accounts: &RemoveDisablePoolAuthorityAccounts) -> Self {
+impl From<RemoveDisablePoolAuthorityAccounts<'_, '_>> for RemoveDisablePoolAuthorityKeys {
+    fn from(accounts: RemoveDisablePoolAuthorityAccounts) -> Self {
         Self {
             refund_rent_to: *accounts.refund_rent_to.key,
             signer: *accounts.signer.key,
@@ -3554,16 +3968,36 @@ impl From<&RemoveDisablePoolAuthorityAccounts<'_, '_>> for RemoveDisablePoolAuth
         }
     }
 }
-impl From<&RemoveDisablePoolAuthorityKeys>
+impl From<RemoveDisablePoolAuthorityKeys>
     for [AccountMeta; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]
 {
-    fn from(keys: &RemoveDisablePoolAuthorityKeys) -> Self {
+    fn from(keys: RemoveDisablePoolAuthorityKeys) -> Self {
         [
-            AccountMeta::new(keys.refund_rent_to, true),
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.authority, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new(keys.disable_pool_authority_list, false),
+            AccountMeta {
+                pubkey: keys.refund_rent_to,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.authority,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.disable_pool_authority_list,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -3580,10 +4014,10 @@ impl From<[Pubkey; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]>
         }
     }
 }
-impl<'info> From<&RemoveDisablePoolAuthorityAccounts<'_, 'info>>
+impl<'info> From<RemoveDisablePoolAuthorityAccounts<'_, 'info>>
     for [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &RemoveDisablePoolAuthorityAccounts<'_, 'info>) -> Self {
+    fn from(accounts: RemoveDisablePoolAuthorityAccounts<'_, 'info>) -> Self {
         [
             accounts.refund_rent_to.clone(),
             accounts.signer.clone(),
@@ -3606,6 +4040,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_DISABLE_POOL_AUTHORITY_IX
         }
     }
 }
+pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM: u8 = 16u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveDisablePoolAuthorityIxArgs {
@@ -3613,21 +4048,17 @@ pub struct RemoveDisablePoolAuthorityIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveDisablePoolAuthorityIxData(pub RemoveDisablePoolAuthorityIxArgs);
-pub const REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM: u8 = 16u8;
 impl From<RemoveDisablePoolAuthorityIxArgs> for RemoveDisablePoolAuthorityIxData {
     fn from(args: RemoveDisablePoolAuthorityIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for RemoveDisablePoolAuthorityIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl RemoveDisablePoolAuthorityIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3637,7 +4068,18 @@ impl RemoveDisablePoolAuthorityIxData {
                 ),
             ));
         }
-        Ok(Self(RemoveDisablePoolAuthorityIxArgs::deserialize(buf)?))
+        Ok(Self(RemoveDisablePoolAuthorityIxArgs::deserialize(
+            &mut reader,
+        )?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[REMOVE_DISABLE_POOL_AUTHORITY_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn remove_disable_pool_authority_ix<
@@ -3648,7 +4090,7 @@ pub fn remove_disable_pool_authority_ix<
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: RemoveDisablePoolAuthorityKeys = accounts.into();
-    let metas: [AccountMeta; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; REMOVE_DISABLE_POOL_AUTHORITY_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: RemoveDisablePoolAuthorityIxArgs = args.into();
     let data: RemoveDisablePoolAuthorityIxData = args_full.into();
     Ok(Instruction {
@@ -3658,7 +4100,7 @@ pub fn remove_disable_pool_authority_ix<
     })
 }
 pub fn remove_disable_pool_authority_invoke<'info, A: Into<RemoveDisablePoolAuthorityIxArgs>>(
-    accounts: &RemoveDisablePoolAuthorityAccounts<'_, 'info>,
+    accounts: RemoveDisablePoolAuthorityAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = remove_disable_pool_authority_ix(accounts, args)?;
@@ -3670,7 +4112,7 @@ pub fn remove_disable_pool_authority_invoke_signed<
     'info,
     A: Into<RemoveDisablePoolAuthorityIxArgs>,
 >(
-    accounts: &RemoveDisablePoolAuthorityAccounts<'_, 'info>,
+    accounts: RemoveDisablePoolAuthorityAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -3680,8 +4122,8 @@ pub fn remove_disable_pool_authority_invoke_signed<
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn remove_disable_pool_authority_verify_account_keys(
-    accounts: &RemoveDisablePoolAuthorityAccounts<'_, '_>,
-    keys: &RemoveDisablePoolAuthorityKeys,
+    accounts: RemoveDisablePoolAuthorityAccounts<'_, '_>,
+    keys: RemoveDisablePoolAuthorityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
@@ -3700,7 +4142,7 @@ pub fn remove_disable_pool_authority_verify_account_keys(
     Ok(())
 }
 pub fn remove_disable_pool_authority_verify_account_privileges<'me, 'info>(
-    accounts: &RemoveDisablePoolAuthorityAccounts<'me, 'info>,
+    accounts: RemoveDisablePoolAuthorityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.refund_rent_to,
@@ -3736,8 +4178,8 @@ pub struct DisablePoolKeys {
     ///The pool's disable pool authority list singleton PDA
     pub disable_pool_authority_list: Pubkey,
 }
-impl From<&DisablePoolAccounts<'_, '_>> for DisablePoolKeys {
-    fn from(accounts: &DisablePoolAccounts) -> Self {
+impl From<DisablePoolAccounts<'_, '_>> for DisablePoolKeys {
+    fn from(accounts: DisablePoolAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             pool_state: *accounts.pool_state.key,
@@ -3745,12 +4187,24 @@ impl From<&DisablePoolAccounts<'_, '_>> for DisablePoolKeys {
         }
     }
 }
-impl From<&DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
-    fn from(keys: &DisablePoolKeys) -> Self {
+impl From<DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
+    fn from(keys: DisablePoolKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.disable_pool_authority_list, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.disable_pool_authority_list,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -3763,10 +4217,10 @@ impl From<[Pubkey; DISABLE_POOL_IX_ACCOUNTS_LEN]> for DisablePoolKeys {
         }
     }
 }
-impl<'info> From<&DisablePoolAccounts<'_, 'info>>
+impl<'info> From<DisablePoolAccounts<'_, 'info>>
     for [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &DisablePoolAccounts<'_, 'info>) -> Self {
+    fn from(accounts: DisablePoolAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.pool_state.clone(),
@@ -3785,26 +4239,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct DisablePoolIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct DisablePoolIxData(pub DisablePoolIxArgs);
 pub const DISABLE_POOL_IX_DISCM: u8 = 17u8;
-impl From<DisablePoolIxArgs> for DisablePoolIxData {
-    fn from(args: DisablePoolIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for DisablePoolIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[DISABLE_POOL_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct DisablePoolIxData;
 impl DisablePoolIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != DISABLE_POOL_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3814,43 +4257,42 @@ impl DisablePoolIxData {
                 ),
             ));
         }
-        Ok(Self(DisablePoolIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[DISABLE_POOL_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn disable_pool_ix<K: Into<DisablePoolKeys>, A: Into<DisablePoolIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn disable_pool_ix<K: Into<DisablePoolKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: DisablePoolKeys = accounts.into();
-    let metas: [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: DisablePoolIxArgs = args.into();
-    let data: DisablePoolIxData = args_full.into();
+    let metas: [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: DisablePoolIxData.try_to_vec()?,
     })
 }
-pub fn disable_pool_invoke<'info, A: Into<DisablePoolIxArgs>>(
-    accounts: &DisablePoolAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = disable_pool_ix(accounts, args)?;
+pub fn disable_pool_invoke<'info>(accounts: DisablePoolAccounts<'_, 'info>) -> ProgramResult {
+    let ix = disable_pool_ix(accounts)?;
     let account_info: [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn disable_pool_invoke_signed<'info, A: Into<DisablePoolIxArgs>>(
-    accounts: &DisablePoolAccounts<'_, 'info>,
-    args: A,
+pub fn disable_pool_invoke_signed<'info>(
+    accounts: DisablePoolAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = disable_pool_ix(accounts, args)?;
+    let ix = disable_pool_ix(accounts)?;
     let account_info: [AccountInfo<'info>; DISABLE_POOL_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn disable_pool_verify_account_keys(
-    accounts: &DisablePoolAccounts<'_, '_>,
-    keys: &DisablePoolKeys,
+    accounts: DisablePoolAccounts<'_, '_>,
+    keys: DisablePoolKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -3867,7 +4309,7 @@ pub fn disable_pool_verify_account_keys(
     Ok(())
 }
 pub fn disable_pool_verify_account_privileges<'me, 'info>(
-    accounts: &DisablePoolAccounts<'me, 'info>,
+    accounts: DisablePoolAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state, accounts.disable_pool_authority_list] {
         if !should_be_writable.is_writable {
@@ -3896,19 +4338,27 @@ pub struct EnablePoolKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&EnablePoolAccounts<'_, '_>> for EnablePoolKeys {
-    fn from(accounts: &EnablePoolAccounts) -> Self {
+impl From<EnablePoolAccounts<'_, '_>> for EnablePoolKeys {
+    fn from(accounts: EnablePoolAccounts) -> Self {
         Self {
             admin: *accounts.admin.key,
             pool_state: *accounts.pool_state.key,
         }
     }
 }
-impl From<&EnablePoolKeys> for [AccountMeta; ENABLE_POOL_IX_ACCOUNTS_LEN] {
-    fn from(keys: &EnablePoolKeys) -> Self {
+impl From<EnablePoolKeys> for [AccountMeta; ENABLE_POOL_IX_ACCOUNTS_LEN] {
+    fn from(keys: EnablePoolKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.admin, true),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.admin,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -3920,10 +4370,10 @@ impl From<[Pubkey; ENABLE_POOL_IX_ACCOUNTS_LEN]> for EnablePoolKeys {
         }
     }
 }
-impl<'info> From<&EnablePoolAccounts<'_, 'info>>
+impl<'info> From<EnablePoolAccounts<'_, 'info>>
     for [AccountInfo<'info>; ENABLE_POOL_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &EnablePoolAccounts<'_, 'info>) -> Self {
+    fn from(accounts: EnablePoolAccounts<'_, 'info>) -> Self {
         [accounts.admin.clone(), accounts.pool_state.clone()]
     }
 }
@@ -3937,26 +4387,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; ENABLE_POOL_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EnablePoolIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct EnablePoolIxData(pub EnablePoolIxArgs);
 pub const ENABLE_POOL_IX_DISCM: u8 = 18u8;
-impl From<EnablePoolIxArgs> for EnablePoolIxData {
-    fn from(args: EnablePoolIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for EnablePoolIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[ENABLE_POOL_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct EnablePoolIxData;
 impl EnablePoolIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != ENABLE_POOL_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -3966,43 +4405,42 @@ impl EnablePoolIxData {
                 ),
             ));
         }
-        Ok(Self(EnablePoolIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[ENABLE_POOL_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn enable_pool_ix<K: Into<EnablePoolKeys>, A: Into<EnablePoolIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn enable_pool_ix<K: Into<EnablePoolKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: EnablePoolKeys = accounts.into();
-    let metas: [AccountMeta; ENABLE_POOL_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: EnablePoolIxArgs = args.into();
-    let data: EnablePoolIxData = args_full.into();
+    let metas: [AccountMeta; ENABLE_POOL_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: EnablePoolIxData.try_to_vec()?,
     })
 }
-pub fn enable_pool_invoke<'info, A: Into<EnablePoolIxArgs>>(
-    accounts: &EnablePoolAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = enable_pool_ix(accounts, args)?;
+pub fn enable_pool_invoke<'info>(accounts: EnablePoolAccounts<'_, 'info>) -> ProgramResult {
+    let ix = enable_pool_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ENABLE_POOL_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn enable_pool_invoke_signed<'info, A: Into<EnablePoolIxArgs>>(
-    accounts: &EnablePoolAccounts<'_, 'info>,
-    args: A,
+pub fn enable_pool_invoke_signed<'info>(
+    accounts: EnablePoolAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = enable_pool_ix(accounts, args)?;
+    let ix = enable_pool_ix(accounts)?;
     let account_info: [AccountInfo<'info>; ENABLE_POOL_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn enable_pool_verify_account_keys(
-    accounts: &EnablePoolAccounts<'_, '_>,
-    keys: &EnablePoolKeys,
+    accounts: EnablePoolAccounts<'_, '_>,
+    keys: EnablePoolKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.admin.key, &keys.admin),
@@ -4015,7 +4453,7 @@ pub fn enable_pool_verify_account_keys(
     Ok(())
 }
 pub fn enable_pool_verify_account_privileges<'me, 'info>(
-    accounts: &EnablePoolAccounts<'me, 'info>,
+    accounts: EnablePoolAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -4084,8 +4522,8 @@ pub struct StartRebalanceKeys {
     ///Source LST token program
     pub src_lst_token_program: Pubkey,
 }
-impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
-    fn from(accounts: &StartRebalanceAccounts) -> Self {
+impl From<StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
+    fn from(accounts: StartRebalanceAccounts) -> Self {
         Self {
             rebalance_authority: *accounts.rebalance_authority.key,
             pool_state: *accounts.pool_state.key,
@@ -4102,21 +4540,69 @@ impl From<&StartRebalanceAccounts<'_, '_>> for StartRebalanceKeys {
         }
     }
 }
-impl From<&StartRebalanceKeys> for [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &StartRebalanceKeys) -> Self {
+impl From<StartRebalanceKeys> for [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN] {
+    fn from(keys: StartRebalanceKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.rebalance_authority, true),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.rebalance_record, false),
-            AccountMeta::new_readonly(keys.src_lst_mint, false),
-            AccountMeta::new_readonly(keys.dst_lst_mint, false),
-            AccountMeta::new(keys.src_pool_reserves, false),
-            AccountMeta::new(keys.dst_pool_reserves, false),
-            AccountMeta::new(keys.withdraw_to, false),
-            AccountMeta::new_readonly(keys.instructions, false),
-            AccountMeta::new_readonly(keys.system_program, false),
-            AccountMeta::new_readonly(keys.src_lst_token_program, false),
+            AccountMeta {
+                pubkey: keys.rebalance_authority,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.rebalance_record,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_pool_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.withdraw_to,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.instructions,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.system_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.src_lst_token_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -4138,10 +4624,10 @@ impl From<[Pubkey; START_REBALANCE_IX_ACCOUNTS_LEN]> for StartRebalanceKeys {
         }
     }
 }
-impl<'info> From<&StartRebalanceAccounts<'_, 'info>>
+impl<'info> From<StartRebalanceAccounts<'_, 'info>>
     for [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &StartRebalanceAccounts<'_, 'info>) -> Self {
+    fn from(accounts: StartRebalanceAccounts<'_, 'info>) -> Self {
         [
             accounts.rebalance_authority.clone(),
             accounts.pool_state.clone(),
@@ -4178,6 +4664,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; START_REBALANCE_IX_ACCOUNTS_LEN]
         }
     }
 }
+pub const START_REBALANCE_IX_DISCM: u8 = 19u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StartRebalanceIxArgs {
@@ -4188,21 +4675,17 @@ pub struct StartRebalanceIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct StartRebalanceIxData(pub StartRebalanceIxArgs);
-pub const START_REBALANCE_IX_DISCM: u8 = 19u8;
 impl From<StartRebalanceIxArgs> for StartRebalanceIxData {
     fn from(args: StartRebalanceIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for StartRebalanceIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[START_REBALANCE_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl StartRebalanceIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != START_REBALANCE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -4212,7 +4695,16 @@ impl StartRebalanceIxData {
                 ),
             ));
         }
-        Ok(Self(StartRebalanceIxArgs::deserialize(buf)?))
+        Ok(Self(StartRebalanceIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[START_REBALANCE_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn start_rebalance_ix<K: Into<StartRebalanceKeys>, A: Into<StartRebalanceIxArgs>>(
@@ -4220,7 +4712,7 @@ pub fn start_rebalance_ix<K: Into<StartRebalanceKeys>, A: Into<StartRebalanceIxA
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: StartRebalanceKeys = accounts.into();
-    let metas: [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; START_REBALANCE_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: StartRebalanceIxArgs = args.into();
     let data: StartRebalanceIxData = args_full.into();
     Ok(Instruction {
@@ -4230,7 +4722,7 @@ pub fn start_rebalance_ix<K: Into<StartRebalanceKeys>, A: Into<StartRebalanceIxA
     })
 }
 pub fn start_rebalance_invoke<'info, A: Into<StartRebalanceIxArgs>>(
-    accounts: &StartRebalanceAccounts<'_, 'info>,
+    accounts: StartRebalanceAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = start_rebalance_ix(accounts, args)?;
@@ -4238,7 +4730,7 @@ pub fn start_rebalance_invoke<'info, A: Into<StartRebalanceIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn start_rebalance_invoke_signed<'info, A: Into<StartRebalanceIxArgs>>(
-    accounts: &StartRebalanceAccounts<'_, 'info>,
+    accounts: StartRebalanceAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -4247,8 +4739,8 @@ pub fn start_rebalance_invoke_signed<'info, A: Into<StartRebalanceIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn start_rebalance_verify_account_keys(
-    accounts: &StartRebalanceAccounts<'_, '_>,
-    keys: &StartRebalanceKeys,
+    accounts: StartRebalanceAccounts<'_, '_>,
+    keys: StartRebalanceKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.rebalance_authority.key, &keys.rebalance_authority),
@@ -4274,7 +4766,7 @@ pub fn start_rebalance_verify_account_keys(
     Ok(())
 }
 pub fn start_rebalance_verify_account_privileges<'me, 'info>(
-    accounts: &StartRebalanceAccounts<'me, 'info>,
+    accounts: StartRebalanceAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.pool_state,
@@ -4322,8 +4814,8 @@ pub struct EndRebalanceKeys {
     ///Destination LST reserves token account of the pool
     pub dst_pool_reserves: Pubkey,
 }
-impl From<&EndRebalanceAccounts<'_, '_>> for EndRebalanceKeys {
-    fn from(accounts: &EndRebalanceAccounts) -> Self {
+impl From<EndRebalanceAccounts<'_, '_>> for EndRebalanceKeys {
+    fn from(accounts: EndRebalanceAccounts) -> Self {
         Self {
             pool_state: *accounts.pool_state.key,
             lst_state_list: *accounts.lst_state_list.key,
@@ -4333,14 +4825,34 @@ impl From<&EndRebalanceAccounts<'_, '_>> for EndRebalanceKeys {
         }
     }
 }
-impl From<&EndRebalanceKeys> for [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &EndRebalanceKeys) -> Self {
+impl From<EndRebalanceKeys> for [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] {
+    fn from(keys: EndRebalanceKeys) -> Self {
         [
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lst_state_list, false),
-            AccountMeta::new(keys.rebalance_record, false),
-            AccountMeta::new_readonly(keys.dst_lst_mint, false),
-            AccountMeta::new_readonly(keys.dst_pool_reserves, false),
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.rebalance_record,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.dst_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.dst_pool_reserves,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -4355,10 +4867,10 @@ impl From<[Pubkey; END_REBALANCE_IX_ACCOUNTS_LEN]> for EndRebalanceKeys {
         }
     }
 }
-impl<'info> From<&EndRebalanceAccounts<'_, 'info>>
+impl<'info> From<EndRebalanceAccounts<'_, 'info>>
     for [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &EndRebalanceAccounts<'_, 'info>) -> Self {
+    fn from(accounts: EndRebalanceAccounts<'_, 'info>) -> Self {
         [
             accounts.pool_state.clone(),
             accounts.lst_state_list.clone(),
@@ -4381,26 +4893,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EndRebalanceIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct EndRebalanceIxData(pub EndRebalanceIxArgs);
 pub const END_REBALANCE_IX_DISCM: u8 = 20u8;
-impl From<EndRebalanceIxArgs> for EndRebalanceIxData {
-    fn from(args: EndRebalanceIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for EndRebalanceIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[END_REBALANCE_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct EndRebalanceIxData;
 impl EndRebalanceIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != END_REBALANCE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -4410,43 +4911,42 @@ impl EndRebalanceIxData {
                 ),
             ));
         }
-        Ok(Self(EndRebalanceIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[END_REBALANCE_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn end_rebalance_ix<K: Into<EndRebalanceKeys>, A: Into<EndRebalanceIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn end_rebalance_ix<K: Into<EndRebalanceKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: EndRebalanceKeys = accounts.into();
-    let metas: [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: EndRebalanceIxArgs = args.into();
-    let data: EndRebalanceIxData = args_full.into();
+    let metas: [AccountMeta; END_REBALANCE_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: EndRebalanceIxData.try_to_vec()?,
     })
 }
-pub fn end_rebalance_invoke<'info, A: Into<EndRebalanceIxArgs>>(
-    accounts: &EndRebalanceAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = end_rebalance_ix(accounts, args)?;
+pub fn end_rebalance_invoke<'info>(accounts: EndRebalanceAccounts<'_, 'info>) -> ProgramResult {
+    let ix = end_rebalance_ix(accounts)?;
     let account_info: [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn end_rebalance_invoke_signed<'info, A: Into<EndRebalanceIxArgs>>(
-    accounts: &EndRebalanceAccounts<'_, 'info>,
-    args: A,
+pub fn end_rebalance_invoke_signed<'info>(
+    accounts: EndRebalanceAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = end_rebalance_ix(accounts, args)?;
+    let ix = end_rebalance_ix(accounts)?;
     let account_info: [AccountInfo<'info>; END_REBALANCE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn end_rebalance_verify_account_keys(
-    accounts: &EndRebalanceAccounts<'_, '_>,
-    keys: &EndRebalanceKeys,
+    accounts: EndRebalanceAccounts<'_, '_>,
+    keys: EndRebalanceKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.pool_state.key, &keys.pool_state),
@@ -4462,7 +4962,7 @@ pub fn end_rebalance_verify_account_keys(
     Ok(())
 }
 pub fn end_rebalance_verify_account_privileges<'me, 'info>(
-    accounts: &EndRebalanceAccounts<'me, 'info>,
+    accounts: EndRebalanceAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [
         accounts.pool_state,
@@ -4494,8 +4994,8 @@ pub struct SetRebalanceAuthorityKeys {
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
 }
-impl From<&SetRebalanceAuthorityAccounts<'_, '_>> for SetRebalanceAuthorityKeys {
-    fn from(accounts: &SetRebalanceAuthorityAccounts) -> Self {
+impl From<SetRebalanceAuthorityAccounts<'_, '_>> for SetRebalanceAuthorityKeys {
+    fn from(accounts: SetRebalanceAuthorityAccounts) -> Self {
         Self {
             signer: *accounts.signer.key,
             new_rebalance_authority: *accounts.new_rebalance_authority.key,
@@ -4503,12 +5003,24 @@ impl From<&SetRebalanceAuthorityAccounts<'_, '_>> for SetRebalanceAuthorityKeys 
         }
     }
 }
-impl From<&SetRebalanceAuthorityKeys> for [AccountMeta; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetRebalanceAuthorityKeys) -> Self {
+impl From<SetRebalanceAuthorityKeys> for [AccountMeta; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetRebalanceAuthorityKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.signer, true),
-            AccountMeta::new_readonly(keys.new_rebalance_authority, false),
-            AccountMeta::new(keys.pool_state, false),
+            AccountMeta {
+                pubkey: keys.signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_rebalance_authority,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -4521,10 +5033,10 @@ impl From<[Pubkey; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN]> for SetRebalanceAut
         }
     }
 }
-impl<'info> From<&SetRebalanceAuthorityAccounts<'_, 'info>>
+impl<'info> From<SetRebalanceAuthorityAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetRebalanceAuthorityAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetRebalanceAuthorityAccounts<'_, 'info>) -> Self {
         [
             accounts.signer.clone(),
             accounts.new_rebalance_authority.clone(),
@@ -4543,26 +5055,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOU
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetRebalanceAuthorityIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct SetRebalanceAuthorityIxData(pub SetRebalanceAuthorityIxArgs);
 pub const SET_REBALANCE_AUTHORITY_IX_DISCM: u8 = 21u8;
-impl From<SetRebalanceAuthorityIxArgs> for SetRebalanceAuthorityIxData {
-    fn from(args: SetRebalanceAuthorityIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for SetRebalanceAuthorityIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_REBALANCE_AUTHORITY_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct SetRebalanceAuthorityIxData;
 impl SetRebalanceAuthorityIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_REBALANCE_AUTHORITY_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -4572,48 +5073,48 @@ impl SetRebalanceAuthorityIxData {
                 ),
             ));
         }
-        Ok(Self(SetRebalanceAuthorityIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_REBALANCE_AUTHORITY_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn set_rebalance_authority_ix<
-    K: Into<SetRebalanceAuthorityKeys>,
-    A: Into<SetRebalanceAuthorityIxArgs>,
->(
+pub fn set_rebalance_authority_ix<K: Into<SetRebalanceAuthorityKeys>>(
     accounts: K,
-    args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SetRebalanceAuthorityKeys = accounts.into();
-    let metas: [AccountMeta; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetRebalanceAuthorityIxArgs = args.into();
-    let data: SetRebalanceAuthorityIxData = args_full.into();
+    let metas: [AccountMeta; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: SetRebalanceAuthorityIxData.try_to_vec()?,
     })
 }
-pub fn set_rebalance_authority_invoke<'info, A: Into<SetRebalanceAuthorityIxArgs>>(
-    accounts: &SetRebalanceAuthorityAccounts<'_, 'info>,
-    args: A,
+pub fn set_rebalance_authority_invoke<'info>(
+    accounts: SetRebalanceAuthorityAccounts<'_, 'info>,
 ) -> ProgramResult {
-    let ix = set_rebalance_authority_ix(accounts, args)?;
+    let ix = set_rebalance_authority_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_rebalance_authority_invoke_signed<'info, A: Into<SetRebalanceAuthorityIxArgs>>(
-    accounts: &SetRebalanceAuthorityAccounts<'_, 'info>,
-    args: A,
+pub fn set_rebalance_authority_invoke_signed<'info>(
+    accounts: SetRebalanceAuthorityAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_rebalance_authority_ix(accounts, args)?;
+    let ix = set_rebalance_authority_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_REBALANCE_AUTHORITY_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_rebalance_authority_verify_account_keys(
-    accounts: &SetRebalanceAuthorityAccounts<'_, '_>,
-    keys: &SetRebalanceAuthorityKeys,
+    accounts: SetRebalanceAuthorityAccounts<'_, '_>,
+    keys: SetRebalanceAuthorityKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.signer.key, &keys.signer),
@@ -4630,7 +5131,7 @@ pub fn set_rebalance_authority_verify_account_keys(
     Ok(())
 }
 pub fn set_rebalance_authority_verify_account_privileges<'me, 'info>(
-    accounts: &SetRebalanceAuthorityAccounts<'me, 'info>,
+    accounts: SetRebalanceAuthorityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
@@ -4675,8 +5176,8 @@ pub struct InitializeKeys {
     ///System program
     pub system_program: Pubkey,
 }
-impl From<&InitializeAccounts<'_, '_>> for InitializeKeys {
-    fn from(accounts: &InitializeAccounts) -> Self {
+impl From<InitializeAccounts<'_, '_>> for InitializeKeys {
+    fn from(accounts: InitializeAccounts) -> Self {
         Self {
             payer: *accounts.payer.key,
             authority: *accounts.authority.key,
@@ -4687,15 +5188,39 @@ impl From<&InitializeAccounts<'_, '_>> for InitializeKeys {
         }
     }
 }
-impl From<&InitializeKeys> for [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] {
-    fn from(keys: &InitializeKeys) -> Self {
+impl From<InitializeKeys> for [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] {
+    fn from(keys: InitializeKeys) -> Self {
         [
-            AccountMeta::new(keys.payer, true),
-            AccountMeta::new_readonly(keys.authority, true),
-            AccountMeta::new(keys.pool_state, false),
-            AccountMeta::new(keys.lp_token_mint, true),
-            AccountMeta::new_readonly(keys.token_2022, false),
-            AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta {
+                pubkey: keys.payer,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.authority,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lp_token_mint,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.token_2022,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.system_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -4711,10 +5236,10 @@ impl From<[Pubkey; INITIALIZE_IX_ACCOUNTS_LEN]> for InitializeKeys {
         }
     }
 }
-impl<'info> From<&InitializeAccounts<'_, 'info>>
+impl<'info> From<InitializeAccounts<'_, 'info>>
     for [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &InitializeAccounts<'_, 'info>) -> Self {
+    fn from(accounts: InitializeAccounts<'_, 'info>) -> Self {
         [
             accounts.payer.clone(),
             accounts.authority.clone(),
@@ -4739,26 +5264,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InitializeIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct InitializeIxData(pub InitializeIxArgs);
 pub const INITIALIZE_IX_DISCM: u8 = 22u8;
-impl From<InitializeIxArgs> for InitializeIxData {
-    fn from(args: InitializeIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for InitializeIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[INITIALIZE_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct InitializeIxData;
 impl InitializeIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != INITIALIZE_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -4768,43 +5282,42 @@ impl InitializeIxData {
                 ),
             ));
         }
-        Ok(Self(InitializeIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[INITIALIZE_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn initialize_ix<K: Into<InitializeKeys>, A: Into<InitializeIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn initialize_ix<K: Into<InitializeKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: InitializeKeys = accounts.into();
-    let metas: [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: InitializeIxArgs = args.into();
-    let data: InitializeIxData = args_full.into();
+    let metas: [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: InitializeIxData.try_to_vec()?,
     })
 }
-pub fn initialize_invoke<'info, A: Into<InitializeIxArgs>>(
-    accounts: &InitializeAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = initialize_ix(accounts, args)?;
+pub fn initialize_invoke<'info>(accounts: InitializeAccounts<'_, 'info>) -> ProgramResult {
+    let ix = initialize_ix(accounts)?;
     let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn initialize_invoke_signed<'info, A: Into<InitializeIxArgs>>(
-    accounts: &InitializeAccounts<'_, 'info>,
-    args: A,
+pub fn initialize_invoke_signed<'info>(
+    accounts: InitializeAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = initialize_ix(accounts, args)?;
+    let ix = initialize_ix(accounts)?;
     let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn initialize_verify_account_keys(
-    accounts: &InitializeAccounts<'_, '_>,
-    keys: &InitializeKeys,
+    accounts: InitializeAccounts<'_, '_>,
+    keys: InitializeKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
@@ -4821,7 +5334,7 @@ pub fn initialize_verify_account_keys(
     Ok(())
 }
 pub fn initialize_verify_account_privileges<'me, 'info>(
-    accounts: &InitializeAccounts<'me, 'info>,
+    accounts: InitializeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.pool_state, accounts.lp_token_mint] {
         if !should_be_writable.is_writable {

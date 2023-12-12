@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use s_controller_interface::{
     swap_exact_out_ix, SControllerError, SwapExactOutIxArgs, SwapExactOutIxData, SwapExactOutKeys,
 };

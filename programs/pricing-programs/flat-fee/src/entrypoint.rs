@@ -18,7 +18,7 @@ pub fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let ix = FlatFeeProgramIx::deserialize(&mut &instruction_data[..])?;
+    let ix = FlatFeeProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
     match ix {
@@ -32,9 +32,9 @@ pub fn process_instruction(
         }
         FlatFeeProgramIx::SetLpWithdrawalFee(args) => process_set_lp_withdrawal_fee(accounts, args),
         FlatFeeProgramIx::SetLstFee(args) => process_set_lst_fee(accounts, args),
-        FlatFeeProgramIx::RemoveLst(_args) => process_remove_lst(accounts),
+        FlatFeeProgramIx::RemoveLst => process_remove_lst(accounts),
         FlatFeeProgramIx::AddLst(args) => process_add_lst(accounts, args),
-        FlatFeeProgramIx::SetManager(_args) => process_set_manager(accounts),
-        FlatFeeProgramIx::Initialize(_args) => process_initialize(accounts),
+        FlatFeeProgramIx::SetManager => process_set_manager(accounts),
+        FlatFeeProgramIx::Initialize => process_initialize(accounts),
     }
 }

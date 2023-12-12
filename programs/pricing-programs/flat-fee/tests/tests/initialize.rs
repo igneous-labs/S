@@ -1,4 +1,4 @@
-use flat_fee_interface::{initialize_ix, InitializeIxArgs};
+use flat_fee_interface::initialize_ix;
 use flat_fee_lib::{account_resolvers::InitializeFreeArgs, utils::try_program_state};
 use flat_fee_test_utils::{banks_client_get_flat_fee_program_state, DEFAULT_PROGRAM_STATE};
 use solana_program_test::{processor, ProgramTest};
@@ -23,7 +23,6 @@ async fn basic() {
                 payer: payer.pubkey(),
             }
             .resolve(),
-            InitializeIxArgs {},
         )
         .unwrap();
 

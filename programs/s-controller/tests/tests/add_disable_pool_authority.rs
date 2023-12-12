@@ -1,4 +1,4 @@
-use s_controller_interface::{add_disable_pool_authority_ix, AddDisablePoolAuthorityIxArgs};
+use s_controller_interface::add_disable_pool_authority_ix;
 use s_controller_lib::{
     program::POOL_STATE_ID, try_disable_pool_authority_list, try_match_element_in_list,
     AddDisablePoolAuthorityFreeArgs,
@@ -50,7 +50,7 @@ async fn basic_add_two() {
         .resolve()
         .unwrap();
 
-        let ix = add_disable_pool_authority_ix(keys, AddDisablePoolAuthorityIxArgs {}).unwrap();
+        let ix = add_disable_pool_authority_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
@@ -85,7 +85,7 @@ async fn basic_add_two() {
         .resolve()
         .unwrap();
 
-        let ix = add_disable_pool_authority_ix(keys, AddDisablePoolAuthorityIxArgs {}).unwrap();
+        let ix = add_disable_pool_authority_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 

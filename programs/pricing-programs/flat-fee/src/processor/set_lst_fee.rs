@@ -41,8 +41,8 @@ fn verify_set_lst_fee<'me, 'info>(
     };
     let expected: SetLstFeeKeys = free_args.resolve()?;
 
-    set_lst_fee_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    set_lst_fee_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    set_lst_fee_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    set_lst_fee_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     verify_signed_fee_bps_bound(args.input_fee_bps)?;
     verify_signed_fee_bps_bound(args.output_fee_bps)?;

@@ -1,6 +1,4 @@
-use s_controller_interface::{
-    set_protocol_fee_beneficiary_ix, PoolState, SetProtocolFeeBeneficiaryIxArgs,
-};
+use s_controller_interface::{set_protocol_fee_beneficiary_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
 
 use solana_program_test::*;
@@ -46,7 +44,6 @@ async fn basic_set_protocol_fee_beneficiary() {
         }
         .resolve()
         .unwrap(),
-        SetProtocolFeeBeneficiaryIxArgs {},
     )
     .unwrap();
 
@@ -76,7 +73,6 @@ async fn basic_set_protocol_fee_beneficiary() {
         }
         .resolve()
         .unwrap(),
-        SetProtocolFeeBeneficiaryIxArgs {},
     )
     .unwrap();
 

@@ -68,8 +68,8 @@ fn verify_remove_lst<'a, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    remove_lst_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    remove_lst_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    remove_lst_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    remove_lst_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     let lst_state_list_acc_data = actual.lst_state_list.try_borrow_data()?;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;

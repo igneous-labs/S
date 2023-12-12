@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_lst_state_list;
 use sanctum_onchain_utils::utils::account_info_to_account_meta;
