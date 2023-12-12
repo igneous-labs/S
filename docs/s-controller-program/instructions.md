@@ -75,8 +75,8 @@ Swap to output LST from an exact amount of given input LST.
 
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for src_lst
-- Self CPI SyncSolValue for src_lst
-- Self CPI SyncSolValue for dst_lst
+- SyncSolValue for src_lst
+- SyncSolValue for dst_lst
 - in_sol_value = LstToSol(amount)
 - out_sol_value = PriceExactIn(amount, in_sol_value)
 - fee_amount_sol_value = in_sol_value - out_sol_value
@@ -87,8 +87,8 @@ Swap to output LST from an exact amount of given input LST.
 - Transfer amount src tokens from src_lst_acc to src_pool_reserves
 - Transfer protocol_fees_amount from dst_pool_reserves to protocol_fee_accumulator
 - Transfer amount_out dst tokens from dst_pool_reserves to dst_lst_acc
-- Self CPI SyncSolValue for src_lst
-- Self CPI SyncSolValue for dst_lst
+- SyncSolValue for src_lst
+- SyncSolValue for dst_lst
 - Check pool has not lost SOL value
 
 ## SwapExactOut
@@ -142,7 +142,7 @@ Add single-LST liquidity to the pool.
 
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for LST
-- Self CPI SyncSolValue for LST
+- SyncSolValue for LST
 - sol_value_to_add = LstToSol(amount)
 - sol_value_to_add_after_fees = PriceLpTokensToMint(lp_tokens_sol_value)
 - lp_fees_sol_value = lp_tokens_sol_value - sol_value_to_add_after_fees
@@ -152,7 +152,7 @@ Add single-LST liquidity to the pool.
 - Transfer protocol_fees_lst from src_lst_acc to protocol_fee_accumulator
 - Transfer amount - protocol_fees_lst from src_lst_acc to pool_reserves
 - Mint lp_tokens_due to dst_lp_token_acc
-- Self CPI SyncSolValue for LST
+- SyncSolValue for LST
 
 ## RemoveLiquidity
 
@@ -188,7 +188,7 @@ Remove single-LST liquidity from the pool.
 ### Procedure
 
 - Verify pool is not rebalancing and not disabled
-- Self CPI SyncSolValue for LST
+- SyncSolValue for LST
 - lp_tokens_sol_value = lp_tokens_to_burn \* pool_total_sol_value / lp_token_supply
 - lp_tokens_sol_value_after_fees = PriceLpTokensToRedeem(lp_tokens_sol_value)
 - lp_fees_sol_value = lp_tokens_sol_value - lp_tokens_sol_value_after_fees
@@ -198,7 +198,7 @@ Remove single-LST liquidity from the pool.
 - Burn amount LP tokens
 - Transfer lst_due to dst_acc
 - Transfer protocol_fees_lst to protocol_fee_accumulator
-- Self CPI SyncSolValue for LST
+- SyncSolValue for LST
 
 ## DisableLstInput
 
@@ -332,7 +332,7 @@ Update the SOL value calculator program for a LST
 ### Procedure
 
 - Overwrite sol_value_calculator in `lst_state_list`
-- Self CPI SyncSolValue
+- SyncSolValue
 
 ## SetAdmin
 
@@ -561,10 +561,10 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 - Verify pool is not rebalancing and not disabled
 - Verify input is not disabled for dst_lst
 - Verify a corresponding EndRebalance instruction follows
-- Self CPI SyncSolValue for dst_lst
-- Self CPI SyncSolValue for src_lst
+- SyncSolValue for dst_lst
+- SyncSolValue for src_lst
 - Withdraw amount src_lst from reserves to withdraw_to
-- Self CPI SyncSolValue for src_lst
+- SyncSolValue for src_lst
 - Initialize rebalance_record with sol_value = the difference between pool's total SOL value before and after the second SyncSolValue for src_lst
 - Set is_rebalancing = true
 
@@ -593,8 +593,8 @@ End a flash rebalancing procedure after returning the funds to the pool
 
 - Verify pool is rebalancing
 - Set is_rebalancing = false
-- Self CPI SyncSolValue for dst_lst
-- Verify increase in pool's SOL value after self CPI >= amount recorded in rebalance_record
+- SyncSolValue for dst_lst
+- Verify increase in pool's SOL value after SyncSolValue >= amount recorded in rebalance_record
 - Close rebalance_record to refund_rent_to
 
 ## SetRebalanceAuthority
