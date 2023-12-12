@@ -204,3 +204,43 @@ async fn set_lst_fee_fail_unauthorized() {
     )
     .await;
 }
+
+#[tokio::test]
+async fn set_lst_fee_fail_fee_account_not_exists() {
+    let manager = Keypair::new();
+    let lst_mint = Pubkey::new_unique();
+
+    let program_test = normal_program_test(
+        ProgramState {
+            manager: manager.pubkey(),
+            lp_withdrawal_fee_bps: Default::default(),
+        },
+        &[],
+    );
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+    let ix = set_lst_fee_ix(
+        SetLstFeeByMintFreeArgs {
+            lst_mint,
+            state_acc: KeyedAccount {
+                pubkey: STATE_ID,
+                account: state_acc,
+            },
+        }
+        .resolve()
+        .unwrap(),
+        SetLstFeeIxArgs {
+            input_fee_bps: Default::default(),
+            output_fee_bps: Default::default(),
+        },
+    )
+    .unwrap();
+
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &manager], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+    assert_custom_err(err, FlatFeeError::UnsupportedLstMint);
+}
