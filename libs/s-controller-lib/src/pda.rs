@@ -18,7 +18,7 @@ pub fn create_pool_reserves_address(
             mint: *mint,
             token_program,
         },
-        bump: [*pool_reserves_bump],
+        bump: *pool_reserves_bump,
     }
     .create_ata_address()
     .map_err(|_e| SControllerError::InvalidReserves)
@@ -38,7 +38,7 @@ pub fn create_protocol_fee_accumulator_address(
             mint: *mint,
             token_program,
         },
-        bump: [*protocol_fee_accumulator_bump],
+        bump: *protocol_fee_accumulator_bump,
     }
     .create_ata_address()
     .map_err(|_e| SControllerError::InvalidReserves)

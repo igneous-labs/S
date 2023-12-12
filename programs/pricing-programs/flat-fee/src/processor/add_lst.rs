@@ -40,8 +40,7 @@ pub fn process_add_lst(accounts: &[AccountInfo], args: AddLstIxArgs) -> ProgramR
     let mut bytes = fee_acc.try_borrow_mut_data()?;
     let fee_acc = try_fee_account_mut(&mut bytes)?;
 
-    let [bump] = create_pda_args.bump;
-    fee_acc.bump = bump;
+    fee_acc.bump = create_pda_args.bump;
     fee_acc.input_fee_bps = input_fee_bps;
     fee_acc.output_fee_bps = output_fee_bps;
 

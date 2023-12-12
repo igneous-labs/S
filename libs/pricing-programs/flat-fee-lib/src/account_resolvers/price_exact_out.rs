@@ -52,7 +52,7 @@ impl PriceExactOutWithBumpFreeArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.input_lst_mint,
             },
-            bump: [self.input_fee_acc_bump],
+            bump: self.input_fee_acc_bump,
         };
         let input_fee_acc = input_create_pda_args.get_fee_account_address()?;
 
@@ -60,7 +60,7 @@ impl PriceExactOutWithBumpFreeArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.output_lst_mint,
             },
-            bump: [self.output_fee_acc_bump],
+            bump: self.output_fee_acc_bump,
         };
         let output_fee_acc = output_create_pda_args.get_fee_account_address()?;
 

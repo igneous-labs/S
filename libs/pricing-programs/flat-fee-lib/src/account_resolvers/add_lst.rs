@@ -43,7 +43,7 @@ impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> AddLstFreeArgs<S> {
             },
             FeeAccountCreatePdaArgs {
                 find_pda_args,
-                bump: [bump],
+                bump,
             },
         ))
     }

@@ -20,14 +20,14 @@ impl FeeAccountFindPdaArgs {
 
 pub struct FeeAccountCreatePdaArgs {
     pub find_pda_args: FeeAccountFindPdaArgs,
-    pub bump: [u8; 1],
+    pub bump: u8,
 }
 
 impl FeeAccountCreatePdaArgs {
     pub fn to_signer_seeds(&self) -> [&[u8]; 3] {
         let [prefix, lst_mint] = self.find_pda_args.to_seed();
 
-        [prefix, lst_mint, &self.bump]
+        [prefix, lst_mint, std::slice::from_ref(&self.bump)]
     }
 
     pub fn get_fee_account_address(&self) -> Result<Pubkey, PubkeyError> {

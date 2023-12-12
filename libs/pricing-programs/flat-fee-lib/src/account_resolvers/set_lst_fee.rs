@@ -48,7 +48,7 @@ impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> 
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.lst_mint,
             },
-            bump: [bump],
+            bump,
         };
         let fee_acc = create_pda_args
             .get_fee_account_address()

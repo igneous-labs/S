@@ -3,13 +3,18 @@ use solana_program::pubkey::{Pubkey, PubkeyError};
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CreateAtaAddressArgs {
     pub find_ata_args: FindAtaAddressArgs,
-    pub bump: [u8; 1],
+    pub bump: u8,
 }
 
 impl CreateAtaAddressArgs {
     pub fn to_signer_seeds(&self) -> [&[u8]; 4] {
         let [wallet, token_program, mint] = self.find_ata_args.to_seeds();
-        [wallet, token_program, mint, &self.bump]
+        [
+            wallet,
+            token_program,
+            mint,
+            std::slice::from_ref(&self.bump),
+        ]
     }
 
     pub fn create_ata_address(&self) -> Result<Pubkey, PubkeyError> {
