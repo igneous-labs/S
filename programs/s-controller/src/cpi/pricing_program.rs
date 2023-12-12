@@ -125,7 +125,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
             remaining_accounts,
             ..
         } = self;
-        [&[lst_mint.clone()], remaining_accounts].concat()
+        [std::slice::from_ref(lst_mint), remaining_accounts].concat()
     }
 
     fn create_account_metas(&self) -> Vec<AccountMeta> {
@@ -236,7 +236,8 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
             ..
         } = self;
         [
-            &[input_lst_mint.clone(), output_lst_mint.clone()],
+            std::slice::from_ref(input_lst_mint),
+            std::slice::from_ref(output_lst_mint),
             remaining_accounts,
         ]
         .concat()
