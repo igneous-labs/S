@@ -50,8 +50,8 @@ fn verify_initialize<'me, 'info>(
     };
     let expected: InitializeKeys = free_args.resolve();
 
-    initialize_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    initialize_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    initialize_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    initialize_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)
 }

@@ -1,6 +1,4 @@
-use s_controller_interface::{
-    set_rebalance_authority_ix, SControllerError, SetRebalanceAuthorityIxArgs,
-};
+use s_controller_interface::{set_rebalance_authority_ix, SControllerError};
 use s_controller_lib::{
     try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs, SetRebalanceAuthorityFreeArgs,
 };
@@ -32,7 +30,6 @@ async fn admin_set() {
         }
         .resolve_pool_admin()
         .unwrap(),
-        SetRebalanceAuthorityIxArgs {},
     )
     .unwrap();
 
@@ -61,7 +58,6 @@ async fn rebalance_authority_set() {
         }
         .resolve_current_rebalance_authority()
         .unwrap(),
-        SetRebalanceAuthorityIxArgs {},
     )
     .unwrap();
 
@@ -85,7 +81,6 @@ async fn unauthorized_signer() {
             signer: payer.pubkey(), // payer is unauthorized
         }
         .resolve(),
-        SetRebalanceAuthorityIxArgs {},
     )
     .unwrap();
 

@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use pricing_programs_interface::{
     PriceExactInIxArgs, PriceExactInIxData, PriceExactOutIxArgs, PriceExactOutIxData,
     PriceLpTokensToMintIxArgs, PriceLpTokensToMintIxData, PriceLpTokensToRedeemIxArgs,

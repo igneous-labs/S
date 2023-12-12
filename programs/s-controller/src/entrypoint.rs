@@ -18,7 +18,7 @@ pub fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let ix = SControllerProgramIx::deserialize(&mut &instruction_data[..])?;
+    let ix = SControllerProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
     match ix {
@@ -29,33 +29,31 @@ pub fn process_instruction(
         SControllerProgramIx::RemoveLiquidity(args) => process_remove_liquidity(accounts, args),
         SControllerProgramIx::DisableLstInput(args) => process_disable_lst_input(accounts, args),
         SControllerProgramIx::EnableLstInput(args) => process_enable_lst_input(accounts, args),
-        SControllerProgramIx::AddLst(_args) => process_add_lst(accounts),
+        SControllerProgramIx::AddLst => process_add_lst(accounts),
         SControllerProgramIx::RemoveLst(args) => process_remove_lst(accounts, args),
         SControllerProgramIx::SetSolValueCalculator(args) => {
             process_set_sol_value_calculator(accounts, args)
         }
-        SControllerProgramIx::SetAdmin(_args) => process_set_admin(accounts),
+        SControllerProgramIx::SetAdmin => process_set_admin(accounts),
         SControllerProgramIx::SetProtocolFee(args) => process_set_protocol_fee(accounts, args),
-        SControllerProgramIx::SetProtocolFeeBeneficiary(_args) => {
+        SControllerProgramIx::SetProtocolFeeBeneficiary => {
             process_set_protocol_fee_beneficiary(accounts)
         }
-        SControllerProgramIx::SetPricingProgram(_args) => process_set_pricing_program(accounts),
+        SControllerProgramIx::SetPricingProgram => process_set_pricing_program(accounts),
         SControllerProgramIx::WithdrawProtocolFees(args) => {
             process_withdraw_protocol_fees(accounts, args)
         }
-        SControllerProgramIx::AddDisablePoolAuthority(_args) => {
+        SControllerProgramIx::AddDisablePoolAuthority => {
             process_add_disable_pool_authority(accounts)
         }
         SControllerProgramIx::RemoveDisablePoolAuthority(args) => {
             process_remove_disable_pool_authority(accounts, args)
         }
-        SControllerProgramIx::DisablePool(_args) => process_disable_pool(accounts),
-        SControllerProgramIx::EnablePool(_args) => process_enable_pool(accounts),
+        SControllerProgramIx::DisablePool => process_disable_pool(accounts),
+        SControllerProgramIx::EnablePool => process_enable_pool(accounts),
         SControllerProgramIx::StartRebalance(args) => process_start_rebalance(accounts, args),
-        SControllerProgramIx::EndRebalance(_args) => process_end_rebalance(accounts),
-        SControllerProgramIx::SetRebalanceAuthority(_args) => {
-            process_set_rebalance_authority(accounts)
-        }
-        SControllerProgramIx::Initialize(_args) => process_initialize(accounts),
+        SControllerProgramIx::EndRebalance => process_end_rebalance(accounts),
+        SControllerProgramIx::SetRebalanceAuthority => process_set_rebalance_authority(accounts),
+        SControllerProgramIx::Initialize => process_initialize(accounts),
     }
 }

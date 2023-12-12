@@ -1,15 +1,12 @@
 use flat_fee_interface::{
-    price_exact_in_verify_account_keys, price_exact_in_verify_account_privileges,
-    PriceExactInAccounts, PriceExactInIxArgs, PriceExactInKeys,
+    price_exact_in_verify_account_keys, PriceExactInAccounts, PriceExactInIxArgs, PriceExactInKeys,
 };
 use flat_fee_lib::{
     account_resolvers::{PriceExactInFreeArgs, PriceExactInWithBumpFreeArgs},
     calc::{calculate_price_exact_in, CalculatePriceExactInArgs},
     utils::try_fee_account,
 };
-use sanctum_onchain_utils::utils::{
-    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
-};
+use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::set_return_data,
     program_error::ProgramError,
@@ -61,8 +58,7 @@ fn verify_price_exact_in<'me, 'info>(
     };
     let expected: PriceExactInKeys = free_args.resolve()?;
 
-    price_exact_in_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    price_exact_in_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    price_exact_in_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
 
     Ok(actual)
 }

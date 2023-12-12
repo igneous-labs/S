@@ -45,9 +45,9 @@ fn verify_disable_lst_input<'me, 'info>(
     };
     let expected = free_args.resolve_disable()?;
 
-    disable_lst_input_verify_account_keys(&actual, &expected)
+    disable_lst_input_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    disable_lst_input_verify_account_privileges(&actual)
+    disable_lst_input_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;

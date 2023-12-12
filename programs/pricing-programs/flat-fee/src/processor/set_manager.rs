@@ -34,8 +34,8 @@ fn verify_set_manager<'me, 'info>(
     };
     let expected: SetManagerKeys = free_args.resolve()?;
 
-    set_manager_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    set_manager_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    set_manager_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    set_manager_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)
 }

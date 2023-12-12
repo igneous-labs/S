@@ -7,56 +7,52 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
 };
+use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum GenericPoolCalculatorProgramIx {
     LstToSol(LstToSolIxArgs),
     SolToLst(SolToLstIxArgs),
-    UpdateLastUpgradeSlot(UpdateLastUpgradeSlotIxArgs),
-    SetManager(SetManagerIxArgs),
-    Init(InitIxArgs),
-}
-impl BorshSerialize for GenericPoolCalculatorProgramIx {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        match self {
-            Self::LstToSol(args) => {
-                LST_TO_SOL_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SolToLst(args) => {
-                SOL_TO_LST_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::UpdateLastUpgradeSlot(args) => {
-                UPDATE_LAST_UPGRADE_SLOT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::SetManager(args) => {
-                SET_MANAGER_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::Init(args) => {
-                INIT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-        }
-    }
+    UpdateLastUpgradeSlot,
+    SetManager,
+    Init,
 }
 impl GenericPoolCalculatorProgramIx {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         match maybe_discm {
-            LST_TO_SOL_IX_DISCM => Ok(Self::LstToSol(LstToSolIxArgs::deserialize(buf)?)),
-            SOL_TO_LST_IX_DISCM => Ok(Self::SolToLst(SolToLstIxArgs::deserialize(buf)?)),
-            UPDATE_LAST_UPGRADE_SLOT_IX_DISCM => Ok(Self::UpdateLastUpgradeSlot(
-                UpdateLastUpgradeSlotIxArgs::deserialize(buf)?,
-            )),
-            SET_MANAGER_IX_DISCM => Ok(Self::SetManager(SetManagerIxArgs::deserialize(buf)?)),
-            INIT_IX_DISCM => Ok(Self::Init(InitIxArgs::deserialize(buf)?)),
+            LST_TO_SOL_IX_DISCM => Ok(Self::LstToSol(LstToSolIxArgs::deserialize(&mut reader)?)),
+            SOL_TO_LST_IX_DISCM => Ok(Self::SolToLst(SolToLstIxArgs::deserialize(&mut reader)?)),
+            UPDATE_LAST_UPGRADE_SLOT_IX_DISCM => Ok(Self::UpdateLastUpgradeSlot),
+            SET_MANAGER_IX_DISCM => Ok(Self::SetManager),
+            INIT_IX_DISCM => Ok(Self::Init),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("discm {:?} not found", maybe_discm),
             )),
         }
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        match self {
+            Self::LstToSol(args) => {
+                writer.write_all(&[LST_TO_SOL_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::SolToLst(args) => {
+                writer.write_all(&[SOL_TO_LST_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::UpdateLastUpgradeSlot => writer.write_all(&[UPDATE_LAST_UPGRADE_SLOT_IX_DISCM]),
+            Self::SetManager => writer.write_all(&[SET_MANAGER_IX_DISCM]),
+            Self::Init => writer.write_all(&[INIT_IX_DISCM]),
+        }
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub const LST_TO_SOL_IX_ACCOUNTS_LEN: usize = 5;
@@ -86,8 +82,8 @@ pub struct LstToSolKeys {
     ///The stake pool program executable data
     pub pool_program_data: Pubkey,
 }
-impl From<&LstToSolAccounts<'_, '_>> for LstToSolKeys {
-    fn from(accounts: &LstToSolAccounts) -> Self {
+impl From<LstToSolAccounts<'_, '_>> for LstToSolKeys {
+    fn from(accounts: LstToSolAccounts) -> Self {
         Self {
             lst_mint: *accounts.lst_mint.key,
             state: *accounts.state.key,
@@ -97,14 +93,34 @@ impl From<&LstToSolAccounts<'_, '_>> for LstToSolKeys {
         }
     }
 }
-impl From<&LstToSolKeys> for [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
-    fn from(keys: &LstToSolKeys) -> Self {
+impl From<LstToSolKeys> for [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
+    fn from(keys: LstToSolKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new_readonly(keys.pool_program, false),
-            AccountMeta::new_readonly(keys.pool_program_data, false),
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program_data,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -119,10 +135,8 @@ impl From<[Pubkey; LST_TO_SOL_IX_ACCOUNTS_LEN]> for LstToSolKeys {
         }
     }
 }
-impl<'info> From<&LstToSolAccounts<'_, 'info>>
-    for [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]
-{
-    fn from(accounts: &LstToSolAccounts<'_, 'info>) -> Self {
+impl<'info> From<LstToSolAccounts<'_, 'info>> for [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN] {
+    fn from(accounts: LstToSolAccounts<'_, 'info>) -> Self {
         [
             accounts.lst_mint.clone(),
             accounts.state.clone(),
@@ -145,6 +159,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; LST_TO_SOL_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const LST_TO_SOL_IX_DISCM: u8 = 0u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LstToSolIxArgs {
@@ -152,21 +167,17 @@ pub struct LstToSolIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct LstToSolIxData(pub LstToSolIxArgs);
-pub const LST_TO_SOL_IX_DISCM: u8 = 0u8;
 impl From<LstToSolIxArgs> for LstToSolIxData {
     fn from(args: LstToSolIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for LstToSolIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[LST_TO_SOL_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl LstToSolIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != LST_TO_SOL_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -176,7 +187,16 @@ impl LstToSolIxData {
                 ),
             ));
         }
-        Ok(Self(LstToSolIxArgs::deserialize(buf)?))
+        Ok(Self(LstToSolIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[LST_TO_SOL_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn lst_to_sol_ix<K: Into<LstToSolKeys>, A: Into<LstToSolIxArgs>>(
@@ -184,7 +204,7 @@ pub fn lst_to_sol_ix<K: Into<LstToSolKeys>, A: Into<LstToSolIxArgs>>(
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: LstToSolKeys = accounts.into();
-    let metas: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: LstToSolIxArgs = args.into();
     let data: LstToSolIxData = args_full.into();
     Ok(Instruction {
@@ -194,7 +214,7 @@ pub fn lst_to_sol_ix<K: Into<LstToSolKeys>, A: Into<LstToSolIxArgs>>(
     })
 }
 pub fn lst_to_sol_invoke<'info, A: Into<LstToSolIxArgs>>(
-    accounts: &LstToSolAccounts<'_, 'info>,
+    accounts: LstToSolAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = lst_to_sol_ix(accounts, args)?;
@@ -202,7 +222,7 @@ pub fn lst_to_sol_invoke<'info, A: Into<LstToSolIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn lst_to_sol_invoke_signed<'info, A: Into<LstToSolIxArgs>>(
-    accounts: &LstToSolAccounts<'_, 'info>,
+    accounts: LstToSolAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -211,8 +231,8 @@ pub fn lst_to_sol_invoke_signed<'info, A: Into<LstToSolIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn lst_to_sol_verify_account_keys(
-    accounts: &LstToSolAccounts<'_, '_>,
-    keys: &LstToSolKeys,
+    accounts: LstToSolAccounts<'_, '_>,
+    keys: LstToSolKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.lst_mint.key, &keys.lst_mint),
@@ -225,12 +245,6 @@ pub fn lst_to_sol_verify_account_keys(
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn lst_to_sol_verify_account_privileges<'me, 'info>(
-    accounts: &LstToSolAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }
 pub const SOL_TO_LST_IX_ACCOUNTS_LEN: usize = 5;
@@ -260,8 +274,8 @@ pub struct SolToLstKeys {
     ///The stake pool program executable data
     pub pool_program_data: Pubkey,
 }
-impl From<&SolToLstAccounts<'_, '_>> for SolToLstKeys {
-    fn from(accounts: &SolToLstAccounts) -> Self {
+impl From<SolToLstAccounts<'_, '_>> for SolToLstKeys {
+    fn from(accounts: SolToLstAccounts) -> Self {
         Self {
             lst_mint: *accounts.lst_mint.key,
             state: *accounts.state.key,
@@ -271,14 +285,34 @@ impl From<&SolToLstAccounts<'_, '_>> for SolToLstKeys {
         }
     }
 }
-impl From<&SolToLstKeys> for [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SolToLstKeys) -> Self {
+impl From<SolToLstKeys> for [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] {
+    fn from(keys: SolToLstKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.lst_mint, false),
-            AccountMeta::new_readonly(keys.state, false),
-            AccountMeta::new_readonly(keys.pool_state, false),
-            AccountMeta::new_readonly(keys.pool_program, false),
-            AccountMeta::new_readonly(keys.pool_program_data, false),
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_state,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program_data,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -293,10 +327,8 @@ impl From<[Pubkey; SOL_TO_LST_IX_ACCOUNTS_LEN]> for SolToLstKeys {
         }
     }
 }
-impl<'info> From<&SolToLstAccounts<'_, 'info>>
-    for [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]
-{
-    fn from(accounts: &SolToLstAccounts<'_, 'info>) -> Self {
+impl<'info> From<SolToLstAccounts<'_, 'info>> for [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN] {
+    fn from(accounts: SolToLstAccounts<'_, 'info>) -> Self {
         [
             accounts.lst_mint.clone(),
             accounts.state.clone(),
@@ -319,6 +351,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SOL_TO_LST_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const SOL_TO_LST_IX_DISCM: u8 = 1u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SolToLstIxArgs {
@@ -326,21 +359,17 @@ pub struct SolToLstIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct SolToLstIxData(pub SolToLstIxArgs);
-pub const SOL_TO_LST_IX_DISCM: u8 = 1u8;
 impl From<SolToLstIxArgs> for SolToLstIxData {
     fn from(args: SolToLstIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for SolToLstIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SOL_TO_LST_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl SolToLstIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SOL_TO_LST_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -350,7 +379,16 @@ impl SolToLstIxData {
                 ),
             ));
         }
-        Ok(Self(SolToLstIxArgs::deserialize(buf)?))
+        Ok(Self(SolToLstIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SOL_TO_LST_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn sol_to_lst_ix<K: Into<SolToLstKeys>, A: Into<SolToLstIxArgs>>(
@@ -358,7 +396,7 @@ pub fn sol_to_lst_ix<K: Into<SolToLstKeys>, A: Into<SolToLstIxArgs>>(
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: SolToLstKeys = accounts.into();
-    let metas: [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; SOL_TO_LST_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: SolToLstIxArgs = args.into();
     let data: SolToLstIxData = args_full.into();
     Ok(Instruction {
@@ -368,7 +406,7 @@ pub fn sol_to_lst_ix<K: Into<SolToLstKeys>, A: Into<SolToLstIxArgs>>(
     })
 }
 pub fn sol_to_lst_invoke<'info, A: Into<SolToLstIxArgs>>(
-    accounts: &SolToLstAccounts<'_, 'info>,
+    accounts: SolToLstAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = sol_to_lst_ix(accounts, args)?;
@@ -376,7 +414,7 @@ pub fn sol_to_lst_invoke<'info, A: Into<SolToLstIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn sol_to_lst_invoke_signed<'info, A: Into<SolToLstIxArgs>>(
-    accounts: &SolToLstAccounts<'_, 'info>,
+    accounts: SolToLstAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -385,8 +423,8 @@ pub fn sol_to_lst_invoke_signed<'info, A: Into<SolToLstIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn sol_to_lst_verify_account_keys(
-    accounts: &SolToLstAccounts<'_, '_>,
-    keys: &SolToLstKeys,
+    accounts: SolToLstAccounts<'_, '_>,
+    keys: SolToLstKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.lst_mint.key, &keys.lst_mint),
@@ -399,12 +437,6 @@ pub fn sol_to_lst_verify_account_keys(
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn sol_to_lst_verify_account_privileges<'me, 'info>(
-    accounts: &SolToLstAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }
 pub const UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN: usize = 4;
@@ -430,8 +462,8 @@ pub struct UpdateLastUpgradeSlotKeys {
     ///The stake pool program executable data
     pub pool_program_data: Pubkey,
 }
-impl From<&UpdateLastUpgradeSlotAccounts<'_, '_>> for UpdateLastUpgradeSlotKeys {
-    fn from(accounts: &UpdateLastUpgradeSlotAccounts) -> Self {
+impl From<UpdateLastUpgradeSlotAccounts<'_, '_>> for UpdateLastUpgradeSlotKeys {
+    fn from(accounts: UpdateLastUpgradeSlotAccounts) -> Self {
         Self {
             manager: *accounts.manager.key,
             state: *accounts.state.key,
@@ -440,13 +472,29 @@ impl From<&UpdateLastUpgradeSlotAccounts<'_, '_>> for UpdateLastUpgradeSlotKeys 
         }
     }
 }
-impl From<&UpdateLastUpgradeSlotKeys> for [AccountMeta; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &UpdateLastUpgradeSlotKeys) -> Self {
+impl From<UpdateLastUpgradeSlotKeys> for [AccountMeta; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] {
+    fn from(keys: UpdateLastUpgradeSlotKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.manager, true),
-            AccountMeta::new(keys.state, false),
-            AccountMeta::new_readonly(keys.pool_program, false),
-            AccountMeta::new_readonly(keys.pool_program_data, false),
+            AccountMeta {
+                pubkey: keys.manager,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.pool_program_data,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -460,10 +508,10 @@ impl From<[Pubkey; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN]> for UpdateLastUpgr
         }
     }
 }
-impl<'info> From<&UpdateLastUpgradeSlotAccounts<'_, 'info>>
+impl<'info> From<UpdateLastUpgradeSlotAccounts<'_, 'info>>
     for [AccountInfo<'info>; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &UpdateLastUpgradeSlotAccounts<'_, 'info>) -> Self {
+    fn from(accounts: UpdateLastUpgradeSlotAccounts<'_, 'info>) -> Self {
         [
             accounts.manager.clone(),
             accounts.state.clone(),
@@ -484,26 +532,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; UPDATE_LAST_UPGRADE_SLOT_IX_ACCO
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateLastUpgradeSlotIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct UpdateLastUpgradeSlotIxData(pub UpdateLastUpgradeSlotIxArgs);
 pub const UPDATE_LAST_UPGRADE_SLOT_IX_DISCM: u8 = 253u8;
-impl From<UpdateLastUpgradeSlotIxArgs> for UpdateLastUpgradeSlotIxData {
-    fn from(args: UpdateLastUpgradeSlotIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for UpdateLastUpgradeSlotIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[UPDATE_LAST_UPGRADE_SLOT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct UpdateLastUpgradeSlotIxData;
 impl UpdateLastUpgradeSlotIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != UPDATE_LAST_UPGRADE_SLOT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -513,48 +550,48 @@ impl UpdateLastUpgradeSlotIxData {
                 ),
             ));
         }
-        Ok(Self(UpdateLastUpgradeSlotIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[UPDATE_LAST_UPGRADE_SLOT_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn update_last_upgrade_slot_ix<
-    K: Into<UpdateLastUpgradeSlotKeys>,
-    A: Into<UpdateLastUpgradeSlotIxArgs>,
->(
+pub fn update_last_upgrade_slot_ix<K: Into<UpdateLastUpgradeSlotKeys>>(
     accounts: K,
-    args: A,
 ) -> std::io::Result<Instruction> {
     let keys: UpdateLastUpgradeSlotKeys = accounts.into();
-    let metas: [AccountMeta; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: UpdateLastUpgradeSlotIxArgs = args.into();
-    let data: UpdateLastUpgradeSlotIxData = args_full.into();
+    let metas: [AccountMeta; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: UpdateLastUpgradeSlotIxData.try_to_vec()?,
     })
 }
-pub fn update_last_upgrade_slot_invoke<'info, A: Into<UpdateLastUpgradeSlotIxArgs>>(
-    accounts: &UpdateLastUpgradeSlotAccounts<'_, 'info>,
-    args: A,
+pub fn update_last_upgrade_slot_invoke<'info>(
+    accounts: UpdateLastUpgradeSlotAccounts<'_, 'info>,
 ) -> ProgramResult {
-    let ix = update_last_upgrade_slot_ix(accounts, args)?;
+    let ix = update_last_upgrade_slot_ix(accounts)?;
     let account_info: [AccountInfo<'info>; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn update_last_upgrade_slot_invoke_signed<'info, A: Into<UpdateLastUpgradeSlotIxArgs>>(
-    accounts: &UpdateLastUpgradeSlotAccounts<'_, 'info>,
-    args: A,
+pub fn update_last_upgrade_slot_invoke_signed<'info>(
+    accounts: UpdateLastUpgradeSlotAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = update_last_upgrade_slot_ix(accounts, args)?;
+    let ix = update_last_upgrade_slot_ix(accounts)?;
     let account_info: [AccountInfo<'info>; UPDATE_LAST_UPGRADE_SLOT_IX_ACCOUNTS_LEN] =
         accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn update_last_upgrade_slot_verify_account_keys(
-    accounts: &UpdateLastUpgradeSlotAccounts<'_, '_>,
-    keys: &UpdateLastUpgradeSlotKeys,
+    accounts: UpdateLastUpgradeSlotAccounts<'_, '_>,
+    keys: UpdateLastUpgradeSlotKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.manager.key, &keys.manager),
@@ -569,7 +606,7 @@ pub fn update_last_upgrade_slot_verify_account_keys(
     Ok(())
 }
 pub fn update_last_upgrade_slot_verify_account_privileges<'me, 'info>(
-    accounts: &UpdateLastUpgradeSlotAccounts<'me, 'info>,
+    accounts: UpdateLastUpgradeSlotAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.state] {
         if !should_be_writable.is_writable {
@@ -602,8 +639,8 @@ pub struct SetManagerKeys {
     ///The CalculatorState PDA
     pub state: Pubkey,
 }
-impl From<&SetManagerAccounts<'_, '_>> for SetManagerKeys {
-    fn from(accounts: &SetManagerAccounts) -> Self {
+impl From<SetManagerAccounts<'_, '_>> for SetManagerKeys {
+    fn from(accounts: SetManagerAccounts) -> Self {
         Self {
             manager: *accounts.manager.key,
             new_manager: *accounts.new_manager.key,
@@ -611,12 +648,24 @@ impl From<&SetManagerAccounts<'_, '_>> for SetManagerKeys {
         }
     }
 }
-impl From<&SetManagerKeys> for [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] {
-    fn from(keys: &SetManagerKeys) -> Self {
+impl From<SetManagerKeys> for [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] {
+    fn from(keys: SetManagerKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.manager, true),
-            AccountMeta::new_readonly(keys.new_manager, false),
-            AccountMeta::new(keys.state, false),
+            AccountMeta {
+                pubkey: keys.manager,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.new_manager,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.state,
+                is_signer: false,
+                is_writable: true,
+            },
         ]
     }
 }
@@ -629,10 +678,10 @@ impl From<[Pubkey; SET_MANAGER_IX_ACCOUNTS_LEN]> for SetManagerKeys {
         }
     }
 }
-impl<'info> From<&SetManagerAccounts<'_, 'info>>
+impl<'info> From<SetManagerAccounts<'_, 'info>>
     for [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &SetManagerAccounts<'_, 'info>) -> Self {
+    fn from(accounts: SetManagerAccounts<'_, 'info>) -> Self {
         [
             accounts.manager.clone(),
             accounts.new_manager.clone(),
@@ -651,26 +700,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct SetManagerIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct SetManagerIxData(pub SetManagerIxArgs);
 pub const SET_MANAGER_IX_DISCM: u8 = 254u8;
-impl From<SetManagerIxArgs> for SetManagerIxData {
-    fn from(args: SetManagerIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for SetManagerIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[SET_MANAGER_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct SetManagerIxData;
 impl SetManagerIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != SET_MANAGER_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -680,43 +718,42 @@ impl SetManagerIxData {
                 ),
             ));
         }
-        Ok(Self(SetManagerIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[SET_MANAGER_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn set_manager_ix<K: Into<SetManagerKeys>, A: Into<SetManagerIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn set_manager_ix<K: Into<SetManagerKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: SetManagerKeys = accounts.into();
-    let metas: [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: SetManagerIxArgs = args.into();
-    let data: SetManagerIxData = args_full.into();
+    let metas: [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: SetManagerIxData.try_to_vec()?,
     })
 }
-pub fn set_manager_invoke<'info, A: Into<SetManagerIxArgs>>(
-    accounts: &SetManagerAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = set_manager_ix(accounts, args)?;
+pub fn set_manager_invoke<'info>(accounts: SetManagerAccounts<'_, 'info>) -> ProgramResult {
+    let ix = set_manager_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn set_manager_invoke_signed<'info, A: Into<SetManagerIxArgs>>(
-    accounts: &SetManagerAccounts<'_, 'info>,
-    args: A,
+pub fn set_manager_invoke_signed<'info>(
+    accounts: SetManagerAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_manager_ix(accounts, args)?;
+    let ix = set_manager_ix(accounts)?;
     let account_info: [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn set_manager_verify_account_keys(
-    accounts: &SetManagerAccounts<'_, '_>,
-    keys: &SetManagerKeys,
+    accounts: SetManagerAccounts<'_, '_>,
+    keys: SetManagerKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.manager.key, &keys.manager),
@@ -730,7 +767,7 @@ pub fn set_manager_verify_account_keys(
     Ok(())
 }
 pub fn set_manager_verify_account_privileges<'me, 'info>(
-    accounts: &SetManagerAccounts<'me, 'info>,
+    accounts: SetManagerAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.state] {
         if !should_be_writable.is_writable {
@@ -763,8 +800,8 @@ pub struct InitKeys {
     ///System Program
     pub system_program: Pubkey,
 }
-impl From<&InitAccounts<'_, '_>> for InitKeys {
-    fn from(accounts: &InitAccounts) -> Self {
+impl From<InitAccounts<'_, '_>> for InitKeys {
+    fn from(accounts: InitAccounts) -> Self {
         Self {
             payer: *accounts.payer.key,
             state: *accounts.state.key,
@@ -772,12 +809,24 @@ impl From<&InitAccounts<'_, '_>> for InitKeys {
         }
     }
 }
-impl From<&InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &InitKeys) -> Self {
+impl From<InitKeys> for [AccountMeta; INIT_IX_ACCOUNTS_LEN] {
+    fn from(keys: InitKeys) -> Self {
         [
-            AccountMeta::new(keys.payer, true),
-            AccountMeta::new(keys.state, false),
-            AccountMeta::new_readonly(keys.system_program, false),
+            AccountMeta {
+                pubkey: keys.payer,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.system_program,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -790,8 +839,8 @@ impl From<[Pubkey; INIT_IX_ACCOUNTS_LEN]> for InitKeys {
         }
     }
 }
-impl<'info> From<&InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
-    fn from(accounts: &InitAccounts<'_, 'info>) -> Self {
+impl<'info> From<InitAccounts<'_, 'info>> for [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] {
+    fn from(accounts: InitAccounts<'_, 'info>) -> Self {
         [
             accounts.payer.clone(),
             accounts.state.clone(),
@@ -810,26 +859,15 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN]>
         }
     }
 }
-#[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InitIxArgs {}
-#[derive(Clone, Debug, PartialEq)]
-pub struct InitIxData(pub InitIxArgs);
 pub const INIT_IX_DISCM: u8 = 255u8;
-impl From<InitIxArgs> for InitIxData {
-    fn from(args: InitIxArgs) -> Self {
-        Self(args)
-    }
-}
-impl BorshSerialize for InitIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[INIT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
+#[derive(Clone, Debug, PartialEq)]
+pub struct InitIxData;
 impl InitIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != INIT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -839,43 +877,42 @@ impl InitIxData {
                 ),
             ));
         }
-        Ok(Self(InitIxArgs::deserialize(buf)?))
+        Ok(Self)
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[INIT_IX_DISCM])
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
-pub fn init_ix<K: Into<InitKeys>, A: Into<InitIxArgs>>(
-    accounts: K,
-    args: A,
-) -> std::io::Result<Instruction> {
+pub fn init_ix<K: Into<InitKeys>>(accounts: K) -> std::io::Result<Instruction> {
     let keys: InitKeys = accounts.into();
-    let metas: [AccountMeta; INIT_IX_ACCOUNTS_LEN] = (&keys).into();
-    let args_full: InitIxArgs = args.into();
-    let data: InitIxData = args_full.into();
+    let metas: [AccountMeta; INIT_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
         program_id: crate::ID,
         accounts: Vec::from(metas),
-        data: data.try_to_vec()?,
+        data: InitIxData.try_to_vec()?,
     })
 }
-pub fn init_invoke<'info, A: Into<InitIxArgs>>(
-    accounts: &InitAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = init_ix(accounts, args)?;
+pub fn init_invoke<'info>(accounts: InitAccounts<'_, 'info>) -> ProgramResult {
+    let ix = init_ix(accounts)?;
     let account_info: [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] = accounts.into();
     invoke(&ix, &account_info)
 }
-pub fn init_invoke_signed<'info, A: Into<InitIxArgs>>(
-    accounts: &InitAccounts<'_, 'info>,
-    args: A,
+pub fn init_invoke_signed<'info>(
+    accounts: InitAccounts<'_, 'info>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = init_ix(accounts, args)?;
+    let ix = init_ix(accounts)?;
     let account_info: [AccountInfo<'info>; INIT_IX_ACCOUNTS_LEN] = accounts.into();
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn init_verify_account_keys(
-    accounts: &InitAccounts<'_, '_>,
-    keys: &InitKeys,
+    accounts: InitAccounts<'_, '_>,
+    keys: InitKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.payer.key, &keys.payer),
@@ -889,7 +926,7 @@ pub fn init_verify_account_keys(
     Ok(())
 }
 pub fn init_verify_account_privileges<'me, 'info>(
-    accounts: &InitAccounts<'me, 'info>,
+    accounts: InitAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.state] {
         if !should_be_writable.is_writable {

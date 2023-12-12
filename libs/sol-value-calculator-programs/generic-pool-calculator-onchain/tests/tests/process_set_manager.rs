@@ -1,4 +1,4 @@
-use generic_pool_calculator_interface::{set_manager_ix, SetManagerIxArgs, SetManagerKeys};
+use generic_pool_calculator_interface::{set_manager_ix, SetManagerKeys};
 use generic_pool_calculator_lib::{
     account_resolvers::SetManagerFreeArgs, utils::try_calculator_state,
 };
@@ -90,11 +90,7 @@ async fn set_manager_basic() {
             account: mock_state,
         },
     };
-    let mut ix = set_manager_ix(
-        free_args.resolve::<MockCalculatorProgram>().unwrap(),
-        SetManagerIxArgs {},
-    )
-    .unwrap();
+    let mut ix = set_manager_ix(free_args.resolve::<MockCalculatorProgram>().unwrap()).unwrap();
     ix.program_id = mock_calculator_program::ID;
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer, &manager], recent_blockhash);
@@ -111,14 +107,11 @@ async fn fail_set_manager_unauthorized_manager() {
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
     verify_correct_manager(&mut banks_client, manager).await;
-    let mut ix = set_manager_ix(
-        SetManagerKeys {
-            manager: payer.pubkey(),
-            new_manager: payer.pubkey(),
-            state: mock_calculator_program::STATE_ID,
-        },
-        SetManagerIxArgs {},
-    )
+    let mut ix = set_manager_ix(SetManagerKeys {
+        manager: payer.pubkey(),
+        new_manager: payer.pubkey(),
+        state: mock_calculator_program::STATE_ID,
+    })
     .unwrap();
     ix.program_id = mock_calculator_program::ID;
 
@@ -136,14 +129,11 @@ async fn fail_set_manager_missing_signature() {
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
     verify_correct_manager(&mut banks_client, manager).await;
-    let mut ix = set_manager_ix(
-        SetManagerKeys {
-            manager,
-            new_manager: payer.pubkey(),
-            state: mock_calculator_program::STATE_ID,
-        },
-        SetManagerIxArgs {},
-    )
+    let mut ix = set_manager_ix(SetManagerKeys {
+        manager,
+        new_manager: payer.pubkey(),
+        state: mock_calculator_program::STATE_ID,
+    })
     .unwrap();
     ix.accounts[0].is_signer = false;
     ix.program_id = mock_calculator_program::ID;

@@ -36,7 +36,7 @@ impl PriceExactInFreeArgs {
 
     pub fn resolve_to_account_metas(self) -> [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] {
         let keys = self.resolve();
-        (&keys).into()
+        keys.into()
     }
 }
 

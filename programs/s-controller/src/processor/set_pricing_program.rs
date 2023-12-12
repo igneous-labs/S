@@ -38,9 +38,9 @@ fn verify_set_pricing_program<'me, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    set_pricing_program_verify_account_keys(&actual, &expected)
+    set_pricing_program_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    set_pricing_program_verify_account_privileges(&actual)
+    set_pricing_program_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;

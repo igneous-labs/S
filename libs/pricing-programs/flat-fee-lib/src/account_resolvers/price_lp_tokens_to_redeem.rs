@@ -18,6 +18,6 @@ impl PriceLpTokensToRedeemFreeArgs {
         self,
     ) -> [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] {
         let keys = self.resolve();
-        (&keys).into()
+        keys.into()
     }
 }

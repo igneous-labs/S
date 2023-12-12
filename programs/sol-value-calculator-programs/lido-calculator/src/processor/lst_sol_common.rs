@@ -19,7 +19,7 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<LidoCalc, P
         .resolve::<LidoSolValCalc>()
         .into();
 
-    lst_to_sol_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
+    lst_to_sol_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     // accounts should all be read-only, no need to verify_account_privileges
 
     verify_no_stake_pool_prog_upgrade(VerifyNoStakePoolProgUpgradeArgs {

@@ -24,11 +24,11 @@ pub fn process_instruction(
 
     // Assumes account interfaces of the 2 instructions are the same
     let accounts: LstToSolAccounts = load_accounts(accounts)?;
-    lst_to_sol_verify_account_keys(&accounts, &WSOL_LST_TO_SOL_KEYS)
+    lst_to_sol_verify_account_keys(accounts, WSOL_LST_TO_SOL_KEYS)
         .map_err(log_and_return_wrong_acc_err)?;
     // accounts should all be read-only, no need to verify_account_privileges
 
-    let ix = WsolCalculatorProgramIx::deserialize(&mut &instruction_data[..])?;
+    let ix = WsolCalculatorProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
     match ix {

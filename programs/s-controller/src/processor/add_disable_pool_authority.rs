@@ -55,9 +55,9 @@ fn verify_add_disable_pool_authority<'me, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    add_disable_pool_authority_verify_account_keys(&actual, &expected)
+    add_disable_pool_authority_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    add_disable_pool_authority_verify_account_privileges(&actual)
+    add_disable_pool_authority_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)

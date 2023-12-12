@@ -1,5 +1,5 @@
 use s_controller_interface::{
-    end_rebalance_ix, EndRebalanceIxArgs, EndRebalanceKeys, SControllerError, StartRebalanceKeys,
+    end_rebalance_ix, EndRebalanceKeys, SControllerError, StartRebalanceKeys,
 };
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -16,7 +16,7 @@ pub fn end_rebalance_ix_full<K: Into<EndRebalanceKeys>>(
     dst_lst_calculator_accounts: &[AccountMeta],
     dst_lst_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
-    let mut ix = end_rebalance_ix(accounts, EndRebalanceIxArgs {})?;
+    let mut ix = end_rebalance_ix(accounts)?;
     ix_extend_with_sol_value_calculator_accounts(
         &mut ix,
         dst_lst_calculator_accounts,

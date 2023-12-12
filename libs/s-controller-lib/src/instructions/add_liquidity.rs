@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use s_controller_interface::{
     add_liquidity_ix, AddLiquidityIxArgs, AddLiquidityIxData, AddLiquidityKeys, SControllerError,
 };

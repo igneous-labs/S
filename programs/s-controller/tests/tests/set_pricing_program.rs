@@ -1,4 +1,4 @@
-use s_controller_interface::{set_pricing_program_ix, SetPricingProgramIxArgs};
+use s_controller_interface::set_pricing_program_ix;
 use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
@@ -51,7 +51,7 @@ async fn basic() {
         }
         .resolve()
         .unwrap();
-        let ix = set_pricing_program_ix(keys, SetPricingProgramIxArgs {}).unwrap();
+        let ix = set_pricing_program_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
@@ -83,7 +83,7 @@ async fn basic() {
 
         keys.admin = rando_kp.pubkey();
 
-        let ix = set_pricing_program_ix(keys, SetPricingProgramIxArgs {}).unwrap();
+        let ix = set_pricing_program_ix(keys).unwrap();
         let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
         tx.sign(&[&payer, &rando_kp], last_blockhash);
 

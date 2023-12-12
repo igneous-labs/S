@@ -38,8 +38,8 @@ fn verify_remove_lst<'me, 'info>(
     };
     let expected: RemoveLstKeys = free_args.resolve()?;
 
-    remove_lst_verify_account_keys(&actual, &expected).map_err(log_and_return_wrong_acc_err)?;
-    remove_lst_verify_account_privileges(&actual).map_err(log_and_return_acc_privilege_err)?;
+    remove_lst_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
+    remove_lst_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)
 }

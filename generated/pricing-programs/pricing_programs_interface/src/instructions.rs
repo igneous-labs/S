@@ -4,9 +4,9 @@ use solana_program::{
     entrypoint::ProgramResult,
     instruction::{AccountMeta, Instruction},
     program::{invoke, invoke_signed},
-    program_error::ProgramError,
     pubkey::Pubkey,
 };
+use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum PricingProgramsProgramIx {
     PriceExactIn(PriceExactInIxArgs),
@@ -14,49 +14,55 @@ pub enum PricingProgramsProgramIx {
     PriceLpTokensToMint(PriceLpTokensToMintIxArgs),
     PriceLpTokensToRedeem(PriceLpTokensToRedeemIxArgs),
 }
-impl BorshSerialize for PricingProgramsProgramIx {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        match self {
-            Self::PriceExactIn(args) => {
-                PRICE_EXACT_IN_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::PriceExactOut(args) => {
-                PRICE_EXACT_OUT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::PriceLpTokensToMint(args) => {
-                PRICE_LP_TOKENS_TO_MINT_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-            Self::PriceLpTokensToRedeem(args) => {
-                PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM.serialize(writer)?;
-                args.serialize(writer)
-            }
-        }
-    }
-}
 impl PricingProgramsProgramIx {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         match maybe_discm {
-            PRICE_EXACT_IN_IX_DISCM => {
-                Ok(Self::PriceExactIn(PriceExactInIxArgs::deserialize(buf)?))
-            }
-            PRICE_EXACT_OUT_IX_DISCM => {
-                Ok(Self::PriceExactOut(PriceExactOutIxArgs::deserialize(buf)?))
-            }
+            PRICE_EXACT_IN_IX_DISCM => Ok(Self::PriceExactIn(PriceExactInIxArgs::deserialize(
+                &mut reader,
+            )?)),
+            PRICE_EXACT_OUT_IX_DISCM => Ok(Self::PriceExactOut(PriceExactOutIxArgs::deserialize(
+                &mut reader,
+            )?)),
             PRICE_LP_TOKENS_TO_MINT_IX_DISCM => Ok(Self::PriceLpTokensToMint(
-                PriceLpTokensToMintIxArgs::deserialize(buf)?,
+                PriceLpTokensToMintIxArgs::deserialize(&mut reader)?,
             )),
             PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM => Ok(Self::PriceLpTokensToRedeem(
-                PriceLpTokensToRedeemIxArgs::deserialize(buf)?,
+                PriceLpTokensToRedeemIxArgs::deserialize(&mut reader)?,
             )),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("discm {:?} not found", maybe_discm),
             )),
         }
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        match self {
+            Self::PriceExactIn(args) => {
+                writer.write_all(&[PRICE_EXACT_IN_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::PriceExactOut(args) => {
+                writer.write_all(&[PRICE_EXACT_OUT_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::PriceLpTokensToMint(args) => {
+                writer.write_all(&[PRICE_LP_TOKENS_TO_MINT_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+            Self::PriceLpTokensToRedeem(args) => {
+                writer.write_all(&[PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM])?;
+                args.serialize(&mut writer)
+            }
+        }
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub const PRICE_EXACT_IN_IX_ACCOUNTS_LEN: usize = 2;
@@ -74,19 +80,27 @@ pub struct PriceExactInKeys {
     ///Mint of the output LST
     pub output_lst_mint: Pubkey,
 }
-impl From<&PriceExactInAccounts<'_, '_>> for PriceExactInKeys {
-    fn from(accounts: &PriceExactInAccounts) -> Self {
+impl From<PriceExactInAccounts<'_, '_>> for PriceExactInKeys {
+    fn from(accounts: PriceExactInAccounts) -> Self {
         Self {
             input_lst_mint: *accounts.input_lst_mint.key,
             output_lst_mint: *accounts.output_lst_mint.key,
         }
     }
 }
-impl From<&PriceExactInKeys> for [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] {
-    fn from(keys: &PriceExactInKeys) -> Self {
+impl From<PriceExactInKeys> for [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] {
+    fn from(keys: PriceExactInKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.input_lst_mint, false),
-            AccountMeta::new_readonly(keys.output_lst_mint, false),
+            AccountMeta {
+                pubkey: keys.input_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.output_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -98,10 +112,10 @@ impl From<[Pubkey; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]> for PriceExactInKeys {
         }
     }
 }
-impl<'info> From<&PriceExactInAccounts<'_, 'info>>
+impl<'info> From<PriceExactInAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &PriceExactInAccounts<'_, 'info>) -> Self {
+    fn from(accounts: PriceExactInAccounts<'_, 'info>) -> Self {
         [
             accounts.input_lst_mint.clone(),
             accounts.output_lst_mint.clone(),
@@ -118,6 +132,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]>
         }
     }
 }
+pub const PRICE_EXACT_IN_IX_DISCM: u8 = 0u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PriceExactInIxArgs {
@@ -126,21 +141,17 @@ pub struct PriceExactInIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct PriceExactInIxData(pub PriceExactInIxArgs);
-pub const PRICE_EXACT_IN_IX_DISCM: u8 = 0u8;
 impl From<PriceExactInIxArgs> for PriceExactInIxData {
     fn from(args: PriceExactInIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for PriceExactInIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[PRICE_EXACT_IN_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl PriceExactInIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != PRICE_EXACT_IN_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -150,7 +161,16 @@ impl PriceExactInIxData {
                 ),
             ));
         }
-        Ok(Self(PriceExactInIxArgs::deserialize(buf)?))
+        Ok(Self(PriceExactInIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[PRICE_EXACT_IN_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn price_exact_in_ix<K: Into<PriceExactInKeys>, A: Into<PriceExactInIxArgs>>(
@@ -158,7 +178,7 @@ pub fn price_exact_in_ix<K: Into<PriceExactInKeys>, A: Into<PriceExactInIxArgs>>
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: PriceExactInKeys = accounts.into();
-    let metas: [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: PriceExactInIxArgs = args.into();
     let data: PriceExactInIxData = args_full.into();
     Ok(Instruction {
@@ -168,7 +188,7 @@ pub fn price_exact_in_ix<K: Into<PriceExactInKeys>, A: Into<PriceExactInIxArgs>>
     })
 }
 pub fn price_exact_in_invoke<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: &PriceExactInAccounts<'_, 'info>,
+    accounts: PriceExactInAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = price_exact_in_ix(accounts, args)?;
@@ -176,7 +196,7 @@ pub fn price_exact_in_invoke<'info, A: Into<PriceExactInIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn price_exact_in_invoke_signed<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: &PriceExactInAccounts<'_, 'info>,
+    accounts: PriceExactInAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -185,8 +205,8 @@ pub fn price_exact_in_invoke_signed<'info, A: Into<PriceExactInIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn price_exact_in_verify_account_keys(
-    accounts: &PriceExactInAccounts<'_, '_>,
-    keys: &PriceExactInKeys,
+    accounts: PriceExactInAccounts<'_, '_>,
+    keys: PriceExactInKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.input_lst_mint.key, &keys.input_lst_mint),
@@ -196,12 +216,6 @@ pub fn price_exact_in_verify_account_keys(
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn price_exact_in_verify_account_privileges<'me, 'info>(
-    accounts: &PriceExactInAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }
 pub const PRICE_EXACT_OUT_IX_ACCOUNTS_LEN: usize = 2;
@@ -219,19 +233,27 @@ pub struct PriceExactOutKeys {
     ///Mint of the output LST
     pub output_lst_mint: Pubkey,
 }
-impl From<&PriceExactOutAccounts<'_, '_>> for PriceExactOutKeys {
-    fn from(accounts: &PriceExactOutAccounts) -> Self {
+impl From<PriceExactOutAccounts<'_, '_>> for PriceExactOutKeys {
+    fn from(accounts: PriceExactOutAccounts) -> Self {
         Self {
             input_lst_mint: *accounts.input_lst_mint.key,
             output_lst_mint: *accounts.output_lst_mint.key,
         }
     }
 }
-impl From<&PriceExactOutKeys> for [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &PriceExactOutKeys) -> Self {
+impl From<PriceExactOutKeys> for [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] {
+    fn from(keys: PriceExactOutKeys) -> Self {
         [
-            AccountMeta::new_readonly(keys.input_lst_mint, false),
-            AccountMeta::new_readonly(keys.output_lst_mint, false),
+            AccountMeta {
+                pubkey: keys.input_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: keys.output_lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -243,10 +265,10 @@ impl From<[Pubkey; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]> for PriceExactOutKeys {
         }
     }
 }
-impl<'info> From<&PriceExactOutAccounts<'_, 'info>>
+impl<'info> From<PriceExactOutAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &PriceExactOutAccounts<'_, 'info>) -> Self {
+    fn from(accounts: PriceExactOutAccounts<'_, 'info>) -> Self {
         [
             accounts.input_lst_mint.clone(),
             accounts.output_lst_mint.clone(),
@@ -263,6 +285,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]
         }
     }
 }
+pub const PRICE_EXACT_OUT_IX_DISCM: u8 = 1u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PriceExactOutIxArgs {
@@ -271,21 +294,17 @@ pub struct PriceExactOutIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct PriceExactOutIxData(pub PriceExactOutIxArgs);
-pub const PRICE_EXACT_OUT_IX_DISCM: u8 = 1u8;
 impl From<PriceExactOutIxArgs> for PriceExactOutIxData {
     fn from(args: PriceExactOutIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for PriceExactOutIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[PRICE_EXACT_OUT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl PriceExactOutIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != PRICE_EXACT_OUT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -295,7 +314,16 @@ impl PriceExactOutIxData {
                 ),
             ));
         }
-        Ok(Self(PriceExactOutIxArgs::deserialize(buf)?))
+        Ok(Self(PriceExactOutIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[PRICE_EXACT_OUT_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn price_exact_out_ix<K: Into<PriceExactOutKeys>, A: Into<PriceExactOutIxArgs>>(
@@ -303,7 +331,7 @@ pub fn price_exact_out_ix<K: Into<PriceExactOutKeys>, A: Into<PriceExactOutIxArg
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: PriceExactOutKeys = accounts.into();
-    let metas: [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: PriceExactOutIxArgs = args.into();
     let data: PriceExactOutIxData = args_full.into();
     Ok(Instruction {
@@ -313,7 +341,7 @@ pub fn price_exact_out_ix<K: Into<PriceExactOutKeys>, A: Into<PriceExactOutIxArg
     })
 }
 pub fn price_exact_out_invoke<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: &PriceExactOutAccounts<'_, 'info>,
+    accounts: PriceExactOutAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = price_exact_out_ix(accounts, args)?;
@@ -321,7 +349,7 @@ pub fn price_exact_out_invoke<'info, A: Into<PriceExactOutIxArgs>>(
     invoke(&ix, &account_info)
 }
 pub fn price_exact_out_invoke_signed<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: &PriceExactOutAccounts<'_, 'info>,
+    accounts: PriceExactOutAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -330,8 +358,8 @@ pub fn price_exact_out_invoke_signed<'info, A: Into<PriceExactOutIxArgs>>(
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn price_exact_out_verify_account_keys(
-    accounts: &PriceExactOutAccounts<'_, '_>,
-    keys: &PriceExactOutKeys,
+    accounts: PriceExactOutAccounts<'_, '_>,
+    keys: PriceExactOutKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [
         (accounts.input_lst_mint.key, &keys.input_lst_mint),
@@ -341,12 +369,6 @@ pub fn price_exact_out_verify_account_keys(
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn price_exact_out_verify_account_privileges<'me, 'info>(
-    accounts: &PriceExactOutAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }
 pub const PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN: usize = 1;
@@ -360,16 +382,20 @@ pub struct PriceLpTokensToMintKeys {
     ///Mint of the input LST
     pub input_lst_mint: Pubkey,
 }
-impl From<&PriceLpTokensToMintAccounts<'_, '_>> for PriceLpTokensToMintKeys {
-    fn from(accounts: &PriceLpTokensToMintAccounts) -> Self {
+impl From<PriceLpTokensToMintAccounts<'_, '_>> for PriceLpTokensToMintKeys {
+    fn from(accounts: PriceLpTokensToMintAccounts) -> Self {
         Self {
             input_lst_mint: *accounts.input_lst_mint.key,
         }
     }
 }
-impl From<&PriceLpTokensToMintKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] {
-    fn from(keys: &PriceLpTokensToMintKeys) -> Self {
-        [AccountMeta::new_readonly(keys.input_lst_mint, false)]
+impl From<PriceLpTokensToMintKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] {
+    fn from(keys: PriceLpTokensToMintKeys) -> Self {
+        [AccountMeta {
+            pubkey: keys.input_lst_mint,
+            is_signer: false,
+            is_writable: false,
+        }]
     }
 }
 impl From<[Pubkey; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]> for PriceLpTokensToMintKeys {
@@ -379,10 +405,10 @@ impl From<[Pubkey; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]> for PriceLpTokensTo
         }
     }
 }
-impl<'info> From<&PriceLpTokensToMintAccounts<'_, 'info>>
+impl<'info> From<PriceLpTokensToMintAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &PriceLpTokensToMintAccounts<'_, 'info>) -> Self {
+    fn from(accounts: PriceLpTokensToMintAccounts<'_, 'info>) -> Self {
         [accounts.input_lst_mint.clone()]
     }
 }
@@ -395,6 +421,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOU
         }
     }
 }
+pub const PRICE_LP_TOKENS_TO_MINT_IX_DISCM: u8 = 2u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PriceLpTokensToMintIxArgs {
@@ -403,21 +430,17 @@ pub struct PriceLpTokensToMintIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct PriceLpTokensToMintIxData(pub PriceLpTokensToMintIxArgs);
-pub const PRICE_LP_TOKENS_TO_MINT_IX_DISCM: u8 = 2u8;
 impl From<PriceLpTokensToMintIxArgs> for PriceLpTokensToMintIxData {
     fn from(args: PriceLpTokensToMintIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for PriceLpTokensToMintIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[PRICE_LP_TOKENS_TO_MINT_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl PriceLpTokensToMintIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != PRICE_LP_TOKENS_TO_MINT_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -427,7 +450,16 @@ impl PriceLpTokensToMintIxData {
                 ),
             ));
         }
-        Ok(Self(PriceLpTokensToMintIxArgs::deserialize(buf)?))
+        Ok(Self(PriceLpTokensToMintIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[PRICE_LP_TOKENS_TO_MINT_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn price_lp_tokens_to_mint_ix<
@@ -438,7 +470,7 @@ pub fn price_lp_tokens_to_mint_ix<
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: PriceLpTokensToMintKeys = accounts.into();
-    let metas: [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: PriceLpTokensToMintIxArgs = args.into();
     let data: PriceLpTokensToMintIxData = args_full.into();
     Ok(Instruction {
@@ -448,7 +480,7 @@ pub fn price_lp_tokens_to_mint_ix<
     })
 }
 pub fn price_lp_tokens_to_mint_invoke<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: &PriceLpTokensToMintAccounts<'_, 'info>,
+    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = price_lp_tokens_to_mint_ix(accounts, args)?;
@@ -457,7 +489,7 @@ pub fn price_lp_tokens_to_mint_invoke<'info, A: Into<PriceLpTokensToMintIxArgs>>
     invoke(&ix, &account_info)
 }
 pub fn price_lp_tokens_to_mint_invoke_signed<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: &PriceLpTokensToMintAccounts<'_, 'info>,
+    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -467,20 +499,14 @@ pub fn price_lp_tokens_to_mint_invoke_signed<'info, A: Into<PriceLpTokensToMintI
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn price_lp_tokens_to_mint_verify_account_keys(
-    accounts: &PriceLpTokensToMintAccounts<'_, '_>,
-    keys: &PriceLpTokensToMintKeys,
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    keys: PriceLpTokensToMintKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [(accounts.input_lst_mint.key, &keys.input_lst_mint)] {
         if actual != expected {
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn price_lp_tokens_to_mint_verify_account_privileges<'me, 'info>(
-    accounts: &PriceLpTokensToMintAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }
 pub const PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN: usize = 1;
@@ -494,16 +520,20 @@ pub struct PriceLpTokensToRedeemKeys {
     ///Mint of the output LST
     pub output_lst_mint: Pubkey,
 }
-impl From<&PriceLpTokensToRedeemAccounts<'_, '_>> for PriceLpTokensToRedeemKeys {
-    fn from(accounts: &PriceLpTokensToRedeemAccounts) -> Self {
+impl From<PriceLpTokensToRedeemAccounts<'_, '_>> for PriceLpTokensToRedeemKeys {
+    fn from(accounts: PriceLpTokensToRedeemAccounts) -> Self {
         Self {
             output_lst_mint: *accounts.output_lst_mint.key,
         }
     }
 }
-impl From<&PriceLpTokensToRedeemKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] {
-    fn from(keys: &PriceLpTokensToRedeemKeys) -> Self {
-        [AccountMeta::new_readonly(keys.output_lst_mint, false)]
+impl From<PriceLpTokensToRedeemKeys> for [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] {
+    fn from(keys: PriceLpTokensToRedeemKeys) -> Self {
+        [AccountMeta {
+            pubkey: keys.output_lst_mint,
+            is_signer: false,
+            is_writable: false,
+        }]
     }
 }
 impl From<[Pubkey; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]> for PriceLpTokensToRedeemKeys {
@@ -513,10 +543,10 @@ impl From<[Pubkey; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]> for PriceLpTokens
         }
     }
 }
-impl<'info> From<&PriceLpTokensToRedeemAccounts<'_, 'info>>
+impl<'info> From<PriceLpTokensToRedeemAccounts<'_, 'info>>
     for [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]
 {
-    fn from(accounts: &PriceLpTokensToRedeemAccounts<'_, 'info>) -> Self {
+    fn from(accounts: PriceLpTokensToRedeemAccounts<'_, 'info>) -> Self {
         [accounts.output_lst_mint.clone()]
     }
 }
@@ -529,6 +559,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACC
         }
     }
 }
+pub const PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM: u8 = 3u8;
 #[derive(BorshDeserialize, BorshSerialize, Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PriceLpTokensToRedeemIxArgs {
@@ -537,21 +568,17 @@ pub struct PriceLpTokensToRedeemIxArgs {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct PriceLpTokensToRedeemIxData(pub PriceLpTokensToRedeemIxArgs);
-pub const PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM: u8 = 3u8;
 impl From<PriceLpTokensToRedeemIxArgs> for PriceLpTokensToRedeemIxData {
     fn from(args: PriceLpTokensToRedeemIxArgs) -> Self {
         Self(args)
     }
 }
-impl BorshSerialize for PriceLpTokensToRedeemIxData {
-    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write_all(&[PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM])?;
-        self.0.serialize(writer)
-    }
-}
 impl PriceLpTokensToRedeemIxData {
-    pub fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        let maybe_discm = u8::deserialize(buf)?;
+    pub fn deserialize(buf: &[u8]) -> std::io::Result<Self> {
+        let mut reader = buf;
+        let mut maybe_discm_buf = [0u8; 1];
+        reader.read_exact(&mut maybe_discm_buf)?;
+        let maybe_discm = maybe_discm_buf[0];
         if maybe_discm != PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -561,7 +588,16 @@ impl PriceLpTokensToRedeemIxData {
                 ),
             ));
         }
-        Ok(Self(PriceLpTokensToRedeemIxArgs::deserialize(buf)?))
+        Ok(Self(PriceLpTokensToRedeemIxArgs::deserialize(&mut reader)?))
+    }
+    pub fn serialize<W: std::io::Write>(&self, mut writer: W) -> std::io::Result<()> {
+        writer.write_all(&[PRICE_LP_TOKENS_TO_REDEEM_IX_DISCM])?;
+        self.0.serialize(&mut writer)
+    }
+    pub fn try_to_vec(&self) -> std::io::Result<Vec<u8>> {
+        let mut data = Vec::new();
+        self.serialize(&mut data)?;
+        Ok(data)
     }
 }
 pub fn price_lp_tokens_to_redeem_ix<
@@ -572,7 +608,7 @@ pub fn price_lp_tokens_to_redeem_ix<
     args: A,
 ) -> std::io::Result<Instruction> {
     let keys: PriceLpTokensToRedeemKeys = accounts.into();
-    let metas: [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] = (&keys).into();
+    let metas: [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] = keys.into();
     let args_full: PriceLpTokensToRedeemIxArgs = args.into();
     let data: PriceLpTokensToRedeemIxData = args_full.into();
     Ok(Instruction {
@@ -582,7 +618,7 @@ pub fn price_lp_tokens_to_redeem_ix<
     })
 }
 pub fn price_lp_tokens_to_redeem_invoke<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: &PriceLpTokensToRedeemAccounts<'_, 'info>,
+    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
     args: A,
 ) -> ProgramResult {
     let ix = price_lp_tokens_to_redeem_ix(accounts, args)?;
@@ -591,7 +627,7 @@ pub fn price_lp_tokens_to_redeem_invoke<'info, A: Into<PriceLpTokensToRedeemIxAr
     invoke(&ix, &account_info)
 }
 pub fn price_lp_tokens_to_redeem_invoke_signed<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: &PriceLpTokensToRedeemAccounts<'_, 'info>,
+    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
     args: A,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
@@ -601,19 +637,13 @@ pub fn price_lp_tokens_to_redeem_invoke_signed<'info, A: Into<PriceLpTokensToRed
     invoke_signed(&ix, &account_info, seeds)
 }
 pub fn price_lp_tokens_to_redeem_verify_account_keys(
-    accounts: &PriceLpTokensToRedeemAccounts<'_, '_>,
-    keys: &PriceLpTokensToRedeemKeys,
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    keys: PriceLpTokensToRedeemKeys,
 ) -> Result<(), (Pubkey, Pubkey)> {
     for (actual, expected) in [(accounts.output_lst_mint.key, &keys.output_lst_mint)] {
         if actual != expected {
             return Err((*actual, *expected));
         }
     }
-    Ok(())
-}
-#[allow(unused)]
-pub fn price_lp_tokens_to_redeem_verify_account_privileges<'me, 'info>(
-    accounts: &PriceLpTokensToRedeemAccounts<'me, 'info>,
-) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     Ok(())
 }

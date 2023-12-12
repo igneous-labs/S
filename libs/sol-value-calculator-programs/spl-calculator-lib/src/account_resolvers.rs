@@ -79,6 +79,6 @@ impl<S: ReadonlyAccountPubkey + ReadonlyAccountData + ReadonlyAccountOwner>
     ) -> Result<[AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN], GenericPoolCalculatorError> {
         let keys: generic_pool_calculator_interface::LstToSolKeys =
             self.resolve()?.resolve::<SplSolValCalc>().into();
-        Ok((&keys).into())
+        Ok(keys.into())
     }
 }

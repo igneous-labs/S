@@ -40,9 +40,9 @@ pub fn verify_update_last_upgrade_slot<'me, 'info, P: GenericPoolSolValCalc>(
     };
     let expected: UpdateLastUpgradeSlotKeys = root_keys.resolve::<P>()?;
 
-    update_last_upgrade_slot_verify_account_keys(&actual, &expected)
+    update_last_upgrade_slot_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    update_last_upgrade_slot_verify_account_privileges(&actual)
+    update_last_upgrade_slot_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     Ok(actual)

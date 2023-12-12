@@ -59,9 +59,9 @@ fn verify_set_sol_value_calculator<'a, 'info>(
     };
     let expected = free_args.resolve()?;
 
-    set_sol_value_calculator_verify_account_keys(&actual, &expected)
+    set_sol_value_calculator_verify_account_keys(actual, expected)
         .map_err(log_and_return_wrong_acc_err)?;
-    set_sol_value_calculator_verify_account_privileges(&actual)
+    set_sol_value_calculator_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
