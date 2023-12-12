@@ -89,7 +89,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
             remaining_accounts,
             ..
         } = self;
-        [&[lst_mint.clone()], remaining_accounts].concat()
+        [std::slice::from_ref(lst_mint), remaining_accounts].concat()
     }
 
     fn create_account_metas(&self) -> Vec<AccountMeta> {
