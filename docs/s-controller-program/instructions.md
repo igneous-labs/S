@@ -565,7 +565,7 @@ Start a flash rebalancing procedure to rebalance from one LST type into another 
 - SyncSolValue for src_lst
 - Withdraw amount src_lst from reserves to withdraw_to
 - SyncSolValue for src_lst
-- Initialize rebalance_record with sol_value = the difference between pool's total SOL value before and after the second SyncSolValue for src_lst
+- Initialize hot potato rebalance_record with 1 lamport from pool_state with sol_value = the difference between pool's total SOL value before and after the second SyncSolValue for src_lst
 - Set is_rebalancing = true
 
 ## EndRebalance
@@ -595,7 +595,7 @@ End a flash rebalancing procedure after returning the funds to the pool
 - Set is_rebalancing = false
 - SyncSolValue for dst_lst
 - Verify increase in pool's SOL value after SyncSolValue >= amount recorded in rebalance_record
-- Close rebalance_record to refund_rent_to
+- Close rebalance_record to return the 1 lamport to pool_state
 
 ## SetRebalanceAuthority
 
