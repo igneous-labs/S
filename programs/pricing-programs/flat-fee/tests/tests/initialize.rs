@@ -5,9 +5,8 @@ use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signer::Signer, transaction::Transaction};
 
 #[tokio::test]
-async fn basic() {
+async fn initialize_basic() {
     let mut program_test = ProgramTest::default();
-
     program_test.add_program(
         "flat_fee",
         flat_fee_lib::program::ID,
@@ -16,23 +15,20 @@ async fn basic() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    // initialize
-    {
-        let ix = initialize_ix(
-            InitializeFreeArgs {
-                payer: payer.pubkey(),
-            }
-            .resolve(),
-        )
-        .unwrap();
+    let ix = initialize_ix(
+        InitializeFreeArgs {
+            payer: payer.pubkey(),
+        }
+        .resolve(),
+    )
+    .unwrap();
 
-        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer], last_blockhash);
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer], last_blockhash);
 
-        banks_client.process_transaction(tx).await.unwrap();
+    banks_client.process_transaction(tx).await.unwrap();
 
-        let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
-        let state = try_program_state(&state_acc.data).unwrap();
-        assert_eq!(*state, DEFAULT_PROGRAM_STATE);
-    }
+    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state = try_program_state(&state_acc.data).unwrap();
+    assert_eq!(*state, DEFAULT_PROGRAM_STATE);
 }
