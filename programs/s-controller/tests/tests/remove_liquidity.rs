@@ -51,7 +51,7 @@ async fn basic_redeem_full_no_fees() {
             amount: 0,
         },
     );
-    let liquidity_provider_lp_token_acc_addr = add_mock_lp_token_account(
+    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
         &mut program_test,
         MockTokenAccountArgs {
             mint: lp_token_mint,
@@ -200,7 +200,7 @@ async fn basic_redeem_full_flat_fees() {
             amount: 0,
         },
     );
-    let liquidity_provider_lp_token_acc_addr = add_mock_lp_token_account(
+    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
         &mut program_test,
         MockTokenAccountArgs {
             mint: lp_token_mint,

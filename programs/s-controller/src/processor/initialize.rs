@@ -1,29 +1,21 @@
 use s_controller_interface::{
     initialize_verify_account_keys, initialize_verify_account_privileges, InitializeAccounts,
-    PoolState,
+    PoolState, SControllerError,
 };
 use s_controller_lib::{
-    initial_token_metadata_size,
-    program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_pool_state_mut, InitializeFreeArgs, CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS,
-    DEFAULT_LP_TOKEN_METADATA_NAME, DEFAULT_LP_TOKEN_METADATA_SYMBOL,
-    DEFAULT_LP_TOKEN_METADATA_URI, DEFAULT_MAXIMUM_TRANSFER_FEE, DEFAULT_PRICING_PROGRAM,
-    DEFAULT_TRADING_PROTOCOL_FEE_BPS, DEFAULT_TRANSFER_FEE_BPS, POOL_STATE_SIZE,
+    DEFAULT_PRICING_PROGRAM, DEFAULT_TRADING_PROTOCOL_FEE_BPS, POOL_STATE_SIZE,
 };
 use sanctum_onchain_utils::{
-    system_program::{create_blank_account, create_pda, CreateAccountAccounts, CreateAccountArgs},
-    token_2022::{
-        initialize_metadata_pointer, initialize_mint2, initialize_mint_token_metadata_signed,
-        initialize_transfer_fee_config, InitializeMetadataPointerArgs, InitializeMint2Args,
-        InitializeMintTokenMetadataAccounts, InitializeTransferFeeConfigArgs,
-    },
+    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
+    token_program::{set_authority, SetAuthorityAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, rent::Rent,
-    sysvar::Sysvar,
+    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    program_pack::Pack,
 };
-use spl_token_2022::{extension::ExtensionType, native_mint, state::Mint};
+use spl_token::{instruction::AuthorityType, native_mint, state::Mint};
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
     let accounts = verify_initialize(accounts)?;
@@ -44,7 +36,7 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         ]],
     )?;
 
-    // need to drop borrow of pool_state before mint initialization CPIs
+    // need to drop borrow of pool_state before mint CPIs
     {
         let mut pool_state_data = accounts.pool_state.try_borrow_mut_data()?;
         let pool_state = try_pool_state_mut(&mut pool_state_data)?;
@@ -64,66 +56,21 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         };
     }
 
-    let mint_size = ExtensionType::try_calculate_account_len::<Mint>(&[
-        ExtensionType::TransferFeeConfig,
-        ExtensionType::MetadataPointer,
-    ])?;
-    // TokenMetadata is variable len
-    // Must not pre-allocate space or intialize_mint2() will fail.
-    // Must let initialize_mint_token_metadata_signed() realloc the space,
-    // but must provide the appropriate number of rent_exempt lamports.
+    let set_authority_accounts = SetAuthorityAccounts {
+        token_program: accounts.lp_token_program,
+        to_change: accounts.lp_token_mint,
+        current_authority: accounts.authority,
+    };
 
-    create_blank_account(
-        CreateAccountAccounts {
-            from: accounts.payer,
-            to: accounts.lp_token_mint,
-        },
-        CreateAccountArgs {
-            space: mint_size,
-            owner: spl_token_2022::ID,
-            lamports: Some(
-                Rent::get()?.minimum_balance(mint_size + initial_token_metadata_size()?),
-            ),
-        },
+    set_authority(
+        set_authority_accounts,
+        AuthorityType::MintTokens,
+        Some(*accounts.pool_state.key),
     )?;
-
-    initialize_transfer_fee_config(
-        accounts.lp_token_mint,
-        InitializeTransferFeeConfigArgs {
-            transfer_fee_config_authority: Some(*accounts.authority.key),
-            withdraw_withheld_authority: Some(*accounts.authority.key),
-            transfer_fee_basis_points: DEFAULT_TRANSFER_FEE_BPS,
-            maximum_fee: DEFAULT_MAXIMUM_TRANSFER_FEE,
-        },
-    )?;
-    initialize_metadata_pointer(
-        accounts.lp_token_mint,
-        InitializeMetadataPointerArgs {
-            authority: Some(*accounts.authority.key),
-            metadata_address: Some(*accounts.lp_token_mint.key),
-        },
-    )?;
-    // must initialize mint before token metadata
-    initialize_mint2(
-        accounts.lp_token_mint,
-        InitializeMint2Args {
-            decimals: native_mint::DECIMALS,
-            mint_authority: *accounts.pool_state.key,
-            freeze_authority: Some(*accounts.pool_state.key),
-        },
-    )?;
-    initialize_mint_token_metadata_signed(
-        InitializeMintTokenMetadataAccounts {
-            mint: accounts.lp_token_mint,
-            update_authority: accounts.authority,
-            mint_authority: accounts.pool_state,
-        },
-        spl_token_metadata_interface::instruction::Initialize {
-            name: DEFAULT_LP_TOKEN_METADATA_NAME.to_owned(),
-            symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.to_owned(),
-            uri: DEFAULT_LP_TOKEN_METADATA_URI.to_owned(),
-        },
-        &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
+    set_authority(
+        set_authority_accounts,
+        AuthorityType::FreezeAccount,
+        Some(*accounts.pool_state.key),
     )
 }
 
@@ -141,5 +88,21 @@ fn verify_initialize<'a, 'info>(
     initialize_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     initialize_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
+    verify_lp_token_mint(actual.lp_token_mint)?;
+
     Ok(actual)
+}
+
+fn verify_lp_token_mint(lp_token_mint: &AccountInfo<'_>) -> Result<(), ProgramError> {
+    if *lp_token_mint.owner != spl_token::ID {
+        return Err(SControllerError::IncorrectLpMintInitialization.into());
+    }
+    let mint = Mint::unpack(&lp_token_mint.try_borrow_data()?)?;
+    if mint.supply != 0 {
+        return Err(SControllerError::IncorrectLpMintInitialization.into());
+    }
+    if mint.decimals != native_mint::DECIMALS {
+        return Err(SControllerError::IncorrectLpMintInitialization.into());
+    }
+    Ok(())
 }

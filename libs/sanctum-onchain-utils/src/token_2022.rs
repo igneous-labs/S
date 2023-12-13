@@ -6,64 +6,6 @@ use solana_program::{
 };
 use spl_token_metadata_interface::instruction::Initialize;
 
-pub struct MintToAccounts<'me, 'info> {
-    pub mint: &'me AccountInfo<'info>,
-    pub mint_to: &'me AccountInfo<'info>,
-    pub mint_authority: &'me AccountInfo<'info>,
-}
-
-pub fn mint_to_signed(
-    MintToAccounts {
-        mint,
-        mint_to,
-        mint_authority,
-    }: MintToAccounts,
-    amount: u64,
-    signer_seeds: &[&[&[u8]]],
-) -> Result<(), ProgramError> {
-    let ix = spl_token_2022::instruction::mint_to(
-        &spl_token_2022::ID,
-        mint.key,
-        mint_to.key,
-        mint_authority.key,
-        &[],
-        amount,
-    )?;
-    invoke_signed(
-        &ix,
-        &[mint.clone(), mint_to.clone(), mint_authority.clone()],
-        signer_seeds,
-    )
-}
-
-pub struct BurnTokensAccounts<'me, 'info> {
-    pub mint: &'me AccountInfo<'info>,
-    pub burn_from: &'me AccountInfo<'info>,
-    pub burn_from_authority: &'me AccountInfo<'info>,
-}
-
-pub fn burn_tokens(
-    BurnTokensAccounts {
-        mint,
-        burn_from,
-        burn_from_authority,
-    }: BurnTokensAccounts,
-    amount: u64,
-) -> Result<(), ProgramError> {
-    let ix = spl_token_2022::instruction::burn(
-        &spl_token_2022::ID,
-        burn_from.key,
-        mint.key,
-        burn_from_authority.key,
-        &[],
-        amount,
-    )?;
-    invoke(
-        &ix,
-        &[burn_from.clone(), mint.clone(), burn_from_authority.clone()],
-    )
-}
-
 #[derive(Clone, Copy, Debug)]
 pub struct InitializeMint2Args {
     pub decimals: u8,

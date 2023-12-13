@@ -319,10 +319,10 @@
           "desc": "LST's token program"
         },
         {
-          "name": "token_2022",
+          "name": "lp_token_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "Token 2022 program for use with LP token mint"
+          "desc": "LP token mint's token program (Tokenkeg) for use with LP token mint"
         },
         {
           "name": "pool_state",
@@ -408,10 +408,10 @@
           "desc": "LST's token program"
         },
         {
-          "name": "token_2022",
+          "name": "lp_token_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "Token 2022 program for use with LP token mint"
+          "desc": "LP token mint's token program (Tokenkeg) for use with LP token mint"
         },
         {
           "name": "pool_state",
@@ -1211,14 +1211,14 @@
         {
           "name": "lp_token_mint",
           "isMut": true,
-          "isSigner": true,
-          "desc": "The LP token mint to create"
+          "isSigner": false,
+          "desc": "The LP token mint to use"
         },
         {
-          "name": "token_2022",
+          "name": "lp_token_program",
           "isMut": false,
           "isSigner": false,
-          "desc": "Token 2022 program"
+          "desc": "LP token mint's token program (Tokenkeg)"
         },
         {
           "name": "system_program",
@@ -1517,6 +1517,11 @@
       "code": 32,
       "name": "FaultyPricingProgram",
       "msg": "Faulty pricing program"
+    },
+    {
+      "code": 33,
+      "name": "IncorrectLpMintInitialization",
+      "msg": "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
     }
   ],
   "metadata": {

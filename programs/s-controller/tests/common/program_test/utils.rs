@@ -7,9 +7,8 @@ use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use spl_calculator_lib::SplSolValCalc;
 use test_utils::{
-    mock_lp_token_account, mock_token_account, AddAccount, MockTokenAccountArgs,
-    LIDO_PROG_LAST_UPDATED_SLOT, MARINADE_PROG_LAST_UPDATED_SLOT,
-    SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
+    mock_token_account, AddAccount, MockTokenAccountArgs, LIDO_PROG_LAST_UPDATED_SLOT,
+    MARINADE_PROG_LAST_UPDATED_SLOT, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
 };
 
 /// Adds the spl sol value calculator program, a mock calculator state
@@ -100,14 +99,5 @@ pub fn add_mock_token_account(
 ) -> Pubkey {
     let token_acc_addr = Pubkey::new_unique();
     program_test.add_account(token_acc_addr, mock_token_account(token_account));
-    token_acc_addr
-}
-
-pub fn add_mock_lp_token_account(
-    program_test: &mut ProgramTest,
-    token_account: MockTokenAccountArgs,
-) -> Pubkey {
-    let token_acc_addr = Pubkey::new_unique();
-    program_test.add_account(token_acc_addr, mock_lp_token_account(token_account));
     token_acc_addr
 }

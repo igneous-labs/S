@@ -3371,7 +3371,6 @@ dependencies = [
  "spl-calculator-lib",
  "spl-pod",
  "spl-token",
- "spl-token-2022",
  "spl-token-metadata-interface",
  "test-utils",
  "tokio",
@@ -3392,7 +3391,7 @@ dependencies = [
  "solana-program",
  "solana-readonly-account",
  "spl-associated-token-account",
- "spl-token-2022",
+ "spl-token",
  "spl-token-metadata-interface",
  "static_assertions",
 ]

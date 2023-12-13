@@ -74,6 +74,10 @@ pub enum SControllerError {
     ZeroValue = 31,
     #[error("Faulty pricing program")]
     FaultyPricingProgram = 32,
+    #[error(
+        "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
+    )]
+    IncorrectLpMintInitialization = 33,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
