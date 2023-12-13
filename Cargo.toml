@@ -17,6 +17,12 @@ members = [
     "test-utils",
 ]
 
+#[profile.release]
+#overflow-checks = true # increases binary size, we're using checked ops everywhere
+#lto = "fat" # doesn't affect binary size
+#panic = "abort" # cargo-build-sbf does this
+#strip = true # cargo-build-sbf strips symbols after building
+
 [workspace.dependencies]
 bincode = "^1"
 borsh = ">=0.9"

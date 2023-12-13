@@ -76,8 +76,6 @@ Given an input LST amount and its SOL value, calculate the SOL value of the LP t
 
 #### Accounts
 
-Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the input LST.
-
 | Account            | Description                                                                 | Read/Write (R/W) | Signer (Y/N) |
 | ------------------ | --------------------------------------------------------------------------- | ---------------- | ------------ |
 | input_lst_mint     | Mint of the input LST                                                       | R                | N            |
@@ -102,8 +100,6 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 | result | the calculated SOL value of the LST to redeem | u64  |
 
 #### Accounts
-
-Varies with each pricing program. Should include controller program's pricing program authority PDA for authorization and the output LST.
 
 | Account            | Description                                                                 | Read/Write (R/W) | Signer (Y/N) |
 | ------------------ | --------------------------------------------------------------------------- | ---------------- | ------------ |
