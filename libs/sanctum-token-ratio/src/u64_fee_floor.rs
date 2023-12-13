@@ -41,8 +41,8 @@ impl<N: Copy + Into<u128>, D: Copy + Into<u128>> U64FeeFloor<N, D> {
         }
         let y: u128 = amt_after_fee.into();
         let dy = y.checked_mul(d).ok_or(MathError)?;
-        let d_minus_n = d - n;
-        let q_floor = dy / d_minus_n;
+        let d_minus_n = d - n; // n < d checked above
+        let q_floor = dy / d_minus_n; // d_minus_n != 0 since d != n
 
         q_floor.try_into().map_err(|_e| MathError)
     }

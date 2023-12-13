@@ -172,14 +172,18 @@ fn verify_has_succeeding_end_rebalance_ix(
     instructions_sysvar: &AccountInfo,
 ) -> Result<(), ProgramError> {
     let current_idx: usize = load_current_index_checked(instructions_sysvar)?.into();
-    let mut next_ix_idx = current_idx + 1;
+    let mut next_ix_idx = current_idx
+        .checked_add(1)
+        .ok_or(SControllerError::MathError)?;
     loop {
         let next_ix = load_instruction_at_checked(next_ix_idx, instructions_sysvar)
             .map_err(|_| SControllerError::NoSucceedingEndRebalance)?;
         if is_end_rebalance_ix(&next_ix) {
             break;
         }
-        next_ix_idx += 1;
+        next_ix_idx = next_ix_idx
+            .checked_add(1)
+            .ok_or(SControllerError::MathError)?;
     }
     Ok(())
 }
