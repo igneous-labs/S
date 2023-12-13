@@ -96,8 +96,7 @@ async fn fail_init_second_time() {
     };
     let mut ix = init_ix(free_args.resolve::<MockCalculatorProgram>()).unwrap();
     ix.program_id = mock_calculator_program::ID;
-    // Must change the transaction else
-    // runtime will treat it as a duplicate and return previous Ok(()) result
+    // Must change the transaction else duplicate and previous Ok(()) result will be returned
     let dummy_transfer_ix = system_instruction::transfer(&payer.pubkey(), &payer.pubkey(), 1);
     let mut tx = Transaction::new_with_payer(&[ix, dummy_transfer_ix], Some(&payer.pubkey()));
     tx.sign(&[&payer], last_blockhash);

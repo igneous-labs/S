@@ -4,8 +4,9 @@ use solana_program::{
     instruction::Instruction,
     program::{invoke, invoke_signed},
     program_error::ProgramError,
+    pubkey::Pubkey,
 };
-use spl_token::instruction::transfer;
+use spl_token::instruction::{transfer, AuthorityType};
 
 pub struct TransferTokensAccounts<'me, 'info> {
     pub token_program: &'me AccountInfo<'info>,
@@ -97,5 +98,94 @@ pub fn close_token_account_signed(
             accounts.authority.clone(),
         ],
         signer_seeds,
+    )
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct SetAuthorityAccounts<'me, 'info> {
+    pub token_program: &'me AccountInfo<'info>,
+    pub to_change: &'me AccountInfo<'info>,
+    pub current_authority: &'me AccountInfo<'info>,
+}
+
+pub fn set_authority(
+    SetAuthorityAccounts {
+        token_program,
+        to_change,
+        current_authority,
+    }: SetAuthorityAccounts,
+    authority_type: AuthorityType,
+    new_authority: Option<Pubkey>,
+) -> Result<(), ProgramError> {
+    let ix = spl_token::instruction::set_authority(
+        token_program.key,
+        to_change.key,
+        new_authority.as_ref(),
+        authority_type,
+        current_authority.key,
+        &[],
+    )?;
+    invoke(&ix, &[to_change.clone(), current_authority.clone()])
+}
+
+pub struct MintToAccounts<'me, 'info> {
+    pub mint: &'me AccountInfo<'info>,
+    pub mint_to: &'me AccountInfo<'info>,
+    pub mint_authority: &'me AccountInfo<'info>,
+    pub token_program: &'me AccountInfo<'info>,
+}
+
+pub fn mint_to_signed(
+    MintToAccounts {
+        mint,
+        mint_to,
+        mint_authority,
+        token_program,
+    }: MintToAccounts,
+    amount: u64,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<(), ProgramError> {
+    let ix = spl_token_2022::instruction::mint_to(
+        token_program.key,
+        mint.key,
+        mint_to.key,
+        mint_authority.key,
+        &[],
+        amount,
+    )?;
+    invoke_signed(
+        &ix,
+        &[mint.clone(), mint_to.clone(), mint_authority.clone()],
+        signer_seeds,
+    )
+}
+
+pub struct BurnTokensAccounts<'me, 'info> {
+    pub mint: &'me AccountInfo<'info>,
+    pub burn_from: &'me AccountInfo<'info>,
+    pub burn_from_authority: &'me AccountInfo<'info>,
+    pub token_program: &'me AccountInfo<'info>,
+}
+
+pub fn burn_tokens(
+    BurnTokensAccounts {
+        mint,
+        burn_from,
+        burn_from_authority,
+        token_program,
+    }: BurnTokensAccounts,
+    amount: u64,
+) -> Result<(), ProgramError> {
+    let ix = spl_token_2022::instruction::burn(
+        token_program.key,
+        burn_from.key,
+        mint.key,
+        burn_from_authority.key,
+        &[],
+        amount,
+    )?;
+    invoke(
+        &ix,
+        &[burn_from.clone(), mint.clone(), burn_from_authority.clone()],
     )
 }

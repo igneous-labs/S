@@ -69,7 +69,7 @@ pub fn lido_wsol_base_program_test(
             },
         ],
     );
-    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
+    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_supply));
 
     let total_sol_value = stsol_sol_value + wsol_reserves;
 

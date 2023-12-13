@@ -24,7 +24,7 @@ sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
 sanctum-token-ratio = { path = "../../libs/sanctum-token-ratio" }
 sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
 solana-program = { workspace = true }
-spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
+spl-token = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]

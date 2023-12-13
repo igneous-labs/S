@@ -9,8 +9,7 @@ use s_controller_lib::{
     CalcAddLiquidityArgs, CalcAddLiquidityProtocolFeesResult, LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_onchain_utils::{
-    token_2022::{mint_to_signed, MintToAccounts},
-    token_program::{transfer_tokens, TransferTokensAccounts},
+    token_program::{mint_to_signed, transfer_tokens, MintToAccounts, TransferTokensAccounts},
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use sanctum_utils::token::mint_supply;
@@ -103,6 +102,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
             mint: accounts.lp_token_mint,
             mint_to: accounts.dst_lp_acc,
             mint_authority: accounts.pool_state,
+            token_program: accounts.lp_token_program,
         },
         lp_tokens_to_mint,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],

@@ -10,8 +10,9 @@ use s_controller_lib::{
     RemoveLiquidityFreeArgs, RemoveLiquidityIxFullArgs,
 };
 use sanctum_onchain_utils::{
-    token_2022::{burn_tokens, BurnTokensAccounts},
-    token_program::{transfer_tokens_signed, TransferTokensAccounts},
+    token_program::{
+        burn_tokens, transfer_tokens_signed, BurnTokensAccounts, TransferTokensAccounts,
+    },
     utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
 };
 use sanctum_utils::token::mint_supply;
@@ -80,6 +81,7 @@ pub fn process_remove_liquidity(
             mint: accounts.lp_token_mint,
             burn_from: accounts.src_lp_acc,
             burn_from_authority: accounts.signer,
+            token_program: accounts.lp_token_program,
         },
         lp_token_amount,
     )?;

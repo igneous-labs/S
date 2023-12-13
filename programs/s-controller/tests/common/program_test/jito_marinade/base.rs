@@ -75,7 +75,7 @@ pub fn jito_marinade_base_program_test(
             },
         ],
     );
-    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_mint, lp_token_supply));
+    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_supply));
 
     let total_sol_value = jitosol_sol_value + msol_sol_value;
 

@@ -20,7 +20,7 @@ impl InitializeFreeArgs {
             lp_token_mint,
             authority: initial_authority::ID,
             pool_state: POOL_STATE_ID,
-            token_2022: spl_token_2022::ID,
+            lp_token_program: spl_token::ID,
             system_program: system_program::ID,
         }
     }

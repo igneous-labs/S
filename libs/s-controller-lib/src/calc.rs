@@ -26,7 +26,9 @@ pub fn calc_lp_tokens_to_mint(
             .ok_or(MathError);
     }
     // edge-case: if LP supply nonzero but pool sol value 0,
-    // mint == final_sol_value_to_add. This dilutes the LPer
+    // mint amount == final_sol_value_to_add.
+    // This dilutes the LPer but ensures pool can still function.
+    // Should never happen.
     if pool_total_sol_value == 0 {
         return Ok(final_sol_value_to_add);
     }

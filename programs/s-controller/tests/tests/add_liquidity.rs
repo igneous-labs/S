@@ -56,7 +56,7 @@ async fn basic_add_liquidity_twice_no_fee() {
             amount: MSOL_TO_ADD,
         },
     );
-    let liquidity_provider_lp_token_acc_addr = add_mock_lp_token_account(
+    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
         &mut program_test,
         MockTokenAccountArgs {
             mint: lp_token_mint,
@@ -173,7 +173,7 @@ async fn basic_add_liquidity_twice_flat_fee() {
             amount: WSOL_TO_ADD,
         },
     );
-    let liquidity_provider_lp_token_acc_addr = add_mock_lp_token_account(
+    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
         &mut program_test,
         MockTokenAccountArgs {
             mint: lp_token_mint,

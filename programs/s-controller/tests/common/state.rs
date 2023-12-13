@@ -1,18 +1,12 @@
 use s_controller_interface::PoolState;
 use s_controller_lib::{
-    initial_authority, initial_token_metadata_size, program::POOL_STATE_ID, try_pool_state_mut,
-    DEFAULT_LP_TOKEN_METADATA_NAME, DEFAULT_LP_TOKEN_METADATA_SYMBOL,
-    DEFAULT_LP_TOKEN_METADATA_URI, DEFAULT_PRICING_PROGRAM, POOL_STATE_SIZE,
+    initial_authority, program::POOL_STATE_ID, try_pool_state_mut, DEFAULT_PRICING_PROGRAM,
+    POOL_STATE_SIZE,
 };
-use solana_program::{program_option::COption, pubkey::Pubkey};
+use solana_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::BanksClient;
 use solana_sdk::account::Account;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
-use spl_token_2022::extension::{
-    metadata_pointer::MetadataPointer, transfer_fee::TransferFeeConfig, ExtensionType,
-    StateWithExtensionsMut,
-};
-use spl_token_metadata_interface::state::TokenMetadata;
+use spl_token::state::Mint;
 use test_utils::{banks_client_get_account, est_rent_exempt_lamports};
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -53,46 +47,32 @@ pub async fn banks_client_get_pool_state_acc(banks_client: &mut BanksClient) -> 
     banks_client_get_account(banks_client, s_controller_lib::program::POOL_STATE_ID).await
 }
 
-pub fn mock_lp_mint(mint_addr: Pubkey, supply: u64) -> Account {
-    let account_size = ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&[
-        ExtensionType::TransferFeeConfig,
-        ExtensionType::MetadataPointer,
-    ])
-    .unwrap()
-        + initial_token_metadata_size().unwrap();
-    let mut data = vec![0; account_size];
-    let mut state =
-        StateWithExtensionsMut::<spl_token_2022::state::Mint>::unpack_uninitialized(&mut data)
-            .unwrap();
-    // dont care abt transfer fee config all zeros for now
-    state.init_extension::<TransferFeeConfig>(true).unwrap();
-    let metadata_ptr = state.init_extension::<MetadataPointer>(true).unwrap();
-    metadata_ptr.metadata_address = OptionalNonZeroPubkey::try_from(Some(mint_addr)).unwrap();
-    state.base = spl_token_2022::state::Mint {
-        mint_authority: COption::Some(POOL_STATE_ID),
-        supply,
-        decimals: 9,
-        is_initialized: true,
-        freeze_authority: COption::Some(POOL_STATE_ID),
-    };
-    state.pack_base();
-    state.init_account_type().unwrap();
-    let token_metadata = TokenMetadata {
-        name: DEFAULT_LP_TOKEN_METADATA_NAME.into(),
-        symbol: DEFAULT_LP_TOKEN_METADATA_SYMBOL.into(),
-        uri: DEFAULT_LP_TOKEN_METADATA_URI.into(),
-        update_authority: Some(initial_authority::ID).try_into().unwrap(),
-        mint: mint_addr,
-        ..Default::default()
-    };
-    state
-        .init_variable_len_extension(&token_metadata, true)
-        .unwrap();
+fn mock_lp_token_mint_base(authority: Pubkey, supply: u64) -> Account {
+    let mut data = vec![0; Mint::LEN];
+    Mint::pack(
+        Mint {
+            mint_authority: COption::Some(authority),
+            supply,
+            decimals: 9,
+            is_initialized: true,
+            freeze_authority: COption::Some(authority),
+        },
+        &mut data,
+    )
+    .unwrap();
     Account {
-        lamports: est_rent_exempt_lamports(account_size),
+        lamports: est_rent_exempt_lamports(Mint::LEN),
         data,
-        owner: spl_token_2022::ID,
+        owner: spl_token::ID,
         executable: false,
         rent_epoch: u64::MAX,
     }
+}
+
+pub fn mock_lp_mint_to_init(initial_authority: Pubkey) -> Account {
+    mock_lp_token_mint_base(initial_authority, 0)
+}
+
+pub fn mock_lp_mint(supply: u64) -> Account {
+    mock_lp_token_mint_base(POOL_STATE_ID, supply)
 }
