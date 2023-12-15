@@ -10,14 +10,14 @@ testing = []
 [dependencies]
 borsh = { workspace = true }
 bytemuck = { workspace = true }
-flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
+flat_fee_interface = { workspace = true }
 sanctum-macros = { workspace = true }
-sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
-sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
+sanctum-onchain-utils = { workspace = true }
+sanctum-token-ratio = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 static_assertions = { workspace = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
-test-utils = { path = "../../../test-utils" }
+test-utils = { workspace = true }

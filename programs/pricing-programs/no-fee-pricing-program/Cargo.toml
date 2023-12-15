@@ -13,6 +13,6 @@ crate-type = ["cdylib", "lib"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-pricing_programs_interface = { path = "../../../generated/pricing-programs/pricing_programs_interface" }
+pricing_programs_interface = { workspace = true }
 sanctum-macros = { workspace = true }
 solana-program = { workspace = true }

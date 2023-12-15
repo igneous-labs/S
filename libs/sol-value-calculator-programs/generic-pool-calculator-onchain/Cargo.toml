@@ -5,17 +5,17 @@ edition = "2021"
 
 [dependencies]
 bytemuck = { workspace = true }
-generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
-generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
-sanctum-onchain-utils = { path = "../../sanctum-onchain-utils" }
+generic-pool-calculator-lib = { workspace = true }
+generic_pool_calculator_interface = { workspace = true }
+sanctum-onchain-utils = { workspace = true }
 solana-program = { workspace = true }
 
 [dev-dependencies]
-generic-pool-calculator-test-utils = { path = "../generic-pool-calculator-test-utils" }
+generic-pool-calculator-test-utils = { workspace = true }
 sanctum-macros = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }
-spl-stake-pool-keys = { path = "../../../keys/spl-stake-pool-keys" }
-test-utils = { path = "../../../test-utils" }
+spl-stake-pool-keys = { workspace = true }
+test-utils = { workspace = true }
 tokio = { workspace = true }

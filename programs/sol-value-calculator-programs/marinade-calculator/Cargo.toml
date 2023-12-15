@@ -14,19 +14,19 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 borsh = { workspace = true }
-generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
-generic-pool-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-lib" }
-generic-pool-calculator-onchain = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-onchain" }
-marinade_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/marinade_calculator_interface" }
-marinade-calculator-lib = { path = "../../../libs/sol-value-calculator-programs/marinade-calculator-lib" }
-sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
-sol-value-calculator-onchain = { path = "../../../libs/sol-value-calculator-programs/sol-value-calculator-onchain" }
+generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-lib = { workspace = true }
+generic-pool-calculator-onchain = { workspace = true }
+marinade_calculator_interface = { workspace = true }
+marinade-calculator-lib = { workspace = true }
+sanctum-onchain-utils = { workspace = true }
+sol-value-calculator-onchain = { workspace = true }
 solana-program = { workspace = true }
 
 [dev-dependencies]
-generic-pool-calculator-test-utils = { path = "../../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+generic-pool-calculator-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }
-test-utils = { path = "../../../test-utils" }
+test-utils = { workspace = true }
 tokio = { workspace = true }

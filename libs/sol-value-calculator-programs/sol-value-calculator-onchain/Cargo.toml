@@ -4,5 +4,5 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
+sol-value-calculator-lib = { workspace = true }
 solana-program = { workspace = true }

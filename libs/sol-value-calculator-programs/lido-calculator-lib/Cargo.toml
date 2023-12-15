@@ -7,13 +7,13 @@ edition = "2021"
 
 [dependencies]
 borsh = { workspace = true }
-generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
-generic-pool-calculator-lib = { path = "../generic-pool-calculator-lib" }
-lido_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/lido_calculator_interface" }
-lido-keys = { path = "../../../keys/lido-keys" }
+generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-lib = { workspace = true }
+lido_calculator_interface = { workspace = true }
+lido-keys = { workspace = true }
 sanctum-macros = { workspace = true }
-sanctum-token-ratio = { path = "../../sanctum-token-ratio" }
-sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
+sanctum-token-ratio = { workspace = true }
+sol-value-calculator-lib = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 

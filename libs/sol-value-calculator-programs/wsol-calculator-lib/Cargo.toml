@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-sol-value-calculator-lib = { path = "../sol-value-calculator-lib" }
+sol-value-calculator-lib = { workspace = true }
 solana-program = { workspace = true }
-wsol-keys = { path = "../../../keys/wsol-keys" }
-wsol_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/wsol_calculator_interface" }
+wsol-keys = { workspace = true }
+wsol_calculator_interface = { workspace = true }
