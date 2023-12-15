@@ -6,11 +6,11 @@ edition = "2021"
 [dependencies]
 bincode = { workspace = true }
 bytemuck = { workspace = true }
-generic_pool_calculator_interface = { path = "../../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+generic_pool_calculator_interface = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 static_assertions = { workspace = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
-test-utils = { path = "../../../test-utils" }
+test-utils = { workspace = true }

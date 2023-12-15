@@ -14,16 +14,16 @@ crate-type = ["cdylib", "lib"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-flat_fee_interface = { path = "../../../generated/pricing-programs/flat_fee_interface" }
-flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib" }
-sanctum-onchain-utils = { path = "../../../libs/sanctum-onchain-utils" }
+flat_fee_interface = { workspace = true }
+flat-fee-lib = { workspace = true }
+sanctum-onchain-utils = { workspace = true }
 solana-program = { workspace = true }
 
 [dev-dependencies]
-flat-fee-lib = { path = "../../../libs/pricing-programs/flat-fee-lib", features = ["testing"] }
-flat-fee-test-utils = { path = "../../../libs/pricing-programs/flat-fee-test-utils" }
+flat-fee-lib = { workspace = true, features = ["testing"] }
+flat-fee-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
-test-utils = { path = "../../../test-utils"}
+test-utils = { workspace = true }
 tokio = { workspace = true }

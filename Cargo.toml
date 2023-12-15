@@ -52,3 +52,41 @@ solana-account-decoder = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
 solana-sdk = "^1"
+
+# workspace members
+flat_fee_interface = { path = "./generated/pricing-programs/flat_fee_interface" }
+pricing_programs_interface = { path = "./generated/pricing-programs/pricing_programs_interface" }
+s_controller_interface = { path = "./generated/s_controller_interface" }
+generic_pool_calculator_interface = { path = "./generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
+lido_calculator_interface = { path = "./generated/sol-value-calculator-programs/lido_calculator_interface" }
+marinade_calculator_interface = { path = "./generated/sol-value-calculator-programs/marinade_calculator_interface" }
+sol_value_calculator_interface = { path = "./generated/sol-value-calculator-programs/sol_value_calculator_interface" }
+spl_calculator_interface = { path = "./generated/sol-value-calculator-programs/spl_calculator_interface" }
+wsol_calculator_interface = { path = "./generated/sol-value-calculator-programs/wsol_calculator_interface" }
+lido-keys = { path = "./keys/lido-keys" }
+marinade-keys = { path = "./keys/marinade-keys" }
+spl-stake-pool-keys = { path = "./keys/spl-stake-pool-keys" }
+wsol-keys = { path = "./keys/wsol-keys" }
+flat-fee-lib = { path = "./libs/pricing-programs/flat-fee-lib" }
+flat-fee-test-utils = { path = "./libs/pricing-programs/flat-fee-test-utils" }
+s-controller-lib = { path = "./libs/s-controller-lib" }
+sanctum-onchain-utils = { path = "./libs/sanctum-onchain-utils" }
+sanctum-token-ratio = { path = "./libs/sanctum-token-ratio" }
+sanctum-utils = { path = "./libs/sanctum-utils" }
+generic-pool-calculator-lib = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-lib" }
+generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-onchain" }
+generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
+lido-calculator-lib = { path = "./libs/sol-value-calculator-programs/lido-calculator-lib" }
+marinade-calculator-lib = { path = "./libs/sol-value-calculator-programs/marinade-calculator-lib" }
+sol-value-calculator-lib = { path = "./libs/sol-value-calculator-programs/sol-value-calculator-lib" }
+sol-value-calculator-onchain = { path = "./libs/sol-value-calculator-programs/sol-value-calculator-onchain" }
+spl-calculator-lib = { path = "./libs/sol-value-calculator-programs/spl-calculator-lib" }
+wsol-calculator-lib = { path = "./libs/sol-value-calculator-programs/wsol-calculator-lib" }
+flat-fee = { path = "./programs/pricing-programs/flat-fee" }
+no-fee-pricing-program = { path = "./programs/pricing-programs/no-fee-pricing-program" }
+s-controller = { path = "./programs/s-controller" }
+lido-calculator = { path = "./programs/sol-value-calculator-programs/lido-calculator" }
+marinade-calculator = { path = "./programs/sol-value-calculator-programs/marinade-calculator" }
+spl-calculator = { path = "./programs/sol-value-calculator-programs/spl-calculator" }
+wsol-calculator = { path = "./programs/sol-value-calculator-programs/wsol-calculator" }
+test-utils = { path = "./test-utils" }

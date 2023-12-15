@@ -13,4 +13,4 @@ solana-program = { workspace = true, optional = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
-test-utils = { path = "../../test-utils" }
+test-utils = { workspace = true }

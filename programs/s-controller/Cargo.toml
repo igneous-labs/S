@@ -16,40 +16,40 @@ targets = ["x86_64-unknown-linux-gnu"]
 [dependencies]
 borsh = { workspace = true }
 bytemuck = { workspace = true }
-pricing_programs_interface = { path = "../../generated/pricing-programs/pricing_programs_interface" }
-s_controller_interface = { path = "../../generated/s_controller_interface" }
-s-controller-lib = { path = "../../libs/s-controller-lib" }
-sanctum-utils = { path = "../../libs/sanctum-utils" }
-sanctum-onchain-utils = { path = "../../libs/sanctum-onchain-utils" }
-sanctum-token-ratio = { path = "../../libs/sanctum-token-ratio" }
-sol_value_calculator_interface = { path = "../../generated/sol-value-calculator-programs/sol_value_calculator_interface" }
+pricing_programs_interface = { workspace = true }
+s_controller_interface = { workspace = true }
+s-controller-lib = { workspace = true }
+sanctum-utils = { workspace = true }
+sanctum-onchain-utils = { workspace = true }
+sanctum-token-ratio = { workspace = true }
+sol_value_calculator_interface = { workspace = true }
 solana-program = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]
-flat_fee_interface = { path = "../../generated/pricing-programs/flat_fee_interface" }
-flat-fee = { path = "../pricing-programs/flat-fee", features = ["no-entrypoint"] }
-flat-fee-lib = { path = "../../libs/pricing-programs/flat-fee-lib" }
-flat-fee-test-utils = { path = "../../libs/pricing-programs/flat-fee-test-utils" }
-generic_pool_calculator_interface = { path = "../../generated/sol-value-calculator-programs/generic_pool_calculator_interface" }
-generic-pool-calculator-test-utils = { path = "../../libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
-lido-calculator = { path = "../sol-value-calculator-programs/lido-calculator", features = ["no-entrypoint"] }
-lido-calculator-lib = { path = "../../libs/sol-value-calculator-programs/lido-calculator-lib" }
-lido-keys = { path = "../../keys/lido-keys" }
-marinade-calculator = { path = "../sol-value-calculator-programs/marinade-calculator", features = ["no-entrypoint"] }
-marinade-calculator-lib = { path = "../../libs/sol-value-calculator-programs/marinade-calculator-lib" }
-marinade-keys = { path = "../../keys/marinade-keys" }
-no-fee-pricing-program = { path = "../pricing-programs/no-fee-pricing-program", features = ["no-entrypoint"] }
-s-controller-lib = { path = "../../libs/s-controller-lib", features = ["testing"] }
+flat_fee_interface = { workspace = true }
+flat-fee = { workspace = true, features = ["no-entrypoint"] }
+flat-fee-lib = { workspace = true }
+flat-fee-test-utils = { workspace = true }
+generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-test-utils = { workspace = true }
+lido-calculator = { workspace = true, features = ["no-entrypoint"] }
+lido-calculator-lib = { workspace = true }
+lido-keys = { workspace = true }
+marinade-calculator = { workspace = true, features = ["no-entrypoint"] }
+marinade-calculator-lib = { workspace = true }
+marinade-keys = { workspace = true }
+no-fee-pricing-program = { workspace = true, features = ["no-entrypoint"] }
+s-controller-lib = { workspace = true, features = ["testing"] }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
-spl-calculator = { path = "../sol-value-calculator-programs/spl-calculator", features = ["no-entrypoint"] }
-spl-calculator-lib = { path = "../../libs/sol-value-calculator-programs/spl-calculator-lib" }
+spl-calculator = { workspace = true, features = ["no-entrypoint"] }
+spl-calculator-lib = { workspace = true }
 spl-pod = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
-test-utils = { path = "../../test-utils" }
+test-utils = { workspace = true }
 tokio = { workspace = true }
-wsol-calculator = { path = "../sol-value-calculator-programs/wsol-calculator", features = ["no-entrypoint"] }
-wsol-calculator-lib = { path = "../../libs/sol-value-calculator-programs/wsol-calculator-lib" }
+wsol-calculator = { workspace = true, features = ["no-entrypoint"] }
+wsol-calculator-lib = { workspace = true }
