@@ -1,5 +1,6 @@
 use generic_pool_calculator_interface::init_ix;
 use generic_pool_calculator_lib::{account_resolvers::InitFreeArgs, utils::try_calculator_state};
+use sanctum_solana_test_utils::{assert_built_in_prog_err, ExtendedBanksClient};
 use solana_program::{
     hash::Hash,
     system_instruction::{self, SystemError},
@@ -8,7 +9,6 @@ use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 use mock_calculator_program::MockCalculatorProgram;
-use test_utils::{assert_built_in_prog_err, banks_client_get_account};
 
 mod mock_calculator_program {
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
@@ -64,8 +64,9 @@ async fn exec_init_success(banks_client: &mut BanksClient, payer: &Keypair, last
     tx.sign(&[payer], last_blockhash);
 
     assert!(banks_client.process_transaction(tx).await.is_ok());
-    let state_account =
-        banks_client_get_account(banks_client, mock_calculator_program::STATE_ID).await;
+    let state_account = banks_client
+        .get_account_unwrapped(mock_calculator_program::STATE_ID)
+        .await;
 
     let state_bytes = state_account.data;
     let calc_state = try_calculator_state(&state_bytes).unwrap();

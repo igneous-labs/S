@@ -8,6 +8,10 @@ use s_controller_lib::{
     EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcAccounts,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxFullArgs, U8Bool,
 };
+use sanctum_solana_test_utils::{
+    assert_custom_err, assert_program_error, test_fixtures_dir, token::MockTokenAccountArgs,
+    ExtendedBanksClient,
+};
 use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::TransferKeys};
 use solana_program::{
     clock::Clock, instruction::Instruction, program_error::ProgramError, pubkey::Pubkey,
@@ -21,10 +25,7 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
-use test_utils::{
-    assert_custom_err, assert_program_error, banks_client_get_account, jito_stake_pool, jitosol,
-    test_fixtures_dir, MockTokenAccountArgs, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
-};
+use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::*;
 
@@ -145,22 +146,16 @@ async fn rebalance_basic() {
         lp_token_supply: 0,
     });
 
-    let withdraw_jitosol_to_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: mock_auth_kp.pubkey(),
-            amount: 0,
-        },
-    );
-    let donate_msol_from_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: msol::ID,
-            authority: mock_auth_kp.pubkey(),
-            amount: MSOL_DONATE_AMT,
-        },
-    );
+    let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: 0,
+    });
+    let donate_msol_from_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: MSOL_DONATE_AMT,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -174,10 +169,11 @@ async fn rebalance_basic() {
         ..
     } = ctx;
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
 
     let ixs = create_rebalance_donate_ixs(CreateRebalanceDonateIxsArgs {
         jito_stake_pool_acc,
@@ -195,12 +191,12 @@ async fn rebalance_basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
     assert!(U8Bool(pool_state.is_rebalancing).is_false());
     assert!(pool_state.total_sol_value >= JITOSOL_START_SOL_VALUE + MSOL_START_SOL_VALUE);
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
     for lst_state in lst_state_list {
         if lst_state.mint == jitosol::ID {
@@ -231,14 +227,11 @@ async fn rebalance_fail_no_end() {
         lp_token_supply: 0,
     });
 
-    let withdraw_jitosol_to_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: mock_auth_kp.pubkey(),
-            amount: 0,
-        },
-    );
+    let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: 0,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -252,10 +245,11 @@ async fn rebalance_fail_no_end() {
         ..
     } = ctx;
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
 
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
         spl_stake_pool: KeyedAccount {
@@ -334,22 +328,16 @@ async fn rebalance_fail_unauthorized() {
         lp_token_supply: 0,
     });
 
-    let withdraw_jitosol_to_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: unauthorized.pubkey(),
-            amount: 0,
-        },
-    );
-    let donate_msol_from_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: msol::ID,
-            authority: unauthorized.pubkey(),
-            amount: 500_000_000,
-        },
-    );
+    let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: unauthorized.pubkey(),
+        amount: 0,
+    });
+    let donate_msol_from_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: unauthorized.pubkey(),
+        amount: 500_000_000,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -363,10 +351,11 @@ async fn rebalance_fail_unauthorized() {
         ..
     } = ctx;
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
 
     let mut ixs = create_rebalance_donate_ixs(CreateRebalanceDonateIxsArgs {
         jito_stake_pool_acc,
@@ -410,22 +399,16 @@ async fn rebalance_fail_not_enough_sol_value_returned() {
         lp_token_supply: 0,
     });
 
-    let withdraw_jitosol_to_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: mock_auth_kp.pubkey(),
-            amount: 0,
-        },
-    );
-    let donate_msol_from_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: msol::ID,
-            authority: mock_auth_kp.pubkey(),
-            amount: TINY_MSOL_DONATE_AMT,
-        },
-    );
+    let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: 0,
+    });
+    let donate_msol_from_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: TINY_MSOL_DONATE_AMT,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -439,10 +422,11 @@ async fn rebalance_fail_not_enough_sol_value_returned() {
         ..
     } = ctx;
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
 
     let ixs = create_rebalance_donate_ixs(CreateRebalanceDonateIxsArgs {
         jito_stake_pool_acc,

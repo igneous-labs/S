@@ -1,6 +1,6 @@
 use flat_fee_interface::initialize_ix;
 use flat_fee_lib::{account_resolvers::InitializeFreeArgs, utils::try_program_state};
-use flat_fee_test_utils::{banks_client_get_flat_fee_program_state, DEFAULT_PROGRAM_STATE};
+use flat_fee_test_utils::{FlatFeePricingProgramTestBanksClient, DEFAULT_PROGRAM_STATE};
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signer::Signer, transaction::Transaction};
 
@@ -28,7 +28,7 @@ async fn initialize_basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
     let state = try_program_state(&state_acc.data).unwrap();
     assert_eq!(*state, DEFAULT_PROGRAM_STATE);
 }

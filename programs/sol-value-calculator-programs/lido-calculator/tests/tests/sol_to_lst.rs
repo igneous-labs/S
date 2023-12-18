@@ -2,16 +2,17 @@ use generic_pool_calculator_interface::{SolToLstIxArgs, SolToLstKeys};
 use lido_calculator_lib::{
     lido_sol_to_lst_ix, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
+use sanctum_token_ratio::{U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN};
 use solana_program::clock::Clock;
 use solana_program_test::ProgramTestContext;
-use test_utils::{exec_verify_u64_le_return_data, LIDO_STATE_LAST_UPDATE_EPOCH};
+use test_utils::{BorshReturnDataBanksClient, LIDO_STATE_LAST_UPDATE_EPOCH};
 
 use crate::common::lido_normal_program_test;
 
 #[tokio::test]
 async fn basic() {
     const LAMPORTS_AMOUNT: u64 = 1_147_696_330;
-    const EXPECTED_LST_AMOUNT: u64 = 1_000_000_000;
+    const EXPECTED_LST_RANGE: U64ValueRange = U64ValueRange::single(1_000_000_000);
 
     let program_test = lido_normal_program_test();
 
@@ -40,12 +41,12 @@ async fn basic() {
     )
     .unwrap();
 
-    exec_verify_u64_le_return_data(
-        &mut banks_client,
-        &payer,
-        last_blockhash,
-        ix,
-        EXPECTED_LST_AMOUNT,
-    )
-    .await;
+    banks_client
+        .exec_verify_borsh_return_data::<U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN>(
+            &payer,
+            last_blockhash,
+            ix,
+            EXPECTED_LST_RANGE,
+        )
+        .await;
 }

@@ -5,11 +5,14 @@ use s_controller_lib::{
     program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstPdaAtaKeys,
 };
+use sanctum_solana_test_utils::{
+    test_fixtures_dir, ExtendedBanksClient, ExtendedProgramTest, IntoAccount,
+};
 use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::{banks_client_get_account, jitosol, test_fixtures_dir, AddAccount};
+use test_utils::jitosol;
 
 use crate::common::*;
 
@@ -39,7 +42,7 @@ async fn basic_add_two() {
     let mut program_test = program_test
         .add_test_fixtures_account("jitosol-mint.json")
         .add_test_fixtures_account("msol-mint.json");
-    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_account.clone(),
@@ -49,7 +52,7 @@ async fn basic_add_two() {
 
     // Add jitoSOL
 
-    let jitosol_mint_acc = banks_client_get_account(&mut banks_client, jitosol::ID).await;
+    let jitosol_mint_acc = banks_client.get_account_unwrapped(jitosol::ID).await;
     let (keys, _bumps) = AddLstFreeArgs {
         payer: payer.pubkey(),
         sol_value_calculator: spl_calculator_lib::program::ID,
@@ -70,7 +73,7 @@ async fn basic_add_two() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
     assert_eq!(lst_state_list.len(), 1);
     verify_lst_added_success(
@@ -87,7 +90,7 @@ async fn basic_add_two() {
 
     // Add mSOL
 
-    let msol_mint_acc = banks_client_get_account(&mut banks_client, msol::ID).await;
+    let msol_mint_acc = banks_client.get_account_unwrapped(msol::ID).await;
     let (keys, _bumps) = AddLstFreeArgs {
         payer: payer.pubkey(),
         sol_value_calculator: marinade_calculator_lib::program::ID,
@@ -108,7 +111,7 @@ async fn basic_add_two() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
     assert_eq!(lst_state_list.len(), 2);
     verify_lst_added_success(

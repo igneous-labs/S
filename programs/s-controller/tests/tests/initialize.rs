@@ -4,6 +4,9 @@ use s_controller_lib::{
     CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS, DEFAULT_PRICING_PROGRAM,
     DEFAULT_TRADING_PROTOCOL_FEE_BPS,
 };
+use sanctum_solana_test_utils::{
+    assert_built_in_prog_err, assert_program_error, test_fixtures_dir, ExtendedBanksClient,
+};
 use solana_program::{
     program_error::ProgramError,
     program_option::COption,
@@ -14,9 +17,6 @@ use solana_program::{
 use solana_program_test::{processor, ProgramTest};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use spl_token::{native_mint, state::Mint};
-use test_utils::{
-    assert_built_in_prog_err, assert_program_error, banks_client_get_account, test_fixtures_dir,
-};
 
 use crate::common::*;
 
@@ -30,10 +30,10 @@ fn setup(lp_mint_intial_auth: Pubkey) -> (ProgramTest, Pubkey) {
         s_controller_lib::program::ID,
         processor!(s_controller::entrypoint::process_instruction),
     );
-    program_test.add_account(
-        lp_token_mint_addr,
-        mock_lp_mint_to_init(lp_mint_intial_auth),
-    );
+    let program_test = program_test.add_mock_lp_mint_to_init(MockLpMintToInitArgs {
+        initial_authority: lp_mint_intial_auth,
+        addr: lp_token_mint_addr,
+    });
     (program_test, lp_token_mint_addr)
 }
 
@@ -60,7 +60,7 @@ async fn initialize_basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
     assert_eq!(
         *pool_state,
@@ -80,7 +80,7 @@ async fn initialize_basic() {
         }
     );
 
-    let lp_token_mint_acc = banks_client_get_account(&mut banks_client, lp_token_mint_addr).await;
+    let lp_token_mint_acc = banks_client.get_account_unwrapped(lp_token_mint_addr).await;
     let lp_token_mint = Mint::unpack(&lp_token_mint_acc.data).unwrap();
     assert_eq!(
         lp_token_mint,

@@ -6,10 +6,10 @@ use flat_fee_lib::{
     utils::try_fee_account,
 };
 use flat_fee_test_utils::MockFeeAccountArgs;
+use sanctum_solana_test_utils::{assert_custom_err, assert_program_error, ExtendedBanksClient};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::{assert_custom_err, assert_program_error, banks_client_get_account};
 
 use crate::common::*;
 
@@ -36,7 +36,7 @@ async fn set_lst_fee_basic() {
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+    let state_acc = banks_client.get_account_unwrapped(STATE_ID).await;
     let ix = set_lst_fee_ix(
         SetLstFeeByMintFreeArgs {
             lst_mint,
@@ -89,7 +89,7 @@ async fn set_lst_fee_fail_invalid_fee() {
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+    let state_acc = banks_client.get_account_unwrapped(STATE_ID).await;
     let keyed_state_acc = KeyedAccount {
         pubkey: STATE_ID,
         account: state_acc,
@@ -119,7 +119,7 @@ async fn set_lst_fee_fail_invalid_fee() {
 
         assert_custom_err(err, FlatFeeError::SignedFeeOutOfBound);
 
-        let fee_account_acc = banks_client_get_account(&mut banks_client, fee_account_pk).await;
+        let fee_account_acc = banks_client.get_account_unwrapped(fee_account_pk).await;
         let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
 
         assert_ne!(fee_account.input_fee_bps, bad_fee_args.input_fee_bps);
@@ -159,7 +159,7 @@ async fn set_lst_fee_fail_unauthorized() {
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+    let state_acc = banks_client.get_account_unwrapped(STATE_ID).await;
     let mut keys = SetLstFeeByMintFreeArgs {
         lst_mint,
         state_acc: KeyedAccount {
@@ -189,7 +189,7 @@ async fn set_lst_fee_fail_unauthorized() {
 
     let (fee_account_pk, _bump) =
         FeeAccountFindPdaArgs { lst_mint }.get_fee_account_address_and_bump_seed();
-    let fee_account_acc = banks_client_get_account(&mut banks_client, fee_account_pk).await;
+    let fee_account_acc = banks_client.get_account_unwrapped(fee_account_pk).await;
     let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
 
     assert_ne!(fee_account.input_fee_bps, FEE_ARGS.input_fee_bps);
@@ -219,7 +219,7 @@ async fn set_lst_fee_fail_fee_account_not_exists() {
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let state_acc = banks_client_get_account(&mut banks_client, STATE_ID).await;
+    let state_acc = banks_client.get_account_unwrapped(STATE_ID).await;
     let ix = set_lst_fee_ix(
         SetLstFeeByMintFreeArgs {
             lst_mint,

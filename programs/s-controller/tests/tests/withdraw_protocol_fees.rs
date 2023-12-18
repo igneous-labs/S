@@ -4,6 +4,11 @@ use s_controller_lib::{
     find_protocol_fee_accumulator_address, program::POOL_STATE_ID, FindLstPdaAtaKeys,
     WithdrawProtocolFeesFreeArgs,
 };
+use sanctum_solana_test_utils::{
+    test_fixtures_dir,
+    token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
+    ExtendedBanksClient,
+};
 use sanctum_utils::token::{token_account_balance, token_account_mint};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
@@ -11,9 +16,6 @@ use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Signer},
     transaction::Transaction,
-};
-use test_utils::{
-    banks_client_get_account, mock_token_account, test_fixtures_dir, MockTokenAccountArgs,
 };
 
 use crate::common::*;
@@ -29,7 +31,7 @@ async fn basic_withdraw_protocol_fees() {
 
     let auth_msol_acc_addr = Pubkey::new_unique();
 
-    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
         jitosol_sol_value: 0,
         msol_sol_value: 0,
         jitosol_reserves: 0,
@@ -38,21 +40,21 @@ async fn basic_withdraw_protocol_fees() {
         msol_protocol_fee_accumulator: MSOL_ACCUMULATED_FEES,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
-    program_test.add_account(
+    })
+    .add_tokenkeg_account_from_args(
         auth_msol_acc_addr,
-        mock_token_account(MockTokenAccountArgs {
+        MockTokenAccountArgs {
             mint: msol::ID,
             authority: mock_auth_kp.pubkey(),
             amount: MSOL_DEFAULT_AMOUNT,
-        }),
+        },
     );
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
 
-    let msol_account = banks_client_get_account(&mut banks_client, auth_msol_acc_addr).await;
+    let msol_account = banks_client.get_account_unwrapped(auth_msol_acc_addr).await;
 
     // Withdraw protocol fees
     let ix = withdraw_protocol_fees_ix(
@@ -86,14 +88,15 @@ async fn basic_withdraw_protocol_fees() {
     let (protocol_fee_accumulator, _protocol_fee_accumulator_bump) =
         find_protocol_fee_accumulator_address(find_pda_keys);
 
-    let protocol_fee_accumulator_acc =
-        banks_client_get_account(&mut banks_client, protocol_fee_accumulator).await;
+    let protocol_fee_accumulator_acc = banks_client
+        .get_account_unwrapped(protocol_fee_accumulator)
+        .await;
     let protocol_fee_accumulator_balance =
         token_account_balance(protocol_fee_accumulator_acc).unwrap();
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let msol_account = banks_client_get_account(&mut banks_client, auth_msol_acc_addr).await;
+    let msol_account = banks_client.get_account_unwrapped(auth_msol_acc_addr).await;
     assert_eq!(
         token_account_balance(msol_account).unwrap(),
         MSOL_DEFAULT_AMOUNT + MSOL_FEES_TO_WITHDRAW

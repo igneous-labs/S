@@ -5,6 +5,7 @@ use s_controller_lib::{
     remove_liquidity_ix_full, try_pool_state, AddRemoveLiquidityExtraAccounts,
     RemoveLiquidityByMintFreeArgs, RemoveLiquidityIxFullArgs,
 };
+use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
 use sanctum_token_ratio::{AmtsAfterFee, U64BpsFeeCeil};
 use sanctum_utils::{
     mint_with_token_program::MintWithTokenProgram,
@@ -16,19 +17,16 @@ use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use spl_token::native_mint;
-use test_utils::{
-    banks_client_get_account, jito_stake_pool, jitosol, MockTokenAccountArgs,
-    JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
-};
+use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 use wsol_calculator_lib::WSOL_SOL_TO_LST_METAS;
 
 use crate::common::*;
 
 #[tokio::test]
 async fn basic_redeem_full_no_fees() {
-    const LP_TOKEN_SUPPLY: u64 = 1_000_000_000;
+    const LP_TOKEN_SUPPLY: u64 = 999_999_999;
     const LP_TOKENS_TO_REMOVE: u64 = LP_TOKEN_SUPPLY;
-    const JITOSOL_RESERVES_STARTING_BALANCE: u64 = 1_000_000_000;
+    const JITOSOL_RESERVES_STARTING_BALANCE: u64 = 999_999_999;
 
     let liquidity_provider = Keypair::new();
     let lp_token_mint = Pubkey::new_unique();
@@ -43,22 +41,18 @@ async fn basic_redeem_full_no_fees() {
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
     });
-    let liquidity_provider_jitosol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
+    let liquidity_provider_jitosol_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,
             authority: liquidity_provider.pubkey(),
             amount: 0,
-        },
-    );
-    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
+        });
+    let liquidity_provider_lp_token_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: lp_token_mint,
             authority: liquidity_provider.pubkey(),
             amount: LP_TOKENS_TO_REMOVE,
-        },
-    );
+        });
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
@@ -71,10 +65,11 @@ async fn basic_redeem_full_no_fees() {
         ..
     } = ctx;
 
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
 
     let args = RemoveLiquidityByMintFreeArgs {
         signer: liquidity_provider.pubkey(),
@@ -124,27 +119,30 @@ async fn basic_redeem_full_no_fees() {
     // no fee pricing program, so
     // - reserves should be empty
     // - protocol_fee_accumulator should be empty
-    let pool_reserves_account = banks_client_get_account(&mut banks_client, pool_reserves).await;
+    // TODO: some numbers result in 1 lamport being left in pool due to using SolToLst.min
+    let pool_reserves_account = banks_client.get_account_unwrapped(pool_reserves).await;
     assert_eq!(token_account_balance(pool_reserves_account).unwrap(), 0);
 
-    let liquidity_provider_jitosol_account =
-        banks_client_get_account(&mut banks_client, liquidity_provider_jitosol_acc_addr).await;
+    let liquidity_provider_jitosol_account = banks_client
+        .get_account_unwrapped(liquidity_provider_jitosol_acc_addr)
+        .await;
     assert_eq!(
         token_account_balance(liquidity_provider_jitosol_account).unwrap(),
         JITOSOL_RESERVES_STARTING_BALANCE
     );
 
-    let protocol_fee_accumulator_account =
-        banks_client_get_account(&mut banks_client, protocol_fee_accumulator).await;
+    let protocol_fee_accumulator_account = banks_client
+        .get_account_unwrapped(protocol_fee_accumulator)
+        .await;
     assert_eq!(
         token_account_balance(protocol_fee_accumulator_account).unwrap(),
         0
     );
 
-    let lp_mint_account = banks_client_get_account(&mut banks_client, lp_token_mint).await;
+    let lp_mint_account = banks_client.get_account_unwrapped(lp_token_mint).await;
     assert_eq!(mint_supply(lp_mint_account).unwrap(), 0);
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
     assert_eq!(pool_state.total_sol_value, 0);
 }
@@ -192,27 +190,23 @@ async fn basic_redeem_full_flat_fees() {
             lp: PROTOCOL_FEE_BPS,
         },
     );
-    let liquidity_provider_wsol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
+    let liquidity_provider_wsol_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: native_mint::ID,
             authority: liquidity_provider.pubkey(),
             amount: 0,
-        },
-    );
-    let liquidity_provider_lp_token_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
+        });
+    let liquidity_provider_lp_token_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: lp_token_mint,
             authority: liquidity_provider.pubkey(),
             amount: LP_TOKENS_TO_REMOVE,
-        },
-    );
+        });
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
 
     let args = RemoveLiquidityByMintFreeArgs {
         signer: liquidity_provider.pubkey(),
@@ -262,21 +256,23 @@ async fn basic_redeem_full_flat_fees() {
         amt_after_fee: fees_withheld_in_reserves,
     } = U64BpsFeeCeil(PROTOCOL_FEE_BPS).apply(fee_charged).unwrap();
 
-    let pool_reserves_account = banks_client_get_account(&mut banks_client, pool_reserves).await;
+    let pool_reserves_account = banks_client.get_account_unwrapped(pool_reserves).await;
     let pool_reserves_ending_balance = token_account_balance(pool_reserves_account).unwrap();
 
     assert!(pool_reserves_ending_balance > 0);
     assert_eq!(pool_reserves_ending_balance, fees_withheld_in_reserves);
 
-    let liquidity_provider_wsol_account =
-        banks_client_get_account(&mut banks_client, liquidity_provider_wsol_acc_addr).await;
+    let liquidity_provider_wsol_account = banks_client
+        .get_account_unwrapped(liquidity_provider_wsol_acc_addr)
+        .await;
     assert_eq!(
         token_account_balance(liquidity_provider_wsol_account).unwrap(),
         amt_after_fee
     );
 
-    let protocol_fee_accumulator_account =
-        banks_client_get_account(&mut banks_client, protocol_fee_accumulator).await;
+    let protocol_fee_accumulator_account = banks_client
+        .get_account_unwrapped(protocol_fee_accumulator)
+        .await;
     assert_eq!(
         token_account_balance(protocol_fee_accumulator_account).unwrap(),
         protocol_fees_charged

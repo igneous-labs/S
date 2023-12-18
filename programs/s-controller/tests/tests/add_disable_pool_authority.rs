@@ -3,6 +3,7 @@ use s_controller_lib::{
     program::POOL_STATE_ID, try_disable_pool_authority_list, try_match_element_in_list,
     AddDisablePoolAuthorityFreeArgs,
 };
+use sanctum_solana_test_utils::{test_fixtures_dir, IntoAccount};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
@@ -10,7 +11,6 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::test_fixtures_dir;
 
 use crate::common::*;
 
@@ -27,7 +27,7 @@ async fn basic_add_two() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_account.clone(),
@@ -56,8 +56,7 @@ async fn basic_add_two() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let disable_pool_authority_list_acc =
-            banks_client_get_disable_pool_list_acc(&mut banks_client).await;
+        let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
         let disable_pool_authority_list =
             try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
         assert_eq!(disable_pool_authority_list.len(), expected_index + 1);
@@ -91,8 +90,7 @@ async fn basic_add_two() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let disable_pool_authority_list_acc =
-            banks_client_get_disable_pool_list_acc(&mut banks_client).await;
+        let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
         let disable_pool_authority_list =
             try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
         assert_eq!(disable_pool_authority_list.len(), expected_index + 1);

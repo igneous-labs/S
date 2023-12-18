@@ -1,6 +1,7 @@
+use sanctum_solana_test_utils::IntoAccount;
 use solana_program_test::{processor, ProgramTest};
 
-use crate::common::pool_state_to_account;
+use crate::common::MockPoolState;
 
 use super::{jito_marinade_base_program_test, JitoMarinadeProgramTestArgs};
 
@@ -23,7 +24,7 @@ pub fn jito_marinade_no_fee_program_test(args: JitoMarinadeProgramTestArgs) -> P
     pool_state.pricing_program = no_fee_pricing_program::ID;
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
-        pool_state_to_account(pool_state),
+        MockPoolState(pool_state).into_account(),
     );
     program_test
 }

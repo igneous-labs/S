@@ -25,6 +25,8 @@ solana-program = { workspace = true }
 
 [dev-dependencies]
 generic-pool-calculator-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true }
+sanctum-token-ratio = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }

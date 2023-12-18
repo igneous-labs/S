@@ -2,6 +2,7 @@ use s_controller_interface::{set_rebalance_authority_ix, SControllerError};
 use s_controller_lib::{
     try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs, SetRebalanceAuthorityFreeArgs,
 };
+use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
 use solana_sdk::{
@@ -9,7 +10,6 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{assert_custom_err, test_fixtures_dir};
 
 use crate::common::*;
 
@@ -26,7 +26,7 @@ async fn admin_set() {
     let ix = set_rebalance_authority_ix(
         KnownAuthoritySetRebalanceAuthorityFreeArgs {
             new_rebalance_authority,
-            pool_state: pool_state_to_account(DEFAULT_POOL_STATE),
+            pool_state: MockPoolState(DEFAULT_POOL_STATE).into_account(),
         }
         .resolve_pool_admin()
         .unwrap(),
@@ -54,7 +54,7 @@ async fn rebalance_authority_set() {
     let ix = set_rebalance_authority_ix(
         KnownAuthoritySetRebalanceAuthorityFreeArgs {
             new_rebalance_authority,
-            pool_state: pool_state_to_account(pool_state),
+            pool_state: MockPoolState(pool_state).into_account(),
         }
         .resolve_current_rebalance_authority()
         .unwrap(),
@@ -98,7 +98,7 @@ async fn verify_new_rebalance_authority(
     banks_client: &mut BanksClient,
     expected_new_rebalance_authority: Pubkey,
 ) {
-    let pool_state_account = banks_client_get_pool_state_acc(banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
     assert_eq!(
         pool_state.rebalance_authority,

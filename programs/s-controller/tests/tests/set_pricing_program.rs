@@ -3,6 +3,7 @@ use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
 
+use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir, IntoAccount};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -11,7 +12,6 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{assert_program_error, test_fixtures_dir};
 
 use crate::common::*;
 
@@ -28,7 +28,7 @@ async fn basic() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_account.clone(),
@@ -57,7 +57,7 @@ async fn basic() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+        let pool_state_acc = banks_client.get_pool_state_acc().await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
 
         assert_eq!(pool_state.pricing_program, TEST_PRICING_PROGRAM_SUCCESS);
@@ -89,7 +89,7 @@ async fn basic() {
 
         let err = banks_client.process_transaction(tx).await.unwrap_err();
 
-        let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+        let pool_state_acc = banks_client.get_pool_state_acc().await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
 
         assert_program_error(err, ProgramError::InvalidArgument);

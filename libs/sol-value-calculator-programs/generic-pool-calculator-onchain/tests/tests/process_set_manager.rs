@@ -3,15 +3,15 @@ use generic_pool_calculator_lib::{
     account_resolvers::SetManagerFreeArgs, utils::try_calculator_state,
 };
 use generic_pool_calculator_test_utils::{
-    mock_calculator_state_account, MockCalculatorStateAccountArgs,
+    GenericPoolCalculatorProgramTest, MockCalculatorStateAccountArgs,
 };
+use sanctum_solana_test_utils::{assert_program_error, ExtendedBanksClient};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 use mock_calculator_program::MockCalculatorProgram;
-use test_utils::{assert_program_error, banks_client_get_account};
 
 mod mock_calculator_program {
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
@@ -54,18 +54,17 @@ fn mock_prog_program_test(manager: Pubkey) -> ProgramTest {
         mock_calculator_program::ID,
         processor!(mock_calculator_program::process_instruction),
     );
-    let mock_state = mock_calculator_state_account(MockCalculatorStateAccountArgs {
+    program_test.add_mock_calculator_state(MockCalculatorStateAccountArgs {
         manager,
         last_upgrade_slot: Default::default(),
         owner: mock_calculator_program::ID,
-    });
-    program_test.add_account(mock_calculator_program::STATE_ID, mock_state);
-    program_test
+    })
 }
 
 async fn verify_correct_manager(banks_client: &mut BanksClient, expected_manager: Pubkey) {
-    let state_account =
-        banks_client_get_account(banks_client, mock_calculator_program::STATE_ID).await;
+    let state_account = banks_client
+        .get_account_unwrapped(mock_calculator_program::STATE_ID)
+        .await;
     let state_bytes = state_account.data;
     let calc_state = try_calculator_state(&state_bytes).unwrap();
     assert_eq!(calc_state.manager, expected_manager);
@@ -79,8 +78,9 @@ async fn set_manager_basic() {
     let program_test = mock_prog_program_test(manager.pubkey());
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let mock_state =
-        banks_client_get_account(&mut banks_client, mock_calculator_program::STATE_ID).await;
+    let mock_state = banks_client
+        .get_account_unwrapped(mock_calculator_program::STATE_ID)
+        .await;
     verify_correct_manager(&mut banks_client, manager.pubkey()).await;
 
     let free_args = SetManagerFreeArgs {

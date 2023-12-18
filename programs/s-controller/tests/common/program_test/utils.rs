@@ -1,103 +1,117 @@
+use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use generic_pool_calculator_test_utils::{
-    program_test_add_mock_calculator_state, ProgramTestAddMockCalculatorStateArgs,
+    GenericPoolCalculatorProgramTest, MockCalculatorStateAccountArgs,
 };
 use lido_calculator_lib::LidoSolValCalc;
 use marinade_calculator_lib::MarinadeSolValCalc;
+use sanctum_solana_test_utils::{
+    token::{tokenkeg::mock_tokenkeg_account, MockTokenAccountArgs},
+    ExtendedProgramTest, IntoAccount,
+};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use spl_calculator_lib::SplSolValCalc;
 use test_utils::{
-    mock_token_account, AddAccount, MockTokenAccountArgs, LIDO_PROG_LAST_UPDATED_SLOT,
-    MARINADE_PROG_LAST_UPDATED_SLOT, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
+    LIDO_PROG_LAST_UPDATED_SLOT, MARINADE_PROG_LAST_UPDATED_SLOT,
+    SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
 };
 
-/// Adds the spl sol value calculator program, a mock calculator state
-/// and the spl stake pool program to a ProgramTest
-pub fn add_spl_progs(mut program_test: ProgramTest) -> ProgramTest {
-    // name must match <name>.so filename
-    program_test.add_program(
-        "spl_calculator",
-        spl_calculator_lib::program::ID,
-        processor!(spl_calculator::entrypoint::process_instruction),
-    );
-    program_test_add_mock_calculator_state::<SplSolValCalc>(
-        ProgramTestAddMockCalculatorStateArgs {
-            program_test: &mut program_test,
+pub trait AddSplProgramTest {
+    fn add_spl_progs(self) -> Self;
+
+    fn add_jito_stake_pool(self) -> Self;
+}
+
+impl AddSplProgramTest for ProgramTest {
+    fn add_spl_progs(mut self) -> Self {
+        // name must match <name>.so filename
+        self.add_program(
+            "spl_calculator",
+            spl_calculator_lib::program::ID,
+            processor!(spl_calculator::entrypoint::process_instruction),
+        );
+        self.add_mock_calculator_state(MockCalculatorStateAccountArgs {
             manager: Pubkey::default(),
             last_upgrade_slot: SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
-        },
-    );
-    program_test
+            owner: SplSolValCalc::ID,
+        })
         .add_test_fixtures_account("spl-stake-pool-prog.json")
         .add_test_fixtures_account("spl-stake-pool-prog-data.json")
+    }
+
+    fn add_jito_stake_pool(self) -> Self {
+        self.add_test_fixtures_account("jito-stake-pool.json")
+            .add_test_fixtures_account("jitosol-mint.json")
+    }
 }
 
-/// Adds the marinade sol value calculator program, a mock calculator state
-/// and the marinade program to a ProgramTest
-pub fn add_marinade_progs(mut program_test: ProgramTest) -> ProgramTest {
-    // name must match <name>.so filename
-    program_test.add_program(
-        "marinade_calculator",
-        marinade_calculator_lib::program::ID,
-        processor!(marinade_calculator::entrypoint::process_instruction),
-    );
-    program_test_add_mock_calculator_state::<MarinadeSolValCalc>(
-        ProgramTestAddMockCalculatorStateArgs {
-            program_test: &mut program_test,
+pub trait AddMarinadeProgramTest {
+    fn add_marinade_progs(self) -> Self;
+
+    fn add_marinade_stake_pool(self) -> Self;
+}
+
+impl AddMarinadeProgramTest for ProgramTest {
+    fn add_marinade_progs(mut self) -> Self {
+        // name must match <name>.so filename
+        self.add_program(
+            "marinade_calculator",
+            marinade_calculator_lib::program::ID,
+            processor!(marinade_calculator::entrypoint::process_instruction),
+        );
+        self.add_mock_calculator_state(MockCalculatorStateAccountArgs {
             manager: Pubkey::default(),
             last_upgrade_slot: MARINADE_PROG_LAST_UPDATED_SLOT,
-        },
-    );
-    program_test
+            owner: MarinadeSolValCalc::ID,
+        })
         .add_test_fixtures_account("marinade-prog.json")
         .add_test_fixtures_account("marinade-prog-data.json")
+    }
+
+    fn add_marinade_stake_pool(self) -> Self {
+        self.add_test_fixtures_account("marinade-state.json")
+            .add_test_fixtures_account("msol-mint.json")
+    }
 }
 
-pub fn add_lido_progs(mut program_test: ProgramTest) -> ProgramTest {
-    // name must match <name>.so filename
-    program_test.add_program(
-        "lido_calculator",
-        lido_calculator_lib::program::ID,
-        processor!(lido_calculator::entrypoint::process_instruction),
-    );
-    program_test_add_mock_calculator_state::<LidoSolValCalc>(
-        ProgramTestAddMockCalculatorStateArgs {
-            program_test: &mut program_test,
+pub trait AddLidoProgramTest {
+    fn add_lido_progs(self) -> Self;
+
+    fn add_lido_stake_pool(self) -> Self;
+}
+
+impl AddLidoProgramTest for ProgramTest {
+    fn add_lido_progs(mut self) -> Self {
+        // name must match <name>.so filename
+        self.add_program(
+            "lido_calculator",
+            lido_calculator_lib::program::ID,
+            processor!(lido_calculator::entrypoint::process_instruction),
+        );
+        self.add_mock_calculator_state(MockCalculatorStateAccountArgs {
             manager: Pubkey::default(),
             last_upgrade_slot: LIDO_PROG_LAST_UPDATED_SLOT,
-        },
-    );
-    program_test
+            owner: LidoSolValCalc::ID,
+        })
         .add_test_fixtures_account("lido-prog.json")
         .add_test_fixtures_account("lido-prog-data.json")
+    }
+
+    fn add_lido_stake_pool(self) -> Self {
+        self.add_test_fixtures_account("lido-state.json")
+            .add_test_fixtures_account("stsol-mint.json")
+    }
 }
 
-/// Add jito stake pool and jitoSOL mint to a ProgramTest
-pub fn add_jito_stake_pool(program_test: ProgramTest) -> ProgramTest {
-    program_test
-        .add_test_fixtures_account("jito-stake-pool.json")
-        .add_test_fixtures_account("jitosol-mint.json")
+pub trait GenAndAddTokenAccountProgramTest {
+    fn gen_and_add_token_account(&mut self, args: MockTokenAccountArgs) -> Pubkey;
 }
 
-/// Add marinade state and mSOL mint to a ProgramTest
-pub fn add_marinade_stake_pool(program_test: ProgramTest) -> ProgramTest {
-    program_test
-        .add_test_fixtures_account("marinade-state.json")
-        .add_test_fixtures_account("msol-mint.json")
-}
-
-/// Add lido state and stSOL mint to a ProgramTest
-pub fn add_lido_stake_pool(program_test: ProgramTest) -> ProgramTest {
-    program_test
-        .add_test_fixtures_account("lido-state.json")
-        .add_test_fixtures_account("stsol-mint.json")
-}
-
-pub fn add_mock_token_account(
-    program_test: &mut ProgramTest,
-    token_account: MockTokenAccountArgs,
-) -> Pubkey {
-    let token_acc_addr = Pubkey::new_unique();
-    program_test.add_account(token_acc_addr, mock_token_account(token_account));
-    token_acc_addr
+impl GenAndAddTokenAccountProgramTest for ProgramTest {
+    fn gen_and_add_token_account(&mut self, args: MockTokenAccountArgs) -> Pubkey {
+        let addr = Pubkey::new_unique();
+        let token_acc = mock_tokenkeg_account(args);
+        self.add_account(addr, token_acc.into_account());
+        addr
+    }
 }

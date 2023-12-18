@@ -1,9 +1,8 @@
-use flat_fee_test_utils::{
-    fee_account_to_account, flat_fee_program_state_to_account, MockFeeAccountArgs,
-};
+use flat_fee_test_utils::{MockFeeAccount, MockFeeAccountArgs, MockProgramState};
+use sanctum_solana_test_utils::IntoAccount;
 use solana_program_test::{processor, ProgramTest};
 
-use crate::common::{pool_state_to_account, MockProtocolFeeBps};
+use crate::common::{MockPoolState, MockProtocolFeeBps};
 
 use super::{jito_marinade_base_program_test, JitoMarinadeProgramTestArgs};
 
@@ -33,15 +32,15 @@ pub fn jito_marinade_flat_fee_program_test(
     pool_state.lp_protocol_fee_bps = lp;
     program_test.add_account(
         flat_fee_lib::program::STATE_ID,
-        flat_fee_program_state_to_account(flat_fee_state),
+        MockProgramState(flat_fee_state).into_account(),
     );
     for mfa in mock_fee_accounts {
         let (acc, addr) = mfa.to_fee_account_and_addr();
-        program_test.add_account(addr, fee_account_to_account(acc));
+        program_test.add_account(addr, MockFeeAccount(acc).into_account());
     }
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
-        pool_state_to_account(pool_state),
+        MockPoolState(pool_state).into_account(),
     );
     program_test
 }

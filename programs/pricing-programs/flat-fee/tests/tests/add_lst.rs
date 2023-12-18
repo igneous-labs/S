@@ -2,11 +2,11 @@ use flat_fee_interface::{add_lst_ix, AddLstIxArgs, AddLstKeys, FlatFeeError, Pro
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, pda::FeeAccountFindPdaArgs, program::STATE_ID,
 };
-use flat_fee_test_utils::banks_client_get_flat_fee_program_state;
+use flat_fee_test_utils::FlatFeePricingProgramTestBanksClient;
+use sanctum_solana_test_utils::{assert_custom_err, assert_program_error};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::{assert_custom_err, assert_program_error};
 
 use crate::common::{normal_program_test, verify_fee_account, verify_fee_account_does_not_exist};
 
@@ -30,7 +30,7 @@ async fn add_lst_basic() {
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
 
     let free_args = AddLstFreeArgs {
         payer: payer.pubkey(),
@@ -75,7 +75,7 @@ async fn add_lst_fail_invalid_fee() {
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
     let keyed_state_acc = KeyedAccount {
         pubkey: STATE_ID,
         account: state_acc,
