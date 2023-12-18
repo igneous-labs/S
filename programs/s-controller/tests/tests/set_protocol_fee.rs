@@ -2,15 +2,14 @@ use s_controller_interface::{
     set_protocol_fee_ix, PoolState, SetProtocolFeeIxArgs, SetProtocolFeeKeys,
 };
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeFreeArgs};
+use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir, IntoAccount};
 use solana_program::program_error::ProgramError;
 use solana_program_test::BanksClient;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::{assert_program_error, test_fixtures_dir};
 
 use crate::common::{
-    banks_client_get_pool_state_acc, naked_pool_state_program_test, pool_state_to_account,
-    DEFAULT_POOL_STATE,
+    naked_pool_state_program_test, MockPoolState, PoolStateBanksClient, DEFAULT_POOL_STATE,
 };
 
 #[tokio::test]
@@ -31,7 +30,7 @@ async fn admin_set_both() {
         SetProtocolFeeFreeArgs {
             pool_state: KeyedAccount {
                 pubkey: POOL_STATE_ID,
-                account: pool_state_to_account(old_pool_state),
+                account: MockPoolState(old_pool_state).into_account(),
             },
         }
         .resolve()
@@ -81,7 +80,7 @@ async fn verify_set_correct(
         new_lp_protocol_fee_bps,
     }: SetProtocolFeeIxArgs,
 ) {
-    let new_pool_state_acc = banks_client_get_pool_state_acc(banks_client).await;
+    let new_pool_state_acc = banks_client.get_pool_state_acc().await;
     let new_pool_state = try_pool_state(&new_pool_state_acc.data).unwrap();
 
     let expected_trading_protocol_fee_bps = match new_trading_protocol_fee_bps {

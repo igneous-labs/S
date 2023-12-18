@@ -2,14 +2,15 @@ use generic_pool_calculator_interface::{LstToSolIxArgs, LstToSolKeys};
 use marinade_calculator_lib::{
     marinade_lst_to_sol_ix, MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
-use test_utils::exec_verify_u64_le_return_data;
+use sanctum_token_ratio::{U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN};
+use test_utils::BorshReturnDataBanksClient;
 
 use crate::common::marinade_normal_program_test;
 
 #[tokio::test]
 async fn basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_151_526_823;
+    const EXPECTED_LAMPORTS_RANGE: U64ValueRange = U64ValueRange::single(1_151_526_823);
 
     let program_test = marinade_normal_program_test();
 
@@ -21,12 +22,12 @@ async fn basic() {
 
     let ix = marinade_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
 
-    exec_verify_u64_le_return_data(
-        &mut banks_client,
-        &payer,
-        last_blockhash,
-        ix,
-        EXPECTED_LAMPORTS_AMOUNT,
-    )
-    .await;
+    banks_client
+        .exec_verify_borsh_return_data::<U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN>(
+            &payer,
+            last_blockhash,
+            ix,
+            EXPECTED_LAMPORTS_RANGE,
+        )
+        .await;
 }

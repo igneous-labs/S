@@ -6,16 +6,14 @@ use s_controller_lib::{
     swap_exact_in_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
     SwapByMintsFreeArgs, SwapExactInAmounts,
 };
-use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
+use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
+use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
-use test_utils::{
-    banks_client_get_account, jito_stake_pool, jitosol, MockTokenAccountArgs,
-    JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
-};
+use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::*;
 
@@ -39,22 +37,16 @@ async fn basic_swap_exact_in_no_fee() {
         lp_token_supply: 0,
     });
 
-    let swapper_jitosol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: swapper.pubkey(),
-            amount: 0,
-        },
-    );
-    let swapper_msol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: msol::ID,
-            authority: swapper.pubkey(),
-            amount: MSOL_TO_SWAP_IN,
-        },
-    );
+    let swapper_jitosol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: swapper.pubkey(),
+        amount: 0,
+    });
+    let swapper_msol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: swapper.pubkey(),
+        amount: MSOL_TO_SWAP_IN,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -68,15 +60,16 @@ async fn basic_swap_exact_in_no_fee() {
         ..
     } = ctx;
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     // hasnt synced yet, should be MSOL_POOL_RESERVES + JITOSOL_POOL_RESERVES
     let start_pool_total_sol_value = try_pool_state(&pool_state_account.data)
         .unwrap()
         .total_sol_value;
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
 
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
         spl_stake_pool: KeyedAccount {
             pubkey: jito_stake_pool::ID,
@@ -137,30 +130,33 @@ async fn basic_swap_exact_in_no_fee() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let msol_account = banks_client_get_account(&mut banks_client, swapper_msol_acc_addr).await;
+    let msol_account = banks_client
+        .get_account_unwrapped(swapper_msol_acc_addr)
+        .await;
     assert_eq!(token_account_balance(msol_account).unwrap(), 0);
 
-    let jitosol_account =
-        banks_client_get_account(&mut banks_client, swapper_jitosol_acc_addr).await;
+    let jitosol_account = banks_client
+        .get_account_unwrapped(swapper_jitosol_acc_addr)
+        .await;
     let jitosol_received = token_account_balance(jitosol_account).unwrap();
     // mSOL worth more than jitoSOL
     assert!(jitosol_received > MSOL_TO_SWAP_IN);
 
-    let msol_pool_reserves_account =
-        banks_client_get_account(&mut banks_client, msol_pool_reserves).await;
+    let msol_pool_reserves_account = banks_client.get_account_unwrapped(msol_pool_reserves).await;
     assert_eq!(
         token_account_balance(msol_pool_reserves_account).unwrap(),
         MSOL_STARTING_POOL_RESERVES + MSOL_TO_SWAP_IN
     );
 
-    let jitosol_pool_reserves_account =
-        banks_client_get_account(&mut banks_client, jitosol_pool_reserves).await;
+    let jitosol_pool_reserves_account = banks_client
+        .get_account_unwrapped(jitosol_pool_reserves)
+        .await;
     assert_eq!(
         token_account_balance(jitosol_pool_reserves_account).unwrap(),
         JITOSOL_STARTING_POOL_RESERVES - jitosol_received
     );
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     let end_pool_total_sol_value = try_pool_state(&pool_state_account.data)
         .unwrap()
         .total_sol_value;
@@ -213,22 +209,16 @@ async fn basic_swap_exact_in_flat_fee() {
         },
     );
 
-    let swapper_jitosol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: jitosol::ID,
-            authority: swapper.pubkey(),
-            amount: 0,
-        },
-    );
-    let swapper_msol_acc_addr = add_mock_token_account(
-        &mut program_test,
-        MockTokenAccountArgs {
-            mint: msol::ID,
-            authority: swapper.pubkey(),
-            amount: MSOL_TO_SWAP_IN,
-        },
-    );
+    let swapper_jitosol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: swapper.pubkey(),
+        amount: 0,
+    });
+    let swapper_msol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: swapper.pubkey(),
+        amount: MSOL_TO_SWAP_IN,
+    });
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -242,15 +232,16 @@ async fn basic_swap_exact_in_flat_fee() {
         ..
     } = ctx;
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     // hasnt synced yet, should be MSOL_POOL_RESERVES + JITOSOL_POOL_RESERVES
     let start_pool_total_sol_value = try_pool_state(&pool_state_account.data)
         .unwrap()
         .total_sol_value;
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
 
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
     let jito_sol_val_calc_accounts = SplLstSolCommonFreeArgsConst {
         spl_stake_pool: KeyedAccount {
             pubkey: jito_stake_pool::ID,
@@ -305,28 +296,32 @@ async fn basic_swap_exact_in_flat_fee() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let msol_account = banks_client_get_account(&mut banks_client, swapper_msol_acc_addr).await;
+    let msol_account = banks_client
+        .get_account_unwrapped(swapper_msol_acc_addr)
+        .await;
     assert_eq!(token_account_balance(msol_account).unwrap(), 0);
 
-    let jitosol_account =
-        banks_client_get_account(&mut banks_client, swapper_jitosol_acc_addr).await;
+    let jitosol_account = banks_client
+        .get_account_unwrapped(swapper_jitosol_acc_addr)
+        .await;
     let jitosol_received = token_account_balance(jitosol_account).unwrap();
     // mSOL worth more than jitoSOL
     assert!(jitosol_received > MSOL_TO_SWAP_IN);
 
-    let msol_pool_reserves_account =
-        banks_client_get_account(&mut banks_client, msol_pool_reserves).await;
+    let msol_pool_reserves_account = banks_client.get_account_unwrapped(msol_pool_reserves).await;
     assert_eq!(
         token_account_balance(msol_pool_reserves_account).unwrap(),
         MSOL_STARTING_POOL_RESERVES + MSOL_TO_SWAP_IN
     );
 
-    let jitosol_pool_reserves_account =
-        banks_client_get_account(&mut banks_client, jitosol_pool_reserves).await;
+    let jitosol_pool_reserves_account = banks_client
+        .get_account_unwrapped(jitosol_pool_reserves)
+        .await;
     let jitosol_pool_reserves_balance =
         token_account_balance(jitosol_pool_reserves_account).unwrap();
-    let jitosol_protocol_fee_accumulator_account =
-        banks_client_get_account(&mut banks_client, jitosol_protocol_fee_accumulator).await;
+    let jitosol_protocol_fee_accumulator_account = banks_client
+        .get_account_unwrapped(jitosol_protocol_fee_accumulator)
+        .await;
     let protocol_fee_accumulator_balance =
         token_account_balance(jitosol_protocol_fee_accumulator_account).unwrap();
     assert!(protocol_fee_accumulator_balance > 0);
@@ -337,7 +332,7 @@ async fn basic_swap_exact_in_flat_fee() {
 
     // TODO: verify fee percentages and amounts
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     let end_pool_total_sol_value = try_pool_state(&pool_state_account.data)
         .unwrap()
         .total_sol_value;

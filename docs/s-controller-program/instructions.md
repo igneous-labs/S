@@ -31,7 +31,7 @@ Permissionless crank to update and record the SOL value of one of the pool's LST
 
 - Verify pool is not rebalancing and not disabled
 - Verify index
-- CPI the LST's SOL value calculator program LstToSol
+- new SOL value = LstToSol(pool_reserves.balance).min
 - Update pool_state's sol_value by subtracting LST's old SOL value and adding newly returned SOL value
 - Record returned SOL value in pool_state
 
@@ -77,11 +77,11 @@ Swap to output LST from an exact amount of given input LST.
 - Verify input not disabled for src_lst
 - SyncSolValue for src_lst
 - SyncSolValue for dst_lst
-- in_sol_value = LstToSol(amount)
+- in_sol_value = LstToSol(amount).min
 - out_sol_value = PriceExactIn(amount, in_sol_value)
 - fee_amount_sol_value = in_sol_value - out_sol_value
 - protocol_fees_sol_value = apply protocol fees to fee_amount_sol_value
-- amount_out = SolToLst(out_sol_value)
+- amount_out = SolToLst(out_sol_value).min
 - Check amount_out >= min_amount_out
 - protocol_fees_amount = protocol_fees_sol_value \* amount_out / out_sol_value
 - Transfer amount src tokens from src_lst_acc to src_pool_reserves
@@ -101,9 +101,9 @@ Same as [SwapExactIn](#swapexactin-instruction), but:
 - max_amount_in instead of min_amount_out
 - amount is amount of dst tokens to receive
 - the core part goes like this instead:
-  - out_sol_value = LstToSol(amount)
+  - out_sol_value = LstToSol(amount).max
   - in_sol_value = PriceExactOut(amount, out_sol_value)
-  - amount_in = SolToLst(in_sol_value)
+  - amount_in = SolToLst(in_sol_value).max
 
 Note protocol fees are always levied on dst_lst
 
@@ -143,7 +143,7 @@ Add single-LST liquidity to the pool.
 - Verify pool is not rebalancing and not disabled
 - Verify input not disabled for LST
 - SyncSolValue for LST
-- sol_value_to_add = LstToSol(amount)
+- sol_value_to_add = LstToSol(amount).min
 - sol_value_to_add_after_fees = PriceLpTokensToMint(lp_tokens_sol_value)
 - lp_fees_sol_value = lp_tokens_sol_value - sol_value_to_add_after_fees
 - protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
@@ -193,7 +193,7 @@ Remove single-LST liquidity from the pool.
 - lp_tokens_sol_value_after_fees = PriceLpTokensToRedeem(lp_tokens_sol_value)
 - lp_fees_sol_value = lp_tokens_sol_value - lp_tokens_sol_value_after_fees
 - protocol_fees_sol_value = apply pool_state.lp_protocol_fee_bps to lp_fees_sol_value
-- lst_due = SolToLst(lp_tokens_sol_value_after_fees)
+- lst_due = SolToLst(lp_tokens_sol_value_after_fees).min
 - protocol_fees_lst = lst_due \* protocol_fees_sol_value / lp_tokens_sol_value_after_fees
 - Burn amount LP tokens
 - Transfer lst_due to dst_acc
@@ -428,6 +428,7 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | token_program                 | Token program                                                                  | R                | N            |
 | pool_state                    | The pool's state singleton PDA                                                 | W                | N            |
+| lst_mint                      | The LST mint                                                                   | R                | N            |
 
 ## AddDisablePoolAuthority
 

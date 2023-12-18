@@ -6,9 +6,11 @@ use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, fee_bound::verify_signed_fee_bps_bound,
     pda::FeeAccountCreatePdaArgs, program, utils::try_fee_account_mut,
 };
-use sanctum_onchain_utils::{
-    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+};
+use sanctum_system_program_lib::{
+    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
@@ -24,15 +26,14 @@ pub fn process_add_lst(accounts: &[AccountInfo], args: AddLstIxArgs) -> ProgramR
         create_pda_args,
     ) = verify_add_lst(accounts, args)?;
 
-    create_pda(
+    create_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: fee_acc,
         },
-        CreateAccountArgs {
+        CreateRentExemptAccountArgs {
             space: program::FEE_ACCOUNT_SIZE,
             owner: program::ID,
-            lamports: None,
         },
         &[create_pda_args.to_signer_seeds().as_slice()],
     )?;

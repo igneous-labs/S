@@ -3,7 +3,7 @@ use s_controller_interface::{
     SControllerError, SetRebalanceAuthorityAccounts,
 };
 use s_controller_lib::{try_pool_state, try_pool_state_mut, SetRebalanceAuthorityFreeArgs};
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{

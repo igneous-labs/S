@@ -12,7 +12,6 @@ borsh = { workspace = true }
 bytemuck = { workspace = true }
 flat_fee_interface = { workspace = true }
 sanctum-macros = { workspace = true }
-sanctum-onchain-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }

@@ -9,10 +9,10 @@ use s_controller_lib::{
     try_find_lst_mint_on_list, try_lst_state_list, try_pool_state,
     SetSolValueCalculatorByMintFreeArgs,
 };
-use sanctum_utils::mint_with_token_program::MintWithTokenProgram;
+use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir};
+use sanctum_token_lib::MintWithTokenProgram;
 use solana_program::{instruction::AccountMeta, program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
-use test_utils::{assert_program_error, test_fixtures_dir};
 
 use crate::common::*;
 
@@ -24,19 +24,19 @@ async fn basic_set_marinade() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let program_test = program_test_add_mock_lst_states(
-        jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
-            // these are overriden below
-            msol_reserves: MSOL_POOL_RESERVES,
-            msol_sol_value: MSOL_POOL_RESERVES,
-            // dont cares
-            jitosol_reserves: 0,
-            jitosol_sol_value: 0,
-            jitosol_protocol_fee_accumulator: 0,
-            msol_protocol_fee_accumulator: 0,
-            lp_token_mint: Pubkey::new_unique(),
-            lp_token_supply: 0,
-        }),
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        // these are overriden below
+        msol_reserves: MSOL_POOL_RESERVES,
+        msol_sol_value: MSOL_POOL_RESERVES,
+        // dont cares
+        jitosol_reserves: 0,
+        jitosol_sol_value: 0,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
+    })
+    .add_mock_lst_states(
         // set mSOL initial calculator to a broken pubkey
         &[MockLstStateArgs {
             mint: msol::ID,
@@ -50,7 +50,7 @@ async fn basic_set_marinade() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_account.data).unwrap();
     let (_i, lst_state) = try_find_lst_mint_on_list(msol::ID, lst_state_list).unwrap();
     assert!(lst_state.sol_value_calculator != marinade_calculator_lib::program::ID);
@@ -64,8 +64,8 @@ async fn basic_set_marinade() {
 
     let ix = set_sol_value_calculator_ix_by_mint_full(
         &SetSolValueCalculatorByMintFreeArgs {
-            pool_state: banks_client_get_pool_state_acc(&mut banks_client).await,
-            lst_state_list: banks_client_get_lst_state_list_acc(&mut banks_client).await,
+            pool_state: banks_client.get_pool_state_acc().await,
+            lst_state_list: banks_client.get_lst_state_list_acc().await,
             lst_mint: MintWithTokenProgram {
                 pubkey: msol::ID,
                 token_program: spl_token::ID,
@@ -81,7 +81,7 @@ async fn basic_set_marinade() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_account.data).unwrap();
     let (_i, lst_state) = try_find_lst_mint_on_list(msol::ID, lst_state_list).unwrap();
     assert_eq!(
@@ -91,7 +91,7 @@ async fn basic_set_marinade() {
     // should have increased to true rate after sync
     assert!(lst_state.sol_value > MSOL_POOL_RESERVES);
 
-    let pool_state_account = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_account = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
     // should have increased to true rate after sync
     assert!(pool_state.total_sol_value > MSOL_POOL_RESERVES);
@@ -120,7 +120,7 @@ async fn fail_unauthorized() {
     let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
         marinade_sol_val_calc_keys.into();
 
-    let lst_state_list_account = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
     let (lst_index, lst_state) = try_find_lst_mint_on_list(
         msol::ID,
         try_lst_state_list(&lst_state_list_account.data).unwrap(),

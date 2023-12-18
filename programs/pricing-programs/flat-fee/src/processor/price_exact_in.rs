@@ -6,7 +6,7 @@ use flat_fee_lib::{
     calc::{calculate_price_exact_in, CalculatePriceExactInArgs},
     utils::try_fee_account,
 };
-use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
+use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::set_return_data,
     program_error::ProgramError,

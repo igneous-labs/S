@@ -3,7 +3,7 @@ use flat_fee_interface::{
     SetLpWithdrawalFeeAccounts, SetLpWithdrawalFeeIxArgs, SetLpWithdrawalFeeKeys,
 };
 use flat_fee_lib::{account_resolvers::SetLpWithdrawalFeeFreeArgs, utils::try_program_state_mut};
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{

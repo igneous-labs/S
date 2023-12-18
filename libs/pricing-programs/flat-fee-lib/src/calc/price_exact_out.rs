@@ -9,6 +9,7 @@ pub struct CalculatePriceExactOut {
     pub sol_value: u64,
 }
 
+/// Returns `in_sol_value`
 pub fn calculate_price_exact_out(
     CalculatePriceExactOut {
         input_fee_bps,
@@ -28,7 +29,7 @@ pub fn calculate_price_exact_out(
         denom: BPS_DENOMINATOR,
     };
     let result = post_fee_bps
-        .pseudo_reverse(sol_value)
+        .reverse(sol_value)
         .map_err(|_e| FlatFeeError::MathError)?;
-    Ok(result)
+    Ok(result.max)
 }

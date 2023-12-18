@@ -5,7 +5,7 @@ use pricing_programs_interface::{
 };
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_pool_state;
-use sanctum_onchain_utils::utils::account_info_to_account_meta;
+use sanctum_misc_utils::{get_borsh_return_data, ToAccountMeta};
 use solana_program::{
     account_info::AccountInfo,
     instruction::{AccountMeta, Instruction},
@@ -14,8 +14,6 @@ use solana_program::{
 };
 
 use crate::account_traits::SrcDstLstMintAccountInfos;
-
-use super::get_le_u64_return_data;
 
 #[derive(Clone, Copy, Debug)]
 pub struct PricingProgramIxArgs {
@@ -115,7 +113,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
+        let (_pk, res) = get_borsh_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 
@@ -131,7 +129,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     fn create_account_metas(&self) -> Vec<AccountMeta> {
         let mut res = vec![AccountMeta::new_readonly(*self.lst_mint.key, false)];
         for r in self.remaining_accounts.iter() {
-            res.push(account_info_to_account_meta(r));
+            res.push(r.to_account_meta());
         }
         res
     }
@@ -224,7 +222,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
+        let (_pk, res) = get_borsh_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 
@@ -249,7 +247,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
             AccountMeta::new_readonly(*self.output_lst_mint.key, false),
         ];
         for r in self.remaining_accounts.iter() {
-            res.push(account_info_to_account_meta(r));
+            res.push(r.to_account_meta());
         }
         res
     }

@@ -1,16 +1,17 @@
 use generic_pool_calculator_interface::{LstToSolIxArgs, LstToSolKeys};
+use sanctum_token_ratio::{U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN};
 use solana_program::clock::Clock;
 use solana_program_test::ProgramTestContext;
 
 use spl_calculator_lib::{spl_lst_to_sol_ix, SplLstSolCommonFreeArgs, SplSolValCalc};
-use test_utils::{exec_verify_u64_le_return_data, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
+use test_utils::{BorshReturnDataBanksClient, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
 
 #[tokio::test]
 async fn jito_basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_AMOUNT: u64 = 1_072_326_756;
+    const EXPECTED_LAMPORTS_RANGE: U64ValueRange = U64ValueRange::single(1_072_326_756);
 
     let JitoNormalProgramTest {
         program_test,
@@ -40,12 +41,12 @@ async fn jito_basic() {
 
     let ix = spl_lst_to_sol_ix(accounts, LstToSolIxArgs { amount: LST_AMOUNT }).unwrap();
 
-    exec_verify_u64_le_return_data(
-        &mut banks_client,
-        &payer,
-        last_blockhash,
-        ix,
-        EXPECTED_LAMPORTS_AMOUNT,
-    )
-    .await;
+    banks_client
+        .exec_verify_borsh_return_data::<U64ValueRange, U64_VALUE_RANGE_BORSH_SER_LEN>(
+            &payer,
+            last_blockhash,
+            ix,
+            EXPECTED_LAMPORTS_RANGE,
+        )
+        .await;
 }

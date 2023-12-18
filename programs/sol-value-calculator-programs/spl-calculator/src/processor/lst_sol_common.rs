@@ -2,7 +2,7 @@ use generic_pool_calculator_interface::{lst_to_sol_verify_account_keys, LstToSol
 use generic_pool_calculator_lib::utils::{
     verify_no_stake_pool_prog_upgrade, VerifyNoStakePoolProgUpgradeArgs,
 };
-use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
+use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, program_error::ProgramError, sysvar::Sysvar,
 };

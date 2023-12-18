@@ -2,20 +2,24 @@ use flat_fee_interface::FeeAccount;
 use flat_fee_lib::{
     pda::FeeAccountFindPdaArgs, program::FEE_ACCOUNT_SIZE, utils::try_fee_account_mut,
 };
+use sanctum_solana_test_utils::{est_rent_exempt_lamports, IntoAccount};
 use solana_program::pubkey::Pubkey;
 use solana_sdk::account::Account;
-use test_utils::est_rent_exempt_lamports;
 
-pub fn fee_account_to_account(fee_account: FeeAccount) -> Account {
-    let mut data = vec![0u8; FEE_ACCOUNT_SIZE];
-    let dst = try_fee_account_mut(&mut data).unwrap();
-    *dst = fee_account;
-    Account {
-        lamports: est_rent_exempt_lamports(FEE_ACCOUNT_SIZE),
-        data,
-        owner: flat_fee_lib::program::ID,
-        executable: false,
-        rent_epoch: u64::MAX,
+pub struct MockFeeAccount(pub FeeAccount);
+
+impl IntoAccount for MockFeeAccount {
+    fn into_account(self) -> Account {
+        let mut data = vec![0u8; FEE_ACCOUNT_SIZE];
+        let dst = try_fee_account_mut(&mut data).unwrap();
+        *dst = self.0;
+        Account {
+            lamports: est_rent_exempt_lamports(FEE_ACCOUNT_SIZE),
+            data,
+            owner: flat_fee_lib::program::ID,
+            executable: false,
+            rent_epoch: u64::MAX,
+        }
     }
 }
 

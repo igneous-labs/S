@@ -1,11 +1,13 @@
+use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use generic_pool_calculator_test_utils::{
-    program_test_add_mock_calculator_state, ProgramTestAddMockCalculatorStateArgs,
+    GenericPoolCalculatorProgramTest, MockCalculatorStateAccountArgs,
 };
+use sanctum_solana_test_utils::{ExtendedProgramTest, KeyedUiAccount};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use spl_calculator_lib::SplSolValCalc;
-use test_utils::{AddAccount, KeyedUiAccount, SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT};
+use test_utils::SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT;
 
 pub struct JitoNormalProgramTest {
     pub program_test: ProgramTest,
@@ -29,14 +31,12 @@ pub fn jito_normal_program_test() -> JitoNormalProgramTest {
     let spl_stake_pool_prog = spl_stake_pool_prog_ui_acc.to_keyed_account();
     let jito_stake_pool = jito_stake_pool_ui_acc.to_keyed_account();
 
-    program_test_add_mock_calculator_state::<SplSolValCalc>(
-        ProgramTestAddMockCalculatorStateArgs {
-            program_test: &mut program_test,
+    program_test = program_test
+        .add_mock_calculator_state(MockCalculatorStateAccountArgs {
             manager: Pubkey::default(),
             last_upgrade_slot: SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
-        },
-    );
-    program_test = program_test
+            owner: SplSolValCalc::ID,
+        })
         .add_keyed_ui_account(spl_stake_pool_prog_ui_acc)
         .add_keyed_ui_account(jito_stake_pool_ui_acc)
         .add_test_fixtures_account("spl-stake-pool-prog-data.json");

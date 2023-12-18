@@ -9,11 +9,14 @@ use s_controller_lib::{
     try_lst_state_list, try_pool_state, try_pool_state_mut, try_rebalance_record_mut,
     PoolStateAccount, SrcDstLstIndexes, StartRebalanceFreeArgs, U8BoolMut, REBALANCE_RECORD_SIZE,
 };
-use sanctum_onchain_utils::{
-    system_program::{allocate_pda, assign_pda, transfer_direct_increment, TransferAccounts},
-    token_program::{transfer_tokens_signed, TransferTokensAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
+use sanctum_system_program_lib::{
+    allocate_invoke_signed, assign_invoke_signed, space_to_u64, transfer_direct_increment,
+    TransferAccounts,
+};
+use sanctum_token_lib::{transfer_checked_decimal_agnostic_invoke_signed, TransferCheckedAccounts};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
@@ -60,12 +63,13 @@ pub fn process_start_rebalance(
 
     let old_total_sol_value = accounts.pool_state.total_sol_value()?;
 
-    transfer_tokens_signed(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke_signed(
+        TransferCheckedAccounts {
             token_program: accounts.src_lst_token_program,
             from: accounts.src_pool_reserves,
             to: accounts.withdraw_to,
             authority: accounts.pool_state,
+            mint: accounts.src_lst_mint,
         },
         args.amount,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
@@ -73,12 +77,12 @@ pub fn process_start_rebalance(
 
     sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
 
-    allocate_pda(
+    allocate_invoke_signed(
         accounts.rebalance_record,
-        REBALANCE_RECORD_SIZE,
+        space_to_u64(REBALANCE_RECORD_SIZE)?,
         &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
     )?;
-    assign_pda(
+    assign_invoke_signed(
         accounts.rebalance_record,
         s_controller_lib::program::ID,
         &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],

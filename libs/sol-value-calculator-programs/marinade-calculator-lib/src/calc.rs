@@ -1,7 +1,7 @@
 use marinade_calculator_interface::{
     FeeCents, MarinadeCalculatorError, MarinadeState, StakeSystem, ValidatorSystem,
 };
-use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
+use sanctum_token_ratio::{AmtsAfterFee, MathError, U64FeeFloor, U64RatioFloor, U64ValueRange};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
@@ -75,24 +75,30 @@ impl MarinadeStateCalc {
         }
     }
 
-    pub const fn total_cooling_down(&self) -> u64 {
-        self.delayed_unstake_cooling_down + self.emergency_cooling_down
+    pub const fn total_cooling_down(&self) -> Option<u64> {
+        self.delayed_unstake_cooling_down
+            .checked_add(self.emergency_cooling_down)
     }
 
-    pub const fn total_lamports_under_control(&self) -> u64 {
-        self.total_active_balance + self.total_cooling_down() + self.available_reserve_balance
+    pub fn total_lamports_under_control(&self) -> Option<u64> {
+        let tcd = self.total_cooling_down()?;
+        self.total_active_balance
+            .checked_add(tcd)
+            .and_then(|x| x.checked_add(self.available_reserve_balance))
     }
 
-    pub const fn total_virtual_staked_lamports(&self) -> u64 {
-        self.total_lamports_under_control()
-            .saturating_sub(self.circulating_ticket_balance)
+    pub fn total_virtual_staked_lamports(&self) -> Option<u64> {
+        Some(
+            self.total_lamports_under_control()?
+                .saturating_sub(self.circulating_ticket_balance),
+        )
     }
 
-    pub const fn msol_to_sol_ratio(&self) -> U64RatioFloor<u64, u64> {
-        U64RatioFloor {
-            num: self.total_virtual_staked_lamports(),
+    pub fn msol_to_sol_ratio(&self) -> Option<U64RatioFloor<u64, u64>> {
+        Some(U64RatioFloor {
+            num: self.total_virtual_staked_lamports()?,
             denom: self.msol_supply,
-        }
+        })
     }
 
     pub const fn delayed_unstake_fee(&self) -> U64FeeFloor<u32, u32> {
@@ -104,23 +110,27 @@ impl MarinadeStateCalc {
 }
 
 impl SolValueCalculator for MarinadeStateCalc {
-    fn calc_lst_to_sol(&self, msol_amount: u64) -> Result<u64, ProgramError> {
-        let sol_value_of_msol_burned = self.msol_to_sol_ratio().apply(msol_amount)?;
+    fn calc_lst_to_sol(&self, msol_amount: u64) -> Result<U64ValueRange, ProgramError> {
+        let ratio = self.msol_to_sol_ratio().ok_or(MathError)?;
+        let sol_value_of_msol_burned = ratio.apply(msol_amount)?;
         let AmtsAfterFee {
             amt_after_fee: lamports_for_user,
             ..
         } = self.delayed_unstake_fee().apply(sol_value_of_msol_burned)?;
-        Ok(lamports_for_user)
+        Ok(U64ValueRange::single(lamports_for_user))
     }
 
-    fn calc_sol_to_lst(&self, lamports_for_user: u64) -> Result<u64, ProgramError> {
-        let sol_value_of_msol_burned = self
+    fn calc_sol_to_lst(&self, lamports_for_user: u64) -> Result<U64ValueRange, ProgramError> {
+        let U64ValueRange { min, max } = self
             .delayed_unstake_fee()
-            .pseudo_reverse(lamports_for_user)?;
-        let msol_amount = self
-            .msol_to_sol_ratio()
-            .pseudo_reverse(sol_value_of_msol_burned)?;
-        Ok(msol_amount)
+            .reverse_from_amt_after_fee(lamports_for_user)?;
+        let ratio = self.msol_to_sol_ratio().ok_or(MathError)?;
+        let U64ValueRange { min, .. } = ratio.reverse(min)?;
+        let U64ValueRange { max, .. } = ratio.reverse(max)?;
+        if min > max {
+            return Err(MathError.into());
+        }
+        Ok(U64ValueRange { min, max })
     }
 }
 
@@ -134,7 +144,7 @@ mod tests {
         fn total_cooling_down()
             (delayed_unstake_cooling_down in any::<u64>())
             (
-                emergency_cooling_down in 0..=u64::MAX - delayed_unstake_cooling_down,
+                emergency_cooling_down in 0..=(u64::MAX - delayed_unstake_cooling_down),
                 delayed_unstake_cooling_down in Just(delayed_unstake_cooling_down)
             ) -> (u64, u64) {
                 (emergency_cooling_down, delayed_unstake_cooling_down)
@@ -145,7 +155,7 @@ mod tests {
         fn total_active_cooling_down()
             ((emergency_cooling_down, delayed_unstake_cooling_down) in total_cooling_down())
             (
-                total_active_balance in 0..=u64::MAX - emergency_cooling_down - delayed_unstake_cooling_down,
+                total_active_balance in 0..=(u64::MAX - emergency_cooling_down - delayed_unstake_cooling_down),
                 emergency_cooling_down in Just(emergency_cooling_down),
                 delayed_unstake_cooling_down in Just(delayed_unstake_cooling_down)
             ) -> (u64, u64, u64) {
@@ -157,7 +167,7 @@ mod tests {
         fn total_lamports_under_control()
             ((total_active_balance, emergency_cooling_down, delayed_unstake_cooling_down) in total_active_cooling_down())
             (
-                available_reserve_balance in 0..=u64::MAX - total_active_balance - emergency_cooling_down - delayed_unstake_cooling_down,
+                available_reserve_balance in 0..=(u64::MAX - total_active_balance - emergency_cooling_down - delayed_unstake_cooling_down),
                 total_active_balance in Just(total_active_balance),
                 emergency_cooling_down in Just(emergency_cooling_down),
                 delayed_unstake_cooling_down in Just(delayed_unstake_cooling_down),
@@ -203,10 +213,19 @@ mod tests {
     proptest! {
         #[test]
         fn lst_sol_round_trip((msol_amount, calc) in marinade_state_and_lst_amount()) {
-            let lamports_for_user = calc.calc_lst_to_sol(msol_amount).unwrap();
-            let lamports_for_user_after = calc.calc_lst_to_sol(calc.calc_sol_to_lst(lamports_for_user).unwrap()).unwrap();
-            // TODO: figure out this off-by-one, is this rly just the error of at most 1?
-            prop_assert_diff_at_most!(lamports_for_user, lamports_for_user_after, 1);
+            let U64ValueRange { min: sol_amt, max: max_sol_amt } = calc.calc_lst_to_sol(msol_amount).unwrap();
+            prop_assert_eq!(sol_amt, max_sol_amt);
+            let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
+
+            // TODO: figure out this diff_at_most wide range, is this rly just errors accumulating?
+
+            let min_round_trip = calc.calc_lst_to_sol(min).unwrap().min;
+            prop_assert!(min_round_trip <= sol_amt);
+            prop_assert_diff_at_most!(min_round_trip, sol_amt, 1_000);
+
+            let max_round_trip = calc.calc_lst_to_sol(max).unwrap().min;
+            prop_assert!(sol_amt <= max_round_trip);
+            prop_assert_diff_at_most!(max_round_trip, sol_amt, 1_000);
         }
     }
 }

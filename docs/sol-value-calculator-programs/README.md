@@ -26,9 +26,10 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Return Data
 
-| Name   | Value                    | Type |
-| ------ | ------------------------ | ---- |
-| result | the calculated SOL value | u64  |
+| Name | Value                                                  | Type |
+| ---- | ------------------------------------------------------ | ---- |
+| min  | minimum value of calculated SOL value range, inclusive | u64  |
+| max  | maximum value of calculated SOL value range, inclusive | u64  |
 
 ### SolToLst
 
@@ -54,9 +55,10 @@ Should validate accounts passed in and conditions - e.g. stake pool has been upd
 
 #### Return Data
 
-| Name   | Value                     | Type |
-| ------ | ------------------------- | ---- |
-| result | the calculated LST amount | u64  |
+| Name | Value                                                   | Type |
+| ---- | ------------------------------------------------------- | ---- |
+| min  | minimum value of calculated LST amount range, inclusive | u64  |
+| max  | maximum value of calculated LST amount range, inclusive | u64  |
 
 ### LstToSol - SolToLst Accounts Symmetricality
 

@@ -5,6 +5,7 @@ use static_assertions::const_assert_eq;
 mod lst_sol_common;
 
 pub mod account_resolvers;
+pub mod pda;
 pub mod utils;
 
 pub use lst_sol_common::*;

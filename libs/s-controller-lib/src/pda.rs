@@ -1,5 +1,5 @@
 use s_controller_interface::{LstState, SControllerError};
-use sanctum_utils::associated_token::{CreateAtaAddressArgs, FindAtaAddressArgs};
+use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 
 use crate::program::{POOL_STATE_ID, PROTOCOL_FEE_ID};

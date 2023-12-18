@@ -3,7 +3,7 @@ use s_controller_interface::{
     SControllerError, SetProtocolFeeAccounts, SetProtocolFeeIxArgs,
 };
 use s_controller_lib::{try_pool_state, try_pool_state_mut, SetProtocolFeeFreeArgs};
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use sanctum_token_ratio::BPS_DENOMINATOR;

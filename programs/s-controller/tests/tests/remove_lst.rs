@@ -4,6 +4,7 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, RemoveLstFreeArgs,
 };
+use sanctum_solana_test_utils::test_fixtures_dir;
 use solana_program::{clock::Clock, hash::Hash, pubkey::Pubkey};
 use solana_program_test::{BanksClient, ProgramTestContext};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -12,7 +13,7 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{test_fixtures_dir, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
+use test_utils::JITO_STAKE_POOL_LAST_UPDATE_EPOCH;
 
 use crate::common::*;
 
@@ -87,7 +88,7 @@ async fn exec_verify_remove(
     last_blockhash: Hash,
     mock_auth_kp: &Keypair,
 ) {
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(banks_client).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
     let (lst_state, original_len) = {
         let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
         (lst_state_list[lst_index], lst_state_list.len())
@@ -104,7 +105,7 @@ async fn exec_verify_remove(
         refund_rent_to: payer.pubkey(),
         pool_state: KeyedAccount {
             pubkey: POOL_STATE_ID,
-            account: banks_client_get_pool_state_acc(banks_client).await,
+            account: banks_client.get_pool_state_acc().await,
         },
         lst_state_list: KeyedAccount {
             pubkey: LST_STATE_LIST_ID,
@@ -137,7 +138,7 @@ async fn exec_verify_remove(
             .unwrap()
             .is_none())
     } else {
-        let lst_state_list_acc = banks_client_get_lst_state_list_acc(banks_client).await;
+        let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
         let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
         assert_eq!(lst_state_list.len(), expected_new_len);
         assert!(try_find_lst_mint_on_list(lst_state.mint, lst_state_list).is_err());

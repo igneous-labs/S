@@ -19,12 +19,14 @@ generic-pool-calculator-lib = { workspace = true }
 generic-pool-calculator-onchain = { workspace = true }
 lido_calculator_interface = { workspace = true }
 lido-calculator-lib = { workspace = true }
-sanctum-onchain-utils = { workspace = true }
+sanctum-misc-utils = { workspace = true }
 sol-value-calculator-onchain = { workspace = true }
 solana-program = { workspace = true }
 
 [dev-dependencies]
 generic-pool-calculator-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true }
+sanctum-token-ratio = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }

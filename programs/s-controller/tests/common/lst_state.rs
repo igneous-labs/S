@@ -1,14 +1,17 @@
+use async_trait::async_trait;
 use s_controller_interface::LstState;
 use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address, try_lst_state_list_mut,
     FindLstPdaAtaKeys, LST_STATE_SIZE,
 };
+use sanctum_solana_test_utils::{
+    est_rent_exempt_lamports,
+    token::{tokenkeg::mock_tokenkeg_account, MockTokenAccountArgs},
+    ExtendedBanksClient, IntoAccount,
+};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::account::Account;
-use test_utils::{
-    banks_client_get_account, est_rent_exempt_lamports, mock_token_account, MockTokenAccountArgs,
-};
 
 #[derive(Clone, Copy, Debug)]
 pub struct MockLstStateArgs {
@@ -57,12 +60,12 @@ pub fn mock_lst_state(
         padding: Default::default(),
         sol_value_calculator,
     };
-    let reserves_account = mock_token_account(MockTokenAccountArgs {
+    let reserves_account = mock_tokenkeg_account(MockTokenAccountArgs {
         mint,
         authority: s_controller_lib::program::POOL_STATE_ID,
         amount: reserves_amt,
     });
-    let protocol_fee_accumulator_account = mock_token_account(MockTokenAccountArgs {
+    let protocol_fee_accumulator_account = mock_tokenkeg_account(MockTokenAccountArgs {
         mint,
         authority: s_controller_lib::program::PROTOCOL_FEE_ID,
         amount: protocol_fee_accumulator_amt,
@@ -70,9 +73,9 @@ pub fn mock_lst_state(
     MockLstStateRet {
         lst_state,
         reserves_address,
-        reserves_account,
+        reserves_account: reserves_account.into_account(),
         protocol_fee_accumulator_address,
-        protocol_fee_accumulator_account,
+        protocol_fee_accumulator_account: protocol_fee_accumulator_account.into_account(),
     }
 }
 
@@ -80,49 +83,60 @@ pub const fn lst_state_list_rent_exempt_lamports(lst_state_list: &[LstState]) ->
     est_rent_exempt_lamports(lst_state_list.len() * LST_STATE_SIZE)
 }
 
-pub fn program_test_add_lst_state_list(
-    mut program_test: ProgramTest,
-    lst_states: &[LstState],
-) -> ProgramTest {
-    let mut data = vec![0u8; lst_states.len() * LST_STATE_SIZE];
-    let lst_state_list = try_lst_state_list_mut(&mut data).unwrap();
-    lst_state_list.copy_from_slice(lst_states);
+pub trait LstStateListProgramTest {
+    fn add_lst_state_list(self, lst_states: &[LstState]) -> Self;
 
-    let account = Account {
-        data,
-        lamports: lst_state_list_rent_exempt_lamports(lst_states),
-        owner: s_controller_lib::program::ID,
-        executable: false,
-        rent_epoch: u64::MAX,
-    };
-
-    program_test.add_account(s_controller_lib::program::LST_STATE_LIST_ID, account);
-    program_test
+    fn add_mock_lst_states(self, args: &[MockLstStateArgs]) -> Self;
 }
 
-pub fn program_test_add_mock_lst_states(
-    mut program_test: ProgramTest,
-    args: &[MockLstStateArgs],
-) -> ProgramTest {
-    let mut lst_states = Vec::new();
-    for arg in args {
-        let MockLstStateRet {
-            lst_state,
-            reserves_address,
-            reserves_account,
-            protocol_fee_accumulator_address,
-            protocol_fee_accumulator_account,
-        } = mock_lst_state(*arg);
-        program_test.add_account(reserves_address, reserves_account);
-        program_test.add_account(
-            protocol_fee_accumulator_address,
-            protocol_fee_accumulator_account,
-        );
-        lst_states.push(lst_state);
+impl LstStateListProgramTest for ProgramTest {
+    fn add_lst_state_list(mut self, lst_states: &[LstState]) -> Self {
+        let mut data = vec![0u8; lst_states.len() * LST_STATE_SIZE];
+        let lst_state_list = try_lst_state_list_mut(&mut data).unwrap();
+        lst_state_list.copy_from_slice(lst_states);
+
+        let account = Account {
+            data,
+            lamports: lst_state_list_rent_exempt_lamports(lst_states),
+            owner: s_controller_lib::program::ID,
+            executable: false,
+            rent_epoch: u64::MAX,
+        };
+
+        self.add_account(s_controller_lib::program::LST_STATE_LIST_ID, account);
+        self
     }
-    program_test_add_lst_state_list(program_test, &lst_states)
+
+    fn add_mock_lst_states(mut self, args: &[MockLstStateArgs]) -> Self {
+        let mut lst_states = Vec::new();
+        for arg in args {
+            let MockLstStateRet {
+                lst_state,
+                reserves_address,
+                reserves_account,
+                protocol_fee_accumulator_address,
+                protocol_fee_accumulator_account,
+            } = mock_lst_state(*arg);
+            self.add_account(reserves_address, reserves_account);
+            self.add_account(
+                protocol_fee_accumulator_address,
+                protocol_fee_accumulator_account,
+            );
+            lst_states.push(lst_state);
+        }
+        self.add_lst_state_list(&lst_states)
+    }
 }
 
-pub async fn banks_client_get_lst_state_list_acc(banks_client: &mut BanksClient) -> Account {
-    banks_client_get_account(banks_client, s_controller_lib::program::LST_STATE_LIST_ID).await
+#[async_trait]
+pub trait LstStateListBanksClient {
+    async fn get_lst_state_list_acc(&mut self) -> Account;
+}
+
+#[async_trait]
+impl LstStateListBanksClient for BanksClient {
+    async fn get_lst_state_list_acc(&mut self) -> Account {
+        self.get_account_unwrapped(s_controller_lib::program::LST_STATE_LIST_ID)
+            .await
+    }
 }

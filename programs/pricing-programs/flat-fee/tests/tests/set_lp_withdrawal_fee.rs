@@ -4,11 +4,11 @@ use flat_fee_interface::{
 use flat_fee_lib::{
     account_resolvers::SetLpWithdrawalFeeFreeArgs, program::STATE_ID, utils::try_program_state,
 };
-use flat_fee_test_utils::banks_client_get_flat_fee_program_state;
+use flat_fee_test_utils::FlatFeePricingProgramTestBanksClient;
+use sanctum_solana_test_utils::assert_program_error;
 use solana_program::program_error::ProgramError;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::assert_program_error;
 
 use crate::common::normal_program_test;
 
@@ -26,7 +26,7 @@ async fn set_lp_withdrawal_fee_basic() {
     );
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
     let ix = set_lp_withdrawal_fee_ix(
         SetLpWithdrawalFeeFreeArgs {
             state_acc: KeyedAccount {
@@ -47,7 +47,7 @@ async fn set_lp_withdrawal_fee_basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
     let state = try_program_state(&state_acc.data).unwrap();
 
     assert_eq!(state.lp_withdrawal_fee_bps, NEW_LP_WITHDRAWAL_FEE_BPS);
@@ -85,7 +85,7 @@ async fn set_lp_withdrawal_fee_fail_unauthorized() {
 
     assert_program_error(err, ProgramError::InvalidArgument);
 
-    let state_acc = banks_client_get_flat_fee_program_state(&mut banks_client).await;
+    let state_acc = banks_client.get_flat_fee_program_state().await;
     let state = try_program_state(&state_acc.data).unwrap();
 
     assert_ne!(state.lp_withdrawal_fee_bps, NEW_LP_WITHDRAWAL_FEE_BPS);

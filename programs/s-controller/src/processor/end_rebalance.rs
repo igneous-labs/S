@@ -7,10 +7,10 @@ use s_controller_lib::{
     try_pool_state, try_pool_state_mut, try_rebalance_record, EndRebalanceFreeArgs,
     PoolStateAccount, U8Bool, U8BoolMut,
 };
-use sanctum_onchain_utils::{
-    system_program::{close_account, CloseAccountAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
+use sanctum_system_program_lib::{close_account, CloseAccountAccounts};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };

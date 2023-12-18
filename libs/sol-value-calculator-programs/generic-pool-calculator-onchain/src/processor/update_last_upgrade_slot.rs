@@ -8,7 +8,7 @@ use generic_pool_calculator_lib::{
     utils::{read_stake_pool_progdata_meta, try_calculator_state_mut},
     GenericPoolSolValCalc,
 };
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};

@@ -5,8 +5,8 @@ use solana_program_test::{processor, ProgramTest};
 use spl_token::native_mint;
 
 use crate::common::{
-    add_lido_progs, add_lido_stake_pool, mock_lp_mint, program_test_add_mock_lst_states,
-    MockLstStateArgs, DEFAULT_POOL_STATE,
+    AddLidoProgramTest, LpTokenProgramTest, LstStateListProgramTest, MockLstStateArgs,
+    DEFAULT_POOL_STATE,
 };
 
 #[derive(Clone, Copy, Default, Debug)]
@@ -46,11 +46,10 @@ pub fn lido_wsol_base_program_test(
         wsol_calculator_lib::program::ID,
         processor!(wsol_calculator::process_instruction),
     );
-    program_test = add_lido_progs(program_test);
-    program_test = add_lido_stake_pool(program_test);
-    program_test = program_test_add_mock_lst_states(
-        program_test,
-        &[
+    program_test = program_test
+        .add_lido_progs()
+        .add_lido_stake_pool()
+        .add_mock_lst_states(&[
             MockLstStateArgs {
                 mint: stsol::ID,
                 sol_value: stsol_sol_value,
@@ -67,9 +66,8 @@ pub fn lido_wsol_base_program_test(
                 token_program: spl_token::ID,
                 sol_value_calculator: wsol_calculator_lib::program::ID,
             },
-        ],
-    );
-    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_supply));
+        ])
+        .add_mock_lp_mint(lp_token_mint, lp_token_supply);
 
     let total_sol_value = stsol_sol_value + wsol_reserves;
 

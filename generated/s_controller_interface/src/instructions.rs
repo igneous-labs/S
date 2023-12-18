@@ -3474,7 +3474,7 @@ pub fn set_pricing_program_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN: usize = 6;
+pub const WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN: usize = 7;
 #[derive(Copy, Clone, Debug)]
 pub struct WithdrawProtocolFeesAccounts<'me, 'info> {
     ///The pool's protocol fee beneficiary
@@ -3489,6 +3489,8 @@ pub struct WithdrawProtocolFeesAccounts<'me, 'info> {
     pub token_program: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
+    ///The LST mint
+    pub lst_mint: &'me AccountInfo<'info>,
 }
 #[derive(Copy, Clone, Debug)]
 pub struct WithdrawProtocolFeesKeys {
@@ -3504,6 +3506,8 @@ pub struct WithdrawProtocolFeesKeys {
     pub token_program: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,
+    ///The LST mint
+    pub lst_mint: Pubkey,
 }
 impl From<WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
     fn from(accounts: WithdrawProtocolFeesAccounts) -> Self {
@@ -3514,6 +3518,7 @@ impl From<WithdrawProtocolFeesAccounts<'_, '_>> for WithdrawProtocolFeesKeys {
             protocol_fee_accumulator_auth: *accounts.protocol_fee_accumulator_auth.key,
             token_program: *accounts.token_program.key,
             pool_state: *accounts.pool_state.key,
+            lst_mint: *accounts.lst_mint.key,
         }
     }
 }
@@ -3550,6 +3555,11 @@ impl From<WithdrawProtocolFeesKeys> for [AccountMeta; WITHDRAW_PROTOCOL_FEES_IX_
                 is_signer: false,
                 is_writable: true,
             },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
+            },
         ]
     }
 }
@@ -3562,6 +3572,7 @@ impl From<[Pubkey; WITHDRAW_PROTOCOL_FEES_IX_ACCOUNTS_LEN]> for WithdrawProtocol
             protocol_fee_accumulator_auth: pubkeys[3],
             token_program: pubkeys[4],
             pool_state: pubkeys[5],
+            lst_mint: pubkeys[6],
         }
     }
 }
@@ -3576,6 +3587,7 @@ impl<'info> From<WithdrawProtocolFeesAccounts<'_, 'info>>
             accounts.protocol_fee_accumulator_auth.clone(),
             accounts.token_program.clone(),
             accounts.pool_state.clone(),
+            accounts.lst_mint.clone(),
         ]
     }
 }
@@ -3590,6 +3602,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; WITHDRAW_PROTOCOL_FEES_IX_ACCOUN
             protocol_fee_accumulator_auth: &arr[3],
             token_program: &arr[4],
             pool_state: &arr[5],
+            lst_mint: &arr[6],
         }
     }
 }
@@ -3689,6 +3702,7 @@ pub fn withdraw_protocol_fees_verify_account_keys(
         ),
         (accounts.token_program.key, &keys.token_program),
         (accounts.pool_state.key, &keys.pool_state),
+        (accounts.lst_mint.key, &keys.lst_mint),
     ] {
         if actual != expected {
             return Err((*actual, *expected));

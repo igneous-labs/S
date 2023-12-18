@@ -9,13 +9,13 @@ use s_controller_lib::{
     try_pool_state, CalcRemoveLiquidityProtocolFeesArgs, LpTokenRateArgs, PoolStateAccount,
     RemoveLiquidityFreeArgs, RemoveLiquidityIxFullArgs,
 };
-use sanctum_onchain_utils::{
-    token_program::{
-        burn_tokens, transfer_tokens_signed, BurnTokensAccounts, TransferTokensAccounts,
-    },
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::mint_supply;
+use sanctum_token_lib::{
+    burn_invoke, mint_supply, transfer_checked_decimal_agnostic_invoke_signed, BurnAccounts,
+    TransferCheckedAccounts,
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -63,7 +63,9 @@ pub fn process_remove_liquidity(
         return Err(SControllerError::PoolWouldLoseSolValue.into());
     }
 
-    let to_user_lst_amount = lst_cpi.invoke_sol_to_lst(lp_tokens_sol_value_after_fees)?;
+    let to_user_lst_amount = lst_cpi
+        .invoke_sol_to_lst(lp_tokens_sol_value_after_fees)?
+        .min;
     let to_protocol_fees_lst_amount =
         calc_remove_liquidity_protocol_fees(CalcRemoveLiquidityProtocolFeesArgs {
             lp_tokens_sol_value,
@@ -76,8 +78,8 @@ pub fn process_remove_liquidity(
         return Err(SControllerError::ZeroValue.into());
     }
 
-    burn_tokens(
-        BurnTokensAccounts {
+    burn_invoke(
+        BurnAccounts {
             mint: accounts.lp_token_mint,
             burn_from: accounts.src_lp_acc,
             burn_from_authority: accounts.signer,
@@ -86,23 +88,25 @@ pub fn process_remove_liquidity(
         lp_token_amount,
     )?;
 
-    transfer_tokens_signed(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke_signed(
+        TransferCheckedAccounts {
             to: accounts.dst_lst_acc,
             token_program: accounts.lst_token_program,
             from: accounts.pool_reserves,
             authority: accounts.pool_state,
+            mint: accounts.lst_mint,
         },
         to_user_lst_amount,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
 
-    transfer_tokens_signed(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke_signed(
+        TransferCheckedAccounts {
             to: accounts.protocol_fee_accumulator,
             token_program: accounts.lst_token_program,
             from: accounts.pool_reserves,
             authority: accounts.pool_state,
+            mint: accounts.lst_mint,
         },
         to_protocol_fees_lst_amount,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],

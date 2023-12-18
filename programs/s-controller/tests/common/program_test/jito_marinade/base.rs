@@ -5,8 +5,8 @@ use solana_program_test::{processor, ProgramTest};
 use test_utils::jitosol;
 
 use crate::common::{
-    add_jito_stake_pool, add_marinade_progs, add_marinade_stake_pool, add_spl_progs, mock_lp_mint,
-    program_test_add_mock_lst_states, MockLstStateArgs, DEFAULT_POOL_STATE,
+    AddMarinadeProgramTest, AddSplProgramTest, LpTokenProgramTest, LstStateListProgramTest,
+    MockLstStateArgs, DEFAULT_POOL_STATE,
 };
 
 #[derive(Clone, Copy, Default, Debug)]
@@ -50,13 +50,12 @@ pub fn jito_marinade_base_program_test(
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    program_test = add_spl_progs(program_test);
-    program_test = add_marinade_progs(program_test);
-    program_test = add_jito_stake_pool(program_test);
-    program_test = add_marinade_stake_pool(program_test);
-    program_test = program_test_add_mock_lst_states(
-        program_test,
-        &[
+    program_test = program_test
+        .add_spl_progs()
+        .add_marinade_progs()
+        .add_jito_stake_pool()
+        .add_marinade_stake_pool()
+        .add_mock_lst_states(&[
             MockLstStateArgs {
                 mint: jitosol::ID,
                 sol_value: jitosol_sol_value,
@@ -73,9 +72,8 @@ pub fn jito_marinade_base_program_test(
                 token_program: spl_token::ID,
                 sol_value_calculator: marinade_calculator_lib::program::ID,
             },
-        ],
-    );
-    program_test.add_account(lp_token_mint, mock_lp_mint(lp_token_supply));
+        ])
+        .add_mock_lp_mint(lp_token_mint, lp_token_supply);
 
     let total_sol_value = jitosol_sol_value + msol_sol_value;
 

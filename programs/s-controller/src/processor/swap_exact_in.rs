@@ -8,11 +8,13 @@ use s_controller_lib::{
     try_lst_state_list, try_pool_state, CalcSwapProtocolFeesArgs, PoolStateAccount,
     SrcDstLstIndexes, SrcDstLstValueCalcAccs, SwapExactInAmounts, SwapFreeArgs,
 };
-use sanctum_onchain_utils::{
-    token_program::{transfer_tokens, transfer_tokens_signed, TransferTokensAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::token_account_balance;
+use sanctum_token_lib::{
+    token_account_balance, transfer_checked_decimal_agnostic_invoke,
+    transfer_checked_decimal_agnostic_invoke_signed, TransferCheckedAccounts,
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -56,12 +58,12 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
-    let in_sol_value = src_lst_cpi.invoke_lst_to_sol(amount)?;
+    let in_sol_value = src_lst_cpi.invoke_lst_to_sol(amount)?.min;
     let out_sol_value = pricing_cpi.invoke_price_exact_in(PricingProgramIxArgs {
         amount,
         sol_value: in_sol_value,
     })?;
-    let dst_lst_out = dst_lst_cpi.invoke_sol_to_lst(out_sol_value)?;
+    let dst_lst_out = dst_lst_cpi.invoke_sol_to_lst(out_sol_value)?.min;
 
     if dst_lst_out < min_amount_out {
         return Err(SControllerError::SlippageToleranceExceeded.into());
@@ -85,31 +87,34 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
         return Err(SControllerError::NotEnoughLiquidity.into());
     }
 
-    transfer_tokens(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke(
+        TransferCheckedAccounts {
             from: accounts.src_lst_acc,
             to: accounts.src_pool_reserves,
             token_program: accounts.src_lst_token_program,
             authority: accounts.signer,
+            mint: accounts.src_lst_mint,
         },
         amount,
     )?;
-    transfer_tokens_signed(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke_signed(
+        TransferCheckedAccounts {
             from: accounts.dst_pool_reserves,
             to: accounts.protocol_fee_accumulator,
             token_program: accounts.dst_lst_token_program,
             authority: accounts.pool_state,
+            mint: accounts.dst_lst_mint,
         },
         to_protocol_fees_lst_amount,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],
     )?;
-    transfer_tokens_signed(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke_signed(
+        TransferCheckedAccounts {
             from: accounts.dst_pool_reserves,
             to: accounts.dst_lst_acc,
             token_program: accounts.dst_lst_token_program,
             authority: accounts.pool_state,
+            mint: accounts.dst_lst_mint,
         },
         dst_lst_out,
         &[&[POOL_STATE_SEED, &[POOL_STATE_BUMP]]],

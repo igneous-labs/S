@@ -2,7 +2,7 @@ use s_controller_interface::{
     set_admin_verify_account_keys, set_admin_verify_account_privileges, SetAdminAccounts,
 };
 use s_controller_lib::{try_pool_state_mut, SetAdminFreeArgs};
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{

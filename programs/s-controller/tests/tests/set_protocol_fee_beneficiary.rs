@@ -1,13 +1,13 @@
 use s_controller_interface::{set_protocol_fee_beneficiary_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
 
+use sanctum_solana_test_utils::{test_fixtures_dir, IntoAccount};
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair, Signer},
     transaction::Transaction,
 };
-use test_utils::test_fixtures_dir;
 
 use crate::common::*;
 
@@ -27,7 +27,7 @@ async fn basic_set_protocol_fee_beneficiary() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    let pool_state_acc = pool_state_to_account(DEFAULT_POOL_STATE);
+    let pool_state_acc = MockPoolState(DEFAULT_POOL_STATE).into_account();
 
     program_test.add_account(POOL_STATE_ID, pool_state_acc.clone());
 
@@ -52,7 +52,7 @@ async fn basic_set_protocol_fee_beneficiary() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
     assert_eq!(
         *pool_state,
@@ -81,7 +81,7 @@ async fn basic_set_protocol_fee_beneficiary() {
 
     banks_client.process_transaction(tx2).await.unwrap();
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
     assert_eq!(
         *pool_state,

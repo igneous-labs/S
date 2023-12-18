@@ -19,20 +19,25 @@ bytemuck = { workspace = true }
 pricing_programs_interface = { workspace = true }
 s_controller_interface = { workspace = true }
 s-controller-lib = { workspace = true }
-sanctum-utils = { workspace = true }
-sanctum-onchain-utils = { workspace = true }
+sanctum-associated-token-lib = { workspace = true }
+sanctum-misc-utils = { workspace = true }
+sanctum-token-lib = { workspace = true }
 sanctum-token-ratio = { workspace = true }
+sanctum-system-program-lib = { workspace = true }
 sol_value_calculator_interface = { workspace = true }
 solana-program = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
 
 [dev-dependencies]
+async-trait = { workspace = true }
 flat_fee_interface = { workspace = true }
 flat-fee = { workspace = true, features = ["no-entrypoint"] }
 flat-fee-lib = { workspace = true }
 flat-fee-test-utils = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-lib = { workspace = true }
 generic-pool-calculator-test-utils = { workspace = true }
 lido-calculator = { workspace = true, features = ["no-entrypoint"] }
 lido-calculator-lib = { workspace = true }
@@ -42,6 +47,7 @@ marinade-calculator-lib = { workspace = true }
 marinade-keys = { workspace = true }
 no-fee-pricing-program = { workspace = true, features = ["no-entrypoint"] }
 s-controller-lib = { workspace = true, features = ["testing"] }
+sanctum-solana-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }

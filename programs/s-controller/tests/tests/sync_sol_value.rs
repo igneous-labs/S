@@ -3,14 +3,13 @@ use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_by_mint_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
+use sanctum_solana_test_utils::ExtendedBanksClient;
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
 use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
-use test_utils::{
-    banks_client_get_account, jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
-};
+use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::*;
 
@@ -41,8 +40,8 @@ async fn basic() {
         ..
     } = ctx;
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
-    let jitosol_mint_acc = banks_client_get_account(&mut banks_client, jitosol::ID).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let jitosol_mint_acc = banks_client.get_account_unwrapped(jitosol::ID).await;
 
     let free_args = SyncSolValueByMintFreeArgs {
         lst_state_list: lst_state_list_acc,
@@ -52,8 +51,9 @@ async fn basic() {
         },
     };
 
-    let jito_stake_pool_acc =
-        banks_client_get_account(&mut banks_client, jito_stake_pool::ID).await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
     let jito_sol_val_calc_args = SplLstSolCommonFreeArgsConst {
         spl_stake_pool: KeyedAccount {
             pubkey: jito_stake_pool::ID,
@@ -81,7 +81,7 @@ async fn basic() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let lst_state_list_acc = banks_client_get_lst_state_list_acc(&mut banks_client).await;
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
     let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
     let LstState { sol_value, .. } = lst_state_list
         .iter()
@@ -89,7 +89,7 @@ async fn basic() {
         .unwrap();
     assert_eq!(*sol_value, EXPECTED_NEW_JITOSOL_SOL_VALUE);
 
-    let pool_state_acc = banks_client_get_pool_state_acc(&mut banks_client).await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
     let PoolState {
         total_sol_value, ..
     } = try_pool_state(&pool_state_acc.data).unwrap();

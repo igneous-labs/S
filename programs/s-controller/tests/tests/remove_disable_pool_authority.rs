@@ -7,6 +7,7 @@ use s_controller_lib::{
     try_disable_pool_authority_list, try_find_element_in_list,
     RemoveDisablePoolAuthorityByPubkeyFreeArgs, RemoveDisablePoolAuthorityFreeArgs,
 };
+use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -15,7 +16,6 @@ use solana_sdk::{
     signer::Signer,
     transaction::Transaction,
 };
-use test_utils::{assert_custom_err, test_fixtures_dir};
 
 use crate::common::*;
 
@@ -32,7 +32,7 @@ async fn basic() {
         processor!(s_controller::entrypoint::process_instruction),
     );
 
-    let pool_state_account = pool_state_to_account(DEFAULT_POOL_STATE);
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
     program_test.add_account(
         s_controller_lib::program::POOL_STATE_ID,
         pool_state_account.clone(),
@@ -44,13 +44,11 @@ async fn basic() {
         .iter()
         .map(|k| k.pubkey())
         .collect();
-    program_test =
-        program_test_add_disable_pool_authority_list(program_test, &disable_pool_authority_pks);
+    program_test = program_test.add_disable_pool_authority_list(&disable_pool_authority_pks);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let disable_pool_authority_list_acc =
-        banks_client_get_disable_pool_list_acc(&mut banks_client).await;
+    let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
     let disable_pool_authority_list =
         try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
 
@@ -90,8 +88,7 @@ async fn basic() {
         verify_disable_authority_removed(&mut banks_client, target_authority, before_len).await;
     }
 
-    let disable_pool_authority_list_acc =
-        banks_client_get_disable_pool_list_acc(&mut banks_client).await;
+    let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
     let disable_pool_authority_list =
         try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
     let before_len = disable_pool_authority_list.len();
@@ -181,8 +178,7 @@ async fn verify_disable_authority_removed(
         return;
     }
 
-    let disable_pool_authority_list_acc =
-        banks_client_get_disable_pool_list_acc(banks_client).await;
+    let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
     let disable_pool_authority_list =
         try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
     assert_eq!(disable_pool_authority_list.len(), list_len_before - 1);

@@ -2,10 +2,11 @@
 use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState};
 use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
+use sanctum_solana_test_utils::{assert_program_error, ExtendedBanksClient};
 use solana_program::program_error::ProgramError;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
-use test_utils::{assert_program_error, banks_client_get_account, jitosol};
+use test_utils::jitosol;
 
 use crate::common::{normal_program_test, verify_fee_account, verify_fee_account_does_not_exist};
 
@@ -32,7 +33,7 @@ async fn remove_lst_basic() {
         lst_mint: jitosol::ID,
         state_acc: KeyedAccount {
             pubkey: STATE_ID,
-            account: banks_client_get_account(&mut banks_client, STATE_ID).await,
+            account: banks_client.get_account_unwrapped(STATE_ID).await,
         },
     };
     let ix = remove_lst_ix(free_args.resolve().unwrap()).unwrap();
@@ -68,7 +69,7 @@ async fn remove_lst_fail_unauthorized() {
         lst_mint: jitosol::ID,
         state_acc: KeyedAccount {
             pubkey: STATE_ID,
-            account: banks_client_get_account(&mut banks_client, STATE_ID).await,
+            account: banks_client.get_account_unwrapped(STATE_ID).await,
         },
     }
     .resolve()

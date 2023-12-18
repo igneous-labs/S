@@ -3,19 +3,19 @@ use generic_pool_calculator_lib::{
     account_resolvers::UpdateLastUpgradeSlotFreeArgs, utils::try_calculator_state,
 };
 use generic_pool_calculator_test_utils::{
-    mock_calculator_state_account, MockCalculatorStateAccountArgs,
+    GenericPoolCalculatorProgramTest, MockCalculatorStateAccountArgs,
+};
+use sanctum_solana_test_utils::{
+    assert_program_error, ExtendedBanksClient, ExtendedProgramTest, KeyedUiAccount,
 };
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_stake_pool_keys::{spl_stake_pool_program, spl_stake_pool_program_progdata};
-use test_utils::{
-    assert_program_error, banks_client_get_account, AddAccount, KeyedUiAccount,
-    SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT,
-};
 
 use mock_calculator_program::MockCalculatorProgram;
+use test_utils::SPL_STAKE_POOL_PROG_LAST_UPDATED_SLOT;
 
 mod mock_calculator_program {
     use generic_pool_calculator_lib::GenericPoolSolValCalc;
@@ -65,19 +65,17 @@ fn mock_prog_program_test_with_spl(manager: Pubkey) -> ProgramTest {
         .add_keyed_ui_account(spl_stake_pool_prog)
         .add_test_fixtures_account("spl-stake-pool-prog-data.json");
 
-    let mock_state = mock_calculator_state_account(MockCalculatorStateAccountArgs {
+    program_test.add_mock_calculator_state(MockCalculatorStateAccountArgs {
         manager,
         last_upgrade_slot: INITIAL_LAST_UPGRADE_SLOT,
         owner: mock_calculator_program::ID,
-    });
-    program_test.add_account(mock_calculator_program::STATE_ID, mock_state);
-
-    program_test
+    })
 }
 
 async fn verify_last_upgrade_slot(banks_client: &mut BanksClient, expected_last_upgrade_slot: u64) {
-    let state_account =
-        banks_client_get_account(banks_client, mock_calculator_program::STATE_ID).await;
+    let state_account = banks_client
+        .get_account_unwrapped(mock_calculator_program::STATE_ID)
+        .await;
     let state_bytes = state_account.data;
     let calc_state = try_calculator_state(&state_bytes).unwrap();
     assert_eq!(calc_state.last_upgrade_slot, expected_last_upgrade_slot);
@@ -91,10 +89,12 @@ async fn update_last_upgrade_slot_success() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
-    let mock_state =
-        banks_client_get_account(&mut banks_client, mock_calculator_program::STATE_ID).await;
-    let spl_stake_pool_prog_acc =
-        banks_client_get_account(&mut banks_client, spl_stake_pool_program::ID).await;
+    let mock_state = banks_client
+        .get_account_unwrapped(mock_calculator_program::STATE_ID)
+        .await;
+    let spl_stake_pool_prog_acc = banks_client
+        .get_account_unwrapped(spl_stake_pool_program::ID)
+        .await;
 
     verify_last_upgrade_slot(&mut banks_client, INITIAL_LAST_UPGRADE_SLOT).await;
 

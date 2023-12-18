@@ -5,9 +5,11 @@ use generic_pool_calculator_lib::{
     account_resolvers::InitFreeArgs, utils::try_calculator_state_mut, GenericPoolSolValCalc,
     CALCULATOR_STATE_SEED, CALCULATOR_STATE_SIZE,
 };
-use sanctum_onchain_utils::{
-    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+};
+use sanctum_system_program_lib::{
+    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
 };
 use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
 
@@ -20,15 +22,14 @@ pub fn process_init_unchecked<P: GenericPoolSolValCalc>(
     }: InitAccounts,
     initial_manager: Pubkey,
 ) -> Result<(), ProgramError> {
-    create_pda(
+    create_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: state,
         },
-        CreateAccountArgs {
+        CreateRentExemptAccountArgs {
             space: CALCULATOR_STATE_SIZE,
             owner: P::ID,
-            lamports: None,
         },
         &[&[CALCULATOR_STATE_SEED, &[P::CALCULATOR_STATE_BUMP]]],
     )?;

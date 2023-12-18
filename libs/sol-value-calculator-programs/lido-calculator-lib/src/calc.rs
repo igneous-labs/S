@@ -1,5 +1,5 @@
 use lido_calculator_interface::{ExchangeRate, Lido, LidoCalculatorError};
-use sanctum_token_ratio::U64RatioFloor;
+use sanctum_token_ratio::{U64RatioFloor, U64ValueRange};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 
@@ -77,14 +77,16 @@ impl LidoCalc {
 /// - stake pool always has active and transient stake, so withdraw_source != StakeWithdrawSource::ValidatorRemoval
 /// - stake pool has been updated for this epoch
 impl SolValueCalculator for LidoCalc {
-    fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<u64, ProgramError> {
-        Ok(self.stlamports_to_lamports_ratio().apply(pool_tokens)?)
+    fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<U64ValueRange, ProgramError> {
+        Ok(U64ValueRange::single(
+            self.stlamports_to_lamports_ratio().apply(pool_tokens)?,
+        ))
     }
 
-    fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<u64, ProgramError> {
+    fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<U64ValueRange, ProgramError> {
         Ok(self
             .stlamports_to_lamports_ratio()
-            .pseudo_reverse(withdraw_lamports)?)
+            .reverse(withdraw_lamports)?)
     }
 }
 
@@ -115,9 +117,11 @@ mod tests {
     proptest! {
         #[test]
         fn lst_sol_round_trip((stsol_amt, calc) in lido_calc_and_stsol_amt()) {
-            let withdraw_lamports = calc.calc_lst_to_sol(stsol_amt).unwrap();
-            let withdraw_lamports_after = calc.calc_lst_to_sol(calc.calc_sol_to_lst(withdraw_lamports).unwrap()).unwrap();
-            prop_assert_eq!(withdraw_lamports, withdraw_lamports_after)
+            let U64ValueRange { min: sol_amt, max: max_sol_amt } = calc.calc_lst_to_sol(stsol_amt).unwrap();
+            prop_assert_eq!(sol_amt, max_sol_amt);
+            let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
+            prop_assert_eq!(calc.calc_lst_to_sol(min).unwrap().min, sol_amt);
+            prop_assert_eq!(calc.calc_lst_to_sol(max).unwrap().min, sol_amt);
         }
     }
 }

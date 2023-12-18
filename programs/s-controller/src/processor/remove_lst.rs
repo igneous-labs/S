@@ -7,11 +7,12 @@ use s_controller_lib::{
     program::{POOL_STATE_BUMP, POOL_STATE_SEED, PROTOCOL_FEE_BUMP, PROTOCOL_FEE_SEED},
     try_lst_state_list, RemoveLstFreeArgs,
 };
-use sanctum_onchain_utils::{
-    token_program::{close_token_account_signed, CloseTokenAccountAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::token_account_balance;
+use sanctum_token_lib::{
+    close_token_account_invoke_signed, token_account_balance, CloseTokenAccountAccounts,
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -20,7 +21,7 @@ use crate::list_account::{remove_from_list_pda, RemoveFromListPdaAccounts};
 
 pub fn process_remove_lst(accounts: &[AccountInfo], args: RemoveLstIxArgs) -> ProgramResult {
     let (accounts, lst_index) = verify_remove_lst(accounts, args)?;
-    close_token_account_signed(
+    close_token_account_invoke_signed(
         CloseTokenAccountAccounts {
             account_to_close: accounts.protocol_fee_accumulator,
             authority: accounts.protocol_fee_accumulator_auth,
@@ -30,7 +31,7 @@ pub fn process_remove_lst(accounts: &[AccountInfo], args: RemoveLstIxArgs) -> Pr
         &[&[PROTOCOL_FEE_SEED, &[PROTOCOL_FEE_BUMP]]],
     )?;
 
-    close_token_account_signed(
+    close_token_account_invoke_signed(
         CloseTokenAccountAccounts {
             account_to_close: accounts.pool_reserves,
             authority: accounts.pool_state,
