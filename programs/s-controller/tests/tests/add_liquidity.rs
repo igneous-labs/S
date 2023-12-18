@@ -8,7 +8,7 @@ use s_controller_lib::{
     AddLiquidityByMintFreeArgs, AddLiquidityIxFullArgs, AddRemoveLiquidityExtraAccounts,
 };
 use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
-use sanctum_utils::token::token_account_balance;
+use sanctum_token_lib::token_account_balance;
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;

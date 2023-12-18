@@ -8,11 +8,13 @@ use s_controller_lib::{
     try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
     CalcAddLiquidityArgs, CalcAddLiquidityProtocolFeesResult, LpTokenRateArgs, PoolStateAccount,
 };
-use sanctum_onchain_utils::{
-    token_program::{mint_to_signed, transfer_tokens, MintToAccounts, TransferTokensAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::mint_supply;
+use sanctum_token_lib::{
+    mint_supply, mint_to_invoke_signed, transfer_checked_decimal_agnostic_invoke, MintToAccounts,
+    TransferCheckedAccounts,
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
@@ -79,25 +81,27 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         return Err(SControllerError::ZeroValue.into());
     }
 
-    transfer_tokens(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke(
+        TransferCheckedAccounts {
             from: accounts.src_lst_acc,
             to: accounts.pool_reserves,
             token_program: accounts.lst_token_program,
             authority: accounts.signer,
+            mint: accounts.lst_mint,
         },
         to_reserves_lst_amount,
     )?;
-    transfer_tokens(
-        TransferTokensAccounts {
+    transfer_checked_decimal_agnostic_invoke(
+        TransferCheckedAccounts {
             from: accounts.src_lst_acc,
             to: accounts.protocol_fee_accumulator,
             token_program: accounts.lst_token_program,
             authority: accounts.signer,
+            mint: accounts.lst_mint,
         },
         to_protocol_fees_lst_amount,
     )?;
-    mint_to_signed(
+    mint_to_invoke_signed(
         MintToAccounts {
             mint: accounts.lp_token_mint,
             mint_to: accounts.dst_lp_acc,

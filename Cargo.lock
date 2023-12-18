@@ -1356,8 +1356,9 @@ dependencies = [
  "flat-fee-lib",
  "flat-fee-test-utils",
  "flat_fee_interface",
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sanctum-solana-test-utils",
+ "sanctum-system-program-lib",
  "solana-program",
  "solana-program-test",
  "solana-readonly-account",
@@ -1375,7 +1376,6 @@ dependencies = [
  "flat_fee_interface",
  "proptest",
  "sanctum-macros",
- "sanctum-onchain-utils",
  "sanctum-token-ratio",
  "solana-program",
  "solana-readonly-account",
@@ -1558,8 +1558,10 @@ dependencies = [
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
  "sanctum-macros",
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sanctum-solana-test-utils",
+ "sanctum-system-program-lib",
+ "sanctum-token-lib",
  "solana-program",
  "solana-program-test",
  "solana-readonly-account",
@@ -2085,7 +2087,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "lido-calculator-lib",
  "lido_calculator_interface",
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sanctum-solana-test-utils",
  "sanctum-token-ratio",
  "sol-value-calculator-onchain",
@@ -2196,7 +2198,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "marinade-calculator-lib",
  "marinade_calculator_interface",
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sanctum-solana-test-utils",
  "sanctum-token-ratio",
  "sol-value-calculator-onchain",
@@ -3371,11 +3373,12 @@ dependencies = [
  "pricing_programs_interface",
  "s-controller-lib",
  "s_controller_interface",
+ "sanctum-associated-token-lib",
  "sanctum-misc-utils",
- "sanctum-onchain-utils",
  "sanctum-solana-test-utils",
+ "sanctum-system-program-lib",
+ "sanctum-token-lib",
  "sanctum-token-ratio",
- "sanctum-utils",
  "sol_value_calculator_interface",
  "solana-program",
  "solana-program-test",
@@ -3385,6 +3388,7 @@ dependencies = [
  "spl-calculator-lib",
  "spl-pod",
  "spl-token",
+ "spl-token-2022",
  "spl-token-metadata-interface",
  "test-utils",
  "tokio",
@@ -3401,8 +3405,8 @@ dependencies = [
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-macros",
+ "sanctum-token-lib",
  "sanctum-token-ratio",
- "sanctum-utils",
  "solana-program",
  "solana-readonly-account",
  "spl-associated-token-account",
@@ -3436,7 +3440,7 @@ dependencies = [
 [[package]]
 name = "sanctum-associated-token-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -3459,28 +3463,16 @@ dependencies = [
 [[package]]
 name = "sanctum-misc-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
 ]
 
 [[package]]
-name = "sanctum-onchain-utils"
-version = "1.0.0"
-dependencies = [
- "sanctum-utils",
- "solana-program",
- "spl-associated-token-account",
- "spl-token",
- "spl-token-2022",
- "spl-token-metadata-interface",
-]
-
-[[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
 dependencies = [
  "async-trait",
  "borsh 0.10.3",
@@ -3496,25 +3488,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-system-program-lib"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+dependencies = [
+ "solana-program",
+]
+
+[[package]]
+name = "sanctum-token-lib"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+dependencies = [
+ "solana-program",
+ "solana-readonly-account",
+ "spl-token-2022",
+]
+
+[[package]]
 name = "sanctum-token-ratio"
 version = "1.0.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
  "serde",
  "solana-program",
-]
-
-[[package]]
-name = "sanctum-utils"
-version = "1.0.0"
-dependencies = [
- "solana-program",
- "solana-readonly-account",
- "spl-associated-token-account",
- "spl-token",
- "spl-token-2022",
 ]
 
 [[package]]
@@ -4897,7 +4896,7 @@ dependencies = [
  "generic-pool-calculator-onchain",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sanctum-solana-test-utils",
  "sanctum-token-ratio",
  "sol-value-calculator-onchain",
@@ -6167,7 +6166,7 @@ dependencies = [
 name = "wsol-calculator"
 version = "1.0.0"
 dependencies = [
- "sanctum-onchain-utils",
+ "sanctum-misc-utils",
  "sol-value-calculator-onchain",
  "solana-program",
  "wsol-calculator-lib",

@@ -10,7 +10,7 @@ use s_controller_lib::{
     SetSolValueCalculatorByMintFreeArgs,
 };
 use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir};
-use sanctum_utils::mint_with_token_program::MintWithTokenProgram;
+use sanctum_token_lib::MintWithTokenProgram;
 use solana_program::{instruction::AccountMeta, program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 

@@ -7,7 +7,7 @@ use s_controller_lib::{
     program::{DISABLE_POOL_AUTHORITY_LIST_BUMP, DISABLE_POOL_AUTHORITY_LIST_SEED},
     try_disable_pool_authority_list_mut, AddDisablePoolAuthorityFreeArgs,
 };
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{

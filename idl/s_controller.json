@@ -871,6 +871,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "The pool's state singleton PDA"
+        },
+        {
+          "name": "lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The LST mint"
         }
       ]
     },

@@ -6,7 +6,7 @@ use flat_fee_lib::{
     account_resolvers::PriceLpTokensToRedeemFreeArgs, calc::calculate_price_lp_tokens_to_redeem,
     utils::try_program_state,
 };
-use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
+use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::set_return_data,
     program_error::ProgramError,

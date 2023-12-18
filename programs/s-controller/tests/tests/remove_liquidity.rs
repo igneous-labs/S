@@ -6,11 +6,8 @@ use s_controller_lib::{
     RemoveLiquidityByMintFreeArgs, RemoveLiquidityIxFullArgs,
 };
 use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
+use sanctum_token_lib::{mint_supply, token_account_balance, MintWithTokenProgram};
 use sanctum_token_ratio::{AmtsAfterFee, U64BpsFeeCeil};
-use sanctum_utils::{
-    mint_with_token_program::MintWithTokenProgram,
-    token::{mint_supply, token_account_balance},
-};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;

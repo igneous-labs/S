@@ -6,10 +6,10 @@ use s_controller_lib::{
     index_to_usize, sync_sol_value_with_retval, try_lst_state_list_mut, try_pool_state,
     try_pool_state_mut, SyncSolValueFreeArgs,
 };
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_utils::token::token_account_balance;
+use sanctum_token_lib::token_account_balance;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };

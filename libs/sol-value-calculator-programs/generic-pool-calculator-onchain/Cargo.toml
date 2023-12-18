@@ -7,7 +7,9 @@ edition = "2021"
 bytemuck = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
-sanctum-onchain-utils = { workspace = true }
+sanctum-misc-utils = { workspace = true }
+sanctum-system-program-lib = { workspace = true }
+sanctum-token-lib = { workspace = true }
 solana-program = { workspace = true }
 
 [dev-dependencies]
@@ -15,7 +17,7 @@ generic-pool-calculator-test-utils = { workspace = true }
 sanctum-macros = { workspace = true }
 sanctum-solana-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
-solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 spl-stake-pool-keys = { workspace = true }
 test-utils = { workspace = true }

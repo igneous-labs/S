@@ -9,7 +9,7 @@ use sanctum_solana_test_utils::{
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
     ExtendedBanksClient,
 };
-use sanctum_utils::token::{token_account_balance, token_account_mint};
+use sanctum_token_lib::{token_account_balance, token_account_mint};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedAccount;

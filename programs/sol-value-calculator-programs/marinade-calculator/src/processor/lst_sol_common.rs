@@ -7,7 +7,7 @@ use marinade_calculator_interface::MarinadeState;
 use marinade_calculator_lib::{
     MarinadeSolValCalc, MarinadeStateCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
-use sanctum_onchain_utils::utils::{load_accounts, log_and_return_wrong_acc_err};
+use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 
 /// Assumes:

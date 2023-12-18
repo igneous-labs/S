@@ -5,8 +5,7 @@ use pricing_programs_interface::{
 };
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_pool_state;
-use sanctum_misc_utils::get_borsh_return_data;
-use sanctum_onchain_utils::utils::account_info_to_account_meta;
+use sanctum_misc_utils::{get_borsh_return_data, ToAccountMeta};
 use solana_program::{
     account_info::AccountInfo,
     instruction::{AccountMeta, Instruction},
@@ -130,7 +129,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     fn create_account_metas(&self) -> Vec<AccountMeta> {
         let mut res = vec![AccountMeta::new_readonly(*self.lst_mint.key, false)];
         for r in self.remaining_accounts.iter() {
-            res.push(account_info_to_account_meta(r));
+            res.push(r.to_account_meta());
         }
         res
     }
@@ -248,7 +247,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
             AccountMeta::new_readonly(*self.output_lst_mint.key, false),
         ];
         for r in self.remaining_accounts.iter() {
-            res.push(account_info_to_account_meta(r));
+            res.push(r.to_account_meta());
         }
         res
     }

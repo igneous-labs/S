@@ -7,8 +7,6 @@ members = [
     "keys/*",
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
-    "libs/sanctum-onchain-utils",
-    "libs/sanctum-utils",
     "libs/sol-value-calculator-programs/*",
     "programs/pricing-programs/*",
     "programs/s-controller",
@@ -25,16 +23,18 @@ members = [
 [workspace.dependencies]
 async-trait = ">=0.1"
 bincode = "^1"
-borsh = ">=0.9"
+borsh = "=0.10.3"
 bytemuck = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
-sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1" }
+sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-macros = "^1"
-sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1" }
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1", features = ["token"] }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1", features = ["borsh", "onchain"] } 
+sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["token"] }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["borsh", "onchain"] } 
 serde = "^1"
 serde_json = "^1"
 spl-pod = ">=0.1.0"
@@ -53,7 +53,7 @@ solana-readonly-account = "^1"
 # solana libraries (not pure rust)
 # Use ^1 for flexibility for library users, but lock to 1.16.20 for deploy
 solana-account-decoder = "^1"
-solana-program = "^1"
+solana-program = "=1.16.20"
 solana-program-test = "^1"
 solana-sdk = "^1"
 
@@ -74,8 +74,6 @@ wsol-keys = { path = "./keys/wsol-keys" }
 flat-fee-lib = { path = "./libs/pricing-programs/flat-fee-lib" }
 flat-fee-test-utils = { path = "./libs/pricing-programs/flat-fee-test-utils" }
 s-controller-lib = { path = "./libs/s-controller-lib" }
-sanctum-onchain-utils = { path = "./libs/sanctum-onchain-utils" }
-sanctum-utils = { path = "./libs/sanctum-utils" }
 generic-pool-calculator-lib = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-lib" }
 generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-onchain" }
 generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }

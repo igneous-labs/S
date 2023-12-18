@@ -6,7 +6,7 @@ use s_controller_interface::{
 use s_controller_lib::{
     index_to_usize, try_lst_state_list_mut, try_pool_state, SetSolValueCalculatorFreeArgs,
 };
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{

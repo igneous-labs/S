@@ -1,7 +1,6 @@
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_lst_state_list;
-use sanctum_misc_utils::get_borsh_return_data;
-use sanctum_onchain_utils::utils::account_info_to_account_meta;
+use sanctum_misc_utils::{get_borsh_return_data, ToAccountMeta};
 use sanctum_token_ratio::U64ValueRange;
 use sol_value_calculator_interface::{
     LstToSolIxArgs, LstToSolIxData, SolToLstIxArgs, SolToLstIxData,
@@ -96,7 +95,7 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
     fn create_account_metas(&self) -> Vec<AccountMeta> {
         let mut res = vec![AccountMeta::new_readonly(*self.lst_mint.key, false)];
         for r in self.remaining_accounts.iter() {
-            res.push(account_info_to_account_meta(r));
+            res.push(r.to_account_meta());
         }
         res
     }

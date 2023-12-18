@@ -428,6 +428,7 @@ Withdraw all accumulated protocol fees. Only the protocol_fee_beneficiary is aut
 | protocol_fee_accumulator_auth | The protocol fee accumulator token account authority PDA. PDA ["protocol_fee"] | W                | N            |
 | token_program                 | Token program                                                                  | R                | N            |
 | pool_state                    | The pool's state singleton PDA                                                 | W                | N            |
+| lst_mint                      | The LST mint                                                                   | R                | N            |
 
 ## AddDisablePoolAuthority
 

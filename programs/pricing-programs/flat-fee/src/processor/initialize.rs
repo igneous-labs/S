@@ -8,9 +8,11 @@ use flat_fee_lib::{
     program,
     utils::try_program_state_mut,
 };
-use sanctum_onchain_utils::{
-    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
+};
+use sanctum_system_program_lib::{
+    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
 };
 use solana_program::program_error::ProgramError;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
@@ -18,15 +20,14 @@ use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
     let InitializeAccounts { payer, state, .. } = verify_initialize(accounts)?;
 
-    create_pda(
+    create_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: state,
         },
-        CreateAccountArgs {
+        CreateRentExemptAccountArgs {
             space: program::STATE_SIZE,
             owner: program::ID,
-            lamports: None,
         },
         &[&[program::STATE_SEED, &[program::STATE_BUMP]]],
     )?;

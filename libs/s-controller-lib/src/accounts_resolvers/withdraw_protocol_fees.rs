@@ -1,5 +1,5 @@
 use s_controller_interface::{SControllerError, WithdrawProtocolFeesKeys};
-use sanctum_utils::token::token_account_mint;
+use sanctum_token_lib::token_account_mint;
 use solana_program::program_error::ProgramError;
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
@@ -51,6 +51,7 @@ impl<
             protocol_fee_beneficiary: pool_state.protocol_fee_beneficiary,
             token_program: *withdraw_to.owner(),
             withdraw_to: *withdraw_to.pubkey(),
+            lst_mint,
         })
     }
 }

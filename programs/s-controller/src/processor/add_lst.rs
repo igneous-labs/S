@@ -6,9 +6,9 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_BUMP, LST_STATE_LIST_SEED},
     try_lst_state_list_mut, try_pool_state, AddLstFreeArgs, LstStateBumps,
 };
-use sanctum_onchain_utils::{
-    associated_token::{create_ata, CreateAtaAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_associated_token_lib::{create_ata_invoke, CreateAtaAccounts};
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
@@ -29,7 +29,7 @@ pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
     ) = verify_add_lst(accounts)?;
 
     // Attempting to create the ATAs verifies that the mint is not a duplicate
-    create_ata(CreateAtaAccounts {
+    create_ata_invoke(CreateAtaAccounts {
         ata_to_create: accounts.pool_reserves,
         wallet: accounts.pool_state,
 
@@ -38,7 +38,8 @@ pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
         system_program: accounts.system_program,
         token_program: accounts.lst_token_program,
     })?;
-    create_ata(CreateAtaAccounts {
+
+    create_ata_invoke(CreateAtaAccounts {
         ata_to_create: accounts.protocol_fee_accumulator,
         wallet: accounts.protocol_fee_accumulator_auth,
 

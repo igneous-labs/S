@@ -5,7 +5,7 @@ use generic_pool_calculator_interface::{
 use generic_pool_calculator_lib::{
     account_resolvers::SetManagerFreeArgs, utils::try_calculator_state_mut, GenericPoolSolValCalc,
 };
-use sanctum_onchain_utils::utils::{
+use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};

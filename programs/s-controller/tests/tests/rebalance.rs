@@ -12,7 +12,9 @@ use sanctum_solana_test_utils::{
     assert_custom_err, assert_program_error, test_fixtures_dir, token::MockTokenAccountArgs,
     ExtendedBanksClient,
 };
-use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::TransferKeys};
+use sanctum_token_lib::{
+    transfer_checked_ix, MintWithTokenProgram, TransferCheckedArgs, TransferCheckedKeys,
+};
 use solana_program::{
     clock::Clock, instruction::Instruction, program_error::ProgramError, pubkey::Pubkey,
 };
@@ -107,13 +109,19 @@ fn create_rebalance_donate_ixs(
     )
     .unwrap();
 
-    let donate_msol_ix = TransferKeys {
-        token_program: spl_token::ID,
-        from: donate_msol_from_addr,
-        to: end_rebalance_keys.dst_pool_reserves,
-        authority: donate_msol_authority,
-    }
-    .to_ix(msol_donate_amt)
+    let donate_msol_ix = transfer_checked_ix(
+        TransferCheckedKeys {
+            token_program: spl_token::ID,
+            from: donate_msol_from_addr,
+            to: end_rebalance_keys.dst_pool_reserves,
+            authority: donate_msol_authority,
+            mint: msol::ID,
+        },
+        TransferCheckedArgs {
+            amount: msol_donate_amt,
+            decimals: 9,
+        },
+    )
     .unwrap();
     let end_rebalance_ix = end_rebalance_ix_full(
         end_rebalance_keys,

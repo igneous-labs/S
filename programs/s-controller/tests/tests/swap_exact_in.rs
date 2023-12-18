@@ -7,7 +7,7 @@ use s_controller_lib::{
     SwapByMintsFreeArgs, SwapExactInAmounts,
 };
 use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
-use sanctum_utils::{mint_with_token_program::MintWithTokenProgram, token::token_account_balance};
+use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;

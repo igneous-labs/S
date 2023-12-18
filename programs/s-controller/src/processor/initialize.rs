@@ -6,29 +6,31 @@ use s_controller_lib::{
     try_pool_state_mut, InitializeFreeArgs, CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS,
     DEFAULT_PRICING_PROGRAM, DEFAULT_TRADING_PROTOCOL_FEE_BPS, POOL_STATE_SIZE,
 };
-use sanctum_onchain_utils::{
-    system_program::{create_pda, CreateAccountAccounts, CreateAccountArgs},
-    token_program::{set_authority, SetAuthorityAccounts},
-    utils::{load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err},
+use sanctum_misc_utils::{
+    load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
+use sanctum_system_program_lib::{
+    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
+};
+use sanctum_token_lib::{set_authority_invoke, SetAuthorityAccounts, SetAuthorityArgs};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     program_pack::Pack,
 };
-use spl_token::{instruction::AuthorityType, native_mint, state::Mint};
+use spl_token::{native_mint, state::Mint};
+use spl_token_2022::instruction::AuthorityType;
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
     let accounts = verify_initialize(accounts)?;
 
-    create_pda(
+    create_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: accounts.payer,
             to: accounts.pool_state,
         },
-        CreateAccountArgs {
+        CreateRentExemptAccountArgs {
             space: POOL_STATE_SIZE,
             owner: s_controller_lib::program::ID,
-            lamports: None,
         },
         &[&[
             s_controller_lib::program::POOL_STATE_SEED,
@@ -62,15 +64,19 @@ pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
         current_authority: accounts.authority,
     };
 
-    set_authority(
+    set_authority_invoke(
         set_authority_accounts,
-        AuthorityType::MintTokens,
-        Some(*accounts.pool_state.key),
+        SetAuthorityArgs {
+            authority_type: AuthorityType::MintTokens,
+            new_authority: Some(*accounts.pool_state.key),
+        },
     )?;
-    set_authority(
+    set_authority_invoke(
         set_authority_accounts,
-        AuthorityType::FreezeAccount,
-        Some(*accounts.pool_state.key),
+        SetAuthorityArgs {
+            authority_type: AuthorityType::FreezeAccount,
+            new_authority: Some(*accounts.pool_state.key),
+        },
     )
 }
 
