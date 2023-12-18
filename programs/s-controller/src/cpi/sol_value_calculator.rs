@@ -1,6 +1,8 @@
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_lst_state_list;
+use sanctum_misc_utils::get_borsh_return_data;
 use sanctum_onchain_utils::utils::account_info_to_account_meta;
+use sanctum_token_ratio::U64ValueRange;
 use sol_value_calculator_interface::{
     LstToSolIxArgs, LstToSolIxData, SolToLstIxArgs, SolToLstIxData,
 };
@@ -10,8 +12,6 @@ use solana_program::{
     program::invoke,
     program_error::ProgramError,
 };
-
-use super::get_le_u64_return_data;
 
 #[derive(Clone, Copy, Debug)]
 pub struct SolValueCalculatorCpi<'me, 'info> {
@@ -66,20 +66,21 @@ impl<'me, 'info> SolValueCalculatorCpi<'me, 'info> {
         Ok(())
     }
 
-    pub fn invoke_sol_to_lst(self, sol_amt: u64) -> Result<u64, ProgramError> {
+    pub fn invoke_sol_to_lst(self, sol_amt: u64) -> Result<U64ValueRange, ProgramError> {
         let ix = self.create_sol_to_lst_ix(sol_amt)?;
         self.invoke_interface_ix(ix)
     }
 
-    pub fn invoke_lst_to_sol(self, lst_amt: u64) -> Result<u64, ProgramError> {
+    pub fn invoke_lst_to_sol(self, lst_amt: u64) -> Result<U64ValueRange, ProgramError> {
         let ix = self.create_lst_to_sol_ix(lst_amt)?;
         self.invoke_interface_ix(ix)
     }
 
-    fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
+    fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<U64ValueRange, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultySolValueCalculator)?;
+        let (_pk, res) =
+            get_borsh_return_data().ok_or(SControllerError::FaultySolValueCalculator)?;
         Ok(res)
     }
 

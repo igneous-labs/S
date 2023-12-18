@@ -5,6 +5,7 @@ use pricing_programs_interface::{
 };
 use s_controller_interface::SControllerError;
 use s_controller_lib::try_pool_state;
+use sanctum_misc_utils::get_borsh_return_data;
 use sanctum_onchain_utils::utils::account_info_to_account_meta;
 use solana_program::{
     account_info::AccountInfo,
@@ -14,8 +15,6 @@ use solana_program::{
 };
 
 use crate::account_traits::SrcDstLstMintAccountInfos;
-
-use super::get_le_u64_return_data;
 
 #[derive(Clone, Copy, Debug)]
 pub struct PricingProgramIxArgs {
@@ -115,7 +114,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
+        let (_pk, res) = get_borsh_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 
@@ -224,7 +223,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
     fn invoke_interface_ix(self, interface_ix: Instruction) -> Result<u64, ProgramError> {
         let accounts = self.create_account_info_slice();
         invoke(&interface_ix, &accounts)?;
-        let res = get_le_u64_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
+        let (_pk, res) = get_borsh_return_data().ok_or(SControllerError::FaultyPricingProgram)?;
         Ok(res)
     }
 

@@ -68,7 +68,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
     lst_index: usize,
 ) -> Result<(), ProgramError> {
     let lst_balance = token_account_balance(pool_reserves)?;
-    let returned_sol_value = cpi.invoke_lst_to_sol(lst_balance)?;
+    let returned_sol_value_range = cpi.invoke_lst_to_sol(lst_balance)?;
 
     let mut pool_state_bytes = pool_state.try_borrow_mut_data()?;
     let pool_state = try_pool_state_mut(&mut pool_state_bytes)?;
@@ -77,7 +77,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
     let lst_state_list = try_lst_state_list_mut(&mut lst_state_list_bytes)?;
     let lst_state = &mut lst_state_list[lst_index];
 
-    sync_sol_value_with_retval(pool_state, lst_state, returned_sol_value)?;
+    sync_sol_value_with_retval(pool_state, lst_state, returned_sol_value_range.min)?;
 
     Ok(())
 }

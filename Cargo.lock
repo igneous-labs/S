@@ -535,7 +535,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive 0.10.3",
- "hashbrown 0.13.2",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -1369,7 +1369,7 @@ dependencies = [
 name = "flat-fee-lib"
 version = "0.1.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "bytemuck",
  "flat_fee_interface",
  "proptest",
@@ -2072,7 +2072,7 @@ dependencies = [
 name = "lido-calculator"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
  "generic-pool-calculator-test-utils",
@@ -2093,7 +2093,7 @@ dependencies = [
 name = "lido-calculator-lib"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "generic-pool-calculator-lib",
  "generic_pool_calculator_interface",
  "lido-keys",
@@ -2118,8 +2118,8 @@ dependencies = [
 name = "lido_calculator_interface"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
- "num-derive 0.3.3",
+ "borsh 0.10.3",
+ "num-derive 0.4.1",
  "num-traits",
  "serde",
  "solana-program",
@@ -3359,6 +3359,7 @@ dependencies = [
  "pricing_programs_interface",
  "s-controller-lib",
  "s_controller_interface",
+ "sanctum-misc-utils",
  "sanctum-onchain-utils",
  "sanctum-token-ratio",
  "sanctum-utils",
@@ -3432,6 +3433,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-misc-utils"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=064163d#064163db455c7d8c2c0fa430de41aa849ea5eca7"
+dependencies = [
+ "borsh 0.10.3",
+ "solana-program",
+]
+
+[[package]]
 name = "sanctum-onchain-utils"
 version = "1.0.0"
 dependencies = [
@@ -3448,7 +3458,7 @@ name = "sanctum-token-ratio"
 version = "1.0.0"
 source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=064163d#064163db455c7d8c2c0fa430de41aa849ea5eca7"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "num-traits",
  "serde",
  "solana-program",
@@ -3757,7 +3767,7 @@ dependencies = [
 name = "sol-value-calculator-onchain"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",

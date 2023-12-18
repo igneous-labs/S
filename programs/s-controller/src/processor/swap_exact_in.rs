@@ -56,12 +56,12 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
-    let in_sol_value = src_lst_cpi.invoke_lst_to_sol(amount)?;
+    let in_sol_value = src_lst_cpi.invoke_lst_to_sol(amount)?.min;
     let out_sol_value = pricing_cpi.invoke_price_exact_in(PricingProgramIxArgs {
         amount,
         sol_value: in_sol_value,
     })?;
-    let dst_lst_out = dst_lst_cpi.invoke_sol_to_lst(out_sol_value)?;
+    let dst_lst_out = dst_lst_cpi.invoke_sol_to_lst(out_sol_value)?.min;
 
     if dst_lst_out < min_amount_out {
         return Err(SControllerError::SlippageToleranceExceeded.into());

@@ -19,9 +19,10 @@ bytemuck = { workspace = true }
 pricing_programs_interface = { workspace = true }
 s_controller_interface = { workspace = true }
 s-controller-lib = { workspace = true }
-sanctum-utils = { workspace = true }
+sanctum-misc-utils = { workspace = true }
 sanctum-onchain-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true }
+sanctum-utils = { workspace = true }
 sol_value_calculator_interface = { workspace = true }
 solana-program = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
