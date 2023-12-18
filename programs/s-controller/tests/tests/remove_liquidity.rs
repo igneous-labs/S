@@ -253,14 +253,14 @@ async fn basic_redeem_full_flat_fees() {
 
     let AmtsAfterFee {
         amt_after_fee,
-        fees_charged,
+        fee_charged,
     } = U64BpsFeeCeil(LP_WITHDRAWAL_FEE_BPS)
         .apply(WSOL_RESERVES_STARTING_BALANCE)
         .unwrap();
     let AmtsAfterFee {
-        fees_charged: protocol_fees_charged,
+        fee_charged: protocol_fees_charged,
         amt_after_fee: fees_withheld_in_reserves,
-    } = U64BpsFeeCeil(PROTOCOL_FEE_BPS).apply(fees_charged).unwrap();
+    } = U64BpsFeeCeil(PROTOCOL_FEE_BPS).apply(fee_charged).unwrap();
 
     let pool_reserves_account = banks_client_get_account(&mut banks_client, pool_reserves).await;
     let pool_reserves_ending_balance = token_account_balance(pool_reserves_account).unwrap();

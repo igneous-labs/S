@@ -3446,11 +3446,12 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "1.0.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=064163d#064163db455c7d8c2c0fa430de41aa849ea5eca7"
 dependencies = [
+ "borsh 0.9.3",
  "num-traits",
- "proptest",
+ "serde",
  "solana-program",
- "test-utils",
 ]
 
 [[package]]
@@ -3748,6 +3749,7 @@ dependencies = [
 name = "sol-value-calculator-lib"
 version = "1.0.0"
 dependencies = [
+ "sanctum-token-ratio",
  "solana-program",
 ]
 
@@ -3755,6 +3757,8 @@ dependencies = [
 name = "sol-value-calculator-onchain"
 version = "1.0.0"
 dependencies = [
+ "borsh 0.9.3",
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
 ]
@@ -6124,6 +6128,7 @@ dependencies = [
 name = "wsol-calculator-lib"
 version = "1.0.0"
 dependencies = [
+ "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
  "wsol-keys",

@@ -1,4 +1,4 @@
-use sanctum_token_ratio::{AmtsAfterFee, U64FeeFloor, U64RatioFloor};
+use sanctum_token_ratio::{AmtsAfterFee, MathError, U64FeeFloor, U64RatioFloor, U64ValueRange};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
@@ -85,23 +85,24 @@ impl SplStakePoolCalc {
 /// - stake pool always has active and transient stake, so withdraw_source != StakeWithdrawSource::ValidatorRemoval
 /// - stake pool has been updated for this epoch
 impl SolValueCalculator for SplStakePoolCalc {
-    fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<u64, ProgramError> {
+    fn calc_lst_to_sol(&self, pool_tokens: u64) -> Result<U64ValueRange, ProgramError> {
         let AmtsAfterFee {
             amt_after_fee: pool_tokens_burnt,
             ..
         } = self.stake_withdrawal_fee().apply(pool_tokens)?;
         let withdraw_lamports = self.lst_to_lamports_ratio().apply(pool_tokens_burnt)?;
-        Ok(withdraw_lamports)
+        Ok(U64ValueRange::single(withdraw_lamports))
     }
 
-    fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<u64, ProgramError> {
-        let pool_tokens_burnt = self
-            .lst_to_lamports_ratio()
-            .pseudo_reverse(withdraw_lamports)?;
-        let pool_tokens = self
-            .stake_withdrawal_fee()
-            .pseudo_reverse(pool_tokens_burnt)?;
-        Ok(pool_tokens)
+    fn calc_sol_to_lst(&self, withdraw_lamports: u64) -> Result<U64ValueRange, ProgramError> {
+        let U64ValueRange { min, max } = self.lst_to_lamports_ratio().reverse(withdraw_lamports)?;
+        let fee = self.stake_withdrawal_fee();
+        let U64ValueRange { min, .. } = fee.reverse_from_amt_after_fee(min)?;
+        let U64ValueRange { max, .. } = fee.reverse_from_amt_after_fee(max)?;
+        if min > max {
+            return Err(MathError.into());
+        }
+        Ok(U64ValueRange { min, max })
     }
 }
 
@@ -142,9 +143,11 @@ mod tests {
     proptest! {
         #[test]
         fn lst_sol_round_trip((pool_tokens, calc) in spl_stake_pool_and_lst_amount()) {
-            let withdraw_lamports = calc.calc_lst_to_sol(pool_tokens).unwrap();
-            let withdraw_lamports_after = calc.calc_lst_to_sol(calc.calc_sol_to_lst(withdraw_lamports).unwrap()).unwrap();
-            prop_assert_eq!(withdraw_lamports, withdraw_lamports_after)
+            let U64ValueRange { min: sol_amt, max: max_sol_amt } = calc.calc_lst_to_sol(pool_tokens).unwrap();
+            prop_assert_eq!(sol_amt, max_sol_amt);
+            let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
+            prop_assert_eq!(calc.calc_lst_to_sol(min).unwrap().min, sol_amt);
+            prop_assert_eq!(calc.calc_lst_to_sol(max).unwrap().min, sol_amt);
         }
     }
 }

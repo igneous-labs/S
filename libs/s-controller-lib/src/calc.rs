@@ -92,7 +92,7 @@ pub fn calc_add_liquidity_protocol_fees(
 ) -> Result<CalcAddLiquidityProtocolFeesResult, MathError> {
     let lp_fees_sol_value = lst_amount_sol_value.saturating_sub(lst_amount_sol_value_after_fees);
     let AmtsAfterFee {
-        fees_charged: protocol_fees_sol_value,
+        fee_charged: protocol_fees_sol_value,
         ..
     } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
     let to_protocol_fees_lst_amount = U64RatioFloor {
@@ -134,7 +134,7 @@ pub fn calc_remove_liquidity_protocol_fees(
 ) -> Result<u64, MathError> {
     let lp_fees_sol_value = lp_tokens_sol_value.saturating_sub(lp_tokens_sol_value_after_fees);
     let AmtsAfterFee {
-        fees_charged: protocol_fees_sol_value,
+        fee_charged: protocol_fees_sol_value,
         ..
     } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
     let to_protocol_fees_lst_amount = U64RatioFloor {
@@ -171,7 +171,7 @@ pub fn calc_swap_protocol_fees(
 ) -> Result<u64, MathError> {
     let fees_sol_value = in_sol_value.saturating_sub(out_sol_value);
     let AmtsAfterFee {
-        fees_charged: protocol_fees_sol_value,
+        fee_charged: protocol_fees_sol_value,
         ..
     } = U64BpsFeeCeil(trading_protocol_fee_bps).apply(fees_sol_value)?;
     let to_protocol_fees_lst_amount = U64RatioFloor {

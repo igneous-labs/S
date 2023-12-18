@@ -4,4 +4,5 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+sanctum-token-ratio = { workspace= true }
 solana-program = { workspace = true }

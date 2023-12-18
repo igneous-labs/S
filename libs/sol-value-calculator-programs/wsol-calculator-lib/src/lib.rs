@@ -1,3 +1,4 @@
+use sanctum_token_ratio::U64ValueRange;
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::program_error::ProgramError;
 
@@ -10,12 +11,12 @@ pub mod program {
 pub struct WsolSolCalc;
 
 impl SolValueCalculator for WsolSolCalc {
-    fn calc_lst_to_sol(&self, lst_amount: u64) -> Result<u64, ProgramError> {
-        Ok(lst_amount)
+    fn calc_lst_to_sol(&self, lst_amount: u64) -> Result<U64ValueRange, ProgramError> {
+        Ok(U64ValueRange::single(lst_amount))
     }
 
-    fn calc_sol_to_lst(&self, lamports_amount: u64) -> Result<u64, ProgramError> {
-        Ok(lamports_amount)
+    fn calc_sol_to_lst(&self, lamports_amount: u64) -> Result<U64ValueRange, ProgramError> {
+        Ok(U64ValueRange::single(lamports_amount))
     }
 }
 

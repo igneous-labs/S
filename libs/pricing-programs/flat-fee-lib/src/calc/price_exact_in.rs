@@ -10,6 +10,7 @@ pub struct CalculatePriceExactInArgs {
     pub sol_value: u64,
 }
 
+/// Returns `out_sol_value`
 pub fn calculate_price_exact_in(
     CalculatePriceExactInArgs {
         input_fee_bps,
