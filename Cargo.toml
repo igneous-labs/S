@@ -30,6 +30,7 @@ bytemuck = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
+sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1" }
 sanctum-macros = "^1"
 sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1" }
 sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "51171e1", features = ["token"] }

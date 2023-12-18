@@ -10,6 +10,7 @@ testing = []
 borsh = { workspace = true }
 bytemuck = { workspace = true }
 s_controller_interface = { workspace = true }
+sanctum-associated-token-lib = { workspace = true }
 sanctum-macros = { workspace = true }
 sanctum-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true }

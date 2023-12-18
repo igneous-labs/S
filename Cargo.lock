@@ -3399,6 +3399,7 @@ dependencies = [
  "borsh 0.10.3",
  "bytemuck",
  "s_controller_interface",
+ "sanctum-associated-token-lib",
  "sanctum-macros",
  "sanctum-token-ratio",
  "sanctum-utils",
@@ -3433,6 +3434,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-associated-token-lib"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
+dependencies = [
+ "solana-program",
+ "solana-readonly-account",
+ "spl-associated-token-account",
+]
+
+[[package]]
 name = "sanctum-macros"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3450,7 +3461,7 @@ name = "sanctum-misc-utils"
 version = "0.1.0"
 source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "solana-program",
 ]
 
@@ -3472,7 +3483,7 @@ version = "0.1.0"
 source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
 dependencies = [
  "async-trait",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "num-traits",
  "serde",
  "serde_json",
@@ -3489,7 +3500,7 @@ name = "sanctum-token-ratio"
 version = "1.0.0"
 source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=51171e1#51171e158561d35db3688c9877a8ff04df008bdf"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "num-traits",
  "serde",
  "solana-program",
@@ -3798,7 +3809,7 @@ dependencies = [
 name = "sol-value-calculator-onchain"
 version = "1.0.0"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "sanctum-token-ratio",
  "sol-value-calculator-lib",
  "solana-program",
@@ -5304,7 +5315,7 @@ name = "test-utils"
 version = "1.0.0"
 dependencies = [
  "async-trait",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "proptest",
  "sanctum-macros",
  "sanctum-solana-test-utils",
