@@ -95,6 +95,21 @@ impl FlatFeeProgramIx {
         Ok(data)
     }
 }
+fn invoke_instruction<'info, A: Into<[AccountInfo<'info>; N]>, const N: usize>(
+    ix: &Instruction,
+    accounts: A,
+) -> ProgramResult {
+    let account_info: [AccountInfo<'info>; N] = accounts.into();
+    invoke(ix, &account_info)
+}
+fn invoke_instruction_signed<'info, A: Into<[AccountInfo<'info>; N]>, const N: usize>(
+    ix: &Instruction,
+    accounts: A,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    let account_info: [AccountInfo<'info>; N] = accounts.into();
+    invoke_signed(ix, &account_info, seeds)
+}
 pub const PRICE_EXACT_IN_IX_ACCOUNTS_LEN: usize = 4;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactInAccounts<'me, 'info> {
@@ -229,36 +244,56 @@ impl PriceExactInIxData {
         Ok(data)
     }
 }
-pub fn price_exact_in_ix<K: Into<PriceExactInKeys>, A: Into<PriceExactInIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn price_exact_in_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceExactInKeys,
+    args: PriceExactInIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceExactInKeys = accounts.into();
     let metas: [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceExactInIxArgs = args.into();
-    let data: PriceExactInIxData = args_full.into();
+    let data: PriceExactInIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_exact_in_invoke<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: PriceExactInAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_exact_in_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_exact_in_ix(
+    keys: PriceExactInKeys,
+    args: PriceExactInIxArgs,
+) -> std::io::Result<Instruction> {
+    price_exact_in_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_exact_in_invoke_signed<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: PriceExactInAccounts<'_, 'info>,
-    args: A,
+pub fn price_exact_in_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+) -> ProgramResult {
+    let keys: PriceExactInKeys = accounts.into();
+    let ix = price_exact_in_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_exact_in_invoke(
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+) -> ProgramResult {
+    price_exact_in_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_exact_in_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_exact_in_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceExactInKeys = accounts.into();
+    let ix = price_exact_in_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_exact_in_invoke_signed(
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_exact_in_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_exact_in_verify_account_keys(
     accounts: PriceExactInAccounts<'_, '_>,
@@ -410,36 +445,56 @@ impl PriceExactOutIxData {
         Ok(data)
     }
 }
-pub fn price_exact_out_ix<K: Into<PriceExactOutKeys>, A: Into<PriceExactOutIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn price_exact_out_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceExactOutKeys,
+    args: PriceExactOutIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceExactOutKeys = accounts.into();
     let metas: [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceExactOutIxArgs = args.into();
-    let data: PriceExactOutIxData = args_full.into();
+    let data: PriceExactOutIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_exact_out_invoke<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: PriceExactOutAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_exact_out_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_exact_out_ix(
+    keys: PriceExactOutKeys,
+    args: PriceExactOutIxArgs,
+) -> std::io::Result<Instruction> {
+    price_exact_out_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_exact_out_invoke_signed<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: PriceExactOutAccounts<'_, 'info>,
-    args: A,
+pub fn price_exact_out_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+) -> ProgramResult {
+    let keys: PriceExactOutKeys = accounts.into();
+    let ix = price_exact_out_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_exact_out_invoke(
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+) -> ProgramResult {
+    price_exact_out_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_exact_out_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_exact_out_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceExactOutKeys = accounts.into();
+    let ix = price_exact_out_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_exact_out_invoke_signed(
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_exact_out_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_exact_out_verify_account_keys(
     accounts: PriceExactOutAccounts<'_, '_>,
@@ -548,41 +603,56 @@ impl PriceLpTokensToMintIxData {
         Ok(data)
     }
 }
-pub fn price_lp_tokens_to_mint_ix<
-    K: Into<PriceLpTokensToMintKeys>,
-    A: Into<PriceLpTokensToMintIxArgs>,
->(
-    accounts: K,
-    args: A,
+pub fn price_lp_tokens_to_mint_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceLpTokensToMintKeys,
+    args: PriceLpTokensToMintIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceLpTokensToMintKeys = accounts.into();
     let metas: [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceLpTokensToMintIxArgs = args.into();
-    let data: PriceLpTokensToMintIxData = args_full.into();
+    let data: PriceLpTokensToMintIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_lp_tokens_to_mint_invoke<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_lp_tokens_to_mint_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_lp_tokens_to_mint_ix(
+    keys: PriceLpTokensToMintKeys,
+    args: PriceLpTokensToMintIxArgs,
+) -> std::io::Result<Instruction> {
+    price_lp_tokens_to_mint_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_lp_tokens_to_mint_invoke_signed<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
-    args: A,
+pub fn price_lp_tokens_to_mint_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+) -> ProgramResult {
+    let keys: PriceLpTokensToMintKeys = accounts.into();
+    let ix = price_lp_tokens_to_mint_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_lp_tokens_to_mint_invoke(
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+) -> ProgramResult {
+    price_lp_tokens_to_mint_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_lp_tokens_to_mint_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_lp_tokens_to_mint_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceLpTokensToMintKeys = accounts.into();
+    let ix = price_lp_tokens_to_mint_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_lp_tokens_to_mint_invoke_signed(
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_lp_tokens_to_mint_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_lp_tokens_to_mint_verify_account_keys(
     accounts: PriceLpTokensToMintAccounts<'_, '_>,
@@ -700,41 +770,56 @@ impl PriceLpTokensToRedeemIxData {
         Ok(data)
     }
 }
-pub fn price_lp_tokens_to_redeem_ix<
-    K: Into<PriceLpTokensToRedeemKeys>,
-    A: Into<PriceLpTokensToRedeemIxArgs>,
->(
-    accounts: K,
-    args: A,
+pub fn price_lp_tokens_to_redeem_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceLpTokensToRedeemKeys,
+    args: PriceLpTokensToRedeemIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceLpTokensToRedeemKeys = accounts.into();
     let metas: [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceLpTokensToRedeemIxArgs = args.into();
-    let data: PriceLpTokensToRedeemIxData = args_full.into();
+    let data: PriceLpTokensToRedeemIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_lp_tokens_to_redeem_invoke<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_lp_tokens_to_redeem_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_lp_tokens_to_redeem_ix(
+    keys: PriceLpTokensToRedeemKeys,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> std::io::Result<Instruction> {
+    price_lp_tokens_to_redeem_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_lp_tokens_to_redeem_invoke_signed<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
-    args: A,
+pub fn price_lp_tokens_to_redeem_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> ProgramResult {
+    let keys: PriceLpTokensToRedeemKeys = accounts.into();
+    let ix = price_lp_tokens_to_redeem_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_lp_tokens_to_redeem_invoke(
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> ProgramResult {
+    price_lp_tokens_to_redeem_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_lp_tokens_to_redeem_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_lp_tokens_to_redeem_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceLpTokensToRedeemKeys = accounts.into();
+    let ix = price_lp_tokens_to_redeem_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_lp_tokens_to_redeem_invoke_signed(
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_lp_tokens_to_redeem_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_lp_tokens_to_redeem_verify_account_keys(
     accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
@@ -854,39 +939,56 @@ impl SetLpWithdrawalFeeIxData {
         Ok(data)
     }
 }
-pub fn set_lp_withdrawal_fee_ix<
-    K: Into<SetLpWithdrawalFeeKeys>,
-    A: Into<SetLpWithdrawalFeeIxArgs>,
->(
-    accounts: K,
-    args: A,
+pub fn set_lp_withdrawal_fee_ix_with_program_id(
+    program_id: Pubkey,
+    keys: SetLpWithdrawalFeeKeys,
+    args: SetLpWithdrawalFeeIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: SetLpWithdrawalFeeKeys = accounts.into();
     let metas: [AccountMeta; SET_LP_WITHDRAWAL_FEE_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: SetLpWithdrawalFeeIxArgs = args.into();
-    let data: SetLpWithdrawalFeeIxData = args_full.into();
+    let data: SetLpWithdrawalFeeIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn set_lp_withdrawal_fee_invoke<'info, A: Into<SetLpWithdrawalFeeIxArgs>>(
-    accounts: SetLpWithdrawalFeeAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = set_lp_withdrawal_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_LP_WITHDRAWAL_FEE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn set_lp_withdrawal_fee_ix(
+    keys: SetLpWithdrawalFeeKeys,
+    args: SetLpWithdrawalFeeIxArgs,
+) -> std::io::Result<Instruction> {
+    set_lp_withdrawal_fee_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn set_lp_withdrawal_fee_invoke_signed<'info, A: Into<SetLpWithdrawalFeeIxArgs>>(
-    accounts: SetLpWithdrawalFeeAccounts<'_, 'info>,
-    args: A,
+pub fn set_lp_withdrawal_fee_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: SetLpWithdrawalFeeAccounts<'_, '_>,
+    args: SetLpWithdrawalFeeIxArgs,
+) -> ProgramResult {
+    let keys: SetLpWithdrawalFeeKeys = accounts.into();
+    let ix = set_lp_withdrawal_fee_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn set_lp_withdrawal_fee_invoke(
+    accounts: SetLpWithdrawalFeeAccounts<'_, '_>,
+    args: SetLpWithdrawalFeeIxArgs,
+) -> ProgramResult {
+    set_lp_withdrawal_fee_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn set_lp_withdrawal_fee_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: SetLpWithdrawalFeeAccounts<'_, '_>,
+    args: SetLpWithdrawalFeeIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_lp_withdrawal_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_LP_WITHDRAWAL_FEE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: SetLpWithdrawalFeeKeys = accounts.into();
+    let ix = set_lp_withdrawal_fee_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn set_lp_withdrawal_fee_invoke_signed(
+    accounts: SetLpWithdrawalFeeAccounts<'_, '_>,
+    args: SetLpWithdrawalFeeIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    set_lp_withdrawal_fee_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn set_lp_withdrawal_fee_verify_account_keys(
     accounts: SetLpWithdrawalFeeAccounts<'_, '_>,
@@ -902,7 +1004,7 @@ pub fn set_lp_withdrawal_fee_verify_account_keys(
     }
     Ok(())
 }
-pub fn set_lp_withdrawal_fee_verify_account_privileges<'me, 'info>(
+pub fn set_lp_withdrawal_fee_verify_writable_privileges<'me, 'info>(
     accounts: SetLpWithdrawalFeeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.state] {
@@ -910,11 +1012,23 @@ pub fn set_lp_withdrawal_fee_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
+    Ok(())
+}
+pub fn set_lp_withdrawal_fee_verify_signer_privileges<'me, 'info>(
+    accounts: SetLpWithdrawalFeeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_signer in [accounts.manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
+    Ok(())
+}
+pub fn set_lp_withdrawal_fee_verify_account_privileges<'me, 'info>(
+    accounts: SetLpWithdrawalFeeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    set_lp_withdrawal_fee_verify_writable_privileges(accounts)?;
+    set_lp_withdrawal_fee_verify_signer_privileges(accounts)?;
     Ok(())
 }
 pub const SET_LST_FEE_IX_ACCOUNTS_LEN: usize = 3;
@@ -1038,36 +1152,53 @@ impl SetLstFeeIxData {
         Ok(data)
     }
 }
-pub fn set_lst_fee_ix<K: Into<SetLstFeeKeys>, A: Into<SetLstFeeIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn set_lst_fee_ix_with_program_id(
+    program_id: Pubkey,
+    keys: SetLstFeeKeys,
+    args: SetLstFeeIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: SetLstFeeKeys = accounts.into();
     let metas: [AccountMeta; SET_LST_FEE_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: SetLstFeeIxArgs = args.into();
-    let data: SetLstFeeIxData = args_full.into();
+    let data: SetLstFeeIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn set_lst_fee_invoke<'info, A: Into<SetLstFeeIxArgs>>(
-    accounts: SetLstFeeAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = set_lst_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn set_lst_fee_ix(keys: SetLstFeeKeys, args: SetLstFeeIxArgs) -> std::io::Result<Instruction> {
+    set_lst_fee_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn set_lst_fee_invoke_signed<'info, A: Into<SetLstFeeIxArgs>>(
-    accounts: SetLstFeeAccounts<'_, 'info>,
-    args: A,
+pub fn set_lst_fee_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: SetLstFeeAccounts<'_, '_>,
+    args: SetLstFeeIxArgs,
+) -> ProgramResult {
+    let keys: SetLstFeeKeys = accounts.into();
+    let ix = set_lst_fee_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn set_lst_fee_invoke(
+    accounts: SetLstFeeAccounts<'_, '_>,
+    args: SetLstFeeIxArgs,
+) -> ProgramResult {
+    set_lst_fee_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn set_lst_fee_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: SetLstFeeAccounts<'_, '_>,
+    args: SetLstFeeIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_lst_fee_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; SET_LST_FEE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: SetLstFeeKeys = accounts.into();
+    let ix = set_lst_fee_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn set_lst_fee_invoke_signed(
+    accounts: SetLstFeeAccounts<'_, '_>,
+    args: SetLstFeeIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    set_lst_fee_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn set_lst_fee_verify_account_keys(
     accounts: SetLstFeeAccounts<'_, '_>,
@@ -1084,7 +1215,7 @@ pub fn set_lst_fee_verify_account_keys(
     }
     Ok(())
 }
-pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
+pub fn set_lst_fee_verify_writable_privileges<'me, 'info>(
     accounts: SetLstFeeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.fee_acc] {
@@ -1092,6 +1223,11 @@ pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
+    Ok(())
+}
+pub fn set_lst_fee_verify_signer_privileges<'me, 'info>(
+    accounts: SetLstFeeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_signer in [accounts.manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
@@ -1099,7 +1235,14 @@ pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 4;
+pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
+    accounts: SetLstFeeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    set_lst_fee_verify_writable_privileges(accounts)?;
+    set_lst_fee_verify_signer_privileges(accounts)?;
+    Ok(())
+}
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstAccounts<'me, 'info> {
     ///The program manager
@@ -1108,6 +1251,8 @@ pub struct RemoveLstAccounts<'me, 'info> {
     pub refund_rent_to: &'me AccountInfo<'info>,
     ///FeeAccount PDA to be created
     pub fee_acc: &'me AccountInfo<'info>,
+    ///Mint of the LST
+    pub lst_mint: &'me AccountInfo<'info>,
     ///The program state PDA
     pub state: &'me AccountInfo<'info>,
 }
@@ -1119,6 +1264,8 @@ pub struct RemoveLstKeys {
     pub refund_rent_to: Pubkey,
     ///FeeAccount PDA to be created
     pub fee_acc: Pubkey,
+    ///Mint of the LST
+    pub lst_mint: Pubkey,
     ///The program state PDA
     pub state: Pubkey,
 }
@@ -1128,6 +1275,7 @@ impl From<RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
             manager: *accounts.manager.key,
             refund_rent_to: *accounts.refund_rent_to.key,
             fee_acc: *accounts.fee_acc.key,
+            lst_mint: *accounts.lst_mint.key,
             state: *accounts.state.key,
         }
     }
@@ -1142,13 +1290,18 @@ impl From<RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
             },
             AccountMeta {
                 pubkey: keys.refund_rent_to,
-                is_signer: true,
+                is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
                 pubkey: keys.fee_acc,
                 is_signer: false,
                 is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
             },
             AccountMeta {
                 pubkey: keys.state,
@@ -1164,7 +1317,8 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
             manager: pubkeys[0],
             refund_rent_to: pubkeys[1],
             fee_acc: pubkeys[2],
-            state: pubkeys[3],
+            lst_mint: pubkeys[3],
+            state: pubkeys[4],
         }
     }
 }
@@ -1176,6 +1330,7 @@ impl<'info> From<RemoveLstAccounts<'_, 'info>>
             accounts.manager.clone(),
             accounts.refund_rent_to.clone(),
             accounts.fee_acc.clone(),
+            accounts.lst_mint.clone(),
             accounts.state.clone(),
         ]
     }
@@ -1188,7 +1343,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
             manager: &arr[0],
             refund_rent_to: &arr[1],
             fee_acc: &arr[2],
-            state: &arr[3],
+            lst_mint: &arr[3],
+            state: &arr[4],
         }
     }
 }
@@ -1221,27 +1377,45 @@ impl RemoveLstIxData {
         Ok(data)
     }
 }
-pub fn remove_lst_ix<K: Into<RemoveLstKeys>>(accounts: K) -> std::io::Result<Instruction> {
-    let keys: RemoveLstKeys = accounts.into();
+pub fn remove_lst_ix_with_program_id(
+    program_id: Pubkey,
+    keys: RemoveLstKeys,
+) -> std::io::Result<Instruction> {
     let metas: [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: RemoveLstIxData.try_to_vec()?,
     })
 }
-pub fn remove_lst_invoke<'info>(accounts: RemoveLstAccounts<'_, 'info>) -> ProgramResult {
-    let ix = remove_lst_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn remove_lst_ix(keys: RemoveLstKeys) -> std::io::Result<Instruction> {
+    remove_lst_ix_with_program_id(crate::ID, keys)
 }
-pub fn remove_lst_invoke_signed<'info>(
-    accounts: RemoveLstAccounts<'_, 'info>,
+pub fn remove_lst_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: RemoveLstAccounts<'_, '_>,
+) -> ProgramResult {
+    let keys: RemoveLstKeys = accounts.into();
+    let ix = remove_lst_ix_with_program_id(program_id, keys)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn remove_lst_invoke(accounts: RemoveLstAccounts<'_, '_>) -> ProgramResult {
+    remove_lst_invoke_with_program_id(crate::ID, accounts)
+}
+pub fn remove_lst_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: RemoveLstAccounts<'_, '_>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = remove_lst_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: RemoveLstKeys = accounts.into();
+    let ix = remove_lst_ix_with_program_id(program_id, keys)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn remove_lst_invoke_signed(
+    accounts: RemoveLstAccounts<'_, '_>,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    remove_lst_invoke_signed_with_program_id(crate::ID, accounts, seeds)
 }
 pub fn remove_lst_verify_account_keys(
     accounts: RemoveLstAccounts<'_, '_>,
@@ -1251,6 +1425,7 @@ pub fn remove_lst_verify_account_keys(
         (accounts.manager.key, &keys.manager),
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.lst_mint.key, &keys.lst_mint),
         (accounts.state.key, &keys.state),
     ] {
         if actual != expected {
@@ -1259,7 +1434,7 @@ pub fn remove_lst_verify_account_keys(
     }
     Ok(())
 }
-pub fn remove_lst_verify_account_privileges<'me, 'info>(
+pub fn remove_lst_verify_writable_privileges<'me, 'info>(
     accounts: RemoveLstAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.refund_rent_to, accounts.fee_acc] {
@@ -1267,11 +1442,23 @@ pub fn remove_lst_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.manager, accounts.refund_rent_to] {
+    Ok(())
+}
+pub fn remove_lst_verify_signer_privileges<'me, 'info>(
+    accounts: RemoveLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    for should_be_signer in [accounts.manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
+    Ok(())
+}
+pub fn remove_lst_verify_account_privileges<'me, 'info>(
+    accounts: RemoveLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    remove_lst_verify_writable_privileges(accounts)?;
+    remove_lst_verify_signer_privileges(accounts)?;
     Ok(())
 }
 pub const ADD_LST_IX_ACCOUNTS_LEN: usize = 6;
@@ -1432,36 +1619,50 @@ impl AddLstIxData {
         Ok(data)
     }
 }
-pub fn add_lst_ix<K: Into<AddLstKeys>, A: Into<AddLstIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn add_lst_ix_with_program_id(
+    program_id: Pubkey,
+    keys: AddLstKeys,
+    args: AddLstIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: AddLstKeys = accounts.into();
     let metas: [AccountMeta; ADD_LST_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: AddLstIxArgs = args.into();
-    let data: AddLstIxData = args_full.into();
+    let data: AddLstIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn add_lst_invoke<'info, A: Into<AddLstIxArgs>>(
-    accounts: AddLstAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = add_lst_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn add_lst_ix(keys: AddLstKeys, args: AddLstIxArgs) -> std::io::Result<Instruction> {
+    add_lst_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn add_lst_invoke_signed<'info, A: Into<AddLstIxArgs>>(
-    accounts: AddLstAccounts<'_, 'info>,
-    args: A,
+pub fn add_lst_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: AddLstAccounts<'_, '_>,
+    args: AddLstIxArgs,
+) -> ProgramResult {
+    let keys: AddLstKeys = accounts.into();
+    let ix = add_lst_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn add_lst_invoke(accounts: AddLstAccounts<'_, '_>, args: AddLstIxArgs) -> ProgramResult {
+    add_lst_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn add_lst_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: AddLstAccounts<'_, '_>,
+    args: AddLstIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = add_lst_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; ADD_LST_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: AddLstKeys = accounts.into();
+    let ix = add_lst_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn add_lst_invoke_signed(
+    accounts: AddLstAccounts<'_, '_>,
+    args: AddLstIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    add_lst_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn add_lst_verify_account_keys(
     accounts: AddLstAccounts<'_, '_>,
@@ -1481,7 +1682,7 @@ pub fn add_lst_verify_account_keys(
     }
     Ok(())
 }
-pub fn add_lst_verify_account_privileges<'me, 'info>(
+pub fn add_lst_verify_writable_privileges<'me, 'info>(
     accounts: AddLstAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.fee_acc] {
@@ -1489,11 +1690,23 @@ pub fn add_lst_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
+    Ok(())
+}
+pub fn add_lst_verify_signer_privileges<'me, 'info>(
+    accounts: AddLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_signer in [accounts.manager, accounts.payer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
+    Ok(())
+}
+pub fn add_lst_verify_account_privileges<'me, 'info>(
+    accounts: AddLstAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    add_lst_verify_writable_privileges(accounts)?;
+    add_lst_verify_signer_privileges(accounts)?;
     Ok(())
 }
 pub const SET_MANAGER_IX_ACCOUNTS_LEN: usize = 3;
@@ -1605,27 +1818,45 @@ impl SetManagerIxData {
         Ok(data)
     }
 }
-pub fn set_manager_ix<K: Into<SetManagerKeys>>(accounts: K) -> std::io::Result<Instruction> {
-    let keys: SetManagerKeys = accounts.into();
+pub fn set_manager_ix_with_program_id(
+    program_id: Pubkey,
+    keys: SetManagerKeys,
+) -> std::io::Result<Instruction> {
     let metas: [AccountMeta; SET_MANAGER_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: SetManagerIxData.try_to_vec()?,
     })
 }
-pub fn set_manager_invoke<'info>(accounts: SetManagerAccounts<'_, 'info>) -> ProgramResult {
-    let ix = set_manager_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn set_manager_ix(keys: SetManagerKeys) -> std::io::Result<Instruction> {
+    set_manager_ix_with_program_id(crate::ID, keys)
 }
-pub fn set_manager_invoke_signed<'info>(
-    accounts: SetManagerAccounts<'_, 'info>,
+pub fn set_manager_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: SetManagerAccounts<'_, '_>,
+) -> ProgramResult {
+    let keys: SetManagerKeys = accounts.into();
+    let ix = set_manager_ix_with_program_id(program_id, keys)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn set_manager_invoke(accounts: SetManagerAccounts<'_, '_>) -> ProgramResult {
+    set_manager_invoke_with_program_id(crate::ID, accounts)
+}
+pub fn set_manager_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: SetManagerAccounts<'_, '_>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = set_manager_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; SET_MANAGER_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: SetManagerKeys = accounts.into();
+    let ix = set_manager_ix_with_program_id(program_id, keys)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn set_manager_invoke_signed(
+    accounts: SetManagerAccounts<'_, '_>,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    set_manager_invoke_signed_with_program_id(crate::ID, accounts, seeds)
 }
 pub fn set_manager_verify_account_keys(
     accounts: SetManagerAccounts<'_, '_>,
@@ -1642,7 +1873,7 @@ pub fn set_manager_verify_account_keys(
     }
     Ok(())
 }
-pub fn set_manager_verify_account_privileges<'me, 'info>(
+pub fn set_manager_verify_writable_privileges<'me, 'info>(
     accounts: SetManagerAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.state] {
@@ -1650,11 +1881,23 @@ pub fn set_manager_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
+    Ok(())
+}
+pub fn set_manager_verify_signer_privileges<'me, 'info>(
+    accounts: SetManagerAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_signer in [accounts.current_manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
+    Ok(())
+}
+pub fn set_manager_verify_account_privileges<'me, 'info>(
+    accounts: SetManagerAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    set_manager_verify_writable_privileges(accounts)?;
+    set_manager_verify_signer_privileges(accounts)?;
     Ok(())
 }
 pub const INITIALIZE_IX_ACCOUNTS_LEN: usize = 3;
@@ -1766,27 +2009,45 @@ impl InitializeIxData {
         Ok(data)
     }
 }
-pub fn initialize_ix<K: Into<InitializeKeys>>(accounts: K) -> std::io::Result<Instruction> {
-    let keys: InitializeKeys = accounts.into();
+pub fn initialize_ix_with_program_id(
+    program_id: Pubkey,
+    keys: InitializeKeys,
+) -> std::io::Result<Instruction> {
     let metas: [AccountMeta; INITIALIZE_IX_ACCOUNTS_LEN] = keys.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: InitializeIxData.try_to_vec()?,
     })
 }
-pub fn initialize_invoke<'info>(accounts: InitializeAccounts<'_, 'info>) -> ProgramResult {
-    let ix = initialize_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn initialize_ix(keys: InitializeKeys) -> std::io::Result<Instruction> {
+    initialize_ix_with_program_id(crate::ID, keys)
 }
-pub fn initialize_invoke_signed<'info>(
-    accounts: InitializeAccounts<'_, 'info>,
+pub fn initialize_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: InitializeAccounts<'_, '_>,
+) -> ProgramResult {
+    let keys: InitializeKeys = accounts.into();
+    let ix = initialize_ix_with_program_id(program_id, keys)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn initialize_invoke(accounts: InitializeAccounts<'_, '_>) -> ProgramResult {
+    initialize_invoke_with_program_id(crate::ID, accounts)
+}
+pub fn initialize_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: InitializeAccounts<'_, '_>,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = initialize_ix(accounts)?;
-    let account_info: [AccountInfo<'info>; INITIALIZE_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: InitializeKeys = accounts.into();
+    let ix = initialize_ix_with_program_id(program_id, keys)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn initialize_invoke_signed(
+    accounts: InitializeAccounts<'_, '_>,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    initialize_invoke_signed_with_program_id(crate::ID, accounts, seeds)
 }
 pub fn initialize_verify_account_keys(
     accounts: InitializeAccounts<'_, '_>,
@@ -1803,7 +2064,7 @@ pub fn initialize_verify_account_keys(
     }
     Ok(())
 }
-pub fn initialize_verify_account_privileges<'me, 'info>(
+pub fn initialize_verify_writable_privileges<'me, 'info>(
     accounts: InitializeAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_writable in [accounts.payer, accounts.state] {
@@ -1811,10 +2072,22 @@ pub fn initialize_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
+    Ok(())
+}
+pub fn initialize_verify_signer_privileges<'me, 'info>(
+    accounts: InitializeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
     for should_be_signer in [accounts.payer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
     }
+    Ok(())
+}
+pub fn initialize_verify_account_privileges<'me, 'info>(
+    accounts: InitializeAccounts<'me, 'info>,
+) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
+    initialize_verify_writable_privileges(accounts)?;
+    initialize_verify_signer_privileges(accounts)?;
     Ok(())
 }

@@ -1,6 +1,6 @@
 // use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState, RemoveLstIxArgs};
 use flat_fee_interface::{remove_lst_ix, AddLstIxArgs, ProgramState};
-use flat_fee_lib::{account_resolvers::RemoveLstByMintFreeArgs, program::STATE_ID};
+use flat_fee_lib::{account_resolvers::RemoveLstFreeArgs, program::STATE_ID};
 use flat_fee_test_utils::{MockFeeAccountArgs, DEFAULT_PROGRAM_STATE};
 use sanctum_solana_test_utils::{assert_program_error, ExtendedBanksClient};
 use solana_program::program_error::ProgramError;
@@ -28,7 +28,7 @@ async fn remove_lst_basic() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let free_args = RemoveLstByMintFreeArgs {
+    let free_args = RemoveLstFreeArgs {
         refund_rent_to: payer.pubkey(),
         lst_mint: jitosol::ID,
         state_acc: KeyedAccount {
@@ -64,7 +64,7 @@ async fn remove_lst_fail_unauthorized() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let mut keys = RemoveLstByMintFreeArgs {
+    let mut keys = RemoveLstFreeArgs {
         refund_rent_to: payer.pubkey(),
         lst_mint: jitosol::ID,
         state_acc: KeyedAccount {
@@ -92,4 +92,45 @@ async fn remove_lst_fail_unauthorized() {
         },
     )
     .await;
+}
+
+#[tokio::test]
+async fn remove_lst_fail_fee_account_is_program_state() {
+    let manager = Keypair::new();
+
+    let program_test = normal_program_test(
+        ProgramState {
+            manager: manager.pubkey(),
+            ..DEFAULT_PROGRAM_STATE
+        },
+        &[MockFeeAccountArgs {
+            input_fee_bps: 1,
+            output_fee_bps: 2,
+            lst_mint: jitosol::ID,
+        }],
+    );
+
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let free_args = RemoveLstFreeArgs {
+        refund_rent_to: payer.pubkey(),
+        lst_mint: jitosol::ID,
+        state_acc: KeyedAccount {
+            pubkey: STATE_ID,
+            account: banks_client.get_account_unwrapped(STATE_ID).await,
+        },
+    };
+    let mut keys = free_args.resolve().unwrap();
+    keys.fee_acc = STATE_ID;
+    let ix = remove_lst_ix(keys).unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &manager], last_blockhash);
+
+    assert_program_error(
+        banks_client.process_transaction(tx).await.unwrap_err(),
+        ProgramError::InvalidArgument,
+    );
+
+    // make sure state wasnt deleted
+    assert!(banks_client.get_account(STATE_ID).await.unwrap().is_some());
 }

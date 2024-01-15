@@ -225,7 +225,7 @@
         {
           "name": "refund_rent_to",
           "isMut": true,
-          "isSigner": true,
+          "isSigner": false,
           "desc": "Account to refund SOL rent to"
         },
         {
@@ -233,6 +233,12 @@
           "isMut": true,
           "isSigner": false,
           "desc": "FeeAccount PDA to be created"
+        },
+        {
+          "name": "lst_mint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint of the LST"
         },
         {
           "name": "state",
