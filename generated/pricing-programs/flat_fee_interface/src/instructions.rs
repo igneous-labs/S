@@ -1099,7 +1099,7 @@ pub fn set_lst_fee_verify_account_privileges<'me, 'info>(
     }
     Ok(())
 }
-pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 4;
+pub const REMOVE_LST_IX_ACCOUNTS_LEN: usize = 5;
 #[derive(Copy, Clone, Debug)]
 pub struct RemoveLstAccounts<'me, 'info> {
     ///The program manager
@@ -1108,6 +1108,8 @@ pub struct RemoveLstAccounts<'me, 'info> {
     pub refund_rent_to: &'me AccountInfo<'info>,
     ///FeeAccount PDA to be created
     pub fee_acc: &'me AccountInfo<'info>,
+    ///Mint of the LST
+    pub lst_mint: &'me AccountInfo<'info>,
     ///The program state PDA
     pub state: &'me AccountInfo<'info>,
 }
@@ -1119,6 +1121,8 @@ pub struct RemoveLstKeys {
     pub refund_rent_to: Pubkey,
     ///FeeAccount PDA to be created
     pub fee_acc: Pubkey,
+    ///Mint of the LST
+    pub lst_mint: Pubkey,
     ///The program state PDA
     pub state: Pubkey,
 }
@@ -1128,6 +1132,7 @@ impl From<RemoveLstAccounts<'_, '_>> for RemoveLstKeys {
             manager: *accounts.manager.key,
             refund_rent_to: *accounts.refund_rent_to.key,
             fee_acc: *accounts.fee_acc.key,
+            lst_mint: *accounts.lst_mint.key,
             state: *accounts.state.key,
         }
     }
@@ -1142,13 +1147,18 @@ impl From<RemoveLstKeys> for [AccountMeta; REMOVE_LST_IX_ACCOUNTS_LEN] {
             },
             AccountMeta {
                 pubkey: keys.refund_rent_to,
-                is_signer: true,
+                is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
                 pubkey: keys.fee_acc,
                 is_signer: false,
                 is_writable: true,
+            },
+            AccountMeta {
+                pubkey: keys.lst_mint,
+                is_signer: false,
+                is_writable: false,
             },
             AccountMeta {
                 pubkey: keys.state,
@@ -1164,7 +1174,8 @@ impl From<[Pubkey; REMOVE_LST_IX_ACCOUNTS_LEN]> for RemoveLstKeys {
             manager: pubkeys[0],
             refund_rent_to: pubkeys[1],
             fee_acc: pubkeys[2],
-            state: pubkeys[3],
+            lst_mint: pubkeys[3],
+            state: pubkeys[4],
         }
     }
 }
@@ -1176,6 +1187,7 @@ impl<'info> From<RemoveLstAccounts<'_, 'info>>
             accounts.manager.clone(),
             accounts.refund_rent_to.clone(),
             accounts.fee_acc.clone(),
+            accounts.lst_mint.clone(),
             accounts.state.clone(),
         ]
     }
@@ -1188,7 +1200,8 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_LST_IX_ACCOUNTS_LEN]>
             manager: &arr[0],
             refund_rent_to: &arr[1],
             fee_acc: &arr[2],
-            state: &arr[3],
+            lst_mint: &arr[3],
+            state: &arr[4],
         }
     }
 }
@@ -1251,6 +1264,7 @@ pub fn remove_lst_verify_account_keys(
         (accounts.manager.key, &keys.manager),
         (accounts.refund_rent_to.key, &keys.refund_rent_to),
         (accounts.fee_acc.key, &keys.fee_acc),
+        (accounts.lst_mint.key, &keys.lst_mint),
         (accounts.state.key, &keys.state),
     ] {
         if actual != expected {
@@ -1267,7 +1281,7 @@ pub fn remove_lst_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.manager, accounts.refund_rent_to] {
+    for should_be_signer in [accounts.manager] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }

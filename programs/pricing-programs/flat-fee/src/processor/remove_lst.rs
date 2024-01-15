@@ -34,7 +34,7 @@ fn verify_remove_lst<'me, 'info>(
     let free_args = RemoveLstFreeArgs {
         refund_rent_to: *actual.refund_rent_to.key,
         state_acc: actual.state,
-        fee_acc: *actual.fee_acc.key,
+        lst_mint: *actual.lst_mint.key,
     };
     let expected: RemoveLstKeys = free_args.resolve()?;
 
