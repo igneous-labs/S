@@ -13,7 +13,10 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::{cpi::SolValueCalculatorCpi, verify::verify_not_rebalancing_and_not_disabled};
+use crate::{
+    cpi::SolValueCalculatorCpi,
+    verify::{verify_not_rebalancing_and_not_disabled, verify_sol_value_calculator_is_program},
+};
 
 use super::{sync_sol_value_unchecked, SyncSolValueUncheckedAccounts};
 
@@ -75,6 +78,7 @@ fn verify_set_sol_value_calculator<'a, 'info>(
         actual.lst_mint,
         accounts_suffix_slice,
     )?;
+    verify_sol_value_calculator_is_program(cpi.program)?;
 
     Ok((actual, lst_index, cpi))
 }

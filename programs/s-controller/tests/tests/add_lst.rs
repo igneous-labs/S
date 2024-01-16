@@ -342,3 +342,34 @@ async fn fail_add_uninitialized_token() {
     let err = banks_client.process_transaction(tx).await.unwrap_err();
     assert_program_error(err, ProgramError::IllegalOwner);
 }
+
+#[tokio::test]
+async fn fail_add_non_exec_sol_val_calc() {
+    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+
+    let msol_mint_acc = banks_client.get_account_unwrapped(msol::ID).await;
+    let uninitialized_sol_val_calc_program = Pubkey::new_unique();
+    let (keys, _bumps) = AddLstFreeArgs {
+        payer: payer.pubkey(),
+        sol_value_calculator: uninitialized_sol_val_calc_program,
+        pool_state: KeyedAccount {
+            pubkey: POOL_STATE_ID,
+            account: pool_state_account,
+        },
+        lst_mint: KeyedAccount {
+            pubkey: msol::ID,
+            account: msol_mint_acc,
+        },
+    }
+    .resolve()
+    .unwrap();
+    let ix = add_lst_ix(keys).unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+    assert_custom_err(err, SControllerError::FaultySolValueCalculator);
+}

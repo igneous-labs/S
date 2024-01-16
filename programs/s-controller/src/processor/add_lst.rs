@@ -18,7 +18,7 @@ use solana_program::{
 
 use crate::{
     list_account::{extend_list_pda, ExtendListPdaAccounts},
-    verify::verify_not_rebalancing_and_not_disabled,
+    verify::{verify_not_rebalancing_and_not_disabled, verify_sol_value_calculator_is_program},
 };
 
 pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
@@ -117,6 +117,7 @@ fn verify_add_lst<'a, 'info>(
     add_lst_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
     verify_tokenkeg_or_22_mint(actual.lst_mint)?;
+    verify_sol_value_calculator_is_program(actual.sol_value_calculator)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;

@@ -1,9 +1,11 @@
-use s_controller_interface::set_pricing_program_ix;
+use s_controller_interface::{set_pricing_program_ix, SControllerError};
 use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
 
-use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir, IntoAccount};
+use sanctum_solana_test_utils::{
+    assert_custom_err, assert_program_error, test_fixtures_dir, IntoAccount,
+};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -15,8 +17,7 @@ use solana_sdk::{
 
 use crate::common::*;
 
-#[tokio::test]
-async fn basic() {
+fn no_fee_program_test() -> (ProgramTest, Keypair) {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
@@ -27,72 +28,108 @@ async fn basic() {
         s_controller_lib::program::ID,
         processor!(s_controller::entrypoint::process_instruction),
     );
-
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
+    assert_ne!(no_fee_pricing_program::ID, DEFAULT_PRICING_PROGRAM);
+    program_test.add_program(
+        "no_fee_pricing_program",
+        no_fee_pricing_program::ID,
+        processor!(no_fee_pricing_program::process_instruction),
     );
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
+    program_test.add_account(s_controller_lib::program::POOL_STATE_ID, pool_state_account);
+
+    (program_test, mock_auth_kp)
+}
+
+#[tokio::test]
+async fn basic_success() {
+    let (program_test, mock_auth_kp) = no_fee_program_test();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    const TEST_PRICING_PROGRAM_SUCCESS: Pubkey = Pubkey::new_from_array([1; 32]);
-    const TEST_PRICING_PROGRAM_FAILURE: Pubkey = Pubkey::new_from_array([2; 32]);
-
-    // Basic success case
-    {
-        assert_ne!(TEST_PRICING_PROGRAM_SUCCESS, DEFAULT_PRICING_PROGRAM);
-        let keys = SetPricingProgramFreeArgs {
-            new_pricing_program: TEST_PRICING_PROGRAM_SUCCESS,
-            pool_state_acc: KeyedAccount {
-                pubkey: POOL_STATE_ID,
-                account: pool_state_account.clone(),
-            },
-        }
-        .resolve()
-        .unwrap();
-        let ix = set_pricing_program_ix(keys).unwrap();
-        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
-
-        banks_client.process_transaction(tx).await.unwrap();
-
-        let pool_state_acc = banks_client.get_pool_state_acc().await;
-        let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-        assert_eq!(pool_state.pricing_program, TEST_PRICING_PROGRAM_SUCCESS);
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let keys = SetPricingProgramFreeArgs {
+        new_pricing_program: no_fee_pricing_program::ID,
+        pool_state_acc: KeyedAccount {
+            pubkey: POOL_STATE_ID,
+            account: pool_state_account,
+        },
     }
+    .resolve()
+    .unwrap();
+    let ix = set_pricing_program_ix(keys).unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
 
-    // Basic rejection case
-    {
-        assert_ne!(TEST_PRICING_PROGRAM_FAILURE, DEFAULT_PRICING_PROGRAM);
-        assert_ne!(TEST_PRICING_PROGRAM_FAILURE, TEST_PRICING_PROGRAM_SUCCESS);
+    banks_client.process_transaction(tx).await.unwrap();
 
-        // A non-admin keypair
-        let rando_kp = Keypair::new();
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
 
-        let mut keys = SetPricingProgramFreeArgs {
-            new_pricing_program: TEST_PRICING_PROGRAM_FAILURE,
-            pool_state_acc: KeyedAccount {
-                pubkey: POOL_STATE_ID,
-                account: pool_state_account.clone(),
-            },
-        }
-        .resolve()
-        .unwrap();
+    assert_eq!(pool_state.pricing_program, no_fee_pricing_program::ID);
+}
 
-        keys.admin = rando_kp.pubkey();
+#[tokio::test]
+async fn fail_unauthorized() {
+    let (program_test, _mock_auth_kp) = no_fee_program_test();
 
-        let ix = set_pricing_program_ix(keys).unwrap();
-        let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
-        tx.sign(&[&payer, &rando_kp], last_blockhash);
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-        let err = banks_client.process_transaction(tx).await.unwrap_err();
+    // A non-admin keypair
+    let rando_kp = Keypair::new();
 
-        let pool_state_acc = banks_client.get_pool_state_acc().await;
-        let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-        assert_program_error(err, ProgramError::InvalidArgument);
-        assert_ne!(pool_state.pricing_program, TEST_PRICING_PROGRAM_FAILURE);
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let mut keys = SetPricingProgramFreeArgs {
+        new_pricing_program: no_fee_pricing_program::ID,
+        pool_state_acc: KeyedAccount {
+            pubkey: POOL_STATE_ID,
+            account: pool_state_account,
+        },
     }
+    .resolve()
+    .unwrap();
+
+    keys.admin = rando_kp.pubkey();
+
+    let ix = set_pricing_program_ix(keys).unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &rando_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
+
+    assert_program_error(err, ProgramError::InvalidArgument);
+    assert_ne!(pool_state.pricing_program, no_fee_pricing_program::ID);
+}
+
+#[tokio::test]
+async fn fail_invalid_program() {
+    let (program_test, mock_auth_kp) = no_fee_program_test();
+
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let uninitialized_pricing_program = Pubkey::new_unique();
+    let keys = SetPricingProgramFreeArgs {
+        new_pricing_program: uninitialized_pricing_program,
+        pool_state_acc: KeyedAccount {
+            pubkey: POOL_STATE_ID,
+            account: pool_state_account,
+        },
+    }
+    .resolve()
+    .unwrap();
+    let ix = set_pricing_program_ix(keys).unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+    assert_custom_err(err, SControllerError::FaultyPricingProgram);
+
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
+
+    assert_ne!(pool_state.pricing_program, uninitialized_pricing_program);
 }

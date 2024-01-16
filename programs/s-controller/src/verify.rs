@@ -364,3 +364,28 @@ pub fn verify_swap_not_same_lst(
         false => Ok(()),
     }
 }
+
+fn verify_is_program(
+    should_be_program: &AccountInfo,
+    err: SControllerError,
+) -> Result<(), SControllerError> {
+    match should_be_program.executable {
+        true => Ok(()),
+        false => Err(err),
+    }
+}
+
+pub fn verify_pricing_program_is_program(
+    pricing_program: &AccountInfo,
+) -> Result<(), SControllerError> {
+    verify_is_program(pricing_program, SControllerError::FaultyPricingProgram)
+}
+
+pub fn verify_sol_value_calculator_is_program(
+    sol_value_calculator_program: &AccountInfo,
+) -> Result<(), SControllerError> {
+    verify_is_program(
+        sol_value_calculator_program,
+        SControllerError::FaultySolValueCalculator,
+    )
+}
