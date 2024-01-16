@@ -354,3 +354,13 @@ pub fn verify_swap_cpis<'a, 'info>(
 
     Ok((sol_val_calc_cpis, pricing_program_cpi))
 }
+
+pub fn verify_swap_not_same_lst(
+    src_lst_mint: &AccountInfo,
+    dst_lst_mint: &AccountInfo,
+) -> Result<(), SControllerError> {
+    match src_lst_mint.key == dst_lst_mint.key {
+        true => Err(SControllerError::SwapSameLst),
+        false => Ok(()),
+    }
+}

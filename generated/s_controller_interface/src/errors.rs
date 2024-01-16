@@ -80,6 +80,8 @@ pub enum SControllerError {
     IncorrectLpMintInitialization = 33,
     #[error("Cannot add a LST that's already part of the pool")]
     DuplicateLst = 34,
+    #[error("Cannot swap from a LST to the same LST")]
+    SwapSameLst = 35,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
