@@ -9,7 +9,7 @@ use flat_fee_lib::{
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_s_common::verify_tokenkeg_or_22_mint;
+use sanctum_s_common::token::verify_tokenkeg_or_22_mint;
 use sanctum_system_program_lib::{
     create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
 };

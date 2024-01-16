@@ -4,14 +4,16 @@ use s_controller_interface::{
 };
 use s_controller_lib::{
     program::{LST_STATE_LIST_BUMP, LST_STATE_LIST_SEED},
-    try_lst_state_list_mut, try_pool_state, AddLstFreeArgs, LstStateBumps,
+    try_lst_state_list, try_lst_state_list_mut, try_pool_state, AddLstFreeArgs, LstStateBumps,
 };
 use sanctum_associated_token_lib::{create_ata_invoke, CreateAtaAccounts};
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
+use sanctum_s_common::token::verify_token_account_authority;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    pubkey::Pubkey,
 };
 
 use crate::{
@@ -28,8 +30,7 @@ pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
         },
     ) = verify_add_lst(accounts)?;
 
-    // Attempting to create the ATAs verifies that the mint is not a duplicate
-    create_ata_invoke(CreateAtaAccounts {
+    create_ata_if_not_exist(CreateAtaAccounts {
         ata_to_create: accounts.pool_reserves,
         wallet: accounts.pool_state,
 
@@ -39,7 +40,7 @@ pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
         token_program: accounts.lst_token_program,
     })?;
 
-    create_ata_invoke(CreateAtaAccounts {
+    create_ata_if_not_exist(CreateAtaAccounts {
         ata_to_create: accounts.protocol_fee_accumulator,
         wallet: accounts.protocol_fee_accumulator_auth,
 
@@ -76,6 +77,29 @@ pub fn process_add_lst(accounts: &[AccountInfo]) -> ProgramResult {
     Ok(())
 }
 
+fn create_ata_if_not_exist(accounts: CreateAtaAccounts) -> Result<(), ProgramError> {
+    if accounts.ata_to_create.data_is_empty() {
+        return create_ata_invoke(accounts);
+    }
+    verify_token_account_authority(accounts.ata_to_create, *accounts.wallet.key)?;
+    Ok(())
+}
+
+fn verify_not_duplicate(
+    lst_state_list: &AccountInfo,
+    lst_mint: Pubkey,
+) -> Result<(), ProgramError> {
+    let d = lst_state_list.try_borrow_data()?;
+    let lst_state_list = try_lst_state_list(&d)?;
+    match lst_state_list
+        .iter()
+        .any(|LstState { mint, .. }| *mint == lst_mint)
+    {
+        true => Err(SControllerError::DuplicateLst.into()),
+        false => Ok(()),
+    }
+}
+
 fn verify_add_lst<'a, 'info>(
     accounts: &'a [AccountInfo<'info>],
 ) -> Result<(AddLstAccounts<'a, 'info>, LstStateBumps), ProgramError> {
@@ -95,6 +119,7 @@ fn verify_add_lst<'a, 'info>(
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
 
+    verify_not_duplicate(actual.lst_state_list, *actual.lst_mint.key)?;
     verify_not_rebalancing_and_not_disabled(pool_state)?;
 
     Ok((actual, bumps))
