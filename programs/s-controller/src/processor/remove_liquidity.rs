@@ -7,7 +7,7 @@ use s_controller_lib::{
     calc_lp_tokens_sol_value, calc_remove_liquidity_protocol_fees, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
     try_pool_state, CalcRemoveLiquidityProtocolFeesArgs, LpTokenRateArgs, PoolStateAccount,
-    RemoveLiquidityFreeArgs, RemoveLiquidityIxFullArgs,
+    RemoveLiquidityFreeArgs, RemoveLiquidityIxAmts, RemoveLiquidityIxFullArgs,
 };
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -35,7 +35,11 @@ pub fn process_remove_liquidity(
         accounts,
         RemoveLiquidityIxFullArgs {
             lst_index,
-            lp_token_amount,
+            amts:
+                RemoveLiquidityIxAmts {
+                    lp_token_amount,
+                    min_lst_out,
+                },
         },
         lst_cpi,
         pricing_cpi,
@@ -76,6 +80,9 @@ pub fn process_remove_liquidity(
 
     if to_user_lst_amount == 0 {
         return Err(SControllerError::ZeroValue.into());
+    }
+    if to_user_lst_amount < min_lst_out {
+        return Err(SControllerError::SlippageToleranceExceeded.into());
     }
 
     burn_invoke(
@@ -121,6 +128,7 @@ fn verify_remove_liquidity<'a, 'info>(
         lst_value_calc_accs,
         lst_index,
         lp_token_amount,
+        min_lst_out,
     }: RemoveLiquidityIxArgs,
 ) -> Result<
     (
@@ -172,7 +180,10 @@ fn verify_remove_liquidity<'a, 'info>(
         actual,
         RemoveLiquidityIxFullArgs {
             lst_index,
-            lp_token_amount,
+            amts: RemoveLiquidityIxAmts {
+                lp_token_amount,
+                min_lst_out,
+            },
         },
         lst_cpi,
         pricing_cpi,

@@ -11,17 +11,27 @@ use crate::{
     RemoveLiquidityByMintFreeArgs,
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct RemoveLiquidityIxAmts {
+    pub lp_token_amount: u64,
+    pub min_lst_out: u64,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RemoveLiquidityIxFullArgs {
     pub lst_index: usize,
-    pub lp_token_amount: u64,
+    pub amts: RemoveLiquidityIxAmts,
 }
 
 pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
     accounts: K,
     RemoveLiquidityIxFullArgs {
         lst_index,
-        lp_token_amount,
+        amts:
+            RemoveLiquidityIxAmts {
+                lp_token_amount,
+                min_lst_out,
+            },
     }: RemoveLiquidityIxFullArgs,
     AddRemoveLiquidityExtraAccounts {
         lst_calculator_program_id,
@@ -37,6 +47,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
             lst_value_calc_accs: 0,
             lst_index,
             lp_token_amount,
+            min_lst_out,
         },
     )?;
     let lst_value_calc_accs = ix_extend_with_sol_value_calculator_accounts(
@@ -57,6 +68,7 @@ pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
         lst_value_calc_accs,
         lst_index,
         lp_token_amount,
+        min_lst_out,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)
@@ -68,16 +80,13 @@ pub fn remove_liquidity_ix_by_mint_full<
     M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 >(
     free_args: RemoveLiquidityByMintFreeArgs<S, L, M>,
-    lp_amount: u64,
+    amts: RemoveLiquidityIxAmts,
     extra_accounts: AddRemoveLiquidityExtraAccounts,
 ) -> Result<Instruction, ProgramError> {
     let (keys, lst_index) = free_args.resolve()?;
     let ix = remove_liquidity_ix_full(
         keys,
-        RemoveLiquidityIxFullArgs {
-            lst_index,
-            lp_token_amount: lp_amount,
-        },
+        RemoveLiquidityIxFullArgs { lst_index, amts },
         extra_accounts,
     )?;
     Ok(ix)

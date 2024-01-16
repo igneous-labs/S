@@ -273,6 +273,10 @@
         {
           "name": "lst_amount",
           "type": "u64"
+        },
+        {
+          "name": "min_lp_out",
+          "type": "u64"
         }
       ],
       "accounts": [
@@ -361,6 +365,10 @@
         },
         {
           "name": "lp_token_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_lst_out",
           "type": "u64"
         }
       ],

@@ -3,11 +3,15 @@ use lido_calculator_lib::lido_sol_val_calc_account_metas;
 use lido_keys::stsol;
 use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 use marinade_keys::msol;
+use s_controller_interface::SControllerError;
 use s_controller_lib::{
     add_liquidity_ix_full, create_pool_reserves_address, try_lst_state_list, try_pool_state,
-    AddLiquidityByMintFreeArgs, AddLiquidityIxFullArgs, AddRemoveLiquidityExtraAccounts,
+    AddLiquidityByMintFreeArgs, AddLiquidityIxAmts, AddLiquidityIxFullArgs,
+    AddRemoveLiquidityExtraAccounts,
 };
-use sanctum_solana_test_utils::{token::MockTokenAccountArgs, ExtendedBanksClient};
+use sanctum_solana_test_utils::{
+    assert_custom_err, token::MockTokenAccountArgs, ExtendedBanksClient,
+};
 use sanctum_token_lib::token_account_balance;
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
@@ -270,7 +274,10 @@ async fn exec_verify_add_liq_success_no_fees(
         keys,
         AddLiquidityIxFullArgs {
             lst_index,
-            lst_amount: lst_account_starting_balance,
+            amts: AddLiquidityIxAmts {
+                lst_amount: lst_account_starting_balance,
+                min_lp_out: 0,
+            },
         },
         AddRemoveLiquidityExtraAccounts {
             lst_calculator_program_id,
@@ -329,4 +336,112 @@ async fn exec_verify_add_liq_success_no_fees(
         // since LST should be worth >1 SOL
         assert!(pool_total_sol_value_inc > lst_account_starting_balance);
     }
+}
+
+#[tokio::test]
+async fn fail_add_liquidity_slippage() {
+    const UNREALISTIC_MIN_LP_EXPECTED: u64 = 10_000_000_000;
+    const JITOSOL_TO_ADD: u64 = 1_000_000_000;
+
+    let liquidity_provider = Keypair::new();
+    let lp_token_mint = Pubkey::new_unique();
+
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        jitosol_sol_value: 0,
+        msol_sol_value: 0,
+        jitosol_reserves: 0,
+        msol_reserves: 0,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint,
+        lp_token_supply: 0,
+    });
+    let liquidity_provider_jitosol_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
+            mint: jitosol::ID,
+            authority: liquidity_provider.pubkey(),
+            amount: JITOSOL_TO_ADD,
+        });
+    let liquidity_provider_lp_token_acc_addr =
+        program_test.gen_and_add_token_account(MockTokenAccountArgs {
+            mint: lp_token_mint,
+            authority: liquidity_provider.pubkey(),
+            amount: 0,
+        });
+    let ctx = program_test.start_with_context().await;
+    ctx.set_sysvar(&Clock {
+        epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+        ..Default::default()
+    });
+    let ProgramTestContext {
+        mut banks_client,
+        last_blockhash,
+        payer,
+        ..
+    } = ctx;
+
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
+
+    let lst_account = banks_client
+        .get_account_unwrapped(liquidity_provider_jitosol_acc_addr)
+        .await;
+    let lst_account_starting_balance = token_account_balance(lst_account).unwrap();
+    assert!(lst_account_starting_balance > 0);
+
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
+    let lst_mint_account = banks_client
+        .get_account(jitosol::ID)
+        .await
+        .unwrap()
+        .unwrap();
+
+    let args = AddLiquidityByMintFreeArgs {
+        signer: liquidity_provider.pubkey(),
+        src_lst_acc: liquidity_provider_jitosol_acc_addr,
+        dst_lp_acc: liquidity_provider_lp_token_acc_addr,
+        pool_state: pool_state_account,
+        lst_state_list: &lst_state_list_account,
+        lst_mint: KeyedAccount {
+            pubkey: jitosol::ID,
+            account: lst_mint_account,
+        },
+    };
+    let (keys, lst_index) = args.resolve().unwrap();
+    let ix = add_liquidity_ix_full(
+        keys,
+        AddLiquidityIxFullArgs {
+            lst_index,
+            amts: AddLiquidityIxAmts {
+                lst_amount: lst_account_starting_balance,
+                min_lp_out: UNREALISTIC_MIN_LP_EXPECTED,
+            },
+        },
+        AddRemoveLiquidityExtraAccounts {
+            lst_calculator_program_id: spl_calculator_lib::program::ID,
+            pricing_program_id: no_fee_pricing_program::ID,
+            lst_calculator_accounts: &SplLstSolCommonFreeArgsConst {
+                spl_stake_pool: KeyedAccount {
+                    pubkey: jito_stake_pool::ID,
+                    account: jito_stake_pool_acc,
+                },
+            }
+            .resolve_to_account_metas()
+            .unwrap(),
+            pricing_program_price_lp_accounts: &[AccountMeta {
+                pubkey: jitosol::ID,
+                is_signer: false,
+                is_writable: false,
+            }],
+        },
+    )
+    .unwrap();
+
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &liquidity_provider], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+    assert_custom_err(err, SControllerError::SlippageToleranceExceeded);
 }
