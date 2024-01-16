@@ -1,8 +1,8 @@
 use marinade_keys::msol;
-use s_controller_interface::{add_lst_ix, LstState, SControllerError};
+use s_controller_interface::{add_lst_ix, AddLstKeys, LstState, SControllerError};
 use s_controller_lib::{
     find_pool_reserves_address, find_protocol_fee_accumulator_address,
-    program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstPdaAtaKeys,
 };
 use sanctum_solana_test_utils::{
@@ -11,7 +11,8 @@ use sanctum_solana_test_utils::{
     ExtendedBanksClient, IntoAccount,
 };
 use solana_program::{
-    hash::Hash, program_error::ProgramError, program_pack::Pack, pubkey::Pubkey, system_instruction,
+    hash::Hash, program_error::ProgramError, program_pack::Pack, pubkey::Pubkey,
+    system_instruction, system_program,
 };
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -303,4 +304,41 @@ async fn fail_pre_created_ata_wrong_authority() {
 
     let err = banks_client.process_transaction(tx).await.unwrap_err();
     assert_program_error(err, ProgramError::InvalidAccountData);
+}
+
+#[tokio::test]
+async fn fail_add_uninitialized_token() {
+    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let uninitialized_lst_mint = Pubkey::new_unique();
+    let (pool_reserves, _bump) = find_pool_reserves_address(FindLstPdaAtaKeys {
+        lst_mint: uninitialized_lst_mint,
+        token_program: system_program::ID,
+    });
+    let (protocol_fee_accumulator, _bump) =
+        find_protocol_fee_accumulator_address(FindLstPdaAtaKeys {
+            lst_mint: uninitialized_lst_mint,
+            token_program: system_program::ID,
+        });
+    let ix = add_lst_ix(AddLstKeys {
+        admin: mock_auth_kp.pubkey(),
+        payer: payer.pubkey(),
+        lst_mint: uninitialized_lst_mint,
+        pool_reserves,
+        protocol_fee_accumulator,
+        protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
+        sol_value_calculator: spl_calculator_lib::program::ID,
+        pool_state: POOL_STATE_ID,
+        lst_state_list: LST_STATE_LIST_ID,
+        associated_token_program: spl_associated_token_account::ID,
+        system_program: system_program::ID,
+        lst_token_program: system_program::ID,
+    })
+    .unwrap();
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+    assert_program_error(err, ProgramError::IllegalOwner);
 }

@@ -10,7 +10,7 @@ use sanctum_associated_token_lib::{create_ata_invoke, CreateAtaAccounts};
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_s_common::token::verify_token_account_authority;
+use sanctum_s_common::token::{verify_token_account_authority, verify_tokenkeg_or_22_mint};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     pubkey::Pubkey,
@@ -115,6 +115,8 @@ fn verify_add_lst<'a, 'info>(
 
     add_lst_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     add_lst_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
+
+    verify_tokenkeg_or_22_mint(actual.lst_mint)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
