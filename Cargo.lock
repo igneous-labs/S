@@ -3386,6 +3386,7 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-associated-token-account",
  "spl-calculator",
  "spl-calculator-lib",
  "spl-pod",
