@@ -17,6 +17,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 flat_fee_interface = { workspace = true }
 flat-fee-lib = { workspace = true }
 sanctum-misc-utils = { workspace = true }
+sanctum-s-common = { workspace = true }
 sanctum-system-program-lib = { workspace = true }
 solana-program = { workspace = true }
 
