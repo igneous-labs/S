@@ -3,7 +3,7 @@ use generic_pool_calculator_interface::{lst_to_sol_verify_account_keys, LstToSol
 use generic_pool_calculator_lib::utils::{
     verify_no_stake_pool_prog_upgrade, VerifyNoStakePoolProgUpgradeArgs,
 };
-use lido_calculator_interface::Lido;
+use lido_calculator_interface::{AccountType, Lido};
 use lido_calculator_lib::{LidoCalc, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMEDIATE_KEYS};
 use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{
@@ -28,6 +28,9 @@ pub fn verify_lst_sol_common(accounts: &[AccountInfo<'_>]) -> Result<LidoCalc, P
     })?;
 
     let state = Lido::deserialize(&mut actual.pool_state.try_borrow_data()?.as_ref())?;
+    if state.account_type != AccountType::Lido {
+        return Err(ProgramError::InvalidAccountData);
+    }
     let calc: LidoCalc = state.into();
 
     calc.verify_pool_updated_for_this_epoch(&Clock::get()?)?;

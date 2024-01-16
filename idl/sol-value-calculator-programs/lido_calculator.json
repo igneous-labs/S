@@ -9,7 +9,9 @@
         "fields": [
           {
             "name": "account_type",
-            "type": "u8"
+            "type": {
+              "defined": "AccountType"
+            }
           },
           {
             "name": "lido_version",
@@ -238,6 +240,29 @@
           {
             "name": "min_vote_success_rate",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "Lido"
+          },
+          {
+            "name": "Validator"
+          },
+          {
+            "name": "ValidatorPerf"
+          },
+          {
+            "name": "Maintainer"
           }
         ]
       }
