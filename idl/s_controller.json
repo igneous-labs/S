@@ -1541,6 +1541,11 @@
       "code": 34,
       "name": "DuplicateLst",
       "msg": "Cannot add a LST that's already part of the pool"
+    },
+    {
+      "code": 35,
+      "name": "SwapSameLst",
+      "msg": "Cannot swap from a LST to the same LST"
     }
   ],
   "metadata": {

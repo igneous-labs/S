@@ -25,7 +25,7 @@ use crate::{
     processor::sync_sol_value_unchecked,
     verify::{
         verify_lst_input_not_disabled, verify_not_rebalancing_and_not_disabled, verify_swap_cpis,
-        VerifySwapCpiAccounts,
+        verify_swap_not_same_lst, VerifySwapCpiAccounts,
     },
 };
 
@@ -174,6 +174,8 @@ fn verify_swap_exact_in<'a, 'info>(
 
     swap_exact_in_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     swap_exact_in_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
+
+    verify_swap_not_same_lst(actual.src_lst_mint, actual.dst_lst_mint)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
