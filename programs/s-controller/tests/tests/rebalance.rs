@@ -454,3 +454,69 @@ async fn rebalance_fail_not_enough_sol_value_returned() {
 
     assert_custom_err(err, SControllerError::PoolWouldLoseSolValue);
 }
+
+#[tokio::test]
+async fn rebalance_fail_wrong_end_rebalance_dst_lst_mint() {
+    let mock_auth_kp =
+        read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
+            .unwrap();
+    let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        jitosol_sol_value: 1_000_000_000,
+        msol_sol_value: 1_000_000_000,
+        jitosol_reserves: 1_000_000_000,
+        msol_reserves: 1_000_000_000,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
+    });
+
+    let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: jitosol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: 0,
+    });
+    let donate_msol_from_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
+        mint: msol::ID,
+        authority: mock_auth_kp.pubkey(),
+        amount: 500_000_000,
+    });
+
+    let ctx = program_test.start_with_context().await;
+    ctx.set_sysvar(&Clock {
+        epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+        ..Default::default()
+    });
+    let ProgramTestContext {
+        mut banks_client,
+        last_blockhash,
+        payer,
+        ..
+    } = ctx;
+
+    let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let jito_stake_pool_acc = banks_client
+        .get_account_unwrapped(jito_stake_pool::ID)
+        .await;
+
+    let mut ixs = create_rebalance_donate_ixs(CreateRebalanceDonateIxsArgs {
+        jito_stake_pool_acc,
+        pool_state_acc,
+        lst_state_list_acc,
+        withdraw_jitosol_to_addr,
+        donate_msol_from_addr,
+        donate_msol_authority: mock_auth_kp.pubkey(),
+        jitosol_withdraw_amt: 500_000_000,
+        msol_donate_amt: 500_000_000,
+    });
+    // change dst_lst_mint of end rebalance ix
+    ixs[2].accounts[3].pubkey = jitosol::ID;
+
+    let mut tx = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+
+    assert_custom_err(err, SControllerError::NoSucceedingEndRebalance);
+}

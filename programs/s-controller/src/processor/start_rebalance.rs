@@ -22,6 +22,7 @@ use solana_program::{
     entrypoint::ProgramResult,
     instruction::Instruction,
     program_error::ProgramError,
+    pubkey::Pubkey,
     sysvar::instructions::{load_current_index_checked, load_instruction_at_checked},
 };
 
@@ -167,13 +168,14 @@ fn verify_start_rebalance<'a, 'info>(
         src_dst_lst_indexes,
     )?;
 
-    verify_has_succeeding_end_rebalance_ix(actual.instructions)?;
+    verify_has_succeeding_end_rebalance_ix(actual.instructions, *actual.dst_lst_mint.key)?;
 
     Ok((actual, src_dst_lst_cpis, src_dst_lst_indexes))
 }
 
 fn verify_has_succeeding_end_rebalance_ix(
     instructions_sysvar: &AccountInfo,
+    dst_lst_mint: Pubkey,
 ) -> Result<(), ProgramError> {
     let current_idx: usize = load_current_index_checked(instructions_sysvar)?.into();
     let mut next_ix_idx = current_idx
@@ -182,7 +184,7 @@ fn verify_has_succeeding_end_rebalance_ix(
     loop {
         let next_ix = load_instruction_at_checked(next_ix_idx, instructions_sysvar)
             .map_err(|_| SControllerError::NoSucceedingEndRebalance)?;
-        if is_end_rebalance_ix(&next_ix) {
+        if is_end_rebalance_ix(&next_ix, dst_lst_mint) {
             break;
         }
         next_ix_idx = next_ix_idx
@@ -192,7 +194,9 @@ fn verify_has_succeeding_end_rebalance_ix(
     Ok(())
 }
 
-fn is_end_rebalance_ix(ix: &Instruction) -> bool {
+const END_REBALANCE_IX_DST_LST_MINT_INDEX: usize = 3;
+
+fn is_end_rebalance_ix(ix: &Instruction, dst_lst_mint: Pubkey) -> bool {
     let discm = match ix.data.first() {
         Some(d) => d,
         None => return false,
@@ -203,5 +207,9 @@ fn is_end_rebalance_ix(ix: &Instruction) -> bool {
     if ix.program_id != s_controller_lib::program::ID {
         return false;
     }
-    true
+    let dst_lst_mint_account = match ix.accounts.get(END_REBALANCE_IX_DST_LST_MINT_INDEX) {
+        Some(a) => a,
+        None => return false,
+    };
+    dst_lst_mint_account.pubkey == dst_lst_mint
 }
