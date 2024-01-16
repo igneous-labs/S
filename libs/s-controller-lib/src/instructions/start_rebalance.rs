@@ -9,11 +9,18 @@ use crate::{index_to_u32, SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
 
 use super::{ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstSolValueCalcAccounts};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct StartRebalanceIxLstAmts {
+    pub amount: u64,
+    pub min_starting_src_lst: u64,
+    pub max_starting_dst_lst: u64,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct StartRebalanceIxFullArgs {
     pub src_lst_index: usize,
     pub dst_lst_index: usize,
-    pub amount: u64,
+    pub lst_amts: StartRebalanceIxLstAmts,
 }
 
 pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
@@ -21,7 +28,12 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
     StartRebalanceIxFullArgs {
         src_lst_index,
         dst_lst_index,
-        amount,
+        lst_amts:
+            StartRebalanceIxLstAmts {
+                amount,
+                min_starting_src_lst,
+                max_starting_dst_lst,
+            },
     }: StartRebalanceIxFullArgs,
     sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
 ) -> Result<Instruction, ProgramError> {
@@ -34,6 +46,8 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
             src_lst_index,
             dst_lst_index,
             amount,
+            min_starting_src_lst,
+            max_starting_dst_lst,
         },
     )?;
     let extend_count =
@@ -46,6 +60,8 @@ pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
         src_lst_index,
         dst_lst_index,
         amount,
+        min_starting_src_lst,
+        max_starting_dst_lst,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)
@@ -58,7 +74,7 @@ pub fn start_rebalance_ix_by_mints_full<
     L: ReadonlyAccountData + ReadonlyAccountPubkey,
 >(
     free_args: StartRebalanceByMintsFreeArgs<SM, DM, S, L>,
-    amount: u64,
+    lst_amts: StartRebalanceIxLstAmts,
     sol_val_calc_accounts: SrcDstLstSolValueCalcAccounts,
 ) -> Result<Instruction, ProgramError> {
     let (
@@ -73,7 +89,7 @@ pub fn start_rebalance_ix_by_mints_full<
         StartRebalanceIxFullArgs {
             src_lst_index,
             dst_lst_index,
-            amount,
+            lst_amts,
         },
         sol_val_calc_accounts,
     )
