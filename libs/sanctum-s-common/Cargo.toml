@@ -1,0 +1,10 @@
+[package]
+name = "sanctum-s-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sanctum-token-lib = { workspace = true }
+solana-program = { workspace = true }
+spl-token = { workspace = true, features = ["no-entrypoint"] }
+spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
