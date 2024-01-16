@@ -50,9 +50,9 @@ pub enum SControllerError {
     LstStillHasValue = 19,
     #[error("Incorrect pricing program")]
     IncorrectPricingProgram = 20,
-    #[error("Swap would exceed slippage tolerance")]
+    #[error("Action would exceed slippage tolerance")]
     SlippageToleranceExceeded = 21,
-    #[error("Not enough liquidity complete swap")]
+    #[error("Not enough liquidity to complete swap")]
     NotEnoughLiquidity = 22,
     #[error("Provided list index argument is too large")]
     IndexTooLarge = 23,

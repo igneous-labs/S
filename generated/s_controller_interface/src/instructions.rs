@@ -4686,6 +4686,8 @@ pub struct StartRebalanceIxArgs {
     pub src_lst_index: u32,
     pub dst_lst_index: u32,
     pub amount: u64,
+    pub min_starting_src_lst: u64,
+    pub max_starting_dst_lst: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct StartRebalanceIxData(pub StartRebalanceIxArgs);

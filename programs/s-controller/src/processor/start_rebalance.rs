@@ -16,7 +16,9 @@ use sanctum_system_program_lib::{
     allocate_invoke_signed, assign_invoke_signed, space_to_u64, transfer_direct_increment,
     TransferAccounts,
 };
-use sanctum_token_lib::{transfer_checked_decimal_agnostic_invoke_signed, TransferCheckedAccounts};
+use sanctum_token_lib::{
+    token_account_balance, transfer_checked_decimal_agnostic_invoke_signed, TransferCheckedAccounts,
+};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
@@ -114,7 +116,9 @@ fn verify_start_rebalance<'a, 'info>(
         src_lst_calc_accs,
         src_lst_index,
         dst_lst_index,
-        ..
+        amount: _,
+        min_starting_src_lst,
+        max_starting_dst_lst,
     }: &StartRebalanceIxArgs,
 ) -> Result<
     (
@@ -142,6 +146,13 @@ fn verify_start_rebalance<'a, 'info>(
 
     start_rebalance_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     start_rebalance_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
+
+    if token_account_balance(actual.src_pool_reserves)? < *min_starting_src_lst {
+        return Err(SControllerError::SlippageToleranceExceeded.into());
+    }
+    if token_account_balance(actual.dst_pool_reserves)? > *max_starting_dst_lst {
+        return Err(SControllerError::SlippageToleranceExceeded.into());
+    }
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;
@@ -177,19 +188,16 @@ fn verify_has_succeeding_end_rebalance_ix(
     instructions_sysvar: &AccountInfo,
     dst_lst_mint: Pubkey,
 ) -> Result<(), ProgramError> {
-    let current_idx: usize = load_current_index_checked(instructions_sysvar)?.into();
-    let mut next_ix_idx = current_idx
-        .checked_add(1)
-        .ok_or(SControllerError::MathError)?;
+    let mut next_ix_idx: usize = load_current_index_checked(instructions_sysvar)?.into();
     loop {
+        next_ix_idx = next_ix_idx
+            .checked_add(1)
+            .ok_or(SControllerError::MathError)?;
         let next_ix = load_instruction_at_checked(next_ix_idx, instructions_sysvar)
             .map_err(|_| SControllerError::NoSucceedingEndRebalance)?;
         if is_end_rebalance_ix(&next_ix, dst_lst_mint) {
             break;
         }
-        next_ix_idx = next_ix_idx
-            .checked_add(1)
-            .ok_or(SControllerError::MathError)?;
     }
     Ok(())
 }

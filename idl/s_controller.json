@@ -1043,6 +1043,14 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "min_starting_src_lst",
+          "type": "u64"
+        },
+        {
+          "name": "max_starting_dst_lst",
+          "type": "u64"
         }
       ],
       "accounts": [
@@ -1467,12 +1475,12 @@
     {
       "code": 21,
       "name": "SlippageToleranceExceeded",
-      "msg": "Swap would exceed slippage tolerance"
+      "msg": "Action would exceed slippage tolerance"
     },
     {
       "code": 22,
       "name": "NotEnoughLiquidity",
-      "msg": "Not enough liquidity complete swap"
+      "msg": "Not enough liquidity to complete swap"
     },
     {
       "code": 23,
