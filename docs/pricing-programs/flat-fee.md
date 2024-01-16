@@ -174,11 +174,11 @@ Permissionlessly initialize the program state. Can only be called once and sets 
 
 ##### Accounts
 
-| Account        | Description                                | Read/Write (R/W) | Signer (Y/N) |
-| -------------- | ------------------------------------------ | ---------------- | ------------ |
-| payer          | Account paying for ProgramState's rent     | W                | Y            |
-| state          | Program state PDA                          | W                | N            |
-| system_program | System program                             | R                | N            |
+| Account        | Description                            | Read/Write (R/W) | Signer (Y/N) |
+| -------------- | -------------------------------------- | ---------------- | ------------ |
+| payer          | Account paying for ProgramState's rent | W                | Y            |
+| state          | Program state PDA                      | W                | N            |
+| system_program | System program                         | R                | N            |
 
 #### SetManager
 
@@ -227,17 +227,18 @@ Update the fees for given type of pricing action.
 
 ##### Data
 
-| Name         | Value                                                       | Type |
-| ------------ | ----------------------------------------------------------- | ---- |
-| discriminant | 252                                                         | u8   |
+| Name         | Value | Type |
+| ------------ | ----- | ---- |
+| discriminant | 252   | u8   |
 
 ##### Accounts
 
 | Account        | Description                   | Read/Write (R/W) | Signer (Y/N) |
 | -------------- | ----------------------------- | ---------------- | ------------ |
 | manager        | The program manager           | R                | Y            |
-| refund_rent_to | Account to refund SOL rent to | R                | Y            |
+| refund_rent_to | Account to refund SOL rent to | R                | N            |
 | fee_acc        | FeeAccount PDA to modify      | W                | N            |
+| lst_mint       | Mint of the LST               | R                | N            |
 | state          | Program state PDA             | R                | N            |
 | system_program | System program                | R                | N            |
 

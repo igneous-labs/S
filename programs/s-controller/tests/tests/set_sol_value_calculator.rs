@@ -1,7 +1,6 @@
-use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
-use marinade_calculator_lib::{MarinadeSolValCalc, MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS};
+use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 use marinade_keys::msol;
-use s_controller_interface::SetSolValueCalculatorKeys;
+use s_controller_interface::{SControllerError, SetSolValueCalculatorKeys};
 use s_controller_lib::{
     create_pool_reserves_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
@@ -9,9 +8,9 @@ use s_controller_lib::{
     try_find_lst_mint_on_list, try_lst_state_list, try_pool_state,
     SetSolValueCalculatorByMintFreeArgs,
 };
-use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir};
+use sanctum_solana_test_utils::{assert_custom_err, assert_program_error, test_fixtures_dir};
 use sanctum_token_lib::MintWithTokenProgram;
-use solana_program::{instruction::AccountMeta, program_error::ProgramError, pubkey::Pubkey};
+use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 
 use crate::common::*;
@@ -55,23 +54,16 @@ async fn basic_set_marinade() {
     let (_i, lst_state) = try_find_lst_mint_on_list(msol::ID, lst_state_list).unwrap();
     assert!(lst_state.sol_value_calculator != marinade_calculator_lib::program::ID);
 
-    let marinade_sol_val_calc_keys: generic_pool_calculator_interface::SolToLstKeys =
-        MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
-            .resolve::<MarinadeSolValCalc>()
-            .into();
-    let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        marinade_sol_val_calc_keys.into();
-
     let ix = set_sol_value_calculator_ix_by_mint_full(
         &SetSolValueCalculatorByMintFreeArgs {
             pool_state: banks_client.get_pool_state_acc().await,
-            lst_state_list: banks_client.get_lst_state_list_acc().await,
+            lst_state_list: lst_state_list_account,
             lst_mint: MintWithTokenProgram {
                 pubkey: msol::ID,
                 token_program: spl_token::ID,
             },
         },
-        &marinade_sol_val_calc_accounts,
+        &marinade_sol_val_calc_account_metas(),
         marinade_calculator_lib::program::ID,
     )
     .unwrap();
@@ -113,13 +105,6 @@ async fn fail_unauthorized() {
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
-    let marinade_sol_val_calc_keys: generic_pool_calculator_interface::SolToLstKeys =
-        MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
-            .resolve::<MarinadeSolValCalc>()
-            .into();
-    let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        marinade_sol_val_calc_keys.into();
-
     let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
     let (lst_index, lst_state) = try_find_lst_mint_on_list(
         msol::ID,
@@ -137,7 +122,7 @@ async fn fail_unauthorized() {
             lst_state_list: LST_STATE_LIST_ID,
         },
         lst_index,
-        &marinade_sol_val_calc_accounts,
+        &marinade_sol_val_calc_account_metas(),
         marinade_calculator_lib::program::ID,
     )
     .unwrap();
@@ -149,4 +134,57 @@ async fn fail_unauthorized() {
 
     // InvalidArgument thrown by mismatch keys in *_verify_account_keys()
     assert_program_error(err, ProgramError::InvalidArgument);
+}
+
+#[tokio::test]
+async fn fail_set_non_exec_sol_val_calc() {
+    const MSOL_POOL_RESERVES: u64 = 1_000_000_000;
+
+    let mock_auth_kp =
+        read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
+            .unwrap();
+
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        // these are overriden below
+        msol_reserves: MSOL_POOL_RESERVES,
+        msol_sol_value: MSOL_POOL_RESERVES,
+        // dont cares
+        jitosol_reserves: 0,
+        jitosol_sol_value: 0,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
+    })
+    .add_mock_lst_states(&[MockLstStateArgs {
+        mint: msol::ID,
+        sol_value_calculator: marinade_calculator_lib::program::ID,
+        token_program: spl_token::ID,
+        sol_value: MSOL_POOL_RESERVES,
+        reserves_amt: MSOL_POOL_RESERVES,
+        protocol_fee_accumulator_amt: 0,
+    }]);
+
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let uninitialized_sol_val_calc_program = Pubkey::new_unique();
+    let ix = set_sol_value_calculator_ix_by_mint_full(
+        &SetSolValueCalculatorByMintFreeArgs {
+            pool_state: banks_client.get_pool_state_acc().await,
+            lst_state_list: banks_client.get_lst_state_list_acc().await,
+            lst_mint: MintWithTokenProgram {
+                pubkey: msol::ID,
+                token_program: spl_token::ID,
+            },
+        },
+        &[],
+        uninitialized_sol_val_calc_program,
+    )
+    .unwrap();
+
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+    assert_custom_err(err, SControllerError::FaultySolValueCalculator);
 }

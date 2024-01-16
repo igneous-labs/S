@@ -9,6 +9,7 @@ use flat_fee_lib::{
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
+use sanctum_s_common::token::verify_tokenkeg_or_22_mint;
 use sanctum_system_program_lib::{
     create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
 };
@@ -72,6 +73,7 @@ fn verify_add_lst<'me, 'info>(
     add_lst_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;
     add_lst_verify_account_privileges(actual).map_err(log_and_return_acc_privilege_err)?;
 
+    verify_tokenkeg_or_22_mint(actual.lst_mint)?;
     verify_signed_fee_bps_bound(args.input_fee_bps)?;
     verify_signed_fee_bps_bound(args.output_fee_bps)?;
 

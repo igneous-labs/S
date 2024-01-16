@@ -273,6 +273,10 @@
         {
           "name": "lst_amount",
           "type": "u64"
+        },
+        {
+          "name": "min_lp_out",
+          "type": "u64"
         }
       ],
       "accounts": [
@@ -361,6 +365,10 @@
         },
         {
           "name": "lp_token_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_lst_out",
           "type": "u64"
         }
       ],
@@ -1043,6 +1051,14 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "min_starting_src_lst",
+          "type": "u64"
+        },
+        {
+          "name": "max_starting_dst_lst",
+          "type": "u64"
         }
       ],
       "accounts": [
@@ -1467,12 +1483,12 @@
     {
       "code": 21,
       "name": "SlippageToleranceExceeded",
-      "msg": "Swap would exceed slippage tolerance"
+      "msg": "Action would exceed slippage tolerance"
     },
     {
       "code": 22,
       "name": "NotEnoughLiquidity",
-      "msg": "Not enough liquidity complete swap"
+      "msg": "Not enough liquidity to complete swap"
     },
     {
       "code": 23,
@@ -1528,6 +1544,16 @@
       "code": 33,
       "name": "IncorrectLpMintInitialization",
       "msg": "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
+    },
+    {
+      "code": 34,
+      "name": "DuplicateLst",
+      "msg": "Cannot add a LST that's already part of the pool"
+    },
+    {
+      "code": 35,
+      "name": "SwapSameLst",
+      "msg": "Cannot swap from a LST to the same LST"
     }
   ],
   "metadata": {

@@ -50,9 +50,9 @@ pub enum SControllerError {
     LstStillHasValue = 19,
     #[error("Incorrect pricing program")]
     IncorrectPricingProgram = 20,
-    #[error("Swap would exceed slippage tolerance")]
+    #[error("Action would exceed slippage tolerance")]
     SlippageToleranceExceeded = 21,
-    #[error("Not enough liquidity complete swap")]
+    #[error("Not enough liquidity to complete swap")]
     NotEnoughLiquidity = 22,
     #[error("Provided list index argument is too large")]
     IndexTooLarge = 23,
@@ -78,6 +78,10 @@ pub enum SControllerError {
         "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
     )]
     IncorrectLpMintInitialization = 33,
+    #[error("Cannot add a LST that's already part of the pool")]
+    DuplicateLst = 34,
+    #[error("Cannot swap from a LST to the same LST")]
+    SwapSameLst = 35,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {

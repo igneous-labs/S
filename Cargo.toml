@@ -7,6 +7,7 @@ members = [
     "keys/*",
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
+    "libs/sanctum-s-common",
     "libs/sol-value-calculator-programs/*",
     "programs/pricing-programs/*",
     "programs/s-controller",
@@ -79,6 +80,7 @@ generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs
 generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
 lido-calculator-lib = { path = "./libs/sol-value-calculator-programs/lido-calculator-lib" }
 marinade-calculator-lib = { path = "./libs/sol-value-calculator-programs/marinade-calculator-lib" }
+sanctum-s-common = { path = "./libs/sanctum-s-common" }
 sol-value-calculator-lib = { path = "./libs/sol-value-calculator-programs/sol-value-calculator-lib" }
 sol-value-calculator-onchain = { path = "./libs/sol-value-calculator-programs/sol-value-calculator-onchain" }
 spl-calculator-lib = { path = "./libs/sol-value-calculator-programs/spl-calculator-lib" }

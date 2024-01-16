@@ -6,11 +6,13 @@ use marinade_calculator_lib::{
     MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS,
 };
 use marinade_keys::msol;
+use s_controller_interface::SControllerError;
 use s_controller_lib::{
     swap_exact_out_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
     SwapByMintsFreeArgs, SwapExactOutAmounts,
 };
 use sanctum_solana_test_utils::{
+    assert_custom_err,
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
     ExtendedBanksClient,
 };
@@ -370,4 +372,92 @@ async fn basic_swap_exact_out_flat_fee() {
         .unwrap()
         .total_sol_value;
     assert!(start_pool_total_sol_value < end_pool_total_sol_value);
+}
+
+#[tokio::test]
+async fn fail_swap_exact_out_same_mint() {
+    const MSOL_STARTING_POOL_RESERVES: u64 = 10_000_000_000;
+    const MSOL_STARTING_BALANCE: u64 = 1_000_000_000;
+
+    let swapper = Keypair::new();
+    let lp_token_mint = Pubkey::new_unique();
+    let swapper_msol_acc_addr = Pubkey::new_unique();
+
+    let program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        msol_reserves: MSOL_STARTING_POOL_RESERVES,
+        msol_sol_value: MSOL_STARTING_POOL_RESERVES, // updated on sync
+        // dont cares
+        jitosol_reserves: 0,
+        jitosol_sol_value: 0,
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint,
+        lp_token_supply: 0,
+    })
+    .add_tokenkeg_account_from_args(
+        swapper_msol_acc_addr,
+        MockTokenAccountArgs {
+            mint: msol::ID,
+            authority: swapper.pubkey(),
+            amount: MSOL_STARTING_BALANCE,
+        },
+    );
+
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    let lst_state_list_account = banks_client.get_lst_state_list_acc().await;
+
+    let marinade_sol_val_calc_keys: generic_pool_calculator_interface::SolToLstKeys =
+        MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS
+            .resolve::<MarinadeSolValCalc>()
+            .into();
+    let marinade_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
+        marinade_sol_val_calc_keys.into();
+
+    let ix = swap_exact_out_ix_by_mint_full(
+        SwapByMintsFreeArgs {
+            signer: swapper.pubkey(),
+            src_lst_acc: swapper_msol_acc_addr,
+            dst_lst_acc: swapper_msol_acc_addr,
+            src_lst_mint: MintWithTokenProgram {
+                pubkey: msol::ID,
+                token_program: spl_token::ID,
+            },
+            dst_lst_mint: MintWithTokenProgram {
+                pubkey: msol::ID,
+                token_program: spl_token::ID,
+            },
+            lst_state_list: lst_state_list_account,
+        },
+        SwapExactOutAmounts {
+            max_amount_in: u64::MAX,
+            amount: MSOL_STARTING_BALANCE,
+        },
+        SrcDstLstSolValueCalcAccounts {
+            dst_lst_calculator_program_id: marinade_calculator_lib::program::ID,
+            dst_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
+            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
+            src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
+        },
+        &[
+            AccountMeta {
+                pubkey: msol::ID,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: msol::ID,
+                is_signer: false,
+                is_writable: false,
+            },
+        ],
+        no_fee_pricing_program::ID,
+    )
+    .unwrap();
+
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer, &swapper], last_blockhash);
+
+    let err = banks_client.process_transaction(tx).await.unwrap_err();
+    assert_custom_err(err, SControllerError::SwapSameLst);
 }

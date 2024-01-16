@@ -1357,6 +1357,7 @@ dependencies = [
  "flat-fee-test-utils",
  "flat_fee_interface",
  "sanctum-misc-utils",
+ "sanctum-s-common",
  "sanctum-solana-test-utils",
  "sanctum-system-program-lib",
  "solana-program",
@@ -3375,6 +3376,7 @@ dependencies = [
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-misc-utils",
+ "sanctum-s-common",
  "sanctum-solana-test-utils",
  "sanctum-system-program-lib",
  "sanctum-token-lib",
@@ -3384,6 +3386,7 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-associated-token-account",
  "spl-calculator",
  "spl-calculator-lib",
  "spl-pod",
@@ -3467,6 +3470,16 @@ source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d171
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
+]
+
+[[package]]
+name = "sanctum-s-common"
+version = "0.1.0"
+dependencies = [
+ "sanctum-token-lib",
+ "solana-program",
+ "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]

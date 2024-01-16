@@ -5,8 +5,9 @@ use s_controller_interface::{
 use s_controller_lib::{
     calc_add_liquidity_protocol_fees, calc_lp_tokens_to_mint, index_to_usize,
     program::{POOL_STATE_BUMP, POOL_STATE_SEED},
-    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxFullArgs,
-    CalcAddLiquidityArgs, CalcAddLiquidityProtocolFeesResult, LpTokenRateArgs, PoolStateAccount,
+    try_lst_state_list, try_pool_state, AddLiquidityFreeArgs, AddLiquidityIxAmts,
+    AddLiquidityIxFullArgs, CalcAddLiquidityArgs, CalcAddLiquidityProtocolFeesResult,
+    LpTokenRateArgs, PoolStateAccount,
 };
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -34,7 +35,11 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
         accounts,
         AddLiquidityIxFullArgs {
             lst_index,
-            lst_amount,
+            amts:
+                AddLiquidityIxAmts {
+                    lst_amount,
+                    min_lp_out,
+                },
         },
         lst_cpi,
         pricing_cpi,
@@ -79,6 +84,10 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
 
     if to_reserves_lst_amount == 0 || lp_tokens_to_mint == 0 {
         return Err(SControllerError::ZeroValue.into());
+    }
+
+    if lp_tokens_to_mint < min_lp_out {
+        return Err(SControllerError::SlippageToleranceExceeded.into());
     }
 
     transfer_checked_decimal_agnostic_invoke(
@@ -127,6 +136,7 @@ fn verify_add_liquidity<'a, 'info>(
         lst_value_calc_accs,
         lst_index,
         lst_amount,
+        min_lp_out,
     }: AddLiquidityIxArgs,
 ) -> Result<
     (
@@ -184,7 +194,10 @@ fn verify_add_liquidity<'a, 'info>(
         actual,
         AddLiquidityIxFullArgs {
             lst_index,
-            lst_amount,
+            amts: AddLiquidityIxAmts {
+                lst_amount,
+                min_lp_out,
+            },
         },
         lst_cpi,
         pricing_cpi,

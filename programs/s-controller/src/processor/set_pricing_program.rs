@@ -10,7 +10,7 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
 
-use crate::verify::verify_not_rebalancing_and_not_disabled;
+use crate::verify::{verify_not_rebalancing_and_not_disabled, verify_pricing_program_is_program};
 
 pub fn process_set_pricing_program(accounts: &[AccountInfo]) -> ProgramResult {
     let SetPricingProgramAccounts {
@@ -42,6 +42,8 @@ fn verify_set_pricing_program<'me, 'info>(
         .map_err(log_and_return_wrong_acc_err)?;
     set_pricing_program_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
+
+    verify_pricing_program_is_program(actual.new_pricing_program)?;
 
     let pool_state_bytes = actual.pool_state.try_borrow_data()?;
     let pool_state = try_pool_state(&pool_state_bytes)?;

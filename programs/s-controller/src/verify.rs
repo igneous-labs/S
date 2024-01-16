@@ -354,3 +354,38 @@ pub fn verify_swap_cpis<'a, 'info>(
 
     Ok((sol_val_calc_cpis, pricing_program_cpi))
 }
+
+pub fn verify_swap_not_same_lst(
+    src_lst_mint: &AccountInfo,
+    dst_lst_mint: &AccountInfo,
+) -> Result<(), SControllerError> {
+    match src_lst_mint.key == dst_lst_mint.key {
+        true => Err(SControllerError::SwapSameLst),
+        false => Ok(()),
+    }
+}
+
+fn verify_is_program(
+    should_be_program: &AccountInfo,
+    err: SControllerError,
+) -> Result<(), SControllerError> {
+    match should_be_program.executable {
+        true => Ok(()),
+        false => Err(err),
+    }
+}
+
+pub fn verify_pricing_program_is_program(
+    pricing_program: &AccountInfo,
+) -> Result<(), SControllerError> {
+    verify_is_program(pricing_program, SControllerError::FaultyPricingProgram)
+}
+
+pub fn verify_sol_value_calculator_is_program(
+    sol_value_calculator_program: &AccountInfo,
+) -> Result<(), SControllerError> {
+    verify_is_program(
+        sol_value_calculator_program,
+        SControllerError::FaultySolValueCalculator,
+    )
+}
