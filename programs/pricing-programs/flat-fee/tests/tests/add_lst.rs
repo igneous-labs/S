@@ -71,14 +71,24 @@ async fn add_lst_basic() {
 
 #[tokio::test]
 async fn add_lst_fail_invalid_fee() {
-    const BAD_FEE_ARGS_1: AddLstIxArgs = AddLstIxArgs {
-        input_fee_bps: 10_001,
-        output_fee_bps: 0,
-    };
-    const BAD_FEE_ARGS_2: AddLstIxArgs = AddLstIxArgs {
-        input_fee_bps: 0,
-        output_fee_bps: 10_001,
-    };
+    const BAD_FEE_ARGS: [AddLstIxArgs; 4] = [
+        AddLstIxArgs {
+            input_fee_bps: 10_001,
+            output_fee_bps: 0,
+        },
+        AddLstIxArgs {
+            input_fee_bps: 0,
+            output_fee_bps: 10_001,
+        },
+        AddLstIxArgs {
+            input_fee_bps: -10_001,
+            output_fee_bps: 0,
+        },
+        AddLstIxArgs {
+            input_fee_bps: 0,
+            output_fee_bps: -10_001,
+        },
+    ];
 
     let (program_test, manager, lst_mint) = add_lst_program_test();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
@@ -90,7 +100,7 @@ async fn add_lst_fail_invalid_fee() {
         account: state_acc,
     };
 
-    for bad_fee_args in [BAD_FEE_ARGS_1, BAD_FEE_ARGS_2] {
+    for bad_fee_args in BAD_FEE_ARGS {
         let free_args = AddLstFreeArgs {
             payer: payer.pubkey(),
             lst_mint,
