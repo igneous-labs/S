@@ -16,7 +16,7 @@ pub struct StartRebalanceIxLstAmts {
     pub max_starting_dst_lst: u64,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StartRebalanceIxFullArgs {
     pub src_lst_index: usize,
     pub dst_lst_index: usize,

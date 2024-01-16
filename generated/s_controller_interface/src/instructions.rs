@@ -1209,6 +1209,7 @@ pub struct AddLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
     pub lst_amount: u64,
+    pub min_lp_out: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct AddLiquidityIxData(pub AddLiquidityIxArgs);
@@ -1515,6 +1516,7 @@ pub struct RemoveLiquidityIxArgs {
     pub lst_value_calc_accs: u8,
     pub lst_index: u32,
     pub lp_token_amount: u64,
+    pub min_lst_out: u64,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct RemoveLiquidityIxData(pub RemoveLiquidityIxArgs);

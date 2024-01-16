@@ -10,17 +10,26 @@ use crate::{
     AddRemoveLiquidityExtraAccounts,
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AddLiquidityIxAmts {
+    pub lst_amount: u64,
+    pub min_lp_out: u64,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AddLiquidityIxFullArgs {
     pub lst_index: usize,
-    pub lst_amount: u64,
+    pub amts: AddLiquidityIxAmts,
 }
 
 pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
     accounts: K,
     AddLiquidityIxFullArgs {
         lst_index,
-        lst_amount,
+        amts: AddLiquidityIxAmts {
+            lst_amount,
+            min_lp_out,
+        },
     }: AddLiquidityIxFullArgs,
     AddRemoveLiquidityExtraAccounts {
         lst_calculator_program_id,
@@ -36,6 +45,7 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
             lst_value_calc_accs: 0,
             lst_index,
             lst_amount,
+            min_lp_out,
         },
     )?;
     let lst_value_calc_accs = ix_extend_with_sol_value_calculator_accounts(
@@ -56,6 +66,7 @@ pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
         lst_value_calc_accs,
         lst_index,
         lst_amount,
+        min_lp_out,
     })
     .serialize(&mut overwrite)?;
     Ok(ix)
@@ -67,16 +78,13 @@ pub fn add_liquidity_ix_by_mint_full<
     M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
 >(
     free_args: AddLiquidityByMintFreeArgs<S, L, M>,
-    amount: u64,
+    amts: AddLiquidityIxAmts,
     extra_accounts: AddRemoveLiquidityExtraAccounts,
 ) -> Result<Instruction, ProgramError> {
     let (keys, lst_index) = free_args.resolve()?;
     let ix = add_liquidity_ix_full(
         keys,
-        AddLiquidityIxFullArgs {
-            lst_index,
-            lst_amount: amount,
-        },
+        AddLiquidityIxFullArgs { lst_index, amts },
         extra_accounts,
     )?;
     Ok(ix)
