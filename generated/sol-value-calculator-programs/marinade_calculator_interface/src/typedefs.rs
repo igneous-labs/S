@@ -3,7 +3,7 @@ use solana_program::pubkey::Pubkey;
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MarinadeState {
-    pub discriminant: u64,
+    pub discriminant: [u8; 8],
     pub msol_mint: Pubkey,
     pub admin_authority: Pubkey,
     pub operational_sol_account: Pubkey,

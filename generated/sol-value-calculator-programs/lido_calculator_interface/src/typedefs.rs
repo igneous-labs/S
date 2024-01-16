@@ -3,7 +3,7 @@ use solana_program::pubkey::Pubkey;
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Lido {
-    pub account_type: u8,
+    pub account_type: AccountType,
     pub lido_version: u8,
     pub manager: Pubkey,
     pub st_sol_mint: Pubkey,
@@ -71,4 +71,13 @@ pub struct Criteria {
     pub max_commission: u8,
     pub min_block_production_rate: u64,
     pub min_vote_success_rate: u64,
+}
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum AccountType {
+    Uninitialized,
+    Lido,
+    Validator,
+    ValidatorPerf,
+    Maintainer,
 }

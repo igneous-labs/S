@@ -9,7 +9,9 @@
         "fields": [
           {
             "name": "discriminant",
-            "type": "u64"
+            "type": {
+              "array": ["u8", 8]
+            }
           },
           {
             "name": "msolMint",

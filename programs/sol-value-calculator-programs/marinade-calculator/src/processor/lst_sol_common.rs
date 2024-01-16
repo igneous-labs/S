@@ -10,6 +10,8 @@ use marinade_calculator_lib::{
 use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};
 
+const MARINADE_STATE_DISCM: [u8; 8] = [216, 146, 107, 94, 104, 75, 182, 177];
+
 /// Assumes:
 /// - LstToSolAccounts/Keys and SolToLstAccounts/Keys are identical
 pub fn verify_lst_sol_common(
@@ -30,6 +32,9 @@ pub fn verify_lst_sol_common(
     })?;
 
     let state = MarinadeState::deserialize(&mut actual.pool_state.try_borrow_data()?.as_ref())?;
+    if state.discriminant != MARINADE_STATE_DISCM {
+        return Err(ProgramError::InvalidAccountData);
+    }
     let calc: MarinadeStateCalc = state.into();
 
     calc.verify_marinade_not_paused()?;
