@@ -1,6 +1,8 @@
-use s_controller_interface::SControllerProgramIx;
+use s_controller_interface::{SControllerError, SControllerProgramIx};
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
+    program_error::{PrintProgramError, ProgramError},
     pubkey::Pubkey,
 };
 
@@ -21,7 +23,7 @@ pub fn process_instruction(
     let ix = SControllerProgramIx::deserialize(instruction_data)?;
     solana_program::msg!("{:?}", ix);
 
-    match ix {
+    let res = match ix {
         SControllerProgramIx::SyncSolValue(args) => process_sync_sol_value(accounts, args),
         SControllerProgramIx::SwapExactIn(args) => process_swap_exact_in(accounts, args),
         SControllerProgramIx::SwapExactOut(args) => process_swap_exact_out(accounts, args),
@@ -55,5 +57,9 @@ pub fn process_instruction(
         SControllerProgramIx::EndRebalance => process_end_rebalance(accounts),
         SControllerProgramIx::SetRebalanceAuthority => process_set_rebalance_authority(accounts),
         SControllerProgramIx::Initialize => process_initialize(accounts),
+    };
+    if let Err(e) = res.as_ref() {
+        e.print::<SControllerError>();
     }
+    res
 }

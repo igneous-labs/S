@@ -1528,6 +1528,11 @@
       "code": 33,
       "name": "IncorrectLpMintInitialization",
       "msg": "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
+    },
+    {
+      "code": 34,
+      "name": "DuplicateLst",
+      "msg": "Cannot add a LST that's already part of the pool"
     }
   ],
   "metadata": {

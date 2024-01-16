@@ -3376,6 +3376,7 @@ dependencies = [
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-misc-utils",
+ "sanctum-s-common",
  "sanctum-solana-test-utils",
  "sanctum-system-program-lib",
  "sanctum-token-lib",

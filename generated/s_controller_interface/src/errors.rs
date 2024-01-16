@@ -78,6 +78,8 @@ pub enum SControllerError {
         "LP token mint must be an initialized Tokenkeg mint with 0 supply and mint authority = initial authority"
     )]
     IncorrectLpMintInitialization = 33,
+    #[error("Cannot add a LST that's already part of the pool")]
+    DuplicateLst = 34,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
