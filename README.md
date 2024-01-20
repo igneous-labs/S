@@ -18,15 +18,19 @@ See the overview [here](./docs/).
 
 ## Setup
 
-Match solana + rust toolchain versions of `ellipsislabs/solana:1.16.20` to ensure build close to reproducible build as possible.
+To ensure that the build is as close to the reproducible build as possible, match:
+
+- solana + solana toolchain versions of `ellipsislabs/solana:1.17.6`
+- main rust toolchain version to `solana-labs/solana/rust-toolchain.toml`
 
 ```sh
-sh -c "$(curl -sSfL https://release.solana.com/v1.16.20/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.17.6/install)"
 cargo-build-sbf --version && rustc --version
 
-solana-cargo-build-sbf 1.16.20
+solana-cargo-build-sbf 1.17.6
 platform-tools v1.37
-rustc 1.68.0 (2c8cc3432 2023-03-06)
+rustc 1.68.0 # rust version used by cargo-build-sbf to build the bpf programs .so. solana currently has it locked to 1.68
+rustc 1.73.0 (cc66ad468 2023-10-03) # rust version dictated by rust-toolchain.toml, used for building everything else
 ```
 
 ## Overview of User Authorities
@@ -58,3 +62,13 @@ We use a `testing` feature flag for test vs prod env in the following programs:
 Unfortunately it seems like `cargo-test-sbf` has some issues with workspaces: running `cargo-test-sbf --features testing` in workspace root results in `error: none of the selected packages contains these features: testing`.
 
 SBF tests for these programs will fail unless you run `cargo-test-sbf --features testing` in the program crate's root directory.
+
+## Build
+
+### Verifiable
+
+[Install solana-verify](https://github.com/Ellipsis-Labs/solana-verifiable-build/tree/master#installation)
+
+```sh
+solana-verify build
+```
