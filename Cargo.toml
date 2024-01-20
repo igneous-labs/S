@@ -29,13 +29,7 @@ bytemuck = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
-sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-macros = "^1"
-sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["token"] }
-sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["borsh", "onchain"] } 
 serde = "^1"
 serde_json = "^1"
 spl-pod = ">=0.1.0"
@@ -57,6 +51,15 @@ solana-account-decoder = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
 solana-sdk = "^1"
+
+# sanctum-solana-utils
+# TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor
+sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["token"] }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "659e618", features = ["borsh", "onchain"] } 
 
 # workspace members
 flat_fee_interface = { path = "./generated/pricing-programs/flat_fee_interface" }

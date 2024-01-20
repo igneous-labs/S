@@ -3521,7 +3521,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "1.0.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=659e618#659e61878ba7138b5c52750b3c6ab8180f073295"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
