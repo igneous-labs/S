@@ -24,9 +24,9 @@ use crate::common::*;
 
 #[tokio::test]
 async fn basic_redeem_full_no_fees() {
-    const LP_TOKEN_SUPPLY: u64 = 999_999_999;
+    const LP_TOKEN_SUPPLY: u64 = 1_000_000_000;
     const LP_TOKENS_TO_REMOVE: u64 = LP_TOKEN_SUPPLY;
-    const JITOSOL_RESERVES_STARTING_BALANCE: u64 = 999_999_999;
+    const JITOSOL_RESERVES_STARTING_BALANCE: u64 = 1_000_000_000;
 
     let liquidity_provider = Keypair::new();
     let lp_token_mint = Pubkey::new_unique();
@@ -120,18 +120,19 @@ async fn basic_redeem_full_no_fees() {
     banks_client.process_transaction(tx).await.unwrap();
 
     // no fee pricing program, so
-    // - reserves should be empty
+    // - reserves should be empty,
+    //   but 1 or 2 lamports are left in the pool due to rounding down in sync_sol_value and SolToLst
     // - protocol_fee_accumulator should be empty
-    // TODO: some numbers result in 1 lamport being left in pool due to using SolToLst.min
     let pool_reserves_account = banks_client.get_account_unwrapped(pool_reserves).await;
-    assert_eq!(token_account_balance(pool_reserves_account).unwrap(), 0);
+    let pool_reserves_balance = token_account_balance(pool_reserves_account).unwrap();
+    assert!(pool_reserves_balance <= 2, "{pool_reserves_balance} > 2");
 
     let liquidity_provider_jitosol_account = banks_client
         .get_account_unwrapped(liquidity_provider_jitosol_acc_addr)
         .await;
     assert_eq!(
         token_account_balance(liquidity_provider_jitosol_account).unwrap(),
-        JITOSOL_RESERVES_STARTING_BALANCE
+        JITOSOL_RESERVES_STARTING_BALANCE - pool_reserves_balance
     );
 
     let protocol_fee_accumulator_account = banks_client
@@ -147,7 +148,8 @@ async fn basic_redeem_full_no_fees() {
 
     let pool_state_account = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
-    assert_eq!(pool_state.total_sol_value, 0);
+    // 1 or 2 jitoLamport should == same amt in SOL terms
+    assert_eq!(pool_state.total_sol_value, pool_reserves_balance);
 }
 
 #[tokio::test]

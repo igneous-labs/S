@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 no-entrypoint = []
+testing = [] # not used, added so that we can run cargo-test-sbf at workspace root to test all programs
 
 [lib]
 crate-type = ["cdylib", "lib"]

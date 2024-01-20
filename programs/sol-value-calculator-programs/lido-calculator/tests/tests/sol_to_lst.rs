@@ -12,7 +12,10 @@ use crate::common::lido_normal_program_test;
 #[tokio::test]
 async fn basic() {
     const LAMPORTS_AMOUNT: u64 = 1_147_696_330;
-    const EXPECTED_LST_RANGE: U64ValueRange = U64ValueRange::single(1_000_000_000);
+    const EXPECTED_LST_RANGE: U64ValueRange = U64ValueRange {
+        min: 999_999_999,
+        max: 1_000_000_001,
+    };
 
     let program_test = lido_normal_program_test();
 

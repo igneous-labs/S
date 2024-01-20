@@ -46,7 +46,9 @@ tokio = "^1"
 solana-readonly-account = "^1"
 
 # solana libraries (not pure rust)
-# Use ^1 for flexibility for library users, but lock to 1.16.20 for deploy
+# Use ^1 for flexibility for library users, but lock to 1.17.6 for deploy.
+# To update versions, set solana-program and solana-program-test to `=<new-vers>`,
+# then restore `^1` after Cargo.lock is updated
 solana-account-decoder = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
