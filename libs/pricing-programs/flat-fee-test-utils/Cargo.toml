@@ -7,7 +7,7 @@ edition = "2021"
 async-trait = { workspace = true }
 flat_fee_interface = { workspace = true }
 flat-fee-lib = { workspace = true }
-sanctum-solana-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
 solana-program = { workspace = true }
 solana-program-test = { workspace = true }
 solana-sdk = { workspace = true }

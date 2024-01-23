@@ -48,7 +48,7 @@ marinade-calculator-lib = { workspace = true }
 marinade-keys = { workspace = true }
 no-fee-pricing-program = { workspace = true, features = ["no-entrypoint"] }
 s-controller-lib = { workspace = true, features = ["testing"] }
-sanctum-solana-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
 solana-program-test = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
