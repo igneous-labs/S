@@ -17,7 +17,7 @@ pub trait TestCliCmd {
     /// to stdout separated by `\n`
     async fn exec_b64_txs<B: ExtendedBanksClient + Send>(
         self,
-        bc: B,
+        bc: &mut B,
     ) -> Vec<Result<BanksTransactionResultWithMetadata, BanksClientError>>;
 }
 
@@ -33,7 +33,7 @@ impl TestCliCmd for Command {
 
     async fn exec_b64_txs<B: ExtendedBanksClient + Send>(
         mut self,
-        mut bc: B,
+        bc: &mut B,
     ) -> Vec<Result<BanksTransactionResultWithMetadata, BanksClientError>> {
         let Output { stdout, .. } = self.output().unwrap();
         let stdout = std::str::from_utf8(&stdout).unwrap();

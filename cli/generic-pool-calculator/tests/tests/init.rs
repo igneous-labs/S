@@ -9,9 +9,9 @@ use crate::common::{setup, GpcSplProgramTest, TestGpcCmd};
 #[tokio::test(flavor = "multi_thread")]
 async fn init_success() {
     let pt = ProgramTest::default();
-    let (mut cmd, _cfg, bc, _payer, _rbh) = setup(pt).await;
+    let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup(pt).await;
     cmd.with_spl_calculator().cmd_init();
-    let exec_res = cmd.exec_b64_txs(bc).await;
+    let exec_res = cmd.exec_b64_txs(&mut bc).await;
     // assert success
     exec_res[0].as_ref().unwrap();
 }

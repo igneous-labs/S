@@ -3,10 +3,11 @@ name = "cli-test-utils"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 assert_cmd = { workspace = true }
 async-trait = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["cli"] }
+serde_json = { workspace = true }
 solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+tempfile = { workspace = true }
