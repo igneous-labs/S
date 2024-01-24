@@ -1,6 +1,6 @@
-use cli_test_utils::{temp_keyfile, TestCliCmd};
+use cli_test_utils::TestCliCmd;
 use generic_pool_calculator_lib::utils::try_calculator_state;
-use sanctum_solana_test_utils::ExtendedBanksClient;
+use sanctum_solana_test_utils::{cli::temp_keypair_file, ExtendedBanksClient};
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::{pubkey::Pubkey, signature::Keypair, signer::Signer};
 
@@ -30,7 +30,7 @@ async fn set_manager_success_payer_as_manager_new_manager_pubkey() {
 async fn set_manager_success_separate_manager_new_manager_pubkey() {
     let new_manager = Pubkey::new_unique();
     let curr_manager = Keypair::new();
-    let curr_manager_keyfile = temp_keyfile(&curr_manager);
+    let curr_manager_keyfile = temp_keypair_file(&curr_manager);
     let pt = ProgramTest::default().add_mock_spl_calculator_state(0, curr_manager.pubkey());
     let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup(pt).await;
     cmd.with_spl_calculator()
