@@ -4,6 +4,7 @@ use clap::{
     builder::{StringValueParser, TypedValueParser, ValueParser},
     Parser,
 };
+use s_cli_utils::{CONFIG_HELP, TX_SEND_MODE_HELP};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use solana_sdk::pubkey::Pubkey;
 use subcmd::Subcmd;
@@ -21,7 +22,7 @@ pub struct Args {
     #[arg(
         long,
         short,
-        help = "path to solana CLI config",
+        help = CONFIG_HELP,
         default_value = "",
         value_parser = ValueParser::new(ConfigWrapper::parse_from_path)
     )]
@@ -30,12 +31,7 @@ pub struct Args {
     #[arg(
         long,
         short,
-        help = "
-transaction send mode.
-- `send-actual` signs and sends the tx to the cluster specified in config and outputs hash to stderr
-- `sim-only` simulates the tx against the cluster and outputs logs to stderr
-- `dump-msg` dumps the base64 encoded tx to stdout. For use with inspectors and multisigs
-",
+        help = TX_SEND_MODE_HELP,
         default_value_t = TxSendMode::default(),
         value_enum,
     )]

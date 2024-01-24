@@ -97,6 +97,7 @@ spl-calculator-lib = { path = "./libs/sol-value-calculator-programs/spl-calculat
 wsol-calculator-lib = { path = "./libs/sol-value-calculator-programs/wsol-calculator-lib" }
 flat-fee = { path = "./programs/pricing-programs/flat-fee" }
 no-fee-pricing-program = { path = "./programs/pricing-programs/no-fee-pricing-program" }
+s-cli-utils = { path = "./cli/s-cli-utils" }
 s-controller = { path = "./programs/s-controller" }
 lido-calculator = { path = "./programs/sol-value-calculator-programs/lido-calculator" }
 marinade-calculator = { path = "./programs/sol-value-calculator-programs/marinade-calculator" }

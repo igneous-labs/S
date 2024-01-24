@@ -1716,6 +1716,7 @@ dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
+ "s-cli-utils",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
@@ -3657,6 +3658,10 @@ name = "ryu"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
+
+[[package]]
+name = "s-cli-utils"
+version = "0.1.0"
 
 [[package]]
 name = "s-controller"
