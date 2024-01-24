@@ -7,6 +7,4 @@ edition = "2021"
 assert_cmd = { workspace = true }
 async-trait = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["cli"] }
-serde_json = { workspace = true }
 solana-program-test = { workspace = true }
-solana-sdk = { workspace = true }

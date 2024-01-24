@@ -921,9 +921,7 @@ dependencies = [
  "assert_cmd",
  "async-trait",
  "sanctum-solana-test-utils",
- "serde_json",
  "solana-program-test",
- "solana-sdk",
 ]
 
 [[package]]
