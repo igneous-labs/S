@@ -2,6 +2,14 @@
 
 CLI binaries and their test utils.
 
+## Guidelines
+
+### stdout vs stderr
+
+stdout should be reserved for output data that can be piped to other CLIs. The most prominent example is raw base64 encoded serialized transactions.
+
+Everything else - anything thats meant to be read by humans: log messages, transaction signatures, etc, should go to stderr
+
 ## Notes
 
 ### clap v3 vs v4
