@@ -1,5 +1,5 @@
 use clap::Args;
-use generic_pool_calculator_interface::init_ix;
+use generic_pool_calculator_interface::init_ix_with_program_id;
 use generic_pool_calculator_lib::{
     account_resolvers::InitFreeArgs, pda::CalculatorStateFindPdaArgs, utils::try_calculator_state,
 };
@@ -37,7 +37,8 @@ impl InitArgs {
             return;
         }
 
-        let ix = init_ix(
+        let ix = init_ix_with_program_id(
+            program,
             InitFreeArgs {
                 payer: signer.pubkey(),
             }

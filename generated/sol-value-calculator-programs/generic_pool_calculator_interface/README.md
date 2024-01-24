@@ -17,3 +17,5 @@ solores \
     --bytemuck-vers "workspace=true" \
     idl/sol-value-calculator-programs/generic_pool_calculator.json
 ```
+
+Generated with solores v0.7.0

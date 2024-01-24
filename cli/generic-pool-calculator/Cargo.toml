@@ -14,3 +14,14 @@ generic-pool-calculator-lib = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
 solana-sdk = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+cli-test-utils = { workspace = true }
+generic-pool-calculator-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli"] }
+sanctum-macros = { workspace = true }
+solana-program = { workspace = true }
+solana-program-test = { workspace = true }
+spl-calculator = { workspace = true, features = ["no-entrypoint"] }
+spl-calculator-lib = { workspace = true }
