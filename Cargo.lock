@@ -3793,7 +3793,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=0147dab#0147dab39083430a440bf83bbdb6e34153c932a8"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=1db97f4#1db97f408aa8355a45e1e359e0fc1eb3c8442f0c"
 dependencies = [
  "async-trait",
  "bincode",
@@ -3809,11 +3809,11 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=0147dab#0147dab39083430a440bf83bbdb6e34153c932a8"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=1db97f4#1db97f408aa8355a45e1e359e0fc1eb3c8442f0c"
 dependencies = [
  "async-trait",
  "bincode",
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "data-encoding",
  "http-body-util",
  "hyper 1.1.0",
