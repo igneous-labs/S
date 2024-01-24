@@ -8,7 +8,7 @@ async-trait = { workspace = true }
 borsh = { workspace = true }
 proptest = { workspace = true }
 sanctum-macros = { workspace = true }
-sanctum-solana-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
 solana-program = { workspace = true }
 solana-program-test = { workspace = true }
 solana-sdk = { workspace = true }

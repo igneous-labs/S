@@ -6,6 +6,6 @@ edition = "2021"
 [dependencies]
 generic_pool_calculator_interface = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
-sanctum-solana-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
 solana-program-test = { workspace = true }
 solana-sdk = { workspace = true }

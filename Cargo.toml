@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "cli/*",
     "generated/pricing-programs/*",
     "generated/s_controller_interface",
     "generated/sol-value-calculator-programs/*",
@@ -22,10 +23,12 @@ members = [
 #strip = true # cargo-build-sbf strips symbols after building
 
 [workspace.dependencies]
+assert_cmd = "^2"
 async-trait = ">=0.1"
 bincode = "^1"
 borsh = ">=0.9"
 bytemuck = "^1"
+clap = { version = "^4", features = ["derive"] }
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
@@ -58,12 +61,14 @@ solana-sdk = "^1"
 # TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor
 sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f", features = ["token"] }
+sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "7b7eb98", features = ["clap"] }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "7b7eb98" }
 sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "659e618", features = ["borsh", "onchain"] } 
 
 # workspace members
+cli-test-utils = { path = "./cli/cli-test-utils" }
 flat_fee_interface = { path = "./generated/pricing-programs/flat_fee_interface" }
 pricing_programs_interface = { path = "./generated/pricing-programs/pricing_programs_interface" }
 s_controller_interface = { path = "./generated/s_controller_interface" }
@@ -92,6 +97,7 @@ spl-calculator-lib = { path = "./libs/sol-value-calculator-programs/spl-calculat
 wsol-calculator-lib = { path = "./libs/sol-value-calculator-programs/wsol-calculator-lib" }
 flat-fee = { path = "./programs/pricing-programs/flat-fee" }
 no-fee-pricing-program = { path = "./programs/pricing-programs/no-fee-pricing-program" }
+s-cli-utils = { path = "./cli/s-cli-utils" }
 s-controller = { path = "./programs/s-controller" }
 lido-calculator = { path = "./programs/sol-value-calculator-programs/lido-calculator" }
 marinade-calculator = { path = "./programs/sol-value-calculator-programs/marinade-calculator" }
