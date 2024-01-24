@@ -13,6 +13,8 @@ generic_pool_calculator_interface = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+solana-account-decoder = { workspace = true }
+solana-rpc-client-api = { workspace = true }
 solana-sdk = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 
@@ -26,3 +28,5 @@ solana-program = { workspace = true }
 solana-program-test = { workspace = true }
 spl-calculator = { workspace = true, features = ["no-entrypoint"] }
 spl-calculator-lib = { workspace = true }
+spl-stake-pool-keys = { workspace = true }
+test-utils = { workspace = true }
