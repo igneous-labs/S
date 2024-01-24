@@ -8,10 +8,10 @@ use solana_program_test::{BanksClientError, BanksTransactionResultWithMetadata};
 #[async_trait]
 pub trait TestCliCmd {
     /// `--send-mode dump-msg`
-    fn with_b64_send_mode(&mut self) -> &mut Self;
+    fn with_send_mode_dump_msg(&mut self) -> &mut Self;
 
-    /// `--config <TEMP_CLI_PATH>`
-    fn with_temp_cli_cfg(&mut self, cfg: &TempCliConfig) -> &mut Self;
+    /// `--config <TEMP_CLI_CFG_PATH>`
+    fn with_cfg_temp_cli(&mut self, cfg: &TempCliConfig) -> &mut Self;
 
     /// Assumes the cli command outputs one or more base64 encoded transactions
     /// to stdout separated by `\n`
@@ -23,11 +23,11 @@ pub trait TestCliCmd {
 
 #[async_trait]
 impl TestCliCmd for Command {
-    fn with_b64_send_mode(&mut self) -> &mut Self {
+    fn with_send_mode_dump_msg(&mut self) -> &mut Self {
         self.arg("--send-mode").arg("dump-msg")
     }
 
-    fn with_temp_cli_cfg(&mut self, cfg: &TempCliConfig) -> &mut Self {
+    fn with_cfg_temp_cli(&mut self, cfg: &TempCliConfig) -> &mut Self {
         self.arg("--config").arg(cfg.config().path())
     }
 

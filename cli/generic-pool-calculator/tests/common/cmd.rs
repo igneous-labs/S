@@ -26,7 +26,7 @@ pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Key
     let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
     let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
     let mut cmd = cargo_bin();
-    cmd.with_b64_send_mode().with_temp_cli_cfg(&cfg);
+    cmd.with_send_mode_dump_msg().with_cfg_temp_cli(&cfg);
     (cmd, cfg, bc, payer, rbh)
 }
 
