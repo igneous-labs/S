@@ -17,3 +17,5 @@ solores \
     --serde-vers "workspace=true" \
     idl/pricing-programs/interface.json
 ```
+
+Generated with solores v0.7.0

@@ -3114,6 +3114,7 @@ name = "pricing_programs_interface"
 version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
+ "bytemuck",
  "serde",
  "solana-program",
 ]
