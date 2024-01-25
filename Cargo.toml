@@ -1,7 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "cli/*",
+    "cli/cli-test-utils",
+    "cli/s-cli-utils",
+    "cli/generic-pool-calculator",
+    "cli/pricing-programs/*",
     "generated/pricing-programs/*",
     "generated/s_controller_interface",
     "generated/sol-value-calculator-programs/*",

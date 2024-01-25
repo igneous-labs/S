@@ -1530,6 +1530,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "flat-fee-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap 4.4.18",
+ "cli-test-utils",
+ "flat-fee-lib",
+ "flat_fee_interface",
+ "s-cli-utils",
+ "sanctum-macros",
+ "sanctum-solana-cli-utils",
+ "sanctum-solana-test-utils",
+ "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "flat-fee-lib"
 version = "0.1.0"
 dependencies = [

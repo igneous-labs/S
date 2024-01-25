@@ -1,0 +1,26 @@
+[package]
+name = "flat-fee-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "flat-fee-cli"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+flat_fee_interface = { workspace = true }
+flat-fee-lib = { workspace = true }
+s-cli-utils = { workspace = true }
+sanctum-solana-cli-utils = { workspace = true }
+solana-sdk = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+cli-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli"] }
+sanctum-macros = { workspace = true }
+solana-program = { workspace = true }
+solana-program-test = { workspace = true }
+test-utils = { workspace = true }
