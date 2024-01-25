@@ -3798,7 +3798,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=7b7eb98#7b7eb983b6b8e30ce8444f62ca598aaaa01d17de"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=75f3535#75f3535ecc148b939e2bec1ef642c0c9361018d8"
 dependencies = [
  "async-trait",
  "bincode",
@@ -3814,7 +3814,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=7b7eb98#7b7eb983b6b8e30ce8444f62ca598aaaa01d17de"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=75f3535#75f3535ecc148b939e2bec1ef642c0c9361018d8"
 dependencies = [
  "async-trait",
  "bincode",
