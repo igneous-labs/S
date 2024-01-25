@@ -1720,11 +1720,15 @@ dependencies = [
  "sanctum-macros",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
+ "solana-account-decoder",
  "solana-program",
  "solana-program-test",
+ "solana-rpc-client-api",
  "solana-sdk",
  "spl-calculator",
  "spl-calculator-lib",
+ "spl-stake-pool-keys",
+ "test-utils",
  "tokio",
 ]
 
@@ -3798,7 +3802,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=75f3535#75f3535ecc148b939e2bec1ef642c0c9361018d8"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
 dependencies = [
  "async-trait",
  "bincode",
@@ -3814,7 +3818,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=75f3535#75f3535ecc148b939e2bec1ef642c0c9361018d8"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
 dependencies = [
  "async-trait",
  "bincode",

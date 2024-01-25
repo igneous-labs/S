@@ -7,7 +7,7 @@ use solana_sdk::{
     transaction::VersionedTransaction,
 };
 
-use super::Subcmd;
+use super::{common::verify_manager, Subcmd};
 
 #[derive(Args, Debug)]
 #[command(long_about = "Sets the SOL value calculator program's manager")]
@@ -45,14 +45,7 @@ impl SetManagerArgs {
             .0;
         let state_data = rpc.get_account_data(&state_pda).await.unwrap();
         let state = try_calculator_state(&state_data).unwrap();
-        if state.manager != curr_manager.pubkey() {
-            eprintln!(
-                "Wrong manager. Expected: {}. Got: {}",
-                state.manager,
-                curr_manager.pubkey()
-            );
-            std::process::exit(-1);
-        }
+        verify_manager(state, curr_manager.pubkey()).unwrap();
 
         let ix = set_manager_ix_with_program_id(
             program_id,

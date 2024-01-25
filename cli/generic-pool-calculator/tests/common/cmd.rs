@@ -62,6 +62,8 @@ pub trait TestGpcCmd {
     fn cmd_init(&mut self) -> &mut Self;
 
     fn cmd_set_manager(&mut self) -> &mut Self;
+
+    fn cmd_update_last_upgrade_slot(&mut self) -> &mut Self;
 }
 
 impl TestGpcCmd for Command {
@@ -75,5 +77,9 @@ impl TestGpcCmd for Command {
 
     fn cmd_set_manager(&mut self) -> &mut Self {
         self.arg("set-manager")
+    }
+
+    fn cmd_update_last_upgrade_slot(&mut self) -> &mut Self {
+        self.arg("update-last-upgrade-slot")
     }
 }
