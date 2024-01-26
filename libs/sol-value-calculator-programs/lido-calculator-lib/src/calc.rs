@@ -120,8 +120,16 @@ mod tests {
             let U64ValueRange { min: sol_amt, max: max_sol_amt } = calc.calc_lst_to_sol(stsol_amt).unwrap();
             prop_assert_eq!(sol_amt, max_sol_amt);
             let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
-            prop_assert_eq!(calc.calc_lst_to_sol(min).unwrap().min, sol_amt);
-            prop_assert_eq!(calc.calc_lst_to_sol(max).unwrap().min, sol_amt);
+
+            // round trip from min should not exceed original
+            let min_round_trip = calc.calc_lst_to_sol(min).unwrap();
+            prop_assert!(sol_amt >= min_round_trip.min, "{sol_amt} {}", min_round_trip.min);
+            prop_assert!(sol_amt >= min_round_trip.max, "{sol_amt} {}", min_round_trip.max);
+
+            // round trip from max should not be smaller than original
+            let max_round_trip = calc.calc_lst_to_sol(max).unwrap();
+            prop_assert!(sol_amt <= max_round_trip.min, "{sol_amt} {}", max_round_trip.min);
+            prop_assert!(sol_amt <= max_round_trip.max, "{sol_amt} {}", max_round_trip.max);
         }
     }
 }

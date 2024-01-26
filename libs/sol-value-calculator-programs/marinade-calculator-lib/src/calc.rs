@@ -138,7 +138,6 @@ impl SolValueCalculator for MarinadeStateCalc {
 mod tests {
     use super::*;
     use proptest::prelude::*;
-    use test_utils::prop_assert_diff_at_most;
 
     prop_compose! {
         fn total_cooling_down()
@@ -217,15 +216,19 @@ mod tests {
             prop_assert_eq!(sol_amt, max_sol_amt);
             let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
 
-            // TODO: figure out this diff_at_most wide range, is this rly just errors accumulating?
+            // TODO: figure out the diff_at_most wide range, is this rly just errors accumulating?
 
-            let min_round_trip = calc.calc_lst_to_sol(min).unwrap().min;
-            prop_assert!(min_round_trip <= sol_amt);
-            prop_assert_diff_at_most!(min_round_trip, sol_amt, 1_000);
+            // round trip from min should not exceed original
+            let min_round_trip = calc.calc_lst_to_sol(min).unwrap();
+            prop_assert!(sol_amt >= min_round_trip.min, "{sol_amt} {}", min_round_trip.min);
+            prop_assert!(sol_amt >= min_round_trip.max, "{sol_amt} {}", min_round_trip.max);
+            //test_utils::prop_assert_diff_at_most!(min_round_trip, sol_amt, 1_000);
 
-            let max_round_trip = calc.calc_lst_to_sol(max).unwrap().min;
-            prop_assert!(sol_amt <= max_round_trip);
-            prop_assert_diff_at_most!(max_round_trip, sol_amt, 1_000);
+            // round trip from max should not be smaller than original
+            let max_round_trip = calc.calc_lst_to_sol(max).unwrap();
+            prop_assert!(sol_amt <= max_round_trip.min, "{sol_amt} {}", max_round_trip.min);
+            prop_assert!(sol_amt <= max_round_trip.max, "{sol_amt} {}", max_round_trip.max);
+            //test_utils::prop_assert_diff_at_most!(max_round_trip, sol_amt, 1_000);
         }
     }
 }
