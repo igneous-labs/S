@@ -4,7 +4,6 @@ use s_controller_lib::{
     AddDisablePoolAuthorityFreeArgs,
 };
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
-use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -20,20 +19,10 @@ async fn basic_add_two() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
+    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
-    );
-
-    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     // Add an authority
     {
