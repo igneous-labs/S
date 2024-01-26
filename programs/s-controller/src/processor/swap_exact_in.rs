@@ -59,6 +59,9 @@ pub fn process_swap_exact_in(accounts: &[AccountInfo], args: SwapExactInIxArgs) 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
     let in_sol_value = src_lst_cpi.invoke_lst_to_sol(amount)?.min;
+    if in_sol_value == 0 {
+        return Err(SControllerError::ZeroValue.into());
+    }
     let out_sol_value = pricing_cpi.invoke_price_exact_in(PricingProgramIxArgs {
         amount,
         sol_value: in_sol_value,
