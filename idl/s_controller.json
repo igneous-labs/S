@@ -1001,7 +1001,7 @@
         },
         {
           "name": "disable_pool_authority_list",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "desc": "The pool's disable pool authority list singleton PDA"
         }
