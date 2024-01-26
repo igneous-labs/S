@@ -950,7 +950,7 @@
         {
           "name": "refund_rent_to",
           "isMut": true,
-          "isSigner": true,
+          "isSigner": false,
           "desc": "The account to refund SOL rent to after resizing"
         },
         {

@@ -3991,7 +3991,7 @@ impl From<RemoveDisablePoolAuthorityKeys>
         [
             AccountMeta {
                 pubkey: keys.refund_rent_to,
-                is_signer: true,
+                is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
@@ -4168,7 +4168,7 @@ pub fn remove_disable_pool_authority_verify_account_privileges<'me, 'info>(
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
     }
-    for should_be_signer in [accounts.refund_rent_to, accounts.signer] {
+    for should_be_signer in [accounts.signer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
