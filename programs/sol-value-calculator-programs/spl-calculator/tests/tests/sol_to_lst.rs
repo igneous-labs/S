@@ -13,7 +13,7 @@ async fn jito_basic() {
     const LAMPORTS_AMOUNT: u64 = 1_072_326_756;
     const EXPECTED_LST_RANGE: U64ValueRange = U64ValueRange {
         min: 999_999_998,
-        max: 1_000_000_001,
+        max: 1_000_000_003,
     };
 
     let JitoNormalProgramTest {

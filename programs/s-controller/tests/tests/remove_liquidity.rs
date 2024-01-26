@@ -121,11 +121,11 @@ async fn basic_redeem_full_no_fees() {
 
     // no fee pricing program, so
     // - reserves should be empty,
-    //   but 1 or 2 lamports are left in the pool due to rounding down in sync_sol_value and SolToLst
+    //   but 1 or 2 lamports might be left in the pool due to rounding down in sync_sol_value and SolToLst
     // - protocol_fee_accumulator should be empty
     let pool_reserves_account = banks_client.get_account_unwrapped(pool_reserves).await;
     let pool_reserves_balance = token_account_balance(pool_reserves_account).unwrap();
-    assert!(pool_reserves_balance <= 2, "{pool_reserves_balance} > 2");
+    assert_eq!(pool_reserves_balance, 2);
 
     let liquidity_provider_jitosol_account = banks_client
         .get_account_unwrapped(liquidity_provider_jitosol_acc_addr)
@@ -148,8 +148,8 @@ async fn basic_redeem_full_no_fees() {
 
     let pool_state_account = banks_client.get_pool_state_acc().await;
     let pool_state = try_pool_state(&pool_state_account.data).unwrap();
-    // 1 or 2 jitoLamport should == same amt in SOL terms
-    assert_eq!(pool_state.total_sol_value, pool_reserves_balance);
+    // SOL value of 2 jitoLamports
+    assert_eq!(pool_state.total_sol_value, 1);
 }
 
 #[tokio::test]
