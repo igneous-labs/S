@@ -6,7 +6,8 @@ use s_controller_lib::{
     SrcDstLstValueCalcAccs, U8Bool,
 };
 use solana_program::{
-    account_info::AccountInfo, bpf_loader_upgradeable, program_error::ProgramError, pubkey::Pubkey,
+    account_info::AccountInfo, bpf_loader, bpf_loader_upgradeable, program_error::ProgramError,
+    pubkey::Pubkey,
 };
 
 use crate::{
@@ -371,7 +372,8 @@ fn verify_is_program(
     should_be_program: &AccountInfo,
     err: SControllerError,
 ) -> Result<(), SControllerError> {
-    if *should_be_program.owner == bpf_loader_upgradeable::ID {
+    let owner = should_be_program.owner;
+    if *owner == bpf_loader_upgradeable::ID || *owner == bpf_loader::ID {
         Ok(())
     } else {
         Err(err)
