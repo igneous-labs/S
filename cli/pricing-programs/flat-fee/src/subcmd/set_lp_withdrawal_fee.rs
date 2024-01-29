@@ -14,7 +14,7 @@ use solana_sdk::{
 use super::{common::verify_manager, Subcmd};
 
 #[derive(Args, Debug)]
-#[command(long_about = "Sets the flat-fee pricing program's manager")]
+#[command(long_about = "Update the fees imposed for redeeming LP token for LST")]
 pub struct SetLpWithdrawalFeeArgs {
     #[arg(
         long,
@@ -58,7 +58,7 @@ impl SetLpWithdrawalFeeArgs {
                     account: state_acc,
                 },
             }
-            .resolve()
+            .resolve() // TODO: resolve_for_prog(program_id)
             .unwrap(),
             SetLpWithdrawalFeeIxArgs {
                 lp_withdrawal_fee_bps,

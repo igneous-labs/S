@@ -14,7 +14,7 @@ use solana_sdk::{
 use super::{common::verify_manager, Subcmd};
 
 #[derive(Args, Debug)]
-#[command(long_about = "")]
+#[command(long_about = "Update the fees for given LST")]
 pub struct SetLstFeeArgs {
     #[arg(
         long,
