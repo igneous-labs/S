@@ -13,6 +13,7 @@ flat_fee_interface = { workspace = true }
 flat-fee-lib = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 

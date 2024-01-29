@@ -1544,6 +1544,7 @@ dependencies = [
  "sanctum-solana-test-utils",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-sdk",
  "test-utils",
  "tokio",
