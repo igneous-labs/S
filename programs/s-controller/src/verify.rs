@@ -5,7 +5,9 @@ use s_controller_lib::{
     try_disable_pool_authority_list, try_find_element_in_list, SrcDstLstIndexes,
     SrcDstLstValueCalcAccs, U8Bool,
 };
-use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
+use solana_program::{
+    account_info::AccountInfo, bpf_loader_upgradeable, program_error::ProgramError, pubkey::Pubkey,
+};
 
 use crate::{
     account_traits::{
@@ -369,9 +371,10 @@ fn verify_is_program(
     should_be_program: &AccountInfo,
     err: SControllerError,
 ) -> Result<(), SControllerError> {
-    match should_be_program.executable {
-        true => Ok(()),
-        false => Err(err),
+    if *should_be_program.owner == bpf_loader_upgradeable::ID {
+        Ok(())
+    } else {
+        Err(err)
     }
 }
 
