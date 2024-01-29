@@ -51,7 +51,7 @@ pub fn process_add_liquidity(accounts: &[AccountInfo], args: AddLiquidityIxArgs)
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
-    let lst_amount_sol_value = lst_cpi.invoke_lst_to_sol(lst_amount)?.min;
+    let lst_amount_sol_value = lst_cpi.invoke_lst_to_sol(lst_amount)?.get_min();
     let lst_amount_sol_value_after_fees =
         pricing_cpi.invoke_price_lp_tokens_to_mint(PricingProgramIxArgs {
             amount: lst_amount,

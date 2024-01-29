@@ -57,12 +57,12 @@ pub fn process_swap_exact_out(accounts: &[AccountInfo], args: SwapExactOutIxArgs
 
     let start_total_sol_value = accounts.pool_state.total_sol_value()?;
 
-    let out_sol_value = dst_lst_cpi.invoke_lst_to_sol(amount)?.max;
+    let out_sol_value = dst_lst_cpi.invoke_lst_to_sol(amount)?.get_max();
     let in_sol_value = pricing_cpi.invoke_price_exact_out(PricingProgramIxArgs {
         amount,
         sol_value: out_sol_value,
     })?;
-    let src_lst_in = src_lst_cpi.invoke_sol_to_lst(in_sol_value)?.max;
+    let src_lst_in = src_lst_cpi.invoke_sol_to_lst(in_sol_value)?.get_max();
 
     if src_lst_in > max_amount_in {
         return Err(SControllerError::SlippageToleranceExceeded.into());

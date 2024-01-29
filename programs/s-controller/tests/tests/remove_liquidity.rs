@@ -10,7 +10,7 @@ use sanctum_solana_test_utils::{
     assert_custom_err, token::MockTokenAccountArgs, ExtendedBanksClient,
 };
 use sanctum_token_lib::{mint_supply, token_account_balance, MintWithTokenProgram};
-use sanctum_token_ratio::{AmtsAfterFee, U64BpsFeeCeil};
+use sanctum_token_ratio::{CeilDiv, ReversibleFee, U64BpsFee};
 use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;
@@ -253,16 +253,16 @@ async fn basic_redeem_full_flat_fees() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let AmtsAfterFee {
-        amt_after_fee,
-        fee_charged,
-    } = U64BpsFeeCeil(LP_WITHDRAWAL_FEE_BPS)
+    let aaf = CeilDiv(U64BpsFee::new_unchecked(LP_WITHDRAWAL_FEE_BPS))
         .apply(WSOL_RESERVES_STARTING_BALANCE)
         .unwrap();
-    let AmtsAfterFee {
-        fee_charged: protocol_fees_charged,
-        amt_after_fee: fees_withheld_in_reserves,
-    } = U64BpsFeeCeil(PROTOCOL_FEE_BPS).apply(fee_charged).unwrap();
+    let amt_after_fee = aaf.amt_after_fee();
+    let fee_charged = aaf.fee_charged();
+    let aaf = CeilDiv(U64BpsFee::new_unchecked(PROTOCOL_FEE_BPS))
+        .apply(fee_charged)
+        .unwrap();
+    let protocol_fees_charged = aaf.fee_charged();
+    let fees_withheld_in_reserves = aaf.amt_after_fee();
 
     let pool_reserves_account = banks_client.get_account_unwrapped(pool_reserves).await;
     let pool_reserves_ending_balance = token_account_balance(pool_reserves_account).unwrap();

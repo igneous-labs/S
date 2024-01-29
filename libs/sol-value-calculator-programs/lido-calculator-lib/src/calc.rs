@@ -1,5 +1,5 @@
 use lido_calculator_interface::{ExchangeRate, Lido, LidoCalculatorError};
-use sanctum_token_ratio::{U64RatioFloor, U64ValueRange};
+use sanctum_token_ratio::{FloorDiv, ReversibleRatio, U64Ratio, U64ValueRange};
 use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{clock::Clock, program_error::ProgramError};
 
@@ -59,16 +59,16 @@ impl LidoCalc {
         Ok(())
     }
 
-    pub const fn stlamports_to_lamports_ratio(&self) -> U64RatioFloor<u64, u64> {
+    pub const fn stlamports_to_lamports_ratio(&self) -> FloorDiv<U64Ratio<u64, u64>> {
         let Self {
             st_sol_supply,
             sol_balance,
             ..
         } = self;
-        U64RatioFloor {
+        FloorDiv(U64Ratio {
             num: *sol_balance,
             denom: *st_sol_supply,
-        }
+        })
     }
 }
 
@@ -117,19 +117,23 @@ mod tests {
     proptest! {
         #[test]
         fn lst_sol_round_trip((stsol_amt, calc) in lido_calc_and_stsol_amt()) {
-            let U64ValueRange { min: sol_amt, max: max_sol_amt } = calc.calc_lst_to_sol(stsol_amt).unwrap();
+            let r = calc.calc_lst_to_sol(stsol_amt).unwrap();
+            let sol_amt = r.get_min();
+            let max_sol_amt = r.get_max();
             prop_assert_eq!(sol_amt, max_sol_amt);
-            let U64ValueRange { min, max } = calc.calc_sol_to_lst(sol_amt).unwrap();
+            let r = calc.calc_sol_to_lst(sol_amt).unwrap();
+            let min = r.get_min();
+            let max = r.get_max();
 
             // round trip from min should not exceed original
             let min_round_trip = calc.calc_lst_to_sol(min).unwrap();
-            prop_assert!(sol_amt >= min_round_trip.min, "{sol_amt} {}", min_round_trip.min);
-            prop_assert!(sol_amt >= min_round_trip.max, "{sol_amt} {}", min_round_trip.max);
+            prop_assert!(sol_amt >= min_round_trip.get_min(), "{sol_amt} {}", min_round_trip.get_min());
+            prop_assert!(sol_amt >= min_round_trip.get_max(), "{sol_amt} {}", min_round_trip.get_max());
 
             // round trip from max should not be smaller than original
             let max_round_trip = calc.calc_lst_to_sol(max).unwrap();
-            prop_assert!(sol_amt <= max_round_trip.min, "{sol_amt} {}", max_round_trip.min);
-            prop_assert!(sol_amt <= max_round_trip.max, "{sol_amt} {}", max_round_trip.max);
+            prop_assert!(sol_amt <= max_round_trip.get_min(), "{sol_amt} {}", max_round_trip.get_min());
+            prop_assert!(sol_amt <= max_round_trip.get_max(), "{sol_amt} {}", max_round_trip.get_max());
         }
     }
 }
