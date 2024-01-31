@@ -77,7 +77,7 @@ pub fn sync_sol_value_unchecked<'a, 'info>(
     let lst_state_list = try_lst_state_list_mut(&mut lst_state_list_bytes)?;
     let lst_state = &mut lst_state_list[lst_index];
 
-    sync_sol_value_with_retval(pool_state, lst_state, returned_sol_value_range.min)?;
+    sync_sol_value_with_retval(pool_state, lst_state, returned_sol_value_range.get_min())?;
 
     Ok(())
 }

@@ -1,14 +1,13 @@
-use generic_pool_calculator_interface::LST_TO_SOL_IX_ACCOUNTS_LEN;
 use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_by_mint_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
 use sanctum_solana_test_utils::ExtendedBanksClient;
-use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey};
+use solana_program::{clock::Clock, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signer::Signer, transaction::Transaction};
-use spl_calculator_lib::{SplLstSolCommonFreeArgsConst, SplSolValCalc};
+use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
 use crate::common::*;
@@ -60,18 +59,10 @@ async fn basic() {
             account: jito_stake_pool_acc,
         },
     };
-    let jito_sol_val_calc_keys: generic_pool_calculator_interface::LstToSolKeys =
-        jito_sol_val_calc_args
-            .resolve()
-            .unwrap()
-            .resolve::<SplSolValCalc>()
-            .into();
-    let jito_sol_val_calc_accounts: [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] =
-        jito_sol_val_calc_keys.into();
 
     let ix = sync_sol_value_ix_by_mint_full(
         free_args,
-        &jito_sol_val_calc_accounts,
+        &jito_sol_val_calc_args.resolve_to_account_metas().unwrap(),
         spl_calculator_lib::program::ID,
     )
     .unwrap();

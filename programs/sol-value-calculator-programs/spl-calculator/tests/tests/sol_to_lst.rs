@@ -11,10 +11,8 @@ use crate::common::{jito_normal_program_test, JitoNormalProgramTest};
 #[tokio::test]
 async fn jito_basic() {
     const LAMPORTS_AMOUNT: u64 = 1_072_326_756;
-    const EXPECTED_LST_RANGE: U64ValueRange = U64ValueRange {
-        min: 999_999_998,
-        max: 1_000_000_001,
-    };
+    const EXPECTED_LST_RANGE: U64ValueRange =
+        U64ValueRange::from_min_max_unchecked(999_999_998, 1_000_000_003);
 
     let JitoNormalProgramTest {
         program_test,

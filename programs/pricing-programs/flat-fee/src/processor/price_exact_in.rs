@@ -30,7 +30,7 @@ pub fn process_price_exact_in(
     let result = calculate_price_exact_in(CalculatePriceExactInArgs {
         input_fee_bps: input_fee_acc.input_fee_bps,
         output_fee_bps: output_fee_acc.output_fee_bps,
-        sol_value,
+        in_sol_value: sol_value,
     })?;
     let result_le = result.to_le_bytes();
     set_return_data(&result_le);
