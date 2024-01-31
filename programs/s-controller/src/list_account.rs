@@ -1,10 +1,13 @@
 use bytemuck::AnyBitPattern;
 use s_controller_interface::SControllerError;
 use sanctum_system_program_lib::{
-    allocate_invoke_signed, assign_invoke_signed, close_account, transfer_direct_increment,
-    transfer_invoke, CloseAccountAccounts, ResizableAccount, TransferAccounts,
+    close_account, transfer_direct_increment, CloseAccountAccounts, ResizableAccount,
 };
 use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use system_program_interface::{
+    assign_invoke_signed, transfer_invoke, AssignAccounts, AssignIxArgs, TransferAccounts,
+    TransferIxArgs,
+};
 
 pub struct ExtendListPdaAccounts<'me, 'info> {
     pub list_pda: &'me AccountInfo<'info>,
@@ -19,10 +22,11 @@ pub fn extend_list_pda<T: AnyBitPattern>(
     list_pda_signer_seeds: &[&[&[u8]]],
 ) -> Result<(), ProgramError> {
     if list_pda.data_is_empty() {
-        allocate_invoke_signed(list_pda, 0, list_pda_signer_seeds)?;
         assign_invoke_signed(
-            list_pda,
-            s_controller_lib::program::ID,
+            AssignAccounts { assign: list_pda },
+            AssignIxArgs {
+                owner: s_controller_lib::program::ID,
+            },
             list_pda_signer_seeds,
         )?;
     }
@@ -35,7 +39,9 @@ pub fn extend_list_pda<T: AnyBitPattern>(
                 from: payer,
                 to: list_pda,
             },
-            lamports_short,
+            TransferIxArgs {
+                lamports: lamports_short,
+            },
         )?;
     }
 

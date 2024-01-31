@@ -10,7 +10,7 @@ use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use sanctum_system_program_lib::{
-    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
+    init_rent_exempt_account_invoke_signed, InitRentExemptAccountArgs,
 };
 use sanctum_token_lib::{set_authority_invoke, SetAuthorityAccounts, SetAuthorityArgs};
 use solana_program::{
@@ -19,16 +19,17 @@ use solana_program::{
 };
 use spl_token::{native_mint, state::Mint};
 use spl_token_2022::instruction::AuthorityType;
+use system_program_interface::CreateAccountAccounts;
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
     let accounts = verify_initialize(accounts)?;
 
-    create_rent_exempt_account_invoke_signed(
+    init_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: accounts.payer,
             to: accounts.pool_state,
         },
-        CreateRentExemptAccountArgs {
+        InitRentExemptAccountArgs {
             space: POOL_STATE_SIZE,
             owner: s_controller_lib::program::ID,
         },
