@@ -69,7 +69,7 @@ pub fn process_remove_liquidity(
 
     let to_user_lst_amount = lst_cpi
         .invoke_sol_to_lst(lp_tokens_sol_value_after_fees)?
-        .min;
+        .get_min();
     let to_protocol_fees_lst_amount =
         calc_remove_liquidity_protocol_fees(CalcRemoveLiquidityProtocolFeesArgs {
             lp_tokens_sol_value,
