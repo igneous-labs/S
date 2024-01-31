@@ -200,7 +200,7 @@ Update the manager authority of the pricing program.
 
 #### AddLst
 
-Update the fees for given type of pricing action.
+Enable an LST to be supported by the program
 
 ##### Data
 
@@ -215,7 +215,7 @@ Update the fees for given type of pricing action.
 | Account        | Description                          | Read/Write (R/W) | Signer (Y/N) |
 | -------------- | ------------------------------------ | ---------------- | ------------ |
 | manager        | The program manager                  | R                | Y            |
-| payer          | Account paying for FeeAccount's rent | R                | Y            |
+| payer          | Account paying for FeeAccount's rent | W                | Y            |
 | fee_acc        | FeeAccount PDA to create             | W                | N            |
 | lst_mint       | Mint of the LST                      | R                | N            |
 | state          | Program state PDA                    | R                | N            |
@@ -223,7 +223,7 @@ Update the fees for given type of pricing action.
 
 #### RemoveLst
 
-Update the fees for given type of pricing action.
+Disable an added LST
 
 ##### Data
 
@@ -240,7 +240,6 @@ Update the fees for given type of pricing action.
 | fee_acc        | FeeAccount PDA to modify      | W                | N            |
 | lst_mint       | Mint of the LST               | R                | N            |
 | state          | Program state PDA             | R                | N            |
-| system_program | System program                | R                | N            |
 
 #### SetLstFee
 

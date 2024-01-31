@@ -82,6 +82,8 @@ pub enum SControllerError {
     DuplicateLst = 34,
     #[error("Cannot swap from a LST to the same LST")]
     SwapSameLst = 35,
+    #[error("Cannot add the same authority that has already been authorized")]
+    DuplicateDisablePoolAuthority = 36,
 }
 impl From<SControllerError> for ProgramError {
     fn from(e: SControllerError) -> Self {
