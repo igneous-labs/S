@@ -4,7 +4,9 @@ use sanctum_system_program_lib::{
     allocate_invoke_signed, assign_invoke_signed, close_account, transfer_direct_increment,
     transfer_invoke, CloseAccountAccounts, ResizableAccount, TransferAccounts,
 };
-use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use solana_program::{
+    account_info::AccountInfo, program_error::ProgramError, program_memory::sol_memmove,
+};
 
 pub struct ExtendListPdaAccounts<'me, 'info> {
     pub list_pda: &'me AccountInfo<'info>,
@@ -73,9 +75,13 @@ pub fn remove_from_list_pda<T: AnyBitPattern>(
         .ok_or(SControllerError::MathError)?;
     let data_ptr = list_pda.try_borrow_mut_data()?.as_mut_ptr();
     unsafe {
-        let remaining_start = data_ptr.add(index_plus_one_byte_offset);
-        let to_remove_start = data_ptr.add(index_byte_offset);
-        std::ptr::copy(remaining_start, to_remove_start, remaining_byte_count);
+        let src_remaining_start = data_ptr.add(index_plus_one_byte_offset);
+        let dst_to_remove_start = data_ptr.add(index_byte_offset);
+        sol_memmove(
+            dst_to_remove_start,
+            src_remaining_start,
+            remaining_byte_count,
+        );
     }
 
     let excess_lamports = list_pda.shrink_by(std::mem::size_of::<T>())?;
