@@ -4481,7 +4481,7 @@ impl From<RemoveDisablePoolAuthorityKeys>
         [
             AccountMeta {
                 pubkey: keys.refund_rent_to,
-                is_signer: true,
+                is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
@@ -4675,7 +4675,7 @@ pub fn remove_disable_pool_authority_verify_writable_privileges<'me, 'info>(
 pub fn remove_disable_pool_authority_verify_signer_privileges<'me, 'info>(
     accounts: RemoveDisablePoolAuthorityAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_signer in [accounts.refund_rent_to, accounts.signer] {
+    for should_be_signer in [accounts.signer] {
         if !should_be_signer.is_signer {
             return Err((should_be_signer, ProgramError::MissingRequiredSignature));
         }
@@ -4733,7 +4733,7 @@ impl From<DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
             AccountMeta {
                 pubkey: keys.disable_pool_authority_list,
                 is_signer: false,
-                is_writable: true,
+                is_writable: false,
             },
         ]
     }
@@ -4859,7 +4859,7 @@ pub fn disable_pool_verify_account_keys(
 pub fn disable_pool_verify_writable_privileges<'me, 'info>(
     accounts: DisablePoolAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [accounts.pool_state, accounts.disable_pool_authority_list] {
+    for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
