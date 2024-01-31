@@ -8,6 +8,8 @@ use thiserror::Error;
 pub enum MarinadeCalculatorError {
     #[error("Marinade program is currently paused")]
     MarinadePaused = 0,
+    #[error("Marinade currently has stake withdrawal disabled")]
+    MarinadeStakeWithdrawDisabled = 1,
 }
 impl From<MarinadeCalculatorError> for ProgramError {
     fn from(e: MarinadeCalculatorError) -> Self {

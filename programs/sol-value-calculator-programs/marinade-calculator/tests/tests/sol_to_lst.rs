@@ -9,9 +9,9 @@ use crate::common::marinade_normal_program_test;
 
 #[tokio::test]
 async fn basic() {
-    const LAMPORTS_AMOUNT: u64 = 1_151_526_823;
+    const LAMPORTS_AMOUNT: u64 = 1_162_900_315;
     const EXPECTED_LST_RANGE: U64ValueRange =
-        U64ValueRange::from_min_max_unchecked(999_999_999, 1_000_000_001);
+        U64ValueRange::from_min_max_unchecked(999_999_998, 1_000_000_002);
 
     let program_test = marinade_normal_program_test();
 
