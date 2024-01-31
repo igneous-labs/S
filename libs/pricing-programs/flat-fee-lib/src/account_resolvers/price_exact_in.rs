@@ -4,7 +4,10 @@ use solana_program::{
     pubkey::{Pubkey, PubkeyError},
 };
 
-use crate::pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs};
+use crate::{
+    pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
+    program,
+};
 
 /// Uses find_program_address, for use with
 /// - initial creation
@@ -18,11 +21,13 @@ impl PriceExactInFreeArgs {
     pub fn resolve(self) -> PriceExactInKeys {
         let input_find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.input_lst_mint,
+            program_id: program::ID,
         };
         let (input_fee_acc, _bump) = input_find_pda_args.get_fee_account_address_and_bump_seed();
 
         let output_find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.output_lst_mint,
+            program_id: program::ID,
         };
         let (output_fee_acc, _bump) = output_find_pda_args.get_fee_account_address_and_bump_seed();
 
@@ -51,6 +56,7 @@ impl PriceExactInWithBumpFreeArgs {
         let input_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.input_lst_mint,
+                program_id: program::ID,
             },
             bump: self.input_fee_acc_bump,
         };
@@ -59,6 +65,7 @@ impl PriceExactInWithBumpFreeArgs {
         let output_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.output_lst_mint,
+                program_id: program::ID,
             },
             bump: self.output_fee_acc_bump,
         };

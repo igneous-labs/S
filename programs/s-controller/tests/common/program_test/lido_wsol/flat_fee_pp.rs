@@ -35,7 +35,7 @@ pub fn lido_wsol_flat_fee_program_test(
         MockProgramState(flat_fee_state).into_account(),
     );
     for mfa in mock_fee_accounts {
-        let (acc, addr) = mfa.to_fee_account_and_addr();
+        let (acc, addr) = mfa.to_fee_account_and_addr(flat_fee_interface::ID);
         program_test.add_account(addr, MockFeeAccount(acc).into_account());
     }
     program_test.add_account(

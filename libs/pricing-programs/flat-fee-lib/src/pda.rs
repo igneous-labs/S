@@ -37,7 +37,7 @@ impl ProgramStateCreatePdaArgs {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FeeAccountFindPdaArgs {
-    // TODO: program_id
+    pub program_id: Pubkey,
     pub lst_mint: Pubkey,
 }
 
@@ -46,9 +46,8 @@ impl FeeAccountFindPdaArgs {
         [FEE_ACCOUNT_SEED_PREFIX, self.lst_mint.as_ref()]
     }
 
-    // TODO: program_id
     pub fn get_fee_account_address_and_bump_seed(&self) -> (Pubkey, u8) {
-        Pubkey::find_program_address(&self.to_seed(), &program::ID)
+        Pubkey::find_program_address(&self.to_seed(), &self.program_id)
     }
 }
 
@@ -65,6 +64,6 @@ impl FeeAccountCreatePdaArgs {
     }
 
     pub fn get_fee_account_address(&self) -> Result<Pubkey, PubkeyError> {
-        Pubkey::create_program_address(&self.to_signer_seeds(), &program::ID)
+        Pubkey::create_program_address(&self.to_signer_seeds(), &self.find_pda_args.program_id)
     }
 }

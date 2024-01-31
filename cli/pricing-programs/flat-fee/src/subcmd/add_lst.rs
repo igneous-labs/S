@@ -69,7 +69,7 @@ impl AddLstArgs {
                 },
                 lst_mint,
             }
-            .resolve() // TODO: resolve_with_prog(program_id)
+            .resolve_for_prog(program_id)
             .unwrap()
             .0,
             AddLstIxArgs {

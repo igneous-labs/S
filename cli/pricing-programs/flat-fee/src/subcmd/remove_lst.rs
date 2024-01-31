@@ -66,7 +66,7 @@ impl RemoveLstArgs {
                     account: state_acc,
                 },
             }
-            .resolve() // TODO: resolve_with_prog(program_id)
+            .resolve_for_prog(program_id)
             .unwrap(),
         )
         .unwrap();

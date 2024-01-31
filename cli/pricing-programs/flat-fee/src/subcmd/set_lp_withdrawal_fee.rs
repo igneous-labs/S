@@ -58,7 +58,7 @@ impl SetLpWithdrawalFeeArgs {
                     account: state_acc,
                 },
             }
-            .resolve() // TODO: resolve_for_prog(program_id)
+            .resolve_for_prog(program_id)
             .unwrap(),
             SetLpWithdrawalFeeIxArgs {
                 lp_withdrawal_fee_bps,
