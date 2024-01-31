@@ -950,7 +950,7 @@
         {
           "name": "refund_rent_to",
           "isMut": true,
-          "isSigner": true,
+          "isSigner": false,
           "desc": "The account to refund SOL rent to after resizing"
         },
         {
@@ -1001,7 +1001,7 @@
         },
         {
           "name": "disable_pool_authority_list",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "desc": "The pool's disable pool authority list singleton PDA"
         }
@@ -1554,6 +1554,11 @@
       "code": 35,
       "name": "SwapSameLst",
       "msg": "Cannot swap from a LST to the same LST"
+    },
+    {
+      "code": 36,
+      "name": "DuplicateDisablePoolAuthority",
+      "msg": "Cannot add the same authority that has already been authorized"
     }
   ],
   "metadata": {

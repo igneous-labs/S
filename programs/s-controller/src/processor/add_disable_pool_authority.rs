@@ -5,7 +5,8 @@ use s_controller_interface::{
 };
 use s_controller_lib::{
     program::{DISABLE_POOL_AUTHORITY_LIST_BUMP, DISABLE_POOL_AUTHORITY_LIST_SEED},
-    try_disable_pool_authority_list_mut, AddDisablePoolAuthorityFreeArgs,
+    try_disable_pool_authority_list, try_disable_pool_authority_list_mut,
+    AddDisablePoolAuthorityFreeArgs,
 };
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
@@ -43,6 +44,19 @@ pub fn process_add_disable_pool_authority(accounts: &[AccountInfo]) -> ProgramRe
     Ok(())
 }
 
+fn verify_not_duplicate(
+    disable_pool_authority_list: &AccountInfo,
+    authority: Pubkey,
+) -> Result<(), ProgramError> {
+    let d = disable_pool_authority_list.try_borrow_data()?;
+    let disable_pool_authority_list = try_disable_pool_authority_list(&d)?;
+    if disable_pool_authority_list.contains(&authority) {
+        Err(SControllerError::DuplicateDisablePoolAuthority.into())
+    } else {
+        Ok(())
+    }
+}
+
 fn verify_add_disable_pool_authority<'me, 'info>(
     accounts: &'me [AccountInfo<'info>],
 ) -> Result<AddDisablePoolAuthorityAccounts<'me, 'info>, ProgramError> {
@@ -59,6 +73,11 @@ fn verify_add_disable_pool_authority<'me, 'info>(
         .map_err(log_and_return_wrong_acc_err)?;
     add_disable_pool_authority_verify_account_privileges(actual)
         .map_err(log_and_return_acc_privilege_err)?;
+
+    verify_not_duplicate(
+        actual.disable_pool_authority_list,
+        *actual.new_authority.key,
+    )?;
 
     Ok(actual)
 }
