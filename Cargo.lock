@@ -3805,7 +3805,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "async-trait",
  "bincode",
@@ -3821,11 +3821,11 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "async-trait",
  "bincode",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "data-encoding",
  "http-body-util",
  "hyper 1.1.0",
@@ -3870,8 +3870,8 @@ dependencies = [
 
 [[package]]
 name = "sanctum-token-ratio"
-version = "1.0.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=659e618#659e61878ba7138b5c52750b3c6ab8180f073295"
+version = "0.2.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",

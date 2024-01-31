@@ -23,7 +23,7 @@ sanctum-associated-token-lib = { workspace = true }
 sanctum-misc-utils = { workspace = true }
 sanctum-s-common = { workspace = true }
 sanctum-token-lib = { workspace = true }
-sanctum-token-ratio = { workspace = true }
+sanctum-token-ratio = { workspace = true, features = ["borsh", "onchain"] }
 sanctum-system-program-lib = { workspace = true }
 sol_value_calculator_interface = { workspace = true }
 solana-program = { workspace = true }

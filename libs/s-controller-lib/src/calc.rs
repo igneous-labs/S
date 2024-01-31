@@ -1,4 +1,6 @@
-use sanctum_token_ratio::{AmtsAfterFee, MathError, U64BpsFeeCeil, U64RatioFloor};
+use sanctum_token_ratio::{
+    CeilDiv, FloorDiv, MathError, ReversibleFee, ReversibleRatio, U64BpsFee, U64Ratio,
+};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct LpTokenRateArgs {
@@ -32,12 +34,11 @@ pub fn calc_lp_tokens_to_mint(
     if pool_total_sol_value == 0 {
         return Ok(final_sol_value_to_add);
     }
-    let res = U64RatioFloor {
+    FloorDiv(U64Ratio {
         num: lp_token_supply,
         denom: pool_total_sol_value,
-    }
-    .apply(final_sol_value_to_add)?;
-    Ok(res)
+    })
+    .apply(final_sol_value_to_add)
 }
 
 /// Returns SOL value of `lp_tokens_amount`
@@ -51,12 +52,11 @@ pub fn calc_lp_tokens_sol_value(
     if pool_total_sol_value == 0 || lp_token_supply == 0 {
         return Ok(0);
     }
-    let res = U64RatioFloor {
+    FloorDiv(U64Ratio {
         num: pool_total_sol_value,
         denom: lp_token_supply,
-    }
-    .apply(lp_tokens_amount)?;
-    Ok(res)
+    })
+    .apply(lp_tokens_amount)
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -91,14 +91,12 @@ pub fn calc_add_liquidity_protocol_fees(
     }: CalcAddLiquidityArgs,
 ) -> Result<CalcAddLiquidityProtocolFeesResult, MathError> {
     let lp_fees_sol_value = lst_amount_sol_value.saturating_sub(lst_amount_sol_value_after_fees);
-    let AmtsAfterFee {
-        fee_charged: protocol_fees_sol_value,
-        ..
-    } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
-    let to_protocol_fees_lst_amount = U64RatioFloor {
+    let aaf = CeilDiv(U64BpsFee::try_new(lp_protocol_fee_bps)?).apply(lp_fees_sol_value)?;
+    let protocol_fees_sol_value = aaf.fee_charged();
+    let to_protocol_fees_lst_amount = FloorDiv(U64Ratio {
         num: lst_amount,
         denom: lst_amount_sol_value,
-    }
+    })
     .apply(protocol_fees_sol_value)?;
     let to_reserves_lst_amount = lst_amount
         .checked_sub(to_protocol_fees_lst_amount)
@@ -133,14 +131,12 @@ pub fn calc_remove_liquidity_protocol_fees(
     }: CalcRemoveLiquidityProtocolFeesArgs,
 ) -> Result<u64, MathError> {
     let lp_fees_sol_value = lp_tokens_sol_value.saturating_sub(lp_tokens_sol_value_after_fees);
-    let AmtsAfterFee {
-        fee_charged: protocol_fees_sol_value,
-        ..
-    } = U64BpsFeeCeil(lp_protocol_fee_bps).apply(lp_fees_sol_value)?;
-    let to_protocol_fees_lst_amount = U64RatioFloor {
+    let aaf = CeilDiv(U64BpsFee::try_new(lp_protocol_fee_bps)?).apply(lp_fees_sol_value)?;
+    let protocol_fees_sol_value = aaf.fee_charged();
+    let to_protocol_fees_lst_amount = FloorDiv(U64Ratio {
         num: to_user_lst_amount,
         denom: lp_tokens_sol_value_after_fees,
-    }
+    })
     .apply(protocol_fees_sol_value)?;
     Ok(to_protocol_fees_lst_amount)
 }
@@ -170,14 +166,12 @@ pub fn calc_swap_protocol_fees(
     }: CalcSwapProtocolFeesArgs,
 ) -> Result<u64, MathError> {
     let fees_sol_value = in_sol_value.saturating_sub(out_sol_value);
-    let AmtsAfterFee {
-        fee_charged: protocol_fees_sol_value,
-        ..
-    } = U64BpsFeeCeil(trading_protocol_fee_bps).apply(fees_sol_value)?;
-    let to_protocol_fees_lst_amount = U64RatioFloor {
+    let aaf = CeilDiv(U64BpsFee::try_new(trading_protocol_fee_bps)?).apply(fees_sol_value)?;
+    let protocol_fees_sol_value = aaf.fee_charged();
+    let to_protocol_fees_lst_amount = FloorDiv(U64Ratio {
         num: dst_lst_out,
         denom: out_sol_value,
-    }
+    })
     .apply(protocol_fees_sol_value)?;
     Ok(to_protocol_fees_lst_amount)
 }

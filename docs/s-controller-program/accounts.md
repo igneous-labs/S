@@ -51,7 +51,9 @@ The struct is bytemuck/zero_copy as well since PoolState is bytemuck/zero_copy. 
 
 ## DisablePoolAuthorityList
 
-List of pubkeys authorized to disable the pool. PDA ["disable-pool-authority-list"].
+List contains the set of pubkeys authorized to disable the pool. PDA ["disable-pool-authority-list"].
+
+Duplicates are not allowed.
 
 ### Schema
 

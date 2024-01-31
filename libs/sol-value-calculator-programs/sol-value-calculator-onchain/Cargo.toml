@@ -5,6 +5,6 @@ edition = "2021"
 
 [dependencies]
 borsh = { workspace = true }
-sanctum-token-ratio = { workspace = true }
+sanctum-token-ratio = { workspace = true, features = ["borsh", "onchain"] }
 sol-value-calculator-lib = { workspace = true }
 solana-program = { workspace = true }
