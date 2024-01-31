@@ -1554,6 +1554,11 @@
       "code": 35,
       "name": "SwapSameLst",
       "msg": "Cannot swap from a LST to the same LST"
+    },
+    {
+      "code": 36,
+      "name": "DuplicateDisablePoolAuthority",
+      "msg": "Cannot add the same authority that has already been authorized"
     }
   ],
   "metadata": {
