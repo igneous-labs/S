@@ -1145,6 +1145,12 @@
       "args": [],
       "accounts": [
         {
+          "name": "rebalance_authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The pool's rebalance authority"
+        },
+        {
           "name": "pool_state",
           "isMut": true,
           "isSigner": false,

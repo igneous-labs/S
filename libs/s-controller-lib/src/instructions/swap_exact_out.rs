@@ -22,8 +22,8 @@ pub struct SwapExactOutIxFullArgs {
     pub amount: u64,
 }
 
-pub fn swap_exact_out_ix_full<K: Into<SwapExactOutKeys>>(
-    accounts: K,
+pub fn swap_exact_out_ix_full(
+    accounts: SwapExactOutKeys,
     SwapExactOutIxFullArgs {
         src_lst_index,
         dst_lst_index,
