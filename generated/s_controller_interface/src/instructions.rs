@@ -4219,7 +4219,7 @@ impl From<DisablePoolKeys> for [AccountMeta; DISABLE_POOL_IX_ACCOUNTS_LEN] {
             AccountMeta {
                 pubkey: keys.disable_pool_authority_list,
                 is_signer: false,
-                is_writable: true,
+                is_writable: false,
             },
         ]
     }
@@ -4327,7 +4327,7 @@ pub fn disable_pool_verify_account_keys(
 pub fn disable_pool_verify_account_privileges<'me, 'info>(
     accounts: DisablePoolAccounts<'me, 'info>,
 ) -> Result<(), (&'me AccountInfo<'info>, ProgramError)> {
-    for should_be_writable in [accounts.pool_state, accounts.disable_pool_authority_list] {
+    for should_be_writable in [accounts.pool_state] {
         if !should_be_writable.is_writable {
             return Err((should_be_writable, ProgramError::InvalidAccountData));
         }
