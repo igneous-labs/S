@@ -4,7 +4,10 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, RemoveLstFreeArgs,
 };
-use sanctum_solana_test_utils::test_fixtures_dir;
+use sanctum_solana_test_utils::{
+    test_fixtures_dir,
+    token::{tokenkeg::TokenkegProgramTest, MockMintArgs},
+};
 use solana_program::{clock::Clock, hash::Hash, pubkey::Pubkey};
 use solana_program_test::{BanksClient, ProgramTestContext};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -81,6 +84,43 @@ async fn basic_two_clear_from_back() {
     exec_verify_remove(&mut banks_client, 0, &payer, last_blockhash, &mock_auth_kp).await;
 }
 
+#[tokio::test]
+async fn basic_three_clear_1_0_2() {
+    let mock_auth_kp =
+        read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
+            .unwrap();
+
+    let random_lst_states = [0; 3].map(|_| MockLstStateArgs {
+        mint: Pubkey::new_unique(),
+        token_program: spl_token::ID,
+        sol_value_calculator: Pubkey::default(),
+        sol_value: 0,
+        reserves_amt: 0,
+        protocol_fee_accumulator_amt: 0,
+    });
+
+    let mut program_test =
+        naked_pool_state_program_test(DEFAULT_POOL_STATE).add_mock_lst_states(&random_lst_states);
+    for s in random_lst_states {
+        program_test = program_test.add_tokenkeg_mint_from_args(
+            s.mint,
+            MockMintArgs {
+                mint_authority: None,
+                freeze_authority: None,
+                supply: 0,
+                decimals: 9,
+            },
+        );
+    }
+
+    let (mut banks_client, payer, last_blockhash) = program_test.start().await;
+
+    exec_verify_remove(&mut banks_client, 1, &payer, last_blockhash, &mock_auth_kp).await;
+    exec_verify_remove(&mut banks_client, 0, &payer, last_blockhash, &mock_auth_kp).await;
+    // only initial lst_state_list[2] remains
+    exec_verify_remove(&mut banks_client, 0, &payer, last_blockhash, &mock_auth_kp).await;
+}
+
 async fn exec_verify_remove(
     banks_client: &mut BanksClient,
     lst_index: usize,
@@ -89,10 +129,14 @@ async fn exec_verify_remove(
     mock_auth_kp: &Keypair,
 ) {
     let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
-    let (lst_state, original_len) = {
-        let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        (lst_state_list[lst_index], lst_state_list.len())
-    };
+    let og_lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
+    let og_len = og_lst_state_list.len();
+    let lst_state = og_lst_state_list[lst_index];
+    let expected_lst_state_list_post: Vec<LstState> = og_lst_state_list
+        .iter()
+        .filter_map(|s| if *s == lst_state { None } else { Some(*s) })
+        .collect();
+
     let mint_acc = banks_client
         .get_account(lst_state.mint)
         .await
@@ -130,7 +174,7 @@ async fn exec_verify_remove(
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let expected_new_len = original_len - 1;
+    let expected_new_len = og_len - 1;
     if expected_new_len == 0 {
         assert!(banks_client
             .get_account(LST_STATE_LIST_ID)
@@ -140,7 +184,7 @@ async fn exec_verify_remove(
     } else {
         let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
         let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        assert_eq!(lst_state_list.len(), expected_new_len);
+        assert_eq!(lst_state_list, expected_lst_state_list_post);
         assert!(try_find_lst_mint_on_list(lst_state.mint, lst_state_list).is_err());
     }
     verify_lst_token_accounts_deleted(banks_client, lst_state, lst_token_program).await;
