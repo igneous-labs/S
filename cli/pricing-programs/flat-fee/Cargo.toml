@@ -20,6 +20,7 @@ tokio = { workspace = true, features = ["rt-multi-thread"] }
 [dev-dependencies]
 assert_cmd = { workspace = true }
 cli-test-utils = { workspace = true }
+flat-fee = { workspace = true, features = ["no-entrypoint"] }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli"] }
 sanctum-macros = { workspace = true }
 solana-program = { workspace = true }
