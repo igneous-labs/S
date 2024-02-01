@@ -1,8 +1,7 @@
 use clap::Args;
 use flat_fee_interface::initialize_ix_with_program_id;
 use flat_fee_lib::{
-    account_resolvers::InitializeFreeArgs, pda::ProgramStateFindPdaArgs, program::STATE_ID,
-    utils::try_program_state,
+    account_resolvers::InitializeFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
 };
 use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
 use solana_sdk::{
@@ -32,7 +31,7 @@ impl InitializeArgs {
             .await
             .unwrap();
         if let Some(state) = state.value {
-            eprintln!("State PDA {STATE_ID} already initialized:");
+            eprintln!("State PDA {state_pda} already initialized:");
             let state = try_program_state(&state.data).unwrap();
             eprintln!("{state:#?}");
             return;
