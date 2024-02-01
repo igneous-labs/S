@@ -4,7 +4,7 @@ use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
     pda::{FeeAccountFindPdaArgs, ProgramStateFindPdaArgs},
-    program::{self, STATE_ID},
+    program as flat_fee_program,
     utils::try_program_state,
 };
 
@@ -15,7 +15,7 @@ pub struct SetLstFeeByMintFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountDat
 
 impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> SetLstFeeByMintFreeArgs<S> {
     pub fn resolve(self) -> Result<SetLstFeeKeys, FlatFeeError> {
-        self.resolve_inner(STATE_ID, program::ID)
+        self.resolve_inner(flat_fee_program::STATE_ID, flat_fee_program::ID)
     }
 
     pub fn resolve_for_prog(self, program_id: Pubkey) -> Result<SetLstFeeKeys, FlatFeeError> {
@@ -64,13 +64,14 @@ pub struct SetLstFeeFreeArgs<S: ReadonlyAccountPubkey + ReadonlyAccountData> {
 
 impl<S: ReadonlyAccountPubkey + ReadonlyAccountData> SetLstFeeFreeArgs<S> {
     pub fn resolve(self) -> Result<SetLstFeeKeys, FlatFeeError> {
-        self.resolve_inner(STATE_ID)
+        self.resolve_inner(flat_fee_program::STATE_ID)
     }
 
     pub fn resolve_for_prog(self, program_id: Pubkey) -> Result<SetLstFeeKeys, FlatFeeError> {
         let state_id = ProgramStateFindPdaArgs { program_id }
             .get_program_state_address_and_bump_seed()
             .0;
+
         self.resolve_inner(state_id)
     }
 

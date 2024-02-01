@@ -6,7 +6,7 @@ use solana_program::{
 
 use crate::{
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs},
-    program,
+    program as flat_fee_program,
 };
 
 /// Uses find_program_address, for use with
@@ -19,15 +19,23 @@ pub struct PriceExactInFreeArgs {
 
 impl PriceExactInFreeArgs {
     pub fn resolve(self) -> PriceExactInKeys {
+        self.resolve_inner(flat_fee_program::ID)
+    }
+
+    pub fn resolve_for_prog(self, program_id: Pubkey) -> PriceExactInKeys {
+        self.resolve_inner(program_id)
+    }
+
+    fn resolve_inner(self, program_id: Pubkey) -> PriceExactInKeys {
         let input_find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.input_lst_mint,
-            program_id: program::ID,
+            program_id,
         };
         let (input_fee_acc, _bump) = input_find_pda_args.get_fee_account_address_and_bump_seed();
 
         let output_find_pda_args = FeeAccountFindPdaArgs {
             lst_mint: self.output_lst_mint,
-            program_id: program::ID,
+            program_id,
         };
         let (output_fee_acc, _bump) = output_find_pda_args.get_fee_account_address_and_bump_seed();
 
@@ -53,10 +61,18 @@ pub struct PriceExactInWithBumpFreeArgs {
 
 impl PriceExactInWithBumpFreeArgs {
     pub fn resolve(self) -> Result<PriceExactInKeys, PubkeyError> {
+        self.resolve_inner(flat_fee_program::ID)
+    }
+
+    pub fn resolve_for_prog(self, program_id: Pubkey) -> Result<PriceExactInKeys, PubkeyError> {
+        self.resolve_inner(program_id)
+    }
+
+    fn resolve_inner(self, program_id: Pubkey) -> Result<PriceExactInKeys, PubkeyError> {
         let input_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.input_lst_mint,
-                program_id: program::ID,
+                program_id,
             },
             bump: self.input_fee_acc_bump,
         };
@@ -65,7 +81,7 @@ impl PriceExactInWithBumpFreeArgs {
         let output_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
                 lst_mint: self.find_pda_args.output_lst_mint,
-                program_id: program::ID,
+                program_id,
             },
             bump: self.output_fee_acc_bump,
         };
