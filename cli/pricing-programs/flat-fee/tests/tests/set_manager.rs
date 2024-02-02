@@ -31,6 +31,6 @@ async fn set_manager_success_payer_as_manager_new_manager_pubkey() {
         .cmd_set_manager()
         .arg(new_manager.to_string());
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap();
+    exec_res[0].as_ref().unwrap().result.as_ref().unwrap();
     assert_new_manager(&mut bc, new_manager).await;
 }

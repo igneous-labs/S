@@ -12,5 +12,5 @@ async fn initialize_success() {
     cmd.with_flat_fee_program().cmd_initialize();
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
     // assert success
-    exec_res[0].as_ref().unwrap();
+    exec_res[0].as_ref().unwrap().result.as_ref().unwrap();
 }

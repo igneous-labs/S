@@ -15,6 +15,7 @@ async fn assert_lp_withdrawal_fee_bps(bc: &mut BanksClient, expected_lp_withdraw
 
 #[tokio::test(flavor = "multi_thread")]
 async fn set_lp_withdrawal_fee_success() {
+    const NEW_LP_WITHDRAWAL_FEE_BPS: u16 = 420;
     let payer = Keypair::new();
     let program_state = ProgramState {
         manager: payer.pubkey(),
@@ -26,8 +27,8 @@ async fn set_lp_withdrawal_fee_success() {
 
     cmd.with_flat_fee_program()
         .cmd_set_lp_withdrawal_fee()
-        .arg("420");
+        .arg(NEW_LP_WITHDRAWAL_FEE_BPS.to_string());
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap();
-    assert_lp_withdrawal_fee_bps(&mut bc, 420).await;
+    exec_res[0].as_ref().unwrap().result.as_ref().unwrap();
+    assert_lp_withdrawal_fee_bps(&mut bc, NEW_LP_WITHDRAWAL_FEE_BPS).await;
 }
