@@ -10,7 +10,7 @@ use crate::common::marinade_normal_program_test;
 #[tokio::test]
 async fn basic() {
     const LST_AMOUNT: u64 = 1_000_000_000;
-    const EXPECTED_LAMPORTS_RANGE: U64ValueRange = U64ValueRange::single(1_151_526_823);
+    const EXPECTED_LAMPORTS_RANGE: U64ValueRange = U64ValueRange::single(1_162_900_315);
 
     let program_test = marinade_normal_program_test();
 

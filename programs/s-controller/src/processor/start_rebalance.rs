@@ -12,10 +12,7 @@ use s_controller_lib::{
 use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
-use sanctum_system_program_lib::{
-    allocate_invoke_signed, assign_invoke_signed, space_to_u64, transfer_direct_increment,
-    TransferAccounts,
-};
+use sanctum_system_program_lib::{space_to_u64, transfer_direct_increment};
 use sanctum_token_lib::{
     token_account_balance, transfer_checked_decimal_agnostic_invoke_signed, TransferCheckedAccounts,
 };
@@ -26,6 +23,10 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
     sysvar::instructions::{load_current_index_checked, load_instruction_at_checked},
+};
+use system_program_interface::{
+    allocate_invoke_signed, assign_invoke_signed, AllocateAccounts, AllocateIxArgs, AssignAccounts,
+    AssignIxArgs, TransferAccounts,
 };
 
 use crate::{
@@ -81,13 +82,21 @@ pub fn process_start_rebalance(
     sync_sol_value_unchecked(src_sync_sol_value_accounts, src_lst_cpi, src_lst_index)?;
 
     allocate_invoke_signed(
-        accounts.rebalance_record,
-        space_to_u64(REBALANCE_RECORD_SIZE)?,
+        AllocateAccounts {
+            allocate: accounts.rebalance_record,
+        },
+        AllocateIxArgs {
+            space: space_to_u64(REBALANCE_RECORD_SIZE)?,
+        },
         &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
     )?;
     assign_invoke_signed(
-        accounts.rebalance_record,
-        s_controller_lib::program::ID,
+        AssignAccounts {
+            assign: accounts.rebalance_record,
+        },
+        AssignIxArgs {
+            owner: s_controller_lib::program::ID,
+        },
         &[&[REBALANCE_RECORD_SEED, &[REBALANCE_RECORD_BUMP]]],
     )?;
     transfer_direct_increment(
@@ -202,7 +211,7 @@ fn verify_has_succeeding_end_rebalance_ix(
     Ok(())
 }
 
-const END_REBALANCE_IX_DST_LST_MINT_INDEX: usize = 3;
+const END_REBALANCE_IX_DST_LST_MINT_INDEX: usize = 4;
 
 fn is_end_rebalance_ix(ix: &Instruction, dst_lst_mint: Pubkey) -> bool {
     let discm = match ix.data.first() {

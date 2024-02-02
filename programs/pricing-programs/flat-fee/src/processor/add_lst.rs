@@ -11,11 +11,12 @@ use sanctum_misc_utils::{
 };
 use sanctum_s_common::token::verify_tokenkeg_or_22_mint;
 use sanctum_system_program_lib::{
-    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
+    init_rent_exempt_account_invoke_signed, InitRentExemptAccountArgs,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
 };
+use system_program_interface::CreateAccountAccounts;
 
 pub fn process_add_lst(accounts: &[AccountInfo], args: AddLstIxArgs) -> ProgramResult {
     let (
@@ -27,12 +28,12 @@ pub fn process_add_lst(accounts: &[AccountInfo], args: AddLstIxArgs) -> ProgramR
         create_pda_args,
     ) = verify_add_lst(accounts, args)?;
 
-    create_rent_exempt_account_invoke_signed(
+    init_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: fee_acc,
         },
-        CreateRentExemptAccountArgs {
+        InitRentExemptAccountArgs {
             space: program::FEE_ACCOUNT_SIZE,
             owner: program::ID,
         },

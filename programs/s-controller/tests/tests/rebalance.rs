@@ -337,6 +337,9 @@ async fn rebalance_fail_no_end() {
 
 #[tokio::test]
 async fn rebalance_fail_unauthorized() {
+    let mock_auth_kp =
+        read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
+            .unwrap();
     let unauthorized = Keypair::new();
 
     let mut program_test = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
@@ -391,10 +394,11 @@ async fn rebalance_fail_unauthorized() {
         min_starting_src_lst: 0,
         max_starting_dst_lst: u64::MAX,
     });
+    // change rebalance authority
     ixs[0].accounts[0].pubkey = unauthorized.pubkey();
 
     let mut tx = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
-    tx.sign(&[&payer, &unauthorized], last_blockhash);
+    tx.sign(&[&payer, &unauthorized, &mock_auth_kp], last_blockhash);
 
     let err = banks_client.process_transaction(tx).await.unwrap_err();
 
@@ -531,7 +535,7 @@ async fn rebalance_fail_wrong_end_rebalance_dst_lst_mint() {
         max_starting_dst_lst: u64::MAX,
     });
     // change dst_lst_mint of end rebalance ix
-    ixs[2].accounts[3].pubkey = jitosol::ID;
+    ixs[2].accounts[4].pubkey = jitosol::ID;
 
     let mut tx = Transaction::new_with_payer(&ixs, Some(&payer.pubkey()));
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);

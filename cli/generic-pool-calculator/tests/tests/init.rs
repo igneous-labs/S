@@ -1,6 +1,6 @@
 use std::process::Output;
 
-use cli_test_utils::TestCliCmd;
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::ProgramTest;
 
@@ -12,8 +12,7 @@ async fn init_success() {
     let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup(pt).await;
     cmd.with_spl_calculator().cmd_init();
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    // assert success
-    exec_res[0].as_ref().unwrap();
+    assert_all_txs_success_nonempty(&exec_res);
 }
 
 #[tokio::test(flavor = "multi_thread")]
