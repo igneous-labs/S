@@ -9,9 +9,10 @@ use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use sanctum_system_program_lib::{
-    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
+    init_rent_exempt_account_invoke_signed, InitRentExemptAccountArgs,
 };
 use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
+use system_program_interface::CreateAccountAccounts;
 
 /// Call on resolved and checked InitAccounts
 pub fn process_init_unchecked<P: GenericPoolSolValCalc>(
@@ -22,12 +23,12 @@ pub fn process_init_unchecked<P: GenericPoolSolValCalc>(
     }: InitAccounts,
     initial_manager: Pubkey,
 ) -> Result<(), ProgramError> {
-    create_rent_exempt_account_invoke_signed(
+    init_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: state,
         },
-        CreateRentExemptAccountArgs {
+        InitRentExemptAccountArgs {
             space: CALCULATOR_STATE_SIZE,
             owner: P::ID,
         },

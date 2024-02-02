@@ -11,6 +11,7 @@ sanctum-misc-utils = { workspace = true }
 sanctum-system-program-lib = { workspace = true }
 sanctum-token-lib = { workspace = true }
 solana-program = { workspace = true }
+system_program_interface = { workspace = true }
 
 [dev-dependencies]
 generic-pool-calculator-test-utils = { workspace = true }

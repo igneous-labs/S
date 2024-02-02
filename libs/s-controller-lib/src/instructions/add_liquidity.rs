@@ -22,8 +22,8 @@ pub struct AddLiquidityIxFullArgs {
     pub amts: AddLiquidityIxAmts,
 }
 
-pub fn add_liquidity_ix_full<K: Into<AddLiquidityKeys>>(
-    accounts: K,
+pub fn add_liquidity_ix_full(
+    accounts: AddLiquidityKeys,
     AddLiquidityIxFullArgs {
         lst_index,
         amts: AddLiquidityIxAmts {

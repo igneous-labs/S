@@ -22,8 +22,8 @@ pub struct SwapExactInIxFullArgs {
     pub amount: u64,
 }
 
-pub fn swap_exact_in_ix_full<K: Into<SwapExactInKeys>>(
-    accounts: K,
+pub fn swap_exact_in_ix_full(
+    accounts: SwapExactInKeys,
     SwapExactInIxFullArgs {
         src_lst_index,
         dst_lst_index,

@@ -30,6 +30,7 @@ solana-program = { workspace = true }
 spl-token = { workspace = true, features = ["no-entrypoint"] }
 spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
 spl-token-metadata-interface = { workspace = true }
+system_program_interface = { workspace = true }
 
 [dev-dependencies]
 async-trait = { workspace = true }

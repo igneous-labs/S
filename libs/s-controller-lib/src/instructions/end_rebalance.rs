@@ -11,8 +11,8 @@ use crate::EndRebalanceFromStartRebalanceKeys;
 
 use super::utils::ix_extend_with_sol_value_calculator_accounts;
 
-pub fn end_rebalance_ix_full<K: Into<EndRebalanceKeys>>(
-    accounts: K,
+pub fn end_rebalance_ix_full(
+    accounts: EndRebalanceKeys,
     dst_lst_calculator_accounts: &[AccountMeta],
     dst_lst_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {

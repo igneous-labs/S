@@ -13,8 +13,8 @@ use crate::{
     index_to_u32, ix_extend_with_sol_value_calculator_accounts, SetSolValueCalculatorByMintFreeArgs,
 };
 
-pub fn set_sol_value_calculator_ix_full<K: Into<SetSolValueCalculatorKeys>>(
-    accounts: K,
+pub fn set_sol_value_calculator_ix_full(
+    accounts: SetSolValueCalculatorKeys,
     lst_index: usize,
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,

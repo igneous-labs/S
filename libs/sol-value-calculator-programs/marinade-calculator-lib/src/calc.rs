@@ -19,7 +19,8 @@ pub struct MarinadeStateCalc {
     pub available_reserve_balance: u64,
     pub circulating_ticket_balance: u64,
     pub msol_supply: u64,
-    pub delayed_unstake_fee_bp_cents: u32,
+    pub withdraw_stake_account_enabled: bool,
+    pub withdraw_stake_account_fee_cents: u32,
 }
 
 impl From<&MarinadeState> for MarinadeStateCalc {
@@ -40,9 +41,10 @@ impl From<&MarinadeState> for MarinadeStateCalc {
                 },
             circulating_ticket_balance,
             msol_supply,
-            delayed_unstake_fee:
+            withdraw_stake_account_enabled,
+            withdraw_stake_account_fee:
                 FeeCents {
-                    bp_cents: delayed_unstake_fee_bp_cents,
+                    bp_cents: withdraw_stake_account_fee_cents,
                 },
             ..
         }: &MarinadeState,
@@ -55,7 +57,8 @@ impl From<&MarinadeState> for MarinadeStateCalc {
             available_reserve_balance: *available_reserve_balance,
             circulating_ticket_balance: *circulating_ticket_balance,
             msol_supply: *msol_supply,
-            delayed_unstake_fee_bp_cents: *delayed_unstake_fee_bp_cents,
+            withdraw_stake_account_enabled: *withdraw_stake_account_enabled,
+            withdraw_stake_account_fee_cents: *withdraw_stake_account_fee_cents,
         }
     }
 }
@@ -69,9 +72,11 @@ impl From<MarinadeState> for MarinadeStateCalc {
 /// Reference
 /// https://github.com/marinade-finance/liquid-staking-program/blob/26147376b75d8c971963da458623e646f2795e15/programs/marinade-finance/src/state/mod.rs#L96
 impl MarinadeStateCalc {
-    pub const fn verify_marinade_not_paused(&self) -> Result<(), MarinadeCalculatorError> {
+    pub const fn verify_can_withdraw_stake(&self) -> Result<(), MarinadeCalculatorError> {
         if self.paused {
             Err(MarinadeCalculatorError::MarinadePaused)
+        } else if !self.withdraw_stake_account_enabled {
+            Err(MarinadeCalculatorError::MarinadeStakeWithdrawDisabled)
         } else {
             Ok(())
         }
@@ -103,17 +108,19 @@ impl MarinadeStateCalc {
         }))
     }
 
-    pub fn delayed_unstake_fee(&self) -> Result<FloorDiv<U64FeeRatio<u32, u32>>, MathError> {
-        U64FeeRatio::try_from_fee_num_and_denom(self.delayed_unstake_fee_bp_cents, MAX_BP_CENTS)
+    pub fn withdraw_stake_account_fee(&self) -> Result<FloorDiv<U64FeeRatio<u32, u32>>, MathError> {
+        U64FeeRatio::try_from_fee_num_and_denom(self.withdraw_stake_account_fee_cents, MAX_BP_CENTS)
             .map(FloorDiv)
     }
 }
 
 impl SolValueCalculator for MarinadeStateCalc {
+    // Reference:
+    // https://github.com/marinade-finance/liquid-staking-program/blob/26147376b75d8c971963da458623e646f2795e15/programs/marinade-finance/src/instructions/user/withdraw_stake_account.rs#L166
     fn calc_lst_to_sol(&self, msol_amount: u64) -> Result<U64ValueRange, ProgramError> {
         let ratio = self.msol_to_sol_ratio().ok_or(MathError)?;
         let sol_value_of_msol_burned = ratio.apply(msol_amount)?;
-        let fee = self.delayed_unstake_fee()?;
+        let fee = self.withdraw_stake_account_fee()?;
         let aaf = fee.apply(sol_value_of_msol_burned)?;
         let lamports_for_user = aaf.amt_after_fee();
         Ok(U64ValueRange::single(lamports_for_user))
@@ -121,7 +128,7 @@ impl SolValueCalculator for MarinadeStateCalc {
 
     fn calc_sol_to_lst(&self, lamports_for_user: u64) -> Result<U64ValueRange, ProgramError> {
         let r = self
-            .delayed_unstake_fee()?
+            .withdraw_stake_account_fee()?
             .reverse_from_amt_after_fee(lamports_for_user)?;
         let ratio = self.msol_to_sol_ratio().ok_or(MathError)?;
         let min = ratio.reverse(r.get_min())?.get_min();
@@ -182,17 +189,18 @@ mod tests {
                 ) in total_lamports_under_control(),
                 circulating_ticket_balance: u64,
                 msol_supply: u64,
-                delayed_unstake_fee_bp_cents in 0..=MAX_BP_CENTS
+                withdraw_stake_account_fee_cents in 0..=MAX_BP_CENTS
             ) -> MarinadeStateCalc {
                 MarinadeStateCalc {
                     paused: false,
+                    withdraw_stake_account_enabled: true,
                     delayed_unstake_cooling_down,
                     emergency_cooling_down,
                     total_active_balance,
                     available_reserve_balance,
                     circulating_ticket_balance,
                     msol_supply,
-                    delayed_unstake_fee_bp_cents,
+                    withdraw_stake_account_fee_cents,
                 }
             }
     }

@@ -37,7 +37,7 @@ pub fn verify_lst_sol_common(
     }
     let calc: MarinadeStateCalc = state.into();
 
-    calc.verify_marinade_not_paused()?;
+    calc.verify_can_withdraw_stake()?;
 
     Ok(calc)
 }
