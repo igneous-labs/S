@@ -19,12 +19,3 @@ pub const DEFAULT_LP_PROTOCOL_FEE_BPS: u16 = 1_000;
 
 /// TODO: SET TO FLAT FEE PRICING PROGRAM ID
 pub const DEFAULT_PRICING_PROGRAM: Pubkey = Pubkey::new_from_array([0; 32]);
-
-pub const DEFAULT_TRANSFER_FEE_BPS: u16 = 0;
-
-pub const DEFAULT_MAXIMUM_TRANSFER_FEE: u64 = 0;
-
-/// TODO: SET TO ACTUAL METADATA
-pub const DEFAULT_LP_TOKEN_METADATA_NAME: &str = "S";
-pub const DEFAULT_LP_TOKEN_METADATA_SYMBOL: &str = "S";
-pub const DEFAULT_LP_TOKEN_METADATA_URI: &str = "https://sanctum.so";

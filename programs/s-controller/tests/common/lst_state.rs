@@ -23,7 +23,6 @@ pub struct MockLstStateArgs {
     pub protocol_fee_accumulator_amt: u64,
 }
 
-/// TODO: add protocol fee accumulator account if required
 #[derive(Clone, Debug)]
 pub struct MockLstStateRet {
     pub lst_state: LstState,

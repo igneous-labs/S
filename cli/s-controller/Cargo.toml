@@ -1,0 +1,16 @@
+[package]
+name = "s-controller-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "sctr"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+s-cli-utils = { workspace = true }
+s-controller-lib = { workspace = true }
+sanctum-solana-cli-utils = { workspace = true }
+solana-sdk = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
