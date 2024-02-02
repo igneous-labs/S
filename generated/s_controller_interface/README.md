@@ -19,3 +19,5 @@ solores \
     --bytemuck-vers "workspace=true" \
     idl/s_controller.json
 ```
+
+Generated with `solores v0.7.0`

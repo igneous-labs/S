@@ -23,8 +23,8 @@ pub struct RemoveLiquidityIxFullArgs {
     pub amts: RemoveLiquidityIxAmts,
 }
 
-pub fn remove_liquidity_ix_full<K: Into<RemoveLiquidityKeys>>(
-    accounts: K,
+pub fn remove_liquidity_ix_full(
+    accounts: RemoveLiquidityKeys,
     RemoveLiquidityIxFullArgs {
         lst_index,
         amts:

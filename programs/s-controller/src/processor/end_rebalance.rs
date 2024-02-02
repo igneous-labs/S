@@ -68,6 +68,7 @@ fn verify_end_rebalance<'a, 'info>(
     let actual: EndRebalanceAccounts = load_accounts(accounts)?;
 
     let free_args = EndRebalanceFreeArgs {
+        pool_state: actual.pool_state,
         lst_state_list: actual.lst_state_list,
         rebalance_record: actual.rebalance_record,
         dst_lst_mint: actual.dst_lst_mint,

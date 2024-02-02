@@ -211,7 +211,7 @@ fn verify_has_succeeding_end_rebalance_ix(
     Ok(())
 }
 
-const END_REBALANCE_IX_DST_LST_MINT_INDEX: usize = 3;
+const END_REBALANCE_IX_DST_LST_MINT_INDEX: usize = 4;
 
 fn is_end_rebalance_ix(ix: &Instruction, dst_lst_mint: Pubkey) -> bool {
     let discm = match ix.data.first() {

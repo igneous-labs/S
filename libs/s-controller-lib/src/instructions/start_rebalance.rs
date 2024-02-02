@@ -23,8 +23,8 @@ pub struct StartRebalanceIxFullArgs {
     pub lst_amts: StartRebalanceIxLstAmts,
 }
 
-pub fn start_rebalance_ix_full<K: Into<StartRebalanceKeys>>(
-    accounts: K,
+pub fn start_rebalance_ix_full(
+    accounts: StartRebalanceKeys,
     StartRebalanceIxFullArgs {
         src_lst_index,
         dst_lst_index,

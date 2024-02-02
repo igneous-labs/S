@@ -12,8 +12,8 @@ use crate::{index_to_u32, SyncSolValueByMintFreeArgs};
 
 use super::utils::ix_extend_with_sol_value_calculator_accounts;
 
-pub fn sync_sol_value_ix_full<K: Into<SyncSolValueKeys>>(
-    accounts: K,
+pub fn sync_sol_value_ix_full(
+    accounts: SyncSolValueKeys,
     lst_index: usize,
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,
