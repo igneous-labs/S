@@ -35,6 +35,7 @@ pub struct Args {
 
     #[arg(
         help = "program ID of the flat-fee pricing program",
+        default_value_t = flat_fee_lib::program::ID,
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
     )]
     pub program: Pubkey,
