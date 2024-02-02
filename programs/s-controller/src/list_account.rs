@@ -4,7 +4,9 @@ use sanctum_system_program_lib::{
     allocate_invoke_signed, assign_invoke_signed, close_account, transfer_direct_increment,
     transfer_invoke, CloseAccountAccounts, ResizableAccount, TransferAccounts,
 };
-use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use solana_program::{
+    account_info::AccountInfo, program_error::ProgramError, program_memory::sol_memmove,
+};
 
 pub struct ExtendListPdaAccounts<'me, 'info> {
     pub list_pda: &'me AccountInfo<'info>,
@@ -61,20 +63,23 @@ pub fn remove_from_list_pda<T: AnyBitPattern>(
     index: usize,
 ) -> Result<(), ProgramError> {
     // shift [index+1..] items left to overwrite [index]
-    let index_plus_one_byte_offset = index
-        .checked_add(1)
-        .and_then(|i_plus_1| i_plus_1.checked_mul(std::mem::size_of::<T>()))
+    let index_byte_offset = index
+        .checked_mul(std::mem::size_of::<T>())
+        .ok_or(SControllerError::MathError)?;
+    let index_plus_one_byte_offset = index_byte_offset
+        .checked_add(std::mem::size_of::<T>())
         .ok_or(SControllerError::MathError)?;
     let remaining_byte_count = list_pda
         .data_len()
         .checked_sub(index_plus_one_byte_offset)
         .ok_or(SControllerError::MathError)?;
+    let data_ptr = list_pda.try_borrow_mut_data()?.as_mut_ptr();
     unsafe {
-        let mut data = list_pda.try_borrow_mut_data()?;
-        let index_ptr = data.as_mut_ptr();
-        std::ptr::copy(
-            index_ptr.add(index_plus_one_byte_offset),
-            index_ptr,
+        let src_remaining_start = data_ptr.add(index_plus_one_byte_offset);
+        let dst_to_remove_start = data_ptr.add(index_byte_offset);
+        sol_memmove(
+            dst_to_remove_start,
+            src_remaining_start,
             remaining_byte_count,
         );
     }
