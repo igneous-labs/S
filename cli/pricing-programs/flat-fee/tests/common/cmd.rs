@@ -63,6 +63,8 @@ pub trait TestCmd {
     fn cmd_set_manager(&mut self) -> &mut Self;
 
     fn cmd_set_lp_withdrawal_fee(&mut self) -> &mut Self;
+
+    fn cmd_add_lst(&mut self) -> &mut Self;
 }
 
 impl TestCmd for Command {
@@ -80,5 +82,9 @@ impl TestCmd for Command {
 
     fn cmd_set_lp_withdrawal_fee(&mut self) -> &mut Self {
         self.arg("set-lp-withdrawal-fee")
+    }
+
+    fn cmd_add_lst(&mut self) -> &mut Self {
+        self.arg("add-lst")
     }
 }
