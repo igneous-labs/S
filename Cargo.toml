@@ -53,6 +53,7 @@ solana-readonly-account = "^1"
 # To update versions, set solana-program and solana-program-test to `=<new-vers>`,
 # then restore `^1` after Cargo.lock is updated
 solana-account-decoder = "^1"
+solana-client = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
 solana-rpc-client-api = "^1"

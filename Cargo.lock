@@ -3732,7 +3732,9 @@ dependencies = [
  "s_controller_interface",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
+ "solana-client",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-sdk",
  "tokio",
 ]
