@@ -1,4 +1,4 @@
-use cli_test_utils::TestCliCmd;
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use flat_fee_interface::ProgramState;
 use flat_fee_lib::utils::try_program_state;
 use sanctum_solana_test_utils::ExtendedBanksClient;
@@ -33,6 +33,6 @@ async fn set_lp_withdrawal_fee_success() {
         .arg(NEW_LP_WITHDRAWAL_FEE_BPS.to_string());
 
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap().result.as_ref().unwrap();
+    assert_all_txs_success_nonempty(&exec_res);
     assert_lp_withdrawal_fee_bps(&mut bc, NEW_LP_WITHDRAWAL_FEE_BPS).await;
 }

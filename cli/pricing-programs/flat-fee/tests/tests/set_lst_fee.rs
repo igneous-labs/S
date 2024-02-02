@@ -1,4 +1,4 @@
-use cli_test_utils::TestCliCmd;
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use flat_fee_interface::ProgramState;
 use flat_fee_test_utils::MockFeeAccountArgs;
 use solana_program::pubkey::Pubkey;
@@ -40,5 +40,5 @@ async fn set_lst_fee_success() {
         .arg(OUTPUT_FEE_BPS.to_string());
 
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap().result.as_ref().unwrap();
+    assert_all_txs_success_nonempty(&exec_res);
 }
