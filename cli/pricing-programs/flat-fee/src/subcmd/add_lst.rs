@@ -22,7 +22,7 @@ pub struct AddLstArgs {
     )]
     pub manager: Option<String>,
 
-    #[arg(help = "The mint of LST")]
+    #[arg(help = "The mint of the LST")]
     pub lst_mint: String,
 
     #[arg(help = "Fee in bips to impose when the LST is used as input")]
