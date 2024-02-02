@@ -22,7 +22,7 @@ pub struct RemoveLstArgs {
     )]
     pub manager: Option<String>,
 
-    #[arg(help = "The mint of LST")]
+    #[arg(help = "The mint of the LST to remove")]
     pub lst_mint: String,
 
     #[arg(help = "Account to refund SOL rent to")]
