@@ -1538,6 +1538,7 @@ dependencies = [
  "cli-test-utils",
  "flat-fee",
  "flat-fee-lib",
+ "flat-fee-test-utils",
  "flat_fee_interface",
  "s-cli-utils",
  "sanctum-macros",
