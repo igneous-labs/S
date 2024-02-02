@@ -5,7 +5,7 @@ use sanctum_solana_test_utils::ExtendedBanksClient;
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer};
 
-use crate::common::{setup_with_program_state_and_fee_accounts, TestCmd};
+use crate::common::{setup, TestCmd};
 
 async fn assert_lp_withdrawal_fee_bps(bc: &mut BanksClient, expected_lp_withdrawal_fee_bps: u16) {
     let state_data = bc.get_account_data(flat_fee_lib::program::STATE_ID).await;
@@ -26,7 +26,7 @@ async fn set_lp_withdrawal_fee_success() {
     let pt = ProgramTest::default();
 
     let (mut cmd, _cfg, mut bc, _payer, _rbh) =
-        setup_with_program_state_and_fee_accounts(pt, payer, program_state, &[]).await;
+        setup(pt, payer, Some(program_state), &[], &[]).await;
 
     cmd.with_flat_fee_program()
         .cmd_set_lp_withdrawal_fee()

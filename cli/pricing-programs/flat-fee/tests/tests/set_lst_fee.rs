@@ -1,12 +1,11 @@
 use cli_test_utils::TestCliCmd;
 use flat_fee_interface::ProgramState;
 use flat_fee_test_utils::MockFeeAccountArgs;
-use sanctum_solana_test_utils::token::{tokenkeg::TokenkegProgramTest, MockMintArgs};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::ProgramTest;
 use solana_sdk::{signature::Keypair, signer::Signer};
 
-use crate::common::{setup_with_program_state_and_fee_accounts, TestCmd};
+use crate::common::{setup, TestCmd};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn set_lst_fee_success() {
@@ -20,20 +19,12 @@ async fn set_lst_fee_success() {
         manager: payer.pubkey(),
         lp_withdrawal_fee_bps: Default::default(),
     };
-    let pt = ProgramTest::default().add_tokenkeg_mint_from_args(
-        lst_mint,
-        MockMintArgs {
-            mint_authority: None,
-            freeze_authority: None,
-            supply: 0,
-            decimals: 9,
-        },
-    );
 
-    let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup_with_program_state_and_fee_accounts(
-        pt,
+    let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup(
+        ProgramTest::default(),
         payer,
-        program_state,
+        Some(program_state),
+        &[],
         &[MockFeeAccountArgs {
             input_fee_bps: Default::default(),
             output_fee_bps: Default::default(),

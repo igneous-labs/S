@@ -1,15 +1,15 @@
-// use std::process::Output;
-
 use cli_test_utils::TestCliCmd;
 use solana_program_test::ProgramTest;
+use solana_sdk::signature::Keypair;
 
 use crate::common::{setup, TestCmd};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn initialize_success() {
-    let pt = ProgramTest::default();
+    let payer = Keypair::new();
 
-    let (mut cmd, _cfg, mut bc, _payer, _rbh) = setup(pt).await;
+    let (mut cmd, _cfg, mut bc, _payer, _rbh) =
+        setup(ProgramTest::default(), payer, None, &[], &[]).await;
 
     cmd.with_flat_fee_program().cmd_initialize();
 

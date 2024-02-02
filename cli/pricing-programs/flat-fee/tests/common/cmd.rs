@@ -3,8 +3,12 @@ use cli_test_utils::TestCliCmd;
 use flat_fee_interface::ProgramState;
 use flat_fee_test_utils::{FlatFeeProgramTest, MockFeeAccount, MockFeeAccountArgs};
 use sanctum_solana_test_utils::{
-    banks_rpc_server::BanksRpcServer, cli::TempCliConfig, ExtendedProgramTest, IntoAccount,
+    banks_rpc_server::BanksRpcServer,
+    cli::TempCliConfig,
+    token::{tokenkeg::TokenkegProgramTest, MockMintArgs},
+    ExtendedProgramTest, IntoAccount,
 };
+use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_sdk::{hash::Hash, signature::Keypair, signer::Signer};
 
@@ -17,27 +21,55 @@ fn add_flat_fee_program(mut pt: ProgramTest) -> ProgramTest {
     pt
 }
 
-pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
-    let (bc, payer, rbh) = add_flat_fee_program(pt).start().await;
+// pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
+//     let (bc, payer, rbh) = add_flat_fee_program(pt).start().await;
 
-    let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
-    let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
-    let cmd = base_cmd(&cfg);
-    (cmd, cfg, bc, payer, rbh)
-}
+//     let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
+//     let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
+//     let cmd = base_cmd(&cfg);
+//     (cmd, cfg, bc, payer, rbh)
+// }
 
-// setup program test with given program_state and mock fee accounts
-// also funds given payer and set it as default cli keypair in temporary config
-pub async fn setup_with_program_state_and_fee_accounts(
+// setup program test
+// - `program_state`      sets flat fee program state up
+// - `mock_mints`         sets token mint up
+// - `mock_fee_accounts`  sets token mint up and set mock fee account
+// - funds given payer and set it as default cli keypair in temporary config
+pub async fn setup(
     pt: ProgramTest,
     payer: Keypair,
-    program_state: ProgramState,
+    program_state: Option<ProgramState>,
+    mock_mints: &[Pubkey],
     mock_fee_accounts: &[MockFeeAccountArgs],
 ) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
-    let mut pt = add_flat_fee_program(pt)
-        .add_system_account(payer.pubkey(), 1_000_000_000)
-        .add_mock_program_state(program_state);
+    let mut pt = add_flat_fee_program(pt).add_system_account(payer.pubkey(), 1_000_000_000);
+
+    if let Some(program_state) = program_state {
+        pt.add_mock_program_state(program_state);
+    }
+
+    for &mint in mock_mints {
+        pt = pt.add_tokenkeg_mint_from_args(
+            mint,
+            MockMintArgs {
+                mint_authority: None,
+                freeze_authority: None,
+                supply: 0,
+                decimals: 9,
+            },
+        );
+    }
+
     for mfa in mock_fee_accounts {
+        pt = pt.add_tokenkeg_mint_from_args(
+            mfa.lst_mint,
+            MockMintArgs {
+                mint_authority: None,
+                freeze_authority: None,
+                supply: 0,
+                decimals: 9,
+            },
+        );
         let (acc, addr) = mfa.to_fee_account_and_addr(flat_fee_lib::program::ID);
         pt.add_account(addr, MockFeeAccount(acc).into_account())
     }
