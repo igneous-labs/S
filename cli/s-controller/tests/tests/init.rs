@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use cli_test_utils::{assert_all_txs_success, TestCliCmd};
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use sanctum_solana_test_utils::{
     banks_rpc_server::BanksRpcServer,
     cli::TempCliConfig,
@@ -48,5 +48,5 @@ async fn init_success_payer_init_auth() {
     let (mut cmd, _cfg, mut bc) = setup_with_init_auth_as_payer(pt, &mock_auth_kp).await;
     cmd.cmd_init().arg(lp_mint.to_string());
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    assert_all_txs_success(&exec_res);
+    assert_all_txs_success_nonempty(&exec_res);
 }
