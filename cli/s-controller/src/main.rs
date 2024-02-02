@@ -7,12 +7,14 @@ use clap::{
 use s_cli_utils::{CONFIG_HELP, TX_SEND_MODE_HELP};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use solana_sdk::pubkey::Pubkey;
+use subcmd::Subcmd;
+use tokio::runtime::Runtime;
 
 mod subcmd;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = "S Controller Program CLI")]
-struct Args {
+pub struct Args {
     #[arg(
         long,
         short,
@@ -39,10 +41,13 @@ struct Args {
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
     )]
     pub program: Pubkey,
-    //#[command(subcommand)]
-    //pub subcmd: Subcmd,
+
+    #[command(subcommand)]
+    pub subcmd: Subcmd,
 }
 
 fn main() {
-    let _args = Args::parse();
+    let args = Args::parse();
+    let rt = Runtime::new().unwrap();
+    rt.block_on(Subcmd::run(args));
 }

@@ -1,16 +1,18 @@
 use clap::Subcommand;
 
+use self::init::InitArgs;
+
 mod init;
 
 #[derive(Debug, Subcommand)]
-enum Subcmd {
-    Init,
+pub enum Subcmd {
+    Init(InitArgs),
 }
 
-/*
 impl Subcmd {
-    async fn run(_args: crate::Args) {
-        todo!()
+    pub async fn run(args: crate::Args) {
+        match args.subcmd {
+            Self::Init(_) => InitArgs::run(args).await,
+        }
     }
 }
- */

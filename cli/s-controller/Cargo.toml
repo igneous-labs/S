@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
+s_controller_interface = { workspace = true }
 s-cli-utils = { workspace = true }
 s-controller-lib = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
