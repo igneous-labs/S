@@ -72,6 +72,8 @@ pub trait TestCmd {
     fn cmd_add_lst(&mut self) -> &mut Self;
 
     fn cmd_remove_lst(&mut self) -> &mut Self;
+
+    fn cmd_set_lst_fee(&mut self) -> &mut Self;
 }
 
 impl TestCmd for Command {
@@ -97,5 +99,9 @@ impl TestCmd for Command {
 
     fn cmd_remove_lst(&mut self) -> &mut Self {
         self.arg("remove-lst")
+    }
+
+    fn cmd_set_lst_fee(&mut self) -> &mut Self {
+        self.arg("set-lst-fee")
     }
 }
