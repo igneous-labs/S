@@ -12,20 +12,21 @@ use sanctum_misc_utils::{
     load_accounts, log_and_return_acc_privilege_err, log_and_return_wrong_acc_err,
 };
 use sanctum_system_program_lib::{
-    create_rent_exempt_account_invoke_signed, CreateAccountAccounts, CreateRentExemptAccountArgs,
+    init_rent_exempt_account_invoke_signed, InitRentExemptAccountArgs,
 };
 use solana_program::program_error::ProgramError;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
+use system_program_interface::CreateAccountAccounts;
 
 pub fn process_initialize(accounts: &[AccountInfo]) -> ProgramResult {
     let InitializeAccounts { payer, state, .. } = verify_initialize(accounts)?;
 
-    create_rent_exempt_account_invoke_signed(
+    init_rent_exempt_account_invoke_signed(
         CreateAccountAccounts {
             from: payer,
             to: state,
         },
-        CreateRentExemptAccountArgs {
+        InitRentExemptAccountArgs {
             space: program::STATE_SIZE,
             owner: program::ID,
         },

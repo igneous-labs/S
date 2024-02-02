@@ -1525,6 +1525,7 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "system_program_interface",
  "test-utils",
  "tokio",
 ]
@@ -1764,6 +1765,7 @@ dependencies = [
  "solana-readonly-account",
  "solana-sdk",
  "spl-stake-pool-keys",
+ "system_program_interface",
  "test-utils",
  "tokio",
 ]
@@ -3710,6 +3712,7 @@ dependencies = [
  "spl-token",
  "spl-token-2022 1.0.0",
  "spl-token-metadata-interface",
+ "system_program_interface",
  "test-utils",
  "tokio",
  "wsol-calculator",
@@ -3802,7 +3805,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "async-trait",
  "bincode",
@@ -3818,11 +3821,11 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=cec20e1#cec20e157f5065aa7da1faac127d32b5e0854266"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "async-trait",
  "bincode",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "data-encoding",
  "http-body-util",
  "hyper 1.1.0",
@@ -3848,9 +3851,11 @@ dependencies = [
 [[package]]
 name = "sanctum-system-program-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "solana-program",
+ "solana-readonly-account",
+ "system_program_interface",
 ]
 
 [[package]]
@@ -3866,7 +3871,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f83debb#f83debbd9a8a71bf01ca9f379527168ffb735534"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
@@ -5831,6 +5836,15 @@ checksum = "a75fb188eb626b924683e3b95e3a48e63551fcfb51949de2f06a9d91dbee93c9"
 dependencies = [
  "core-foundation-sys",
  "libc",
+]
+
+[[package]]
+name = "system_program_interface"
+version = "1.17.13"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+dependencies = [
+ "serde",
+ "solana-program",
 ]
 
 [[package]]
