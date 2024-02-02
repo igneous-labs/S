@@ -1,9 +1,9 @@
 use assert_cmd::Command;
 use cli_test_utils::TestCliCmd;
 use flat_fee_interface::ProgramState;
-use flat_fee_test_utils::FlatFeeProgramTest;
+use flat_fee_test_utils::{FlatFeeProgramTest, MockFeeAccount, MockFeeAccountArgs};
 use sanctum_solana_test_utils::{
-    banks_rpc_server::BanksRpcServer, cli::TempCliConfig, ExtendedProgramTest,
+    banks_rpc_server::BanksRpcServer, cli::TempCliConfig, ExtendedProgramTest, IntoAccount,
 };
 use solana_program_test::{processor, BanksClient, ProgramTest};
 use solana_sdk::{hash::Hash, signature::Keypair, signer::Signer};
@@ -26,18 +26,23 @@ pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Key
     (cmd, cfg, bc, payer, rbh)
 }
 
-// setup program test with given program_state
+// setup program test with given program_state and mock fee accounts
 // also funds given payer and set it as default cli keypair in temporary config
-pub async fn setup_with_program_state(
+pub async fn setup_with_program_state_and_fee_accounts(
     pt: ProgramTest,
     payer: Keypair,
     program_state: ProgramState,
+    mock_fee_accounts: &[MockFeeAccountArgs],
 ) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
-    let (bc, _rng_payer, rbh) = add_flat_fee_program(pt)
+    let mut pt = add_flat_fee_program(pt)
         .add_system_account(payer.pubkey(), 1_000_000_000)
-        .add_mock_program_state(program_state)
-        .start()
-        .await;
+        .add_mock_program_state(program_state);
+    for mfa in mock_fee_accounts {
+        let (acc, addr) = mfa.to_fee_account_and_addr(flat_fee_lib::program::ID);
+        pt.add_account(addr, MockFeeAccount(acc).into_account())
+    }
+
+    let (bc, _rng_payer, rbh) = pt.start().await;
 
     let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
     let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
@@ -65,6 +70,8 @@ pub trait TestCmd {
     fn cmd_set_lp_withdrawal_fee(&mut self) -> &mut Self;
 
     fn cmd_add_lst(&mut self) -> &mut Self;
+
+    fn cmd_remove_lst(&mut self) -> &mut Self;
 }
 
 impl TestCmd for Command {
@@ -86,5 +93,9 @@ impl TestCmd for Command {
 
     fn cmd_add_lst(&mut self) -> &mut Self {
         self.arg("add-lst")
+    }
+
+    fn cmd_remove_lst(&mut self) -> &mut Self {
+        self.arg("remove-lst")
     }
 }
