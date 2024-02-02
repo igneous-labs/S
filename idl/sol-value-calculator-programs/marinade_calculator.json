@@ -374,6 +374,11 @@
       "code": 0,
       "name": "MarinadePaused",
       "msg": "Marinade program is currently paused"
+    },
+    {
+      "code": 1,
+      "name": "MarinadeStakeWithdrawDisabled",
+      "msg": "Marinade currently has stake withdrawal disabled"
     }
   ],
   "metadata": {
