@@ -3,7 +3,7 @@ use cli_test_utils::TestCliCmd;
 use sanctum_solana_test_utils::{
     banks_rpc_server::BanksRpcServer, cli::TempCliConfig, ExtendedProgramTest,
 };
-use solana_program_test::{processor, BanksClient, ProgramTest};
+use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::{hash::Hash, signature::Keypair, signer::Signer};
 
 use super::GpcSplProgramTest;
@@ -18,24 +18,12 @@ fn base_cmd(cfg: &TempCliConfig) -> Command {
     cmd
 }
 
-fn add_spl_programs(pt: ProgramTest) -> ProgramTest {
-    // test against spl calculator
-    let mut pt = pt
-        .add_test_fixtures_account("spl-stake-pool-prog.json")
-        .add_test_fixtures_account("spl-stake-pool-prog-data.json");
-    pt.add_program(
-        "spl_calculator",
-        spl_calculator_lib::program::ID,
-        processor!(spl_calculator::entrypoint::process_instruction),
-    );
-    pt
-}
-
 pub async fn setup_with_payer_as_manager(
     last_upgrade_slot: u64,
 ) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
     let payer = Keypair::new();
-    let pt = add_spl_programs(ProgramTest::default())
+    let pt = ProgramTest::default()
+        .add_spl_programs()
         .add_system_account(payer.pubkey(), 1_000_000_000)
         .add_mock_spl_calculator_state(last_upgrade_slot, payer.pubkey());
     let (bc, _rng_payer, rbh) = pt.start().await;
@@ -47,7 +35,7 @@ pub async fn setup_with_payer_as_manager(
 }
 
 pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Keypair, Hash) {
-    let pt = add_spl_programs(pt);
+    let pt = pt.add_spl_programs();
     let (bc, payer, rbh) = pt.start().await;
 
     let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;

@@ -16,6 +16,10 @@ Everything else - anything thats meant to be read by humans: log messages, trans
 
 Use the provided `Dockerfile.cli.musl` to create a builder alpine linux docker image for building statically linked CLI binaries that can run without depending on the system's libc and distributed universally.
 
+## Testing
+
+`cargo test --features testing`
+
 ## Notes
 
 ### clap v3 vs v4
