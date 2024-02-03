@@ -34,20 +34,13 @@ pub struct InitArgs {
 
 impl InitArgs {
     pub async fn run(args: crate::Args) {
-        /*
-        // uncomment once other subcmd variants are added
         let Self {
             init_auth,
             lp_token_mint,
         } = match args.subcmd {
             Subcmd::Init(a) => a,
-            // _ => unreachable!(),
+            _ => unreachable!(),
         };
-         */
-        let Subcmd::Init(Self {
-            init_auth,
-            lp_token_mint,
-        }) = args.subcmd;
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();

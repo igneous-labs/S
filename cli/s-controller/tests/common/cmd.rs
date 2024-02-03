@@ -14,10 +14,16 @@ pub fn base_cmd(cfg: &TempCliConfig) -> Command {
 
 pub trait TestSctrCmd {
     fn cmd_init(&mut self) -> &mut Self;
+
+    fn cmd_set_admin(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
     fn cmd_init(&mut self) -> &mut Self {
         self.arg("init")
+    }
+
+    fn cmd_set_admin(&mut self) -> &mut Self {
+        self.arg("set-admin")
     }
 }

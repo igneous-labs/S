@@ -3744,6 +3744,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "s-controller-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap 4.4.18",
+ "cli-test-utils",
+ "s-cli-utils",
+ "s-controller",
+ "s-controller-lib",
+ "s_controller_interface",
+ "sanctum-solana-cli-utils",
+ "sanctum-solana-test-utils",
+ "solana-program-test",
+ "solana-sdk",
+ "tokio",
+]
+
+[[package]]
 name = "s-controller-lib"
 version = "1.0.0"
 dependencies = [

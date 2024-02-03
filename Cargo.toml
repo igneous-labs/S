@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "cli/cli-test-utils",
     "cli/s-cli-utils",
+    "cli/s-controller",
     "cli/generic-pool-calculator",
     "cli/pricing-programs/*",
     "generated/pricing-programs/*",
