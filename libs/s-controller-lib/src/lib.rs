@@ -10,7 +10,6 @@ mod calc;
 mod consts;
 mod disable_pool_authority_list;
 mod instructions;
-mod lp_token_metadata;
 mod lst_indexes;
 mod lst_state_list;
 mod pda;
@@ -23,7 +22,6 @@ pub use calc::*;
 pub use consts::*;
 pub use disable_pool_authority_list::*;
 pub use instructions::*;
-pub use lp_token_metadata::*;
 pub use lst_indexes::*;
 pub use lst_state_list::*;
 pub use pda::*;
@@ -58,6 +56,18 @@ const_assert_eq!(
     std::mem::align_of::<RebalanceRecord>(),
     REBALANCE_RECORD_ALIGN
 );
+
+// putting these consts here instead of in consts.rs
+// so that we dont forget to update the declare_program_keys!()
+// macro below if we change them
+// TODO: update declare_program_keys!() to take exprs as seeds
+// so that consts can be used
+
+pub const POOL_STATE_PDA_SEED: &[u8] = b"state";
+pub const LST_STATE_LIST_PDA_SEED: &[u8] = b"lst-state-list";
+pub const DISABLE_POOL_AUTHORITY_LIST_PDA_SEED: &[u8] = b"disable-pool-authority-list";
+pub const REBALANCE_RECORD_PDA_SEED: &[u8] = b"rebalance-record";
+pub const PROTOCOL_FEE_PDA_SEED: &[u8] = b"protocol-fee";
 
 pub mod program {
     sanctum_macros::declare_program_keys!(

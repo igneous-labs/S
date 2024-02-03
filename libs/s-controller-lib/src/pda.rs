@@ -2,7 +2,11 @@ use s_controller_interface::{LstState, SControllerError};
 use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use solana_program::pubkey::Pubkey;
 
-use crate::program::{POOL_STATE_ID, PROTOCOL_FEE_ID};
+use crate::{
+    program::{POOL_STATE_ID, PROTOCOL_FEE_ID},
+    DISABLE_POOL_AUTHORITY_LIST_PDA_SEED, LST_STATE_LIST_PDA_SEED, POOL_STATE_PDA_SEED,
+    PROTOCOL_FEE_PDA_SEED, REBALANCE_RECORD_PDA_SEED,
+};
 
 pub fn create_pool_reserves_address(
     LstState {
@@ -76,4 +80,35 @@ pub fn find_protocol_fee_accumulator_address(
         token_program,
     }
     .find_ata_address()
+}
+
+/// For dynamic program IDs.
+/// If using crate's program ID, you can use [`crate::program::POOL_STATE_ID`] directly
+pub fn find_pool_state_address(program_id: Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[POOL_STATE_PDA_SEED], &program_id)
+}
+
+/// For dynamic program IDs.
+/// If using crate's program ID, you can use [`crate::program::LST_STATE_LIST_ID`] directly
+pub fn find_lst_state_list_address(program_id: Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[LST_STATE_LIST_PDA_SEED], &program_id)
+}
+
+/// For dynamic program IDs.
+/// If using crate's program ID, you can use [`crate::program::DISABLE_POOL_AUTHORITY_LIST_ID`] directly
+pub fn find_disable_pool_authority_list_address(program_id: Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[DISABLE_POOL_AUTHORITY_LIST_PDA_SEED], &program_id)
+}
+
+/// For dynamic program IDs.
+/// If using crate's program ID, you can use [`crate::program::REBALANCE_RECORD_ID`] directly
+pub fn find_rebalance_record_address(program_id: Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[REBALANCE_RECORD_PDA_SEED], &program_id)
+}
+
+/// For dynamic program IDs.
+/// If using crate's program ID, you can use [`crate::program::PROTOCOL_FEE_ID`] directly.
+/// Returns the PDA that has authority over all the protocol fee accumulator token accounts
+pub fn find_protocol_fee_address(program_id: Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[PROTOCOL_FEE_PDA_SEED], &program_id)
 }

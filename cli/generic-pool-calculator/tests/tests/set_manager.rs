@@ -1,4 +1,4 @@
-use cli_test_utils::TestCliCmd;
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use generic_pool_calculator_lib::utils::try_calculator_state;
 use sanctum_solana_test_utils::{cli::temp_keypair_file, ExtendedBanksClient};
 use solana_program_test::{BanksClient, ProgramTest};
@@ -22,7 +22,7 @@ async fn set_manager_success_payer_as_manager_new_manager_pubkey() {
         .cmd_set_manager()
         .arg(new_manager.to_string());
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap();
+    assert_all_txs_success_nonempty(&exec_res);
     assert_new_manager(&mut bc, new_manager).await;
 }
 
@@ -39,6 +39,6 @@ async fn set_manager_success_separate_manager_new_manager_pubkey() {
         .arg(curr_manager_keyfile.path())
         .arg(new_manager.to_string());
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
-    exec_res[0].as_ref().unwrap();
+    assert_all_txs_success_nonempty(&exec_res);
     assert_new_manager(&mut bc, new_manager).await;
 }
