@@ -421,10 +421,15 @@
     {
       "code": 3,
       "name": "SignedFeeOutOfBound",
-      "msg": "Given fee value is out of bound"
+      "msg": "Given signed fee value is out of bound"
     },
     {
       "code": 4,
+      "name": "UnsignedFeeOutOfBound",
+      "msg": "Given unsigned fee value is out of bound"
+    },
+    {
+      "code": 5,
       "name": "MathError",
       "msg": "Math error"
     }
