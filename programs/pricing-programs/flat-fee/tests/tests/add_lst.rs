@@ -1,6 +1,8 @@
 use flat_fee_interface::{add_lst_ix, AddLstIxArgs, AddLstKeys, FlatFeeError, ProgramState};
 use flat_fee_lib::{
-    account_resolvers::AddLstFreeArgs, pda::FeeAccountFindPdaArgs, program::STATE_ID,
+    account_resolvers::AddLstFreeArgs,
+    pda::FeeAccountFindPdaArgs,
+    program::{self, STATE_ID},
 };
 use flat_fee_test_utils::FlatFeePricingProgramTestBanksClient;
 use sanctum_solana_test_utils::{
@@ -126,7 +128,10 @@ async fn add_lst_fail_unauthorized() {
 
     verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
 
-    let find_pda_args = FeeAccountFindPdaArgs { lst_mint };
+    let find_pda_args = FeeAccountFindPdaArgs {
+        lst_mint,
+        program_id: program::ID,
+    };
     let (fee_acc, _bump) = find_pda_args.get_fee_account_address_and_bump_seed();
 
     let ix = add_lst_ix(
@@ -170,7 +175,10 @@ async fn add_lst_fail_invalid_lst_mint() {
 
     verify_fee_account_does_not_exist(&mut banks_client, lst_mint).await;
 
-    let find_pda_args = FeeAccountFindPdaArgs { lst_mint };
+    let find_pda_args = FeeAccountFindPdaArgs {
+        lst_mint,
+        program_id: program::ID,
+    };
     let (fee_acc, _bump) = find_pda_args.get_fee_account_address_and_bump_seed();
 
     let ix = add_lst_ix(

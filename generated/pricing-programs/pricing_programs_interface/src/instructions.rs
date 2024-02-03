@@ -65,6 +65,21 @@ impl PricingProgramsProgramIx {
         Ok(data)
     }
 }
+fn invoke_instruction<'info, A: Into<[AccountInfo<'info>; N]>, const N: usize>(
+    ix: &Instruction,
+    accounts: A,
+) -> ProgramResult {
+    let account_info: [AccountInfo<'info>; N] = accounts.into();
+    invoke(ix, &account_info)
+}
+fn invoke_instruction_signed<'info, A: Into<[AccountInfo<'info>; N]>, const N: usize>(
+    ix: &Instruction,
+    accounts: A,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    let account_info: [AccountInfo<'info>; N] = accounts.into();
+    invoke_signed(ix, &account_info, seeds)
+}
 pub const PRICE_EXACT_IN_IX_ACCOUNTS_LEN: usize = 2;
 #[derive(Copy, Clone, Debug)]
 pub struct PriceExactInAccounts<'me, 'info> {
@@ -173,36 +188,56 @@ impl PriceExactInIxData {
         Ok(data)
     }
 }
-pub fn price_exact_in_ix<K: Into<PriceExactInKeys>, A: Into<PriceExactInIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn price_exact_in_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceExactInKeys,
+    args: PriceExactInIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceExactInKeys = accounts.into();
     let metas: [AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceExactInIxArgs = args.into();
-    let data: PriceExactInIxData = args_full.into();
+    let data: PriceExactInIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_exact_in_invoke<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: PriceExactInAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_exact_in_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_exact_in_ix(
+    keys: PriceExactInKeys,
+    args: PriceExactInIxArgs,
+) -> std::io::Result<Instruction> {
+    price_exact_in_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_exact_in_invoke_signed<'info, A: Into<PriceExactInIxArgs>>(
-    accounts: PriceExactInAccounts<'_, 'info>,
-    args: A,
+pub fn price_exact_in_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+) -> ProgramResult {
+    let keys: PriceExactInKeys = accounts.into();
+    let ix = price_exact_in_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_exact_in_invoke(
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+) -> ProgramResult {
+    price_exact_in_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_exact_in_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_exact_in_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_IN_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceExactInKeys = accounts.into();
+    let ix = price_exact_in_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_exact_in_invoke_signed(
+    accounts: PriceExactInAccounts<'_, '_>,
+    args: PriceExactInIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_exact_in_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_exact_in_verify_account_keys(
     accounts: PriceExactInAccounts<'_, '_>,
@@ -326,36 +361,56 @@ impl PriceExactOutIxData {
         Ok(data)
     }
 }
-pub fn price_exact_out_ix<K: Into<PriceExactOutKeys>, A: Into<PriceExactOutIxArgs>>(
-    accounts: K,
-    args: A,
+pub fn price_exact_out_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceExactOutKeys,
+    args: PriceExactOutIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceExactOutKeys = accounts.into();
     let metas: [AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceExactOutIxArgs = args.into();
-    let data: PriceExactOutIxData = args_full.into();
+    let data: PriceExactOutIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_exact_out_invoke<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: PriceExactOutAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_exact_out_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_exact_out_ix(
+    keys: PriceExactOutKeys,
+    args: PriceExactOutIxArgs,
+) -> std::io::Result<Instruction> {
+    price_exact_out_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_exact_out_invoke_signed<'info, A: Into<PriceExactOutIxArgs>>(
-    accounts: PriceExactOutAccounts<'_, 'info>,
-    args: A,
+pub fn price_exact_out_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+) -> ProgramResult {
+    let keys: PriceExactOutKeys = accounts.into();
+    let ix = price_exact_out_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_exact_out_invoke(
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+) -> ProgramResult {
+    price_exact_out_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_exact_out_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_exact_out_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN] = accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceExactOutKeys = accounts.into();
+    let ix = price_exact_out_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_exact_out_invoke_signed(
+    accounts: PriceExactOutAccounts<'_, '_>,
+    args: PriceExactOutIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_exact_out_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_exact_out_verify_account_keys(
     accounts: PriceExactOutAccounts<'_, '_>,
@@ -462,41 +517,56 @@ impl PriceLpTokensToMintIxData {
         Ok(data)
     }
 }
-pub fn price_lp_tokens_to_mint_ix<
-    K: Into<PriceLpTokensToMintKeys>,
-    A: Into<PriceLpTokensToMintIxArgs>,
->(
-    accounts: K,
-    args: A,
+pub fn price_lp_tokens_to_mint_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceLpTokensToMintKeys,
+    args: PriceLpTokensToMintIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceLpTokensToMintKeys = accounts.into();
     let metas: [AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceLpTokensToMintIxArgs = args.into();
-    let data: PriceLpTokensToMintIxData = args_full.into();
+    let data: PriceLpTokensToMintIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_lp_tokens_to_mint_invoke<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_lp_tokens_to_mint_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_lp_tokens_to_mint_ix(
+    keys: PriceLpTokensToMintKeys,
+    args: PriceLpTokensToMintIxArgs,
+) -> std::io::Result<Instruction> {
+    price_lp_tokens_to_mint_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_lp_tokens_to_mint_invoke_signed<'info, A: Into<PriceLpTokensToMintIxArgs>>(
-    accounts: PriceLpTokensToMintAccounts<'_, 'info>,
-    args: A,
+pub fn price_lp_tokens_to_mint_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+) -> ProgramResult {
+    let keys: PriceLpTokensToMintKeys = accounts.into();
+    let ix = price_lp_tokens_to_mint_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_lp_tokens_to_mint_invoke(
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+) -> ProgramResult {
+    price_lp_tokens_to_mint_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_lp_tokens_to_mint_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_lp_tokens_to_mint_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceLpTokensToMintKeys = accounts.into();
+    let ix = price_lp_tokens_to_mint_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_lp_tokens_to_mint_invoke_signed(
+    accounts: PriceLpTokensToMintAccounts<'_, '_>,
+    args: PriceLpTokensToMintIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_lp_tokens_to_mint_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_lp_tokens_to_mint_verify_account_keys(
     accounts: PriceLpTokensToMintAccounts<'_, '_>,
@@ -600,41 +670,56 @@ impl PriceLpTokensToRedeemIxData {
         Ok(data)
     }
 }
-pub fn price_lp_tokens_to_redeem_ix<
-    K: Into<PriceLpTokensToRedeemKeys>,
-    A: Into<PriceLpTokensToRedeemIxArgs>,
->(
-    accounts: K,
-    args: A,
+pub fn price_lp_tokens_to_redeem_ix_with_program_id(
+    program_id: Pubkey,
+    keys: PriceLpTokensToRedeemKeys,
+    args: PriceLpTokensToRedeemIxArgs,
 ) -> std::io::Result<Instruction> {
-    let keys: PriceLpTokensToRedeemKeys = accounts.into();
     let metas: [AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] = keys.into();
-    let args_full: PriceLpTokensToRedeemIxArgs = args.into();
-    let data: PriceLpTokensToRedeemIxData = args_full.into();
+    let data: PriceLpTokensToRedeemIxData = args.into();
     Ok(Instruction {
-        program_id: crate::ID,
+        program_id,
         accounts: Vec::from(metas),
         data: data.try_to_vec()?,
     })
 }
-pub fn price_lp_tokens_to_redeem_invoke<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
-    args: A,
-) -> ProgramResult {
-    let ix = price_lp_tokens_to_redeem_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke(&ix, &account_info)
+pub fn price_lp_tokens_to_redeem_ix(
+    keys: PriceLpTokensToRedeemKeys,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> std::io::Result<Instruction> {
+    price_lp_tokens_to_redeem_ix_with_program_id(crate::ID, keys, args)
 }
-pub fn price_lp_tokens_to_redeem_invoke_signed<'info, A: Into<PriceLpTokensToRedeemIxArgs>>(
-    accounts: PriceLpTokensToRedeemAccounts<'_, 'info>,
-    args: A,
+pub fn price_lp_tokens_to_redeem_invoke_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> ProgramResult {
+    let keys: PriceLpTokensToRedeemKeys = accounts.into();
+    let ix = price_lp_tokens_to_redeem_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction(&ix, accounts)
+}
+pub fn price_lp_tokens_to_redeem_invoke(
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+) -> ProgramResult {
+    price_lp_tokens_to_redeem_invoke_with_program_id(crate::ID, accounts, args)
+}
+pub fn price_lp_tokens_to_redeem_invoke_signed_with_program_id(
+    program_id: Pubkey,
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
     seeds: &[&[&[u8]]],
 ) -> ProgramResult {
-    let ix = price_lp_tokens_to_redeem_ix(accounts, args)?;
-    let account_info: [AccountInfo<'info>; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN] =
-        accounts.into();
-    invoke_signed(&ix, &account_info, seeds)
+    let keys: PriceLpTokensToRedeemKeys = accounts.into();
+    let ix = price_lp_tokens_to_redeem_ix_with_program_id(program_id, keys, args)?;
+    invoke_instruction_signed(&ix, accounts, seeds)
+}
+pub fn price_lp_tokens_to_redeem_invoke_signed(
+    accounts: PriceLpTokensToRedeemAccounts<'_, '_>,
+    args: PriceLpTokensToRedeemIxArgs,
+    seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    price_lp_tokens_to_redeem_invoke_signed_with_program_id(crate::ID, accounts, args, seeds)
 }
 pub fn price_lp_tokens_to_redeem_verify_account_keys(
     accounts: PriceLpTokensToRedeemAccounts<'_, '_>,

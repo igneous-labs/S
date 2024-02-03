@@ -2,7 +2,9 @@ use flat_fee_interface::{
     set_lst_fee_ix, AddLstIxArgs, FlatFeeError, ProgramState, SetLstFeeIxArgs,
 };
 use flat_fee_lib::{
-    account_resolvers::SetLstFeeByMintFreeArgs, pda::FeeAccountFindPdaArgs, program::STATE_ID,
+    account_resolvers::SetLstFeeByMintFreeArgs,
+    pda::FeeAccountFindPdaArgs,
+    program::{self, STATE_ID},
     utils::try_fee_account,
 };
 use flat_fee_test_utils::MockFeeAccountArgs;
@@ -94,8 +96,11 @@ async fn set_lst_fee_fail_invalid_fee() {
         pubkey: STATE_ID,
         account: state_acc,
     };
-    let (fee_account_pk, _bump) =
-        FeeAccountFindPdaArgs { lst_mint }.get_fee_account_address_and_bump_seed();
+    let (fee_account_pk, _bump) = FeeAccountFindPdaArgs {
+        lst_mint,
+        program_id: program::ID,
+    }
+    .get_fee_account_address_and_bump_seed();
 
     for bad_fee_args in [BAD_FEE_ARGS_1, BAD_FEE_ARGS_2] {
         let ix = set_lst_fee_ix(
@@ -187,8 +192,11 @@ async fn set_lst_fee_fail_unauthorized() {
 
     assert_program_error(err, ProgramError::InvalidArgument);
 
-    let (fee_account_pk, _bump) =
-        FeeAccountFindPdaArgs { lst_mint }.get_fee_account_address_and_bump_seed();
+    let (fee_account_pk, _bump) = FeeAccountFindPdaArgs {
+        lst_mint,
+        program_id: program::ID,
+    }
+    .get_fee_account_address_and_bump_seed();
     let fee_account_acc = banks_client.get_account_unwrapped(fee_account_pk).await;
     let fee_account = try_fee_account(&fee_account_acc.data).unwrap();
 

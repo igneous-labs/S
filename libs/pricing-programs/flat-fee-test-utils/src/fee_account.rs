@@ -30,7 +30,7 @@ pub struct MockFeeAccountArgs {
 }
 
 impl MockFeeAccountArgs {
-    pub fn to_fee_account_and_addr(&self) -> (FeeAccount, Pubkey) {
+    pub fn to_fee_account_and_addr(&self, program_id: Pubkey) -> (FeeAccount, Pubkey) {
         let Self {
             input_fee_bps,
             output_fee_bps,
@@ -38,6 +38,7 @@ impl MockFeeAccountArgs {
         } = self;
         let (addr, bump) = FeeAccountFindPdaArgs {
             lst_mint: *lst_mint,
+            program_id,
         }
         .get_fee_account_address_and_bump_seed();
         (
