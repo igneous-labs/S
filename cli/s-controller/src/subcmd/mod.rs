@@ -15,7 +15,7 @@ impl Subcmd {
     pub async fn run(args: crate::Args) {
         match args.subcmd {
             Self::Init(_) => InitArgs::run(args).await,
-            Self::AddDisableAuth(_) => todo!(),
+            Self::AddDisableAuth(_) => AddDisableAuthArgs::run(args).await,
         }
     }
 }

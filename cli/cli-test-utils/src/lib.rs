@@ -1,5 +1,5 @@
-mod assert;
+mod assertions;
 mod cmd;
 
-pub use assert::*;
+pub use assertions::*;
 pub use cmd::*;
