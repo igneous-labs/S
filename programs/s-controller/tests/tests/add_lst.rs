@@ -5,10 +5,14 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, AddLstFreeArgs, FindLstPdaAtaKeys,
 };
+use s_controller_test_utils::{
+    AddMarinadeProgramTest, AddSplProgramTest, LstStateListBanksClient, PoolStateBanksClient,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{
     assert_custom_err, assert_program_error, test_fixtures_dir,
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
-    ExtendedBanksClient, IntoAccount,
+    ExtendedBanksClient,
 };
 use solana_program::{
     hash::Hash, program_error::ProgramError, program_pack::Pack, pubkey::Pubkey,
@@ -25,7 +29,7 @@ use test_utils::jitosol;
 
 use crate::common::*;
 
-fn jito_marinade_program_test() -> (ProgramTest, Keypair) {
+fn jito_marinade_add_lst_program_test() -> (ProgramTest, Keypair) {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
@@ -37,12 +41,12 @@ fn jito_marinade_program_test() -> (ProgramTest, Keypair) {
         processor!(s_controller::entrypoint::process_instruction),
     );
     program_test = program_test
+        .add_s_program()
         .add_spl_progs()
         .add_marinade_progs()
         .add_jito_stake_pool()
-        .add_marinade_stake_pool();
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(s_controller_lib::program::POOL_STATE_ID, pool_state_account);
+        .add_marinade_stake_pool()
+        .add_pool_state(DEFAULT_POOL_STATE);
 
     (program_test, mock_auth_kp)
 }
@@ -143,7 +147,7 @@ async fn add_and_verify_success_jitosol(
 
 #[tokio::test]
 async fn basic_add_two() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let pool_state_account = banks_client.get_pool_state_acc().await;
@@ -193,7 +197,7 @@ async fn basic_add_two() {
 
 #[tokio::test]
 async fn add_with_pre_created_atas() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (pool_reserves, _bump) = find_pool_reserves_address(FindLstPdaAtaKeys {
         lst_mint: jitosol::ID,
         token_program: spl_token::ID,
@@ -225,7 +229,7 @@ async fn add_with_pre_created_atas() {
 
 #[tokio::test]
 async fn fail_add_duplicate() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let pool_state_account = banks_client.get_pool_state_acc().await;
@@ -267,7 +271,7 @@ async fn fail_add_duplicate() {
 // should never happen
 #[tokio::test]
 async fn fail_pre_created_ata_wrong_authority() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (pool_reserves, _bump) = find_pool_reserves_address(FindLstPdaAtaKeys {
         lst_mint: jitosol::ID,
         token_program: spl_token::ID,
@@ -308,7 +312,7 @@ async fn fail_pre_created_ata_wrong_authority() {
 
 #[tokio::test]
 async fn fail_add_uninitialized_token() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let uninitialized_lst_mint = Pubkey::new_unique();
@@ -345,7 +349,7 @@ async fn fail_add_uninitialized_token() {
 
 #[tokio::test]
 async fn fail_add_non_exec_sol_val_calc() {
-    let (program_test, mock_auth_kp) = jito_marinade_program_test();
+    let (program_test, mock_auth_kp) = jito_marinade_add_lst_program_test();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let pool_state_account = banks_client.get_pool_state_acc().await;

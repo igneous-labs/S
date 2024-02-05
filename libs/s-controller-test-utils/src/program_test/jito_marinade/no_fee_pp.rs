@@ -1,7 +1,7 @@
 use sanctum_solana_test_utils::IntoAccount;
 use solana_program_test::{processor, ProgramTest};
 
-use crate::common::MockPoolState;
+use crate::MockPoolState;
 
 use super::{jito_marinade_base_program_test, JitoMarinadeProgramTestArgs};
 

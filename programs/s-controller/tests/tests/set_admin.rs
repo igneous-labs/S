@@ -1,6 +1,9 @@
 use s_controller_interface::{set_admin_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetAdminFreeArgs};
 
+use s_controller_test_utils::{
+    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{test_fixtures_dir, IntoAccount};
 use solana_program_test::*;
 use solana_readonly_account::sdk::KeyedAccount;
@@ -19,17 +22,10 @@ async fn basic_set_admin() {
     let new_admin_kp = Keypair::new();
     let another_new_admin_kp = Keypair::new();
 
-    let mut program_test = ProgramTest::default();
-
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
+    let program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE);
     let pool_state_acc = MockPoolState(DEFAULT_POOL_STATE).into_account();
-
-    program_test.add_account(POOL_STATE_ID, pool_state_acc.clone());
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

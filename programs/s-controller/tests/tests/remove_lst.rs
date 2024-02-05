@@ -4,12 +4,17 @@ use s_controller_lib::{
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, RemoveLstFreeArgs,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
+    LstStateListProgramTest, MockLstStateArgs, PoolStateBanksClient, PoolStateProgramTest,
+    DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{
     test_fixtures_dir,
     token::{tokenkeg::TokenkegProgramTest, MockMintArgs},
 };
 use solana_program::{clock::Clock, hash::Hash, pubkey::Pubkey};
-use solana_program_test::{BanksClient, ProgramTestContext};
+use solana_program_test::{BanksClient, ProgramTest, ProgramTestContext};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -35,7 +40,8 @@ async fn basic_two_clear_from_front() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
@@ -67,7 +73,8 @@ async fn basic_two_clear_from_back() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
@@ -99,8 +106,10 @@ async fn basic_three_clear_1_0_2() {
         protocol_fee_accumulator_amt: 0,
     });
 
-    let mut program_test =
-        naked_pool_state_program_test(DEFAULT_POOL_STATE).add_mock_lst_states(&random_lst_states);
+    let mut program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE)
+        .add_mock_lst_states(&random_lst_states);
     for s in random_lst_states {
         program_test = program_test.add_tokenkeg_mint_from_args(
             s.mint,

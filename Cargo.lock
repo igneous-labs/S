@@ -3697,25 +3697,20 @@ version = "0.1.0"
 name = "s-controller"
 version = "1.0.0"
 dependencies = [
- "async-trait",
  "borsh 0.10.3",
  "bytemuck",
- "flat-fee",
  "flat-fee-lib",
  "flat-fee-test-utils",
  "flat_fee_interface",
- "generic-pool-calculator-lib",
- "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
- "lido-calculator",
  "lido-calculator-lib",
  "lido-keys",
- "marinade-calculator",
  "marinade-calculator-lib",
  "marinade-keys",
  "no-fee-pricing-program",
  "pricing_programs_interface",
  "s-controller-lib",
+ "s-controller-test-utils",
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-misc-utils",
@@ -3730,17 +3725,35 @@ dependencies = [
  "solana-readonly-account",
  "solana-sdk",
  "spl-associated-token-account",
- "spl-calculator",
  "spl-calculator-lib",
- "spl-pod",
  "spl-token",
  "spl-token-2022 1.0.0",
  "spl-token-metadata-interface",
  "system_program_interface",
  "test-utils",
  "tokio",
- "wsol-calculator",
  "wsol-calculator-lib",
+]
+
+[[package]]
+name = "s-controller-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap 4.4.18",
+ "cli-test-utils",
+ "s-cli-utils",
+ "s-controller",
+ "s-controller-lib",
+ "s-controller-test-utils",
+ "s_controller_interface",
+ "sanctum-solana-cli-utils",
+ "sanctum-solana-test-utils",
+ "solana-client",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "tokio",
 ]
 
 [[package]]
@@ -3760,6 +3773,39 @@ dependencies = [
  "spl-token",
  "spl-token-metadata-interface",
  "static_assertions",
+]
+
+[[package]]
+name = "s-controller-test-utils"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "flat-fee",
+ "flat-fee-lib",
+ "flat-fee-test-utils",
+ "flat_fee_interface",
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "lido-calculator",
+ "lido-calculator-lib",
+ "lido-keys",
+ "marinade-calculator",
+ "marinade-calculator-lib",
+ "marinade-keys",
+ "no-fee-pricing-program",
+ "s-controller-lib",
+ "s_controller_interface",
+ "sanctum-solana-test-utils",
+ "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "spl-calculator",
+ "spl-calculator-lib",
+ "spl-token",
+ "test-utils",
+ "wsol-calculator",
+ "wsol-calculator-lib",
 ]
 
 [[package]]

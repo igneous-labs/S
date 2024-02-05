@@ -10,6 +10,8 @@ use solana_sdk::pubkey::Pubkey;
 use subcmd::Subcmd;
 use tokio::runtime::Runtime;
 
+mod common;
+mod rpc;
 mod subcmd;
 
 #[derive(Parser, Debug)]

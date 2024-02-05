@@ -3,7 +3,12 @@ use s_controller_lib::{
     program::POOL_STATE_ID, try_disable_pool_authority_list, try_match_element_in_list,
     AddDisablePoolAuthorityFreeArgs,
 };
+use s_controller_test_utils::{
+    DisablePoolAuthorityListBanksClient, DisablePoolAuthorityListProgramTest, MockPoolState,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
+use solana_program_test::ProgramTest;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -19,7 +24,9 @@ async fn basic_add_two() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
@@ -100,7 +107,9 @@ async fn fail_add_duplicates() {
             .unwrap();
 
     let existing_authority_keypair = Keypair::new();
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE)
+    let program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE)
         .add_disable_pool_authority_list(&[existing_authority_keypair.pubkey()]);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

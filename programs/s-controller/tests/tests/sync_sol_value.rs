@@ -2,6 +2,10 @@ use s_controller_interface::{LstState, PoolState};
 use s_controller_lib::{
     sync_sol_value_ix_by_mint_full, try_lst_state_list, try_pool_state, SyncSolValueByMintFreeArgs,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
+    PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::ExtendedBanksClient;
 use solana_program::{clock::Clock, pubkey::Pubkey};
 use solana_program_test::ProgramTestContext;
@@ -26,7 +30,8 @@ async fn basic() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,

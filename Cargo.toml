@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "cli/cli-test-utils",
     "cli/s-cli-utils",
+    "cli/s-controller",
     "cli/generic-pool-calculator",
     "cli/pricing-programs/*",
     "generated/pricing-programs/*",
@@ -11,6 +12,7 @@ members = [
     "keys/*",
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
+    "libs/s-controller-test-utils",
     "libs/sanctum-s-common",
     "libs/sol-value-calculator-programs/*",
     "programs/pricing-programs/*",
@@ -56,6 +58,7 @@ solana-readonly-account = "^1"
 # To update versions, set solana-program and solana-program-test to `=<new-vers>`,
 # then restore `^1` after Cargo.lock is updated
 solana-account-decoder = "^1"
+solana-client = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
 solana-rpc-client-api = "^1"
@@ -104,6 +107,7 @@ flat-fee = { path = "./programs/pricing-programs/flat-fee" }
 no-fee-pricing-program = { path = "./programs/pricing-programs/no-fee-pricing-program" }
 s-cli-utils = { path = "./cli/s-cli-utils" }
 s-controller = { path = "./programs/s-controller" }
+s-controller-test-utils = { path = "./libs/s-controller-test-utils" }
 lido-calculator = { path = "./programs/sol-value-calculator-programs/lido-calculator" }
 marinade-calculator = { path = "./programs/sol-value-calculator-programs/marinade-calculator" }
 spl-calculator = { path = "./programs/sol-value-calculator-programs/spl-calculator" }

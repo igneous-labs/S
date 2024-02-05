@@ -10,7 +10,9 @@ use solana_sdk::{
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(long_about = "Initializes the S controller program's state.
+#[command(
+    about = "Initializes the S controller program's state",
+    long_about = "Initializes the S controller program's state
 
 Prerequisites:
 - lp_token_mint must be an initialized spl-token (not 2022) mint with 9 decimals and 0 supply and have mint authority set to the program's initial authority
@@ -18,8 +20,8 @@ Prerequisites:
 The procedure will:
 - Initialize the pool state only. Use add-lst to initialize the lst list and add the first LST to the pool.
 - Transfer the mint authority of lp_token_mint to the program. Make sure token metadata is already set up if required.
-- Set pool manager and rebalance authority to the program's initial authority
-")]
+- Set pool manager and rebalance authority to the program's initial authority"
+)]
 pub struct InitArgs {
     #[arg(
         long,
@@ -34,20 +36,13 @@ pub struct InitArgs {
 
 impl InitArgs {
     pub async fn run(args: crate::Args) {
-        /*
-        // uncomment once other subcmd variants are added
         let Self {
             init_auth,
             lp_token_mint,
         } = match args.subcmd {
             Subcmd::Init(a) => a,
-            // _ => unreachable!(),
+            _ => unreachable!(),
         };
-         */
-        let Subcmd::Init(Self {
-            init_auth,
-            lp_token_mint,
-        }) = args.subcmd;
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();

@@ -6,6 +6,11 @@ use s_controller_lib::{
     remove_liquidity_ix_full, try_pool_state, AddRemoveLiquidityExtraAccounts,
     RemoveLiquidityByMintFreeArgs, RemoveLiquidityIxAmts, RemoveLiquidityIxFullArgs,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, lido_wsol_flat_fee_program_test,
+    GenAndAddTokenAccountProgramTest, JitoMarinadeProgramTestArgs, LidoWsolProgramTestArgs,
+    LstStateListBanksClient, MockProtocolFeeBps, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{
     assert_custom_err, token::MockTokenAccountArgs, ExtendedBanksClient,
 };
@@ -20,7 +25,7 @@ use spl_token::native_mint;
 use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 use wsol_calculator_lib::WSOL_SOL_TO_LST_METAS;
 
-use crate::common::*;
+use crate::common::SControllerProgramTest;
 
 #[tokio::test]
 async fn basic_redeem_full_no_fees() {
@@ -40,7 +45,8 @@ async fn basic_redeem_full_no_fees() {
         msol_reserves: 0,
         jitosol_protocol_fee_accumulator: 0,
         msol_protocol_fee_accumulator: 0,
-    });
+    })
+    .add_s_program();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,
@@ -194,7 +200,8 @@ async fn basic_redeem_full_flat_fees() {
             trading: Default::default(),
             lp: PROTOCOL_FEE_BPS,
         },
-    );
+    )
+    .add_s_program();
     let liquidity_provider_wsol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: native_mint::ID,
@@ -306,7 +313,8 @@ async fn fail_remove_liquidity_slippage() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint,
         lp_token_supply: LP_TOKEN_SUPPLY,
-    });
+    })
+    .add_s_program();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,

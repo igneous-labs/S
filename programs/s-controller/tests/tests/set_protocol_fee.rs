@@ -2,15 +2,16 @@ use s_controller_interface::{
     set_protocol_fee_ix, PoolState, SetProtocolFeeIxArgs, SetProtocolFeeKeys,
 };
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, SetProtocolFeeFreeArgs};
+use s_controller_test_utils::{
+    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{assert_program_error, test_fixtures_dir, IntoAccount};
 use solana_program::program_error::ProgramError;
-use solana_program_test::BanksClient;
+use solana_program_test::{BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 
-use crate::common::{
-    naked_pool_state_program_test, MockPoolState, PoolStateBanksClient, DEFAULT_POOL_STATE,
-};
+use crate::common::SControllerProgramTest;
 
 #[tokio::test]
 async fn admin_set_both() {
@@ -19,7 +20,9 @@ async fn admin_set_both() {
             .unwrap();
 
     let old_pool_state = DEFAULT_POOL_STATE;
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(old_pool_state);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let args = SetProtocolFeeIxArgs {
@@ -48,7 +51,9 @@ async fn admin_set_both() {
 
 #[tokio::test]
 async fn unauthorized_signer() {
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let program_test = ProgramTest::default()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let ix = set_protocol_fee_ix(

@@ -1,0 +1,35 @@
+[package]
+name = "s-controller-test-utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = { workspace = true }
+sanctum-solana-test-utils = { workspace = true }
+solana-program = { workspace = true }
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+spl-token = { workspace = true }
+
+# workspace members
+flat_fee_interface = { workspace = true }
+flat-fee = { workspace = true, features = ["no-entrypoint"] }
+flat-fee-lib = { workspace = true }
+flat-fee-test-utils = { workspace = true }
+generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-lib = { workspace = true }
+generic-pool-calculator-test-utils = { workspace = true }
+lido-calculator = { workspace = true, features = ["no-entrypoint"] }
+lido-calculator-lib = { workspace = true }
+lido-keys = { workspace = true }
+marinade-calculator = { workspace = true, features = ["no-entrypoint"] }
+marinade-calculator-lib = { workspace = true }
+marinade-keys = { workspace = true }
+no-fee-pricing-program = { workspace = true, features = ["no-entrypoint"] }
+s_controller_interface = { workspace = true }
+s-controller-lib = { workspace = true }
+spl-calculator = { workspace = true, features = ["no-entrypoint"] } 
+spl-calculator-lib = { workspace = true }
+test-utils = { workspace = true }
+wsol-calculator = { workspace = true, features = ["no-entrypoint"] }
+wsol-calculator-lib = { workspace = true }
