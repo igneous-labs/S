@@ -72,7 +72,7 @@ async fn basic_swap_exact_out_no_fee() {
             amount: MSOL_STARTING_BALANCE,
         },
     )
-    .add_s_controller_prog();
+    .add_s_program();
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -248,7 +248,7 @@ async fn basic_swap_exact_out_flat_fee() {
             lp: Default::default(),
         },
     )
-    .add_s_controller_prog();
+    .add_s_program();
 
     let swapper_jitosol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -409,7 +409,7 @@ async fn fail_swap_exact_out_same_mint() {
             amount: MSOL_STARTING_BALANCE,
         },
     )
-    .add_s_controller_prog();
+    .add_s_program();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

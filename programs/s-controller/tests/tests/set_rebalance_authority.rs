@@ -24,7 +24,7 @@ async fn admin_set() {
     let new_rebalance_authority = Pubkey::new_unique();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -54,7 +54,7 @@ async fn rebalance_authority_set() {
     pool_state.rebalance_authority = current_rebalance_authority.pubkey();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(pool_state);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -80,7 +80,7 @@ async fn unauthorized_signer() {
     let new_rebalance_authority = Pubkey::new_unique();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

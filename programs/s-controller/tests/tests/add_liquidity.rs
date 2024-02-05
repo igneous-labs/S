@@ -49,7 +49,7 @@ async fn basic_add_liquidity_twice_no_fee() {
         lp_token_mint,
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,
@@ -163,7 +163,7 @@ async fn basic_add_liquidity_twice_flat_fee() {
             lp: 100,
         },
     )
-    .add_s_controller_prog();
+    .add_s_program();
     let liquidity_provider_stsol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: stsol::ID,
@@ -363,7 +363,7 @@ async fn fail_add_liquidity_slippage() {
         lp_token_mint,
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,

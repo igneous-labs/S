@@ -50,7 +50,7 @@ async fn basic_set_marinade() {
             protocol_fee_accumulator_amt: 0,
         }],
     )
-    .add_s_controller_prog();
+    .add_s_program();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -107,7 +107,7 @@ async fn fail_unauthorized() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -170,7 +170,7 @@ async fn fail_set_non_exec_sol_val_calc() {
         reserves_amt: MSOL_POOL_RESERVES,
         protocol_fee_accumulator_amt: 0,
     }])
-    .add_s_controller_prog();
+    .add_s_program();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

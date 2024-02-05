@@ -165,7 +165,7 @@ async fn rebalance_basic() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -249,7 +249,7 @@ async fn rebalance_fail_no_end() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -358,7 +358,7 @@ async fn rebalance_fail_unauthorized() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -433,7 +433,7 @@ async fn rebalance_fail_not_enough_sol_value_returned() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -500,7 +500,7 @@ async fn rebalance_fail_wrong_end_rebalance_dst_lst_mint() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -575,7 +575,7 @@ async fn rebalance_fail_slippage_tolerance_exceeded() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,

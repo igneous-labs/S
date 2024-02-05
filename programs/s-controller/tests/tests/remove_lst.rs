@@ -41,7 +41,7 @@ async fn basic_two_clear_from_front() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
@@ -74,7 +74,7 @@ async fn basic_two_clear_from_back() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
@@ -107,7 +107,7 @@ async fn basic_three_clear_1_0_2() {
     });
 
     let mut program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE)
         .add_mock_lst_states(&random_lst_states);
     for s in random_lst_states {

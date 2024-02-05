@@ -22,7 +22,7 @@ fn no_fee_program_test() -> (ProgramTest, Keypair) {
             .unwrap();
 
     let mut program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     program_test.add_program(
         "no_fee_pricing_program",

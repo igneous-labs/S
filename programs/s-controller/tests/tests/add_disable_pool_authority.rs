@@ -25,7 +25,7 @@ async fn basic_add_two() {
             .unwrap();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -108,7 +108,7 @@ async fn fail_add_duplicates() {
 
     let existing_authority_keypair = Keypair::new();
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE)
         .add_disable_pool_authority_list(&[existing_authority_keypair.pubkey()]);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;

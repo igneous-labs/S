@@ -21,7 +21,7 @@ async fn basic_enable_pool() {
         ..DEFAULT_POOL_STATE
     };
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(pool_state);
 
     let pool_state_account = MockPoolState(pool_state).into_account();

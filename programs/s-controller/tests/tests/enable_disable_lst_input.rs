@@ -22,7 +22,7 @@ async fn basic_disable_then_enable() {
     let program_test = jito_marinade_no_fee_program_test(
         JitoMarinadeProgramTestArgs::default().with_lp_token_mint(Pubkey::new_unique()),
     )
-    .add_s_controller_prog();
+    .add_s_program();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let args = DisableEnableLstInputByMintFreeArgs {

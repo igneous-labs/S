@@ -21,7 +21,7 @@ async fn admin_set_both() {
 
     let old_pool_state = DEFAULT_POOL_STATE;
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(old_pool_state);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -52,7 +52,7 @@ async fn admin_set_both() {
 #[tokio::test]
 async fn unauthorized_signer() {
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

@@ -37,7 +37,7 @@ async fn basic() {
         .collect();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE)
         .add_disable_pool_authority_list(&disable_pool_authority_pks);
     let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();

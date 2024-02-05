@@ -52,7 +52,7 @@ async fn basic_withdraw_protocol_fees() {
             amount: MSOL_DEFAULT_AMOUNT,
         },
     )
-    .add_s_controller_prog();
+    .add_s_program();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

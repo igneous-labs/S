@@ -3754,6 +3754,7 @@ dependencies = [
  "s-cli-utils",
  "s-controller",
  "s-controller-lib",
+ "s-controller-test-utils",
  "s_controller_interface",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",

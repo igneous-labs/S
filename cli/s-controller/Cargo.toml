@@ -25,5 +25,6 @@ tokio = { workspace = true, features = ["rt-multi-thread"] }
 assert_cmd = { workspace = true }
 cli-test-utils = { workspace = true }
 s-controller = { workspace = true }
+s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli", "token"] }
 solana-program-test = { workspace = true }

@@ -23,7 +23,7 @@ async fn basic_set_protocol_fee_beneficiary() {
     let another_new_beneficiary_kp = Keypair::new();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let pool_state_acc = MockPoolState(DEFAULT_POOL_STATE).into_account();
 

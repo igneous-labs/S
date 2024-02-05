@@ -41,7 +41,7 @@ fn jito_marinade_add_lst_program_test() -> (ProgramTest, Keypair) {
         processor!(s_controller::entrypoint::process_instruction),
     );
     program_test = program_test
-        .add_s_controller_prog()
+        .add_s_program()
         .add_spl_progs()
         .add_marinade_progs()
         .add_jito_stake_pool()

@@ -31,7 +31,7 @@ async fn basic() {
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
     })
-    .add_s_controller_prog();
+    .add_s_program();
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
         epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,

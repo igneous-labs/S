@@ -31,5 +31,5 @@ s-controller-lib = { workspace = true }
 spl-calculator = { workspace = true, features = ["no-entrypoint"] } 
 spl-calculator-lib = { workspace = true }
 test-utils = { workspace = true }
-wsol-calculator = { workspace = true }
+wsol-calculator = { workspace = true, features = ["no-entrypoint"] }
 wsol-calculator-lib = { workspace = true }

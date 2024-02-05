@@ -25,7 +25,7 @@ use crate::common::*;
 fn setup(lp_mint_intial_auth: Pubkey) -> (ProgramTest, Pubkey) {
     let lp_token_mint_addr = Pubkey::new_unique();
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_mock_lp_mint_to_init(MockLpMintToInitArgs {
             initial_authority: lp_mint_intial_auth,
             addr: lp_token_mint_addr,

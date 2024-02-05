@@ -15,7 +15,7 @@ async fn basic_disable_pool() {
     let disable_pool_authority_kp = Keypair::new();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE)
         .add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
 
@@ -45,7 +45,7 @@ async fn reject_disable_pool() {
     let disable_pool_authority_kp = Keypair::new();
 
     let program_test = ProgramTest::default()
-        .add_s_controller_prog()
+        .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE)
         .add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
 
