@@ -2,6 +2,10 @@ use s_controller_lib::{
     disable_lst_input_ix_by_mint_full, enable_lst_input_ix_by_mint_full, try_find_lst_mint_on_list,
     try_lst_state_list, DisableEnableLstInputByMintFreeArgs, U8Bool,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
+    PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::test_fixtures_dir;
 use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
@@ -17,7 +21,8 @@ async fn basic_disable_then_enable() {
             .unwrap();
     let program_test = jito_marinade_no_fee_program_test(
         JitoMarinadeProgramTestArgs::default().with_lp_token_mint(Pubkey::new_unique()),
-    );
+    )
+    .add_s_controller_prog();
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let args = DisableEnableLstInputByMintFreeArgs {

@@ -1,7 +1,10 @@
 use s_controller_interface::{enable_pool_ix, PoolState};
 use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, EnablePoolFreeArgs, U8Bool};
+use s_controller_test_utils::{
+    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{test_fixtures_dir, IntoAccount};
-use solana_program_test::{processor, ProgramTest};
+use solana_program_test::ProgramTest;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 
@@ -13,22 +16,15 @@ async fn basic_enable_pool() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
-    let pool_state_account = MockPoolState(PoolState {
+    let pool_state = PoolState {
         is_disabled: 1,
         ..DEFAULT_POOL_STATE
-    })
-    .into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
-    );
+    };
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(pool_state);
+
+    let pool_state_account = MockPoolState(pool_state).into_account();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -37,7 +33,7 @@ async fn basic_enable_pool() {
         let keys = EnablePoolFreeArgs {
             pool_state_acc: KeyedAccount {
                 pubkey: POOL_STATE_ID,
-                account: pool_state_account.clone(),
+                account: pool_state_account,
             },
         }
         .resolve()

@@ -11,6 +11,11 @@ use s_controller_lib::{
     swap_exact_out_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
     SwapByMintsFreeArgs, SwapExactOutAmounts,
 };
+use s_controller_test_utils::{
+    jito_marinade_flat_fee_program_test, jito_marinade_no_fee_program_test,
+    GenAndAddTokenAccountProgramTest, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
+    MockProtocolFeeBps, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{
     assert_custom_err,
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
@@ -66,7 +71,8 @@ async fn basic_swap_exact_out_no_fee() {
             authority: swapper.pubkey(),
             amount: MSOL_STARTING_BALANCE,
         },
-    );
+    )
+    .add_s_controller_prog();
 
     let ctx = program_test.start_with_context().await;
     ctx.set_sysvar(&Clock {
@@ -241,7 +247,8 @@ async fn basic_swap_exact_out_flat_fee() {
             trading: TRADING_PROTOCOL_FEE_BPS,
             lp: Default::default(),
         },
-    );
+    )
+    .add_s_controller_prog();
 
     let swapper_jitosol_acc_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -401,7 +408,8 @@ async fn fail_swap_exact_out_same_mint() {
             authority: swapper.pubkey(),
             amount: MSOL_STARTING_BALANCE,
         },
-    );
+    )
+    .add_s_controller_prog();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

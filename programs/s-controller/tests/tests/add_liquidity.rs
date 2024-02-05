@@ -9,6 +9,11 @@ use s_controller_lib::{
     AddLiquidityByMintFreeArgs, AddLiquidityIxAmts, AddLiquidityIxFullArgs,
     AddRemoveLiquidityExtraAccounts,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, lido_wsol_flat_fee_program_test,
+    GenAndAddTokenAccountProgramTest, JitoMarinadeProgramTestArgs, LidoWsolProgramTestArgs,
+    LstStateListBanksClient, MockProtocolFeeBps, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{
     assert_custom_err, token::MockTokenAccountArgs, ExtendedBanksClient,
 };
@@ -43,7 +48,8 @@ async fn basic_add_liquidity_twice_no_fee() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint,
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,
@@ -156,7 +162,8 @@ async fn basic_add_liquidity_twice_flat_fee() {
             trading: 100,
             lp: 100,
         },
-    );
+    )
+    .add_s_controller_prog();
     let liquidity_provider_stsol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: stsol::ID,
@@ -355,7 +362,8 @@ async fn fail_add_liquidity_slippage() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint,
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
     let liquidity_provider_jitosol_acc_addr =
         program_test.gen_and_add_token_account(MockTokenAccountArgs {
             mint: jitosol::ID,

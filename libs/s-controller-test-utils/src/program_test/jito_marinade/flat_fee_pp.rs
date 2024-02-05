@@ -2,7 +2,7 @@ use flat_fee_test_utils::{MockFeeAccount, MockFeeAccountArgs, MockProgramState};
 use sanctum_solana_test_utils::IntoAccount;
 use solana_program_test::{processor, ProgramTest};
 
-use crate::common::{MockPoolState, MockProtocolFeeBps};
+use crate::{MockPoolState, MockProtocolFeeBps};
 
 use super::{jito_marinade_base_program_test, JitoMarinadeProgramTestArgs};
 

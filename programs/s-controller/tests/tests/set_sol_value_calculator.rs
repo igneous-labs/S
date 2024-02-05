@@ -8,12 +8,16 @@ use s_controller_lib::{
     try_find_lst_mint_on_list, try_lst_state_list, try_pool_state,
     SetSolValueCalculatorByMintFreeArgs,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
+    LstStateListProgramTest, MockLstStateArgs, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{assert_custom_err, assert_program_error, test_fixtures_dir};
 use sanctum_token_lib::MintWithTokenProgram;
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 
-use crate::common::*;
+use crate::common::SControllerProgramTest;
 
 #[tokio::test]
 async fn basic_set_marinade() {
@@ -45,7 +49,8 @@ async fn basic_set_marinade() {
             reserves_amt: MSOL_POOL_RESERVES,
             protocol_fee_accumulator_amt: 0,
         }],
-    );
+    )
+    .add_s_controller_prog();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -101,7 +106,8 @@ async fn fail_unauthorized() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -163,7 +169,8 @@ async fn fail_set_non_exec_sol_val_calc() {
         sol_value: MSOL_POOL_RESERVES,
         reserves_amt: MSOL_POOL_RESERVES,
         protocol_fee_accumulator_amt: 0,
-    }]);
+    }])
+    .add_s_controller_prog();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

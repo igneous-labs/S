@@ -8,6 +8,10 @@ use s_controller_lib::{
     EndRebalanceFromStartRebalanceKeys, SrcDstLstIndexes, SrcDstLstSolValueCalcAccounts,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxFullArgs, StartRebalanceIxLstAmts, U8Bool,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, GenAndAddTokenAccountProgramTest,
+    JitoMarinadeProgramTestArgs, LstStateListBanksClient, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{
     assert_custom_err, assert_program_error, test_fixtures_dir, token::MockTokenAccountArgs,
     ExtendedBanksClient,
@@ -29,7 +33,7 @@ use solana_sdk::{
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 
-use crate::common::*;
+use crate::common::SControllerProgramTest;
 
 struct CreateRebalanceDonateIxsArgs {
     pub jito_stake_pool_acc: Account,
@@ -160,7 +164,8 @@ async fn rebalance_basic() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -243,7 +248,8 @@ async fn rebalance_fail_no_end() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -351,7 +357,8 @@ async fn rebalance_fail_unauthorized() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -425,7 +432,8 @@ async fn rebalance_fail_not_enough_sol_value_returned() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -491,7 +499,8 @@ async fn rebalance_fail_wrong_end_rebalance_dst_lst_mint() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,
@@ -565,7 +574,8 @@ async fn rebalance_fail_slippage_tolerance_exceeded() {
         msol_protocol_fee_accumulator: 0,
         lp_token_mint: Pubkey::new_unique(),
         lp_token_supply: 0,
-    });
+    })
+    .add_s_controller_prog();
 
     let withdraw_jitosol_to_addr = program_test.gen_and_add_token_account(MockTokenAccountArgs {
         mint: jitosol::ID,

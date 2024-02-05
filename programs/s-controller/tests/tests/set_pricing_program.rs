@@ -3,9 +3,8 @@ use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
 
-use sanctum_solana_test_utils::{
-    assert_custom_err, assert_program_error, test_fixtures_dir, IntoAccount,
-};
+use s_controller_test_utils::{PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE};
+use sanctum_solana_test_utils::{assert_custom_err, assert_program_error, test_fixtures_dir};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -15,28 +14,22 @@ use solana_sdk::{
     transaction::Transaction,
 };
 
-use crate::common::*;
+use crate::common::SControllerProgramTest;
 
 fn no_fee_program_test() -> (ProgramTest, Keypair) {
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-    assert_ne!(no_fee_pricing_program::ID, DEFAULT_PRICING_PROGRAM);
+    let mut program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE);
     program_test.add_program(
         "no_fee_pricing_program",
         no_fee_pricing_program::ID,
         processor!(no_fee_pricing_program::process_instruction),
     );
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(s_controller_lib::program::POOL_STATE_ID, pool_state_account);
-
+    assert_ne!(no_fee_pricing_program::ID, DEFAULT_PRICING_PROGRAM);
     (program_test, mock_auth_kp)
 }
 

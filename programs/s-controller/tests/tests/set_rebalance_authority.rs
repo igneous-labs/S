@@ -2,9 +2,12 @@ use s_controller_interface::{set_rebalance_authority_ix, SControllerError};
 use s_controller_lib::{
     try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs, SetRebalanceAuthorityFreeArgs,
 };
+use s_controller_test_utils::{
+    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
 use solana_program::pubkey::Pubkey;
-use solana_program_test::BanksClient;
+use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -20,7 +23,9 @@ async fn admin_set() {
             .unwrap();
     let new_rebalance_authority = Pubkey::new_unique();
 
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let ix = set_rebalance_authority_ix(
@@ -48,7 +53,9 @@ async fn rebalance_authority_set() {
     let mut pool_state = DEFAULT_POOL_STATE;
     pool_state.rebalance_authority = current_rebalance_authority.pubkey();
 
-    let program_test = naked_pool_state_program_test(pool_state);
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(pool_state);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let ix = set_rebalance_authority_ix(
@@ -72,7 +79,9 @@ async fn rebalance_authority_set() {
 async fn unauthorized_signer() {
     let new_rebalance_authority = Pubkey::new_unique();
 
-    let program_test = naked_pool_state_program_test(DEFAULT_POOL_STATE);
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE);
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
     let ix = set_rebalance_authority_ix(

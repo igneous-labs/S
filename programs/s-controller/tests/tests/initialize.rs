@@ -4,6 +4,7 @@ use s_controller_lib::{
     CURRENT_PROGRAM_VERS, DEFAULT_LP_PROTOCOL_FEE_BPS, DEFAULT_PRICING_PROGRAM,
     DEFAULT_TRADING_PROTOCOL_FEE_BPS,
 };
+use s_controller_test_utils::{LpTokenProgramTest, MockLpMintToInitArgs, PoolStateBanksClient};
 use sanctum_solana_test_utils::{
     assert_built_in_prog_err, assert_program_error, test_fixtures_dir, ExtendedBanksClient,
 };
@@ -14,7 +15,7 @@ use solana_program::{
     pubkey::Pubkey,
     system_instruction::{self, SystemError},
 };
-use solana_program_test::{processor, ProgramTest};
+use solana_program_test::ProgramTest;
 use solana_sdk::{signature::read_keypair_file, signer::Signer, transaction::Transaction};
 use spl_token::{native_mint, state::Mint};
 
@@ -23,17 +24,12 @@ use crate::common::*;
 /// Returns (program_test, lp_token_mint_addr)
 fn setup(lp_mint_intial_auth: Pubkey) -> (ProgramTest, Pubkey) {
     let lp_token_mint_addr = Pubkey::new_unique();
-    let mut program_test = ProgramTest::default();
-    // name must match <name>.so filename
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-    let program_test = program_test.add_mock_lp_mint_to_init(MockLpMintToInitArgs {
-        initial_authority: lp_mint_intial_auth,
-        addr: lp_token_mint_addr,
-    });
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_mock_lp_mint_to_init(MockLpMintToInitArgs {
+            initial_authority: lp_mint_intial_auth,
+            addr: lp_token_mint_addr,
+        });
     (program_test, lp_token_mint_addr)
 }
 

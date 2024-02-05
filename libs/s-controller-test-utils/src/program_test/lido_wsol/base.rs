@@ -4,7 +4,7 @@ use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, ProgramTest};
 use spl_token::native_mint;
 
-use crate::common::{
+use crate::{
     AddLidoProgramTest, LpTokenProgramTest, LstStateListProgramTest, MockLstStateArgs,
     DEFAULT_POOL_STATE,
 };
@@ -22,6 +22,8 @@ pub struct LidoWsolProgramTestArgs {
 
 /// Need to set pricing_program_id on returned PoolState
 /// before adding account
+/// Dont forget to add the s_controller program afterwards.
+/// Omitted to avoid circular dependencies
 pub fn lido_wsol_base_program_test(
     LidoWsolProgramTestArgs {
         wsol_reserves,
@@ -34,13 +36,6 @@ pub fn lido_wsol_base_program_test(
     }: LidoWsolProgramTestArgs,
 ) -> (ProgramTest, PoolState) {
     let mut program_test = ProgramTest::default();
-    // name must match <name>.so filename
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
     program_test.add_program(
         "wsol_calculator",
         wsol_calculator_lib::program::ID,

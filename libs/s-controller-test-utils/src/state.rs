@@ -7,7 +7,7 @@ use s_controller_lib::{
 use sanctum_solana_test_utils::{
     est_rent_exempt_lamports,
     token::{tokenkeg::TokenkegProgramTest, MockMintArgs},
-    ExtendedBanksClient, IntoAccount,
+    ExtendedBanksClient, ExtendedProgramTest, IntoAccount,
 };
 use solana_program::pubkey::Pubkey;
 use solana_program_test::{BanksClient, ProgramTest};
@@ -61,6 +61,16 @@ impl PoolStateBanksClient for BanksClient {
     async fn get_pool_state_acc(&mut self) -> Account {
         self.get_account_unwrapped(s_controller_lib::program::POOL_STATE_ID)
             .await
+    }
+}
+
+pub trait PoolStateProgramTest {
+    fn add_pool_state(self, pool_state: PoolState) -> Self;
+}
+
+impl PoolStateProgramTest for ProgramTest {
+    fn add_pool_state(self, pool_state: PoolState) -> Self {
+        self.add_account_chained(POOL_STATE_ID, MockPoolState(pool_state).into_account())
     }
 }
 

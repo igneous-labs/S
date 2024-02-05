@@ -1,10 +1,10 @@
 use marinade_keys::msol;
 use s_controller_interface::PoolState;
 use solana_program::pubkey::Pubkey;
-use solana_program_test::{processor, ProgramTest};
+use solana_program_test::ProgramTest;
 use test_utils::jitosol;
 
-use crate::common::{
+use crate::{
     AddMarinadeProgramTest, AddSplProgramTest, LpTokenProgramTest, LstStateListProgramTest,
     MockLstStateArgs, DEFAULT_POOL_STATE,
 };
@@ -29,7 +29,9 @@ impl JitoMarinadeProgramTestArgs {
 }
 
 /// Need to set pricing_program_id on returned PoolState
-/// before adding account
+/// before adding account.
+/// Dont forget to add the s_controller program afterwards.
+/// Omitted to avoid circular dependencies
 pub fn jito_marinade_base_program_test(
     JitoMarinadeProgramTestArgs {
         jitosol_sol_value,
@@ -43,13 +45,6 @@ pub fn jito_marinade_base_program_test(
     }: JitoMarinadeProgramTestArgs,
 ) -> (ProgramTest, PoolState) {
     let mut program_test = ProgramTest::default();
-    // name must match <name>.so filename
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
     program_test = program_test
         .add_spl_progs()
         .add_marinade_progs()

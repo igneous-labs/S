@@ -4,6 +4,9 @@ use s_controller_lib::{
     find_protocol_fee_accumulator_address, program::POOL_STATE_ID, FindLstPdaAtaKeys,
     WithdrawProtocolFeesFreeArgs,
 };
+use s_controller_test_utils::{
+    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, PoolStateBanksClient,
+};
 use sanctum_solana_test_utils::{
     test_fixtures_dir,
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
@@ -48,7 +51,8 @@ async fn basic_withdraw_protocol_fees() {
             authority: mock_auth_kp.pubkey(),
             amount: MSOL_DEFAULT_AMOUNT,
         },
-    );
+    )
+    .add_s_controller_prog();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

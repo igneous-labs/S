@@ -7,9 +7,13 @@ use s_controller_lib::{
     try_disable_pool_authority_list, try_find_element_in_list,
     RemoveDisablePoolAuthorityByPubkeyFreeArgs, RemoveDisablePoolAuthorityFreeArgs,
 };
+use s_controller_test_utils::{
+    DisablePoolAuthorityListBanksClient, DisablePoolAuthorityListProgramTest, MockPoolState,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
 use solana_program::pubkey::Pubkey;
-use solana_program_test::{processor, BanksClient, ProgramTest};
+use solana_program_test::{BanksClient, ProgramTest};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -17,7 +21,7 @@ use solana_sdk::{
     transaction::Transaction,
 };
 
-use crate::common::*;
+use crate::common::SControllerProgramTest;
 
 #[tokio::test]
 async fn basic() {
@@ -25,26 +29,18 @@ async fn basic() {
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
 
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
-    );
-
     // NOTE: assumes keypairs are unique
     let disable_pool_authority_kps = [Keypair::new(), Keypair::new(), Keypair::new()];
     let disable_pool_authority_pks: Vec<_> = disable_pool_authority_kps
         .iter()
         .map(|k| k.pubkey())
         .collect();
-    program_test = program_test.add_disable_pool_authority_list(&disable_pool_authority_pks);
+
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE)
+        .add_disable_pool_authority_list(&disable_pool_authority_pks);
+    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 

@@ -1,29 +1,23 @@
 use s_controller_interface::{disable_pool_ix, SControllerError};
 use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
-use sanctum_solana_test_utils::{assert_custom_err, IntoAccount};
-use solana_program_test::{processor, ProgramTest};
+use s_controller_test_utils::{
+    DisablePoolAuthorityListProgramTest, PoolStateBanksClient, PoolStateProgramTest,
+    DEFAULT_POOL_STATE,
+};
+use sanctum_solana_test_utils::assert_custom_err;
+use solana_program_test::ProgramTest;
 use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 
 use crate::common::*;
 
 #[tokio::test]
 async fn basic_disable_pool() {
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
-    );
-
     let disable_pool_authority_kp = Keypair::new();
-    program_test =
-        program_test.add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
+
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE)
+        .add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
@@ -48,22 +42,12 @@ async fn basic_disable_pool() {
 
 #[tokio::test]
 async fn reject_disable_pool() {
-    let mut program_test = ProgramTest::default();
-    program_test.add_program(
-        "s_controller",
-        s_controller_lib::program::ID,
-        processor!(s_controller::entrypoint::process_instruction),
-    );
-
-    let pool_state_account = MockPoolState(DEFAULT_POOL_STATE).into_account();
-    program_test.add_account(
-        s_controller_lib::program::POOL_STATE_ID,
-        pool_state_account.clone(),
-    );
-
     let disable_pool_authority_kp = Keypair::new();
-    program_test =
-        program_test.add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
+
+    let program_test = ProgramTest::default()
+        .add_s_controller_prog()
+        .add_pool_state(DEFAULT_POOL_STATE)
+        .add_disable_pool_authority_list(&[disable_pool_authority_kp.pubkey()]);
 
     let (mut banks_client, payer, last_blockhash) = program_test.start().await;
 
