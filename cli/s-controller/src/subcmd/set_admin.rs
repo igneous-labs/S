@@ -22,7 +22,7 @@ use super::Subcmd;
 #[command(long_about = "Sets the S controller program's admin authority.
 
 Prerequisites:
-- The program's pool state must be initialized prior to the invokation.
+- The program's pool state must be initialized prior to the invocation.
 ")]
 pub struct SetAdminArgs {
     #[arg(
