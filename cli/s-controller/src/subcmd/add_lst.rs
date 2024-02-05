@@ -36,8 +36,6 @@ pub struct AddLstArgs {
     pub sol_val_calc: Option<Pubkey>,
 
     #[arg(
-        long,
-        short,
         help = "Mint of the new LST to add",
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
     )]

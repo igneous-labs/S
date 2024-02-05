@@ -3,8 +3,9 @@ use solana_program::{pubkey::Pubkey, system_program};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
-    find_lst_state_list_address, find_pool_reserves_address, find_pool_state_address,
-    find_protocol_fee_accumulator_address, find_protocol_fee_address,
+    find_lst_state_list_address, find_pool_reserves_address_with_pool_state_id,
+    find_pool_state_address, find_protocol_fee_accumulator_address_with_protocol_fee_id,
+    find_protocol_fee_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_pool_state, FindLstPdaAtaKeys,
 };
@@ -82,9 +83,13 @@ impl<
             lst_mint: *lst_mint.pubkey(),
             token_program: *lst_mint.owner(),
         };
-        let (pool_reserves, pool_reserves_bump) = find_pool_reserves_address(find_pda_keys);
+        let (pool_reserves, pool_reserves_bump) =
+            find_pool_reserves_address_with_pool_state_id(pool_state, find_pda_keys);
         let (protocol_fee_accumulator, protocol_fee_accumulator_bump) =
-            find_protocol_fee_accumulator_address(find_pda_keys);
+            find_protocol_fee_accumulator_address_with_protocol_fee_id(
+                protocol_fee_accumulator_auth,
+                find_pda_keys,
+            );
 
         Ok((
             AddLstKeys {
