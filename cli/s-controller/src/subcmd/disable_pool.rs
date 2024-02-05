@@ -46,13 +46,13 @@ impl DisablePoolArgs {
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
 
-        let disable_pool_authority_list_acc =
-            fetch_disable_pool_authority_list(&rpc, program_id).await;
-        let disable_pool_authority_list =
-            try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
-
         // check if authority is either the admin or a disable pool authority
         if pool_state.admin != authority.pubkey() {
+            let disable_pool_authority_list_acc =
+                fetch_disable_pool_authority_list(&rpc, program_id).await;
+            let disable_pool_authority_list =
+                try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
+
             verify_disable_pool_authority(disable_pool_authority_list, authority.pubkey()).unwrap();
         }
 
