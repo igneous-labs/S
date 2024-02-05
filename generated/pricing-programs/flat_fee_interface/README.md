@@ -17,3 +17,5 @@ solores \
     --bytemuck-vers "workspace=true" \
     idl/pricing-programs/flat_fee.json
 ```
+
+Generated with solores v0.7.0

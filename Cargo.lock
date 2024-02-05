@@ -1531,6 +1531,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "flat-fee-cli"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap 4.4.18",
+ "cli-test-utils",
+ "flat-fee",
+ "flat-fee-lib",
+ "flat-fee-test-utils",
+ "flat_fee_interface",
+ "s-cli-utils",
+ "sanctum-macros",
+ "sanctum-solana-cli-utils",
+ "sanctum-solana-test-utils",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "flat-fee-lib"
 version = "0.1.0"
 dependencies = [
@@ -3116,6 +3139,7 @@ name = "pricing_programs_interface"
 version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
+ "bytemuck",
  "serde",
  "solana-program",
 ]
