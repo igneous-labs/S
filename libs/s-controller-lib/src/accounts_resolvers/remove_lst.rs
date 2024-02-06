@@ -4,6 +4,7 @@ use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, Readonl
 
 use crate::{
     create_pool_reserves_address, create_protocol_fee_accumulator_address,
+    find_lst_state_list_address, find_pool_state_address, find_protocol_fee_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, try_pool_state,
 };
@@ -73,15 +74,18 @@ impl<
 /// Suitable for use on client-side.
 /// Does not check identity of pool_state and lst_state_list
 #[derive(Clone, Copy, Debug)]
-pub struct RemoveLstByMintFreeArgs<
-    S: ReadonlyAccountData,
-    L: ReadonlyAccountData,
-    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
-> {
+pub struct RemoveLstByMintFreeArgs<S, L, M> {
     pub refund_rent_to: Pubkey,
     pub pool_state: S,
     pub lst_state_list: L,
     pub lst_mint: M,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct RemoveLstPdas {
+    pub pool_state: Pubkey,
+    pub protocol_fee_accumulator_auth: Pubkey,
+    pub lst_state_list: Pubkey,
 }
 
 impl<
@@ -92,6 +96,33 @@ impl<
 {
     /// Does not check identity of pool_state and lst_state_list
     pub fn resolve(self) -> Result<(RemoveLstKeys, RemoveLstIxArgs), SControllerError> {
+        self.resolve_with_pdas(RemoveLstPdas {
+            pool_state: POOL_STATE_ID,
+            protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
+            lst_state_list: LST_STATE_LIST_ID,
+        })
+    }
+
+    pub fn resolve_for_prog(
+        self,
+        program_id: Pubkey,
+    ) -> Result<(RemoveLstKeys, RemoveLstIxArgs), SControllerError> {
+        self.resolve_with_pdas(RemoveLstPdas {
+            pool_state: find_pool_state_address(program_id).0,
+            protocol_fee_accumulator_auth: find_protocol_fee_address(program_id).0,
+            lst_state_list: find_lst_state_list_address(program_id).0,
+        })
+    }
+
+    /// Does not check identity of pool_state and lst_state_list
+    pub fn resolve_with_pdas(
+        self,
+        RemoveLstPdas {
+            pool_state,
+            protocol_fee_accumulator_auth,
+            lst_state_list,
+        }: RemoveLstPdas,
+    ) -> Result<(RemoveLstKeys, RemoveLstIxArgs), SControllerError> {
         let RemoveLstByMintFreeArgs {
             refund_rent_to,
             pool_state: pool_state_account,
@@ -100,26 +131,27 @@ impl<
         } = self;
 
         let lst_state_list_acc_data = lst_state_list_account.data();
-        let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
+        let lst_state_list_deser = try_lst_state_list(&lst_state_list_acc_data)?;
 
-        let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list)?;
+        let (lst_index, lst_state) =
+            try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list_deser)?;
         let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
         let protocol_fee_accumulator =
             create_protocol_fee_accumulator_address(lst_state, *lst_mint.owner())?;
 
         let pool_state_acc_data = pool_state_account.data();
-        let pool_state = try_pool_state(&pool_state_acc_data)?;
+        let pool_state_deser = try_pool_state(&pool_state_acc_data)?;
 
         Ok((
             RemoveLstKeys {
-                admin: pool_state.admin,
+                admin: pool_state_deser.admin,
                 refund_rent_to,
                 lst_mint: *lst_mint.pubkey(),
                 pool_reserves,
                 protocol_fee_accumulator,
-                protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
-                pool_state: POOL_STATE_ID,
-                lst_state_list: LST_STATE_LIST_ID,
+                protocol_fee_accumulator_auth,
+                pool_state,
+                lst_state_list,
                 lst_token_program: *lst_mint.owner(),
             },
             RemoveLstIxArgs {
