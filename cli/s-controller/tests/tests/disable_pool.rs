@@ -1,21 +1,14 @@
 use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
-use s_controller_lib::{try_pool_state, U8Bool};
 use s_controller_test_utils::{
-    DisablePoolAuthorityListProgramTest, PoolStateBanksClient, PoolStateProgramTest,
-    DEFAULT_POOL_STATE,
+    assert_pool_disabled, assert_pool_enabled, DisablePoolAuthorityListProgramTest,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
-use solana_program_test::{BanksClient, ProgramTest};
+use solana_program_test::ProgramTest;
 use solana_sdk::{signature::Keypair, signer::Signer};
 
 use crate::common::{
     setup_with_init_auth_as_payer, setup_with_payer, SctrProgramTest, TestSctrCmd,
 };
-
-async fn assert_pool_disabled(bc: &mut BanksClient) {
-    let pool_state_acc = bc.get_pool_state_acc().await;
-    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-    assert!(U8Bool(pool_state.is_disabled).is_true());
-}
 
 #[tokio::test(flavor = "multi_thread")]
 async fn disable_pool_success_payer_admin() {
@@ -24,6 +17,7 @@ async fn disable_pool_success_payer_admin() {
         .add_pool_state(DEFAULT_POOL_STATE);
 
     let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
+    assert_pool_enabled(&mut bc).await;
 
     cmd.cmd_disable_pool();
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
@@ -40,6 +34,7 @@ async fn disable_pool_success_payer_authority() {
         .add_disable_pool_authority_list(&[authority.pubkey()]);
 
     let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_payer(pt, authority).await;
+    assert_pool_enabled(&mut bc).await;
 
     cmd.cmd_disable_pool();
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
