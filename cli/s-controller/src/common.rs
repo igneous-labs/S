@@ -10,3 +10,14 @@ pub fn verify_admin(state: &PoolState, admin: Pubkey) -> Result<(), Infallible> 
     }
     Ok(())
 }
+
+pub fn verify_disable_pool_authority(
+    disable_pool_authority_list: &[Pubkey],
+    authority: Pubkey,
+) -> Result<(), Infallible> {
+    if !disable_pool_authority_list.contains(&authority) {
+        eprintln!("Unauthorized authority: {}", authority);
+        std::process::exit(-1);
+    }
+    Ok(())
+}

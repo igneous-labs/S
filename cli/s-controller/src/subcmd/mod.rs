@@ -1,11 +1,12 @@
 use clap::Subcommand;
 
 use self::{
-    add_disable_auth::AddDisableAuthArgs, init::InitArgs, set_admin::SetAdminArgs,
-    set_protocol_fee::SetProtocolFeeArgs,
+    add_disable_auth::AddDisableAuthArgs, disable_pool::DisablePoolArgs, init::InitArgs,
+    set_admin::SetAdminArgs, set_protocol_fee::SetProtocolFeeArgs,
 };
 
 mod add_disable_auth;
+mod disable_pool;
 mod init;
 mod set_admin;
 mod set_protocol_fee;
@@ -16,6 +17,7 @@ pub enum Subcmd {
     AddDisableAuth(AddDisableAuthArgs),
     SetAdmin(SetAdminArgs),
     SetProtocolFee(SetProtocolFeeArgs),
+    DisablePool(DisablePoolArgs),
 }
 
 impl Subcmd {
@@ -25,6 +27,7 @@ impl Subcmd {
             Self::AddDisableAuth(_) => AddDisableAuthArgs::run(args).await,
             Self::SetAdmin(_) => SetAdminArgs::run(args).await,
             Self::SetProtocolFee(_) => SetProtocolFeeArgs::run(args).await,
+            Self::DisablePool(_) => DisablePoolArgs::run(args).await,
         }
     }
 }

@@ -32,6 +32,7 @@ pub trait DisablePoolAuthorityListProgramTest {
 
 impl DisablePoolAuthorityListProgramTest for ProgramTest {
     fn add_disable_pool_authority_list(self, disable_pool_authorities: &[Pubkey]) -> Self {
+        assert!(!disable_pool_authorities.is_empty());
         let mut data = vec![0u8; disable_pool_authorities.len() * PUBKEY_BYTES];
         let disable_pool_authority_list = try_disable_pool_authority_list_mut(&mut data).unwrap();
         disable_pool_authority_list.copy_from_slice(disable_pool_authorities);

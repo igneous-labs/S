@@ -31,10 +31,17 @@ pub async fn setup_with_init_auth_as_payer(
     let mock_auth_kp =
         read_keypair_file(test_fixtures_dir().join("s-controller-test-initial-authority-key.json"))
             .unwrap();
-    let pt = pt.add_system_account(mock_auth_kp.pubkey(), 1_000_000_000);
+    setup_with_payer(pt, mock_auth_kp).await
+}
+
+pub async fn setup_with_payer(
+    pt: ProgramTest,
+    payer: Keypair,
+) -> (Command, TempCliConfig, BanksClient, Keypair) {
+    let pt = pt.add_system_account(payer.pubkey(), 1_000_000_000);
     let (bc, _rng_payer, _rbh) = pt.start().await;
     let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
-    let cfg = TempCliConfig::from_keypair_and_local_port(&mock_auth_kp, port);
+    let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
     let cmd = base_cmd(&cfg);
-    (cmd, cfg, bc, mock_auth_kp)
+    (cmd, cfg, bc, payer)
 }
