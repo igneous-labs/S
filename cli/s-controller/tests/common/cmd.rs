@@ -18,6 +18,8 @@ pub trait TestSctrCmd {
     fn cmd_set_admin(&mut self) -> &mut Self;
 
     fn cmd_add_disable_auth(&mut self) -> &mut Self;
+
+    fn cmd_set_protocol_fee(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -31,5 +33,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_add_disable_auth(&mut self) -> &mut Self {
         self.arg("add-disable-auth")
+    }
+
+    fn cmd_set_protocol_fee(&mut self) -> &mut Self {
+        self.arg("set-protocol-fee")
     }
 }
