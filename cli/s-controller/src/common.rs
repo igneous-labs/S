@@ -21,3 +21,17 @@ pub fn verify_disable_pool_authority(
     }
     Ok(())
 }
+
+pub fn verify_protocol_fee_beneficiary(
+    state: &PoolState,
+    beneficiary: Pubkey,
+) -> Result<(), Infallible> {
+    if state.protocol_fee_beneficiary != beneficiary {
+        eprintln!(
+            "Wrong beneficiary. Expected: {}. Got: {}",
+            state.protocol_fee_beneficiary, beneficiary
+        );
+        std::process::exit(-1);
+    }
+    Ok(())
+}

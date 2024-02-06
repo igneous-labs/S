@@ -1,10 +1,11 @@
 use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
+use s_controller_interface::PoolState;
 use s_controller_lib::try_pool_state;
 use s_controller_test_utils::{PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE};
 use solana_program_test::{BanksClient, ProgramTest};
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{pubkey::Pubkey, signature::Keypair, signer::Signer};
 
-use crate::common::{setup_with_init_auth_as_payer, SctrProgramTest, TestSctrCmd};
+use crate::common::{setup_with_payer, SctrProgramTest, TestSctrCmd};
 
 async fn assert_protocol_fee_beneficiary(bc: &mut BanksClient, protocol_fee_beneficiary: Pubkey) {
     let pool_state_acc = bc.get_pool_state_acc().await;
@@ -15,11 +16,16 @@ async fn assert_protocol_fee_beneficiary(bc: &mut BanksClient, protocol_fee_bene
 #[tokio::test(flavor = "multi_thread")]
 async fn set_admin_success_payer_admin() {
     let new_protocol_fee_beneficiary = Pubkey::new_unique();
+    let curr_protocol_fee_beneficiary = Keypair::new();
     let pt = ProgramTest::default()
         .add_s_program()
-        .add_pool_state(DEFAULT_POOL_STATE);
+        .add_pool_state(PoolState {
+            protocol_fee_beneficiary: curr_protocol_fee_beneficiary.pubkey(),
+            ..DEFAULT_POOL_STATE
+        });
 
-    let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
+    let (mut cmd, _cfg, mut bc, _mock_auth_kp) =
+        setup_with_payer(pt, curr_protocol_fee_beneficiary).await;
 
     cmd.cmd_set_protocol_fee_beneficiary()
         .arg(new_protocol_fee_beneficiary.to_string());

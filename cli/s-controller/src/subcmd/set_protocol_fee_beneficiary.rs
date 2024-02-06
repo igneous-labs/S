@@ -16,34 +16,32 @@ use solana_sdk::{
     transaction::VersionedTransaction,
 };
 
-use crate::{common::verify_admin, rpc::fetch_pool_state};
+use crate::{common::verify_protocol_fee_beneficiary, rpc::fetch_pool_state};
 
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(
-    long_about = "Sets the pool's protocol fee beneficiarythe S controller program's admin authority."
-)]
+#[command(long_about = "Sets the pool's protocol fee beneficiary.")]
 pub struct SetProtocolFeeBeneficiaryArgs {
     #[arg(
         long,
         short,
-        help = "The program's admin authority signer. Defaults to config wallet if not set."
+        help = "The pool's protocol fee beneficiary signer. Defaults to config wallet if not set."
     )]
-    pub admin: Option<String>,
+    pub curr_beneficiary: Option<String>,
 
     #[arg(
         help = "The pool's new protocol fee beneficiary to set.",
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s))
     )]
-    pub fee_beneficiary: Pubkey,
+    pub new_beneficiary: Pubkey,
 }
 
 impl SetProtocolFeeBeneficiaryArgs {
     pub async fn run(args: crate::Args) {
         let Self {
-            admin,
-            fee_beneficiary: new_beneficiary,
+            curr_beneficiary,
+            new_beneficiary,
         } = match args.subcmd {
             Subcmd::SetProtocolFeeBeneficiary(a) => a,
             _ => unreachable!(),
@@ -53,12 +51,12 @@ impl SetProtocolFeeBeneficiaryArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let admin_signer = admin.map(|s| parse_signer(&s).unwrap());
-        let admin = admin_signer.as_ref().unwrap_or(&payer);
+        let curr_beneficiary_signer = curr_beneficiary.map(|s| parse_signer(&s).unwrap());
+        let curr_beneficiary = curr_beneficiary_signer.as_ref().unwrap_or(&payer);
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-        verify_admin(pool_state, admin.pubkey()).unwrap();
+        verify_protocol_fee_beneficiary(pool_state, curr_beneficiary.pubkey()).unwrap();
 
         let ix = set_protocol_fee_beneficiary_ix_with_program_id(
             program_id,
@@ -74,7 +72,7 @@ impl SetProtocolFeeBeneficiaryArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), admin.as_ref()];
+        let mut signers = vec![payer.as_ref(), curr_beneficiary.as_ref()];
         signers.dedup();
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
