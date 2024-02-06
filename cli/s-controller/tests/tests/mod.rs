@@ -5,4 +5,5 @@ mod disable_pool;
 mod enable_lst_input;
 mod enable_pool;
 mod init;
+mod remove_disable_auth;
 mod set_admin;
