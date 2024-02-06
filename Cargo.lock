@@ -3742,6 +3742,7 @@ dependencies = [
  "assert_cmd",
  "clap 4.4.18",
  "cli-test-utils",
+ "flat-fee",
  "flat-fee-lib",
  "lazy_static",
  "lido-calculator-lib",

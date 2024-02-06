@@ -90,3 +90,18 @@ async fn assert_pool_token_accounts_deleted_for_lst(
             .is_none())
     }
 }
+
+pub async fn assert_pricing_prog_set(
+    banks_client: &mut BanksClient,
+    expected_pricing_prog: Pubkey,
+) {
+    let pool_state_acc = banks_client.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
+    assert_eq!(pool_state.pricing_program, expected_pricing_prog);
+}
+
+pub async fn assert_admin(bc: &mut BanksClient, expected_admin: Pubkey) {
+    let pool_state_acc = bc.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
+    assert!(pool_state.admin == expected_admin);
+}

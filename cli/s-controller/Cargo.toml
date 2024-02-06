@@ -32,6 +32,7 @@ wsol-calculator-lib = { workspace = true }
 [dev-dependencies]
 assert_cmd = { workspace = true }
 cli-test-utils = { workspace = true }
+flat-fee = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli", "token"] }
