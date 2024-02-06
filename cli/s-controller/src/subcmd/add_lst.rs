@@ -80,16 +80,13 @@ impl AddLstArgs {
         let (keys, _bumps) = AddLstFreeArgs {
             payer: payer.pubkey(),
             sol_value_calculator: sol_val_calc,
-            pool_state: Keyed {
-                pubkey: pool_state_addr,
-                account: pool_state_acc,
-            },
+            pool_state: pool_state_acc,
             lst_mint: Keyed {
                 pubkey: mint,
                 account: lst_mint_acc,
             },
         }
-        .resolve()
+        .resolve_for_prog(program_id)
         .unwrap();
         let ix = add_lst_ix_with_program_id(program_id, keys).unwrap();
 
