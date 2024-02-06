@@ -29,7 +29,7 @@ fn verify_set_protocol_fee_beneficiary<'a, 'info>(
 
     let expected = SetProtocolFeeBeneficiaryFreeArgs {
         new_beneficiary: *actual.new_beneficiary.key,
-        pool_state: actual.pool_state,
+        pool_state_acc: actual.pool_state,
     }
     .resolve()?;
 

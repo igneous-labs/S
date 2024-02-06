@@ -59,7 +59,7 @@ impl SetProtocolFeeBeneficiaryArgs {
             program_id,
             SetProtocolFeeBeneficiaryFreeArgs {
                 new_beneficiary,
-                pool_state: pool_state_acc,
+                pool_state_acc,
             }
             .resolve_for_prog(program_id)
             .unwrap(),
