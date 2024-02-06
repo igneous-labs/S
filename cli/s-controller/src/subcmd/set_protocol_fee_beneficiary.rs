@@ -5,11 +5,8 @@ use clap::{
     Args,
 };
 use s_controller_interface::set_protocol_fee_beneficiary_ix_with_program_id;
-use s_controller_lib::{
-    find_pool_state_address, try_pool_state, SetProtocolFeeBeneficiaryFreeArgs,
-};
+use s_controller_lib::{try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
-use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
@@ -62,10 +59,7 @@ impl SetProtocolFeeBeneficiaryArgs {
             program_id,
             SetProtocolFeeBeneficiaryFreeArgs {
                 new_beneficiary,
-                pool_state: KeyedAccount {
-                    pubkey: find_pool_state_address(program_id).0,
-                    account: pool_state_acc,
-                },
+                pool_state: pool_state_acc,
             }
             .resolve_for_prog(program_id)
             .unwrap(),
