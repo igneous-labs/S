@@ -22,6 +22,8 @@ pub trait TestSctrCmd {
     fn cmd_add_lst(&mut self) -> &mut Self;
 
     fn cmd_disable_lst_input(&mut self) -> &mut Self;
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -43,5 +45,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_disable_lst_input(&mut self) -> &mut Self {
         self.arg("disable-lst-input")
+    }
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self {
+        self.arg("enable-lst-input")
     }
 }
