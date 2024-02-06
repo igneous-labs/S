@@ -27,7 +27,6 @@ pub struct SetProtocolFeeArgs {
     )]
     pub admin: Option<String>,
 
-    // TODO: ArgGroup::multiple, ArgGroup::required(true)
     #[arg(
         long,
         short,
@@ -36,7 +35,6 @@ pub struct SetProtocolFeeArgs {
     )]
     pub trading_fee: Option<u16>,
 
-    // TODO: ArgGroup::multiple, ArgGroup::required(true)
     #[arg(
         long,
         short,
