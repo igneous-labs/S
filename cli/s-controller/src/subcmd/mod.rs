@@ -5,6 +5,7 @@ use self::{
     disable_lst_input::DisableLstInputArgs, disable_pool::DisablePoolArgs,
     enable_lst_input::EnableLstInputArgs, enable_pool::EnablePoolArgs, init::InitArgs,
     remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
+    set_pricing_prog::SetPricingProgArgs,
 };
 
 mod add_disable_auth;
@@ -17,6 +18,7 @@ mod init;
 mod remove_disable_auth;
 mod remove_lst;
 mod set_admin;
+mod set_pricing_prog;
 
 #[derive(Debug, Subcommand)]
 pub enum Subcmd {
@@ -30,6 +32,7 @@ pub enum Subcmd {
     EnableLstInput(EnableLstInputArgs),
     DisablePool(DisablePoolArgs),
     EnablePool(EnablePoolArgs),
+    SetPricingProg(SetPricingProgArgs),
 }
 
 impl Subcmd {
@@ -45,6 +48,7 @@ impl Subcmd {
             Self::EnableLstInput(_) => EnableLstInputArgs::run(args).await,
             Self::DisablePool(_) => DisablePoolArgs::run(args).await,
             Self::EnablePool(_) => EnablePoolArgs::run(args).await,
+            Self::SetPricingProg(_) => SetPricingProgArgs::run(args).await,
         }
     }
 }

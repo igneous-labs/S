@@ -12,6 +12,7 @@ testing = ["s-controller/testing"]
 
 [dependencies]
 clap = { workspace = true }
+flat-fee-lib = { workspace = true }
 lazy_static = { workspace = true }
 lido-calculator-lib = { workspace = true }
 marinade-calculator-lib = { workspace = true }
