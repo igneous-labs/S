@@ -1,6 +1,8 @@
 use s_controller_lib::{
-    program::DISABLE_POOL_AUTHORITY_LIST_ID, try_disable_pool_authority_list,
-    try_find_element_in_list, try_pool_state, U8Bool,
+    find_pool_reserves_address, find_protocol_fee_accumulator_address,
+    program::{DISABLE_POOL_AUTHORITY_LIST_ID, LST_STATE_LIST_ID},
+    try_disable_pool_authority_list, try_find_element_in_list, try_find_lst_mint_on_list,
+    try_lst_state_list, try_pool_state, FindLstPdaAtaKeys, U8Bool,
 };
 use solana_program::pubkey::Pubkey;
 use solana_program_test::BanksClient;
@@ -51,4 +53,40 @@ pub async fn assert_disable_authority_removed(
         try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
     assert_eq!(disable_pool_authority_list.len(), list_len_before - 1);
     assert!(try_find_element_in_list(target_authority, disable_pool_authority_list).is_none());
+}
+
+pub async fn assert_lst_removed(
+    banks_client: &mut BanksClient,
+    keys: FindLstPdaAtaKeys,
+    list_len_before: usize,
+) {
+    assert!(list_len_before >= 1);
+    if list_len_before == 1 {
+        assert!(banks_client
+            .get_account(LST_STATE_LIST_ID)
+            .await
+            .unwrap()
+            .is_none());
+    } else {
+        let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
+        let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
+        assert_eq!(lst_state_list.len(), list_len_before - 1);
+        assert!(try_find_lst_mint_on_list(keys.lst_mint, lst_state_list).is_err());
+    }
+    assert_pool_token_accounts_deleted_for_lst(banks_client, keys).await;
+}
+
+async fn assert_pool_token_accounts_deleted_for_lst(
+    banks_client: &mut BanksClient,
+    keys: FindLstPdaAtaKeys,
+) {
+    let pool_reserves_addr = find_pool_reserves_address(keys).0;
+    let protocol_fee_accumulator_addr = find_protocol_fee_accumulator_address(keys).0;
+    for should_be_deleted in [pool_reserves_addr, protocol_fee_accumulator_addr] {
+        assert!(banks_client
+            .get_account(should_be_deleted)
+            .await
+            .unwrap()
+            .is_none())
+    }
 }
