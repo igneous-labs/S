@@ -4,15 +4,19 @@ use clap::{
 };
 use s_controller_interface::{disable_lst_input_ix_with_program_id, DisableLstInputIxArgs};
 use s_controller_lib::{
-    find_lst_state_list_address, find_pool_state_address, DisableEnableLstInputByMintFreeArgs,
+    find_lst_state_list_address, find_pool_state_address, try_pool_state,
+    DisableEnableLstInputByMintFreeArgs,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
     transaction::VersionedTransaction,
 };
 use std::str::FromStr;
+
+use crate::common::verify_admin;
 
 use super::Subcmd;
 
@@ -55,6 +59,9 @@ impl DisableLstInputArgs {
             .unwrap();
         let lst_state_list_acc = fetched_accs.pop().unwrap().unwrap();
         let pool_state_acc = fetched_accs.pop().unwrap().unwrap();
+
+        let pool_state = try_pool_state(&pool_state_acc.data()).unwrap();
+        verify_admin(pool_state, admin.pubkey()).unwrap();
 
         let (keys, index) = DisableEnableLstInputByMintFreeArgs {
             lst_mint: mint,
