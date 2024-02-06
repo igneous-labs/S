@@ -48,7 +48,7 @@ fn verify_set_protocol_fee<'a, 'info>(
     let actual: SetProtocolFeeAccounts = load_accounts(accounts)?;
 
     let free_args = SetProtocolFeeFreeArgs {
-        pool_state: actual.pool_state,
+        pool_state_acc: actual.pool_state,
     };
     let expected = free_args.resolve()?;
 

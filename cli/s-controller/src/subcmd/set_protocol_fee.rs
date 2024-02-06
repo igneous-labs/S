@@ -1,8 +1,7 @@
 use clap::{ArgGroup, Args};
 use s_controller_interface::{set_protocol_fee_ix_with_program_id, SetProtocolFeeIxArgs};
-use s_controller_lib::{find_pool_state_address, try_pool_state, SetProtocolFeeFreeArgs};
+use s_controller_lib::{try_pool_state, SetProtocolFeeFreeArgs};
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
-use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     transaction::VersionedTransaction,
@@ -68,14 +67,9 @@ impl SetProtocolFeeArgs {
 
         let ix = set_protocol_fee_ix_with_program_id(
             program_id,
-            SetProtocolFeeFreeArgs {
-                pool_state: KeyedAccount {
-                    pubkey: find_pool_state_address(program_id).0,
-                    account: pool_state_acc,
-                },
-            }
-            .resolve_for_prog(program_id)
-            .unwrap(),
+            SetProtocolFeeFreeArgs { pool_state_acc }
+                .resolve_for_prog(program_id)
+                .unwrap(),
             SetProtocolFeeIxArgs {
                 new_trading_protocol_fee_bps,
                 new_lp_protocol_fee_bps,
