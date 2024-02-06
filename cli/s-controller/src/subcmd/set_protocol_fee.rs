@@ -13,11 +13,7 @@ use crate::{common::verify_admin, rpc::fetch_pool_state};
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(long_about = "Sets the S controller program's protocol fee rate.
-
-Prerequisites:
-- The program's pool state must be initialized prior to the invocation.
-")]
+#[command(long_about = "Sets the S controller program's protocol fee rate.")]
 #[clap(group(
     ArgGroup::new("fee")
         .required(true)
