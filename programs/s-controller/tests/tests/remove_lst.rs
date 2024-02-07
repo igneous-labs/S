@@ -104,6 +104,7 @@ async fn basic_three_clear_1_0_2() {
         sol_value: 0,
         reserves_amt: 0,
         protocol_fee_accumulator_amt: 0,
+        is_input_disabled: false,
     });
 
     let mut program_test = ProgramTest::default()

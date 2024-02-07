@@ -48,6 +48,7 @@ async fn basic_set_marinade() {
             sol_value: MSOL_POOL_RESERVES,
             reserves_amt: MSOL_POOL_RESERVES,
             protocol_fee_accumulator_amt: 0,
+            is_input_disabled: false,
         }],
     )
     .add_s_program();
@@ -169,6 +170,7 @@ async fn fail_set_non_exec_sol_val_calc() {
         sol_value: MSOL_POOL_RESERVES,
         reserves_amt: MSOL_POOL_RESERVES,
         protocol_fee_accumulator_amt: 0,
+        is_input_disabled: false,
     }])
     .add_s_program();
 
