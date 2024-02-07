@@ -30,3 +30,25 @@ impl GenericPoolSolValCalc for SplSolValCalc {
     const CALCULATOR_STATE_BUMP: u8 = program::SPL_CALCULATOR_STATE_BUMP;
     const ID: Pubkey = program::ID;
 }
+
+// TODO: spin these off into its own lib crate once sanctum-spl diverges from spl
+
+pub mod sanctum_spl_sol_val_calc_program {
+    sanctum_macros::declare_program_keys!(
+        "sspUE1vrh7xRoXxGsg7vR1zde2WdGtJRbyK9uRumBDy",
+        [("sanctum_spl_calculator_state", b"state")]
+    );
+}
+
+pub struct SanctumSplSolValCalc;
+
+impl GenericPoolSolValCalc for SanctumSplSolValCalc {
+    const POOL_PROGRAM_ID: Pubkey = sanctum_spl_stake_pool_keys::sanctum_spl_stake_pool_program::ID;
+    const POOL_PROGRAM_PROGDATA_ID: Pubkey =
+        sanctum_spl_stake_pool_keys::sanctum_spl_stake_pool_program_progdata::ID;
+    const CALCULATOR_STATE_PDA: Pubkey =
+        sanctum_spl_sol_val_calc_program::SANCTUM_SPL_CALCULATOR_STATE_ID;
+    const CALCULATOR_STATE_BUMP: u8 =
+        sanctum_spl_sol_val_calc_program::SANCTUM_SPL_CALCULATOR_STATE_BUMP;
+    const ID: Pubkey = sanctum_spl_sol_val_calc_program::ID;
+}

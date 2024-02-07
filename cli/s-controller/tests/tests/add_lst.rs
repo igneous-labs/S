@@ -74,3 +74,29 @@ async fn add_lst_jito_matched_sol_val_calc_success_payer_init_auth() {
     )
     .await;
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn add_lst_jitosol_token_name_matched_sol_val_calc_success_payer_init_auth() {
+    let pt = ProgramTest::default()
+        .add_spl_progs()
+        .add_jito_stake_pool()
+        .add_s_program()
+        .add_pool_state(DEFAULT_POOL_STATE);
+    let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
+    cmd.cmd_add_lst().arg("jItOsOL");
+    let exec_res = cmd.exec_b64_txs(&mut bc).await;
+    assert_all_txs_success_nonempty(&exec_res);
+    assert_lst_added(
+        &mut bc,
+        MockLstStateArgs {
+            mint: jitosol::ID,
+            sol_value_calculator: spl_calculator_lib::program::ID,
+            token_program: spl_token::ID,
+            sol_value: 0,
+            reserves_amt: 0,
+            protocol_fee_accumulator_amt: 0,
+            is_input_disabled: false,
+        },
+    )
+    .await;
+}

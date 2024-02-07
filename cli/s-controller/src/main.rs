@@ -11,6 +11,7 @@ use subcmd::Subcmd;
 use tokio::runtime::Runtime;
 
 mod common;
+mod lst_arg;
 mod pricing_prog_arg;
 mod rpc;
 mod subcmd;
