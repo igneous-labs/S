@@ -8,6 +8,7 @@ borsh = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
 sanctum-macros = { workspace = true }
+sanctum-spl-stake-pool-keys = { workspace = true }
 sanctum-token-ratio = { workspace = true, features = ["onchain"] }
 sol-value-calculator-lib = { workspace = true }
 solana-program = { workspace = true }

@@ -1,8 +1,10 @@
 use sanctum_lst_list::SanctumLst;
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 use std::{error::Error, str::FromStr};
 
-use crate::common::{sol_val_calc_of_sanctum_lst, SANCTUM_LST_LIST};
+use crate::common::{
+    sol_val_calc_of_sanctum_lst, sol_value_calculator_accounts_of_sanctum_lst, SANCTUM_LST_LIST,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub enum LstArg {
@@ -39,6 +41,13 @@ impl LstArg {
     pub fn sol_val_calc_of(&self) -> Option<Pubkey> {
         match self {
             Self::SanctumLst(lst) => Some(sol_val_calc_of_sanctum_lst(lst)),
+            Self::Unknown(_) => None,
+        }
+    }
+
+    pub fn sol_value_calculator_accounts_of(&self) -> Option<Vec<AccountMeta>> {
+        match self {
+            Self::SanctumLst(lst) => Some(sol_value_calculator_accounts_of_sanctum_lst(lst)),
             Self::Unknown(_) => None,
         }
     }
