@@ -7,7 +7,7 @@ use self::{
     remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
     set_pricing_prog::SetPricingProgArgs, set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
-    set_sol_value_calculator::SetSolValueCalculatorArgs,
+    set_rebalance_auth::SetRebalanceAuthArgs, set_sol_value_calculator::SetSolValueCalculatorArgs,
 };
 
 mod add_disable_auth;
@@ -23,6 +23,7 @@ mod set_admin;
 mod set_pricing_prog;
 mod set_protocol_fee;
 mod set_protocol_fee_beneficiary;
+mod set_rebalance_auth;
 mod set_sol_value_calculator;
 
 #[derive(Debug, Subcommand)]
@@ -41,6 +42,7 @@ pub enum Subcmd {
     EnablePool(EnablePoolArgs),
     SetPricingProg(SetPricingProgArgs),
     SetSolValueCalculator(SetSolValueCalculatorArgs),
+    SetRebalanceAuth(SetRebalanceAuthArgs),
 }
 
 impl Subcmd {
@@ -60,6 +62,7 @@ impl Subcmd {
             Self::EnablePool(_) => EnablePoolArgs::run(args).await,
             Self::SetPricingProg(_) => SetPricingProgArgs::run(args).await,
             Self::SetSolValueCalculator(_) => SetSolValueCalculatorArgs::run(args).await,
+            Self::SetRebalanceAuth(_) => SetRebalanceAuthArgs::run(args).await,
         }
     }
 }

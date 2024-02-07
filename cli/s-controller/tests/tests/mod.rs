@@ -11,4 +11,5 @@ mod set_admin;
 mod set_pricing_prog;
 mod set_protocol_fee;
 mod set_protocol_fee_beneficiary;
+mod set_rebalance_auth;
 mod set_sol_value_calculator;

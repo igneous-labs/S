@@ -105,3 +105,12 @@ pub async fn assert_admin(bc: &mut BanksClient, expected_admin: Pubkey) {
     let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
     assert!(pool_state.admin == expected_admin);
 }
+
+pub async fn assert_rebalance_authority(
+    banks_client: &mut BanksClient,
+    expected_rebalance_authority: Pubkey,
+) {
+    let pool_state_account = banks_client.get_pool_state_acc().await;
+    let pool_state = try_pool_state(&pool_state_account.data).unwrap();
+    assert_eq!(pool_state.rebalance_authority, expected_rebalance_authority);
+}

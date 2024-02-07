@@ -1,13 +1,13 @@
 use s_controller_interface::{set_rebalance_authority_ix, SControllerError};
 use s_controller_lib::{
-    try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs, SetRebalanceAuthorityFreeArgs,
+    KnownAuthoritySetRebalanceAuthorityFreeArgs, SetRebalanceAuthorityFreeArgs,
 };
 use s_controller_test_utils::{
-    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+    assert_rebalance_authority, MockPoolState, PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
 use solana_program::pubkey::Pubkey;
-use solana_program_test::{BanksClient, ProgramTest};
+use solana_program_test::ProgramTest;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
     signer::Signer,
@@ -42,7 +42,7 @@ async fn admin_set() {
     tx.sign(&[&payer, &mock_auth_kp], last_blockhash);
     banks_client.process_transaction(tx).await.unwrap();
 
-    verify_new_rebalance_authority(&mut banks_client, new_rebalance_authority).await;
+    assert_rebalance_authority(&mut banks_client, new_rebalance_authority).await;
 }
 
 #[tokio::test]
@@ -72,7 +72,7 @@ async fn rebalance_authority_set() {
     tx.sign(&[&payer, &current_rebalance_authority], last_blockhash);
     banks_client.process_transaction(tx).await.unwrap();
 
-    verify_new_rebalance_authority(&mut banks_client, new_rebalance_authority).await;
+    assert_rebalance_authority(&mut banks_client, new_rebalance_authority).await;
 }
 
 #[tokio::test]
@@ -100,17 +100,5 @@ async fn unauthorized_signer() {
     assert_custom_err(
         err,
         SControllerError::UnauthorizedSetRebalanceAuthoritySigner,
-    );
-}
-
-async fn verify_new_rebalance_authority(
-    banks_client: &mut BanksClient,
-    expected_new_rebalance_authority: Pubkey,
-) {
-    let pool_state_account = banks_client.get_pool_state_acc().await;
-    let pool_state = try_pool_state(&pool_state_account.data).unwrap();
-    assert_eq!(
-        pool_state.rebalance_authority,
-        expected_new_rebalance_authority
     );
 }
