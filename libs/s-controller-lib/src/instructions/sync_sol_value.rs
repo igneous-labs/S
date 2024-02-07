@@ -1,5 +1,5 @@
 use s_controller_interface::{
-    sync_sol_value_ix, SControllerError, SyncSolValueIxArgs, SyncSolValueKeys,
+    sync_sol_value_ix_with_program_id, SControllerError, SyncSolValueIxArgs, SyncSolValueKeys,
 };
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -18,8 +18,25 @@ pub fn sync_sol_value_ix_full(
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
+    sync_sol_value_ix_full_for_prog(
+        crate::program::ID,
+        accounts,
+        lst_index,
+        sol_value_calculator_accounts,
+        sol_value_calculator_program_id,
+    )
+}
+
+pub fn sync_sol_value_ix_full_for_prog(
+    program_id: Pubkey,
+    accounts: SyncSolValueKeys,
+    lst_index: usize,
+    sol_value_calculator_accounts: &[AccountMeta],
+    sol_value_calculator_program_id: Pubkey,
+) -> Result<Instruction, ProgramError> {
     let lst_index = index_to_u32(lst_index)?;
-    let mut ix = sync_sol_value_ix(accounts, SyncSolValueIxArgs { lst_index })?;
+    let mut ix =
+        sync_sol_value_ix_with_program_id(program_id, accounts, SyncSolValueIxArgs { lst_index })?;
     ix_extend_with_sol_value_calculator_accounts(
         &mut ix,
         sol_value_calculator_accounts,

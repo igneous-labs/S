@@ -3,7 +3,7 @@ use clap::{
     Args,
 };
 use s_controller_lib::{
-    find_lst_state_list_address, find_pool_state_address, sync_sol_value_ix_full,
+    find_lst_state_list_address, find_pool_state_address, sync_sol_value_ix_full_for_prog,
     try_find_lst_mint_on_list, try_lst_state_list, SyncSolValueByMintFreeArgs, SyncSolValuePdas,
 };
 use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
@@ -112,7 +112,14 @@ impl SyncArgs {
             lst_state_list: lst_state_list_addr,
         })
         .unwrap();
-        let ix = sync_sol_value_ix_full(keys, index, &suffix, sol_val_calc_program_id).unwrap();
+        let ix = sync_sol_value_ix_full_for_prog(
+            program_id,
+            keys,
+            index,
+            &suffix,
+            sol_val_calc_program_id,
+        )
+        .unwrap();
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
         let tx = VersionedTransaction::try_new(

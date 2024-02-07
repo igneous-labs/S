@@ -2,11 +2,13 @@ use assert_cmd::Command;
 use sanctum_solana_test_utils::{
     banks_rpc_server::BanksRpcServer, cli::TempCliConfig, test_fixtures_dir, ExtendedProgramTest,
 };
-use solana_program_test::{processor, BanksClient, ProgramTest};
+use solana_program_test::{processor, BanksClient, ProgramTest, ProgramTestContext};
 use solana_sdk::{
+    clock::Clock,
     signature::{read_keypair_file, Keypair},
     signer::Signer,
 };
+use test_utils::JITO_STAKE_POOL_LAST_UPDATE_EPOCH;
 
 use super::base_cmd;
 
@@ -50,9 +52,14 @@ pub async fn setup_with_payer(
     payer: Keypair,
 ) -> (Command, TempCliConfig, BanksClient, Keypair) {
     let pt = pt.add_system_account(payer.pubkey(), 1_000_000_000);
-    let (bc, _rng_payer, _rbh) = pt.start().await;
-    let (port, _jh) = BanksRpcServer::spawn_random_unused(bc.clone()).await;
+    let ctx = pt.start_with_context().await;
+    ctx.set_sysvar(&Clock {
+        epoch: JITO_STAKE_POOL_LAST_UPDATE_EPOCH,
+        ..Default::default()
+    });
+    let ProgramTestContext { banks_client, .. } = ctx;
+    let (port, _jh) = BanksRpcServer::spawn_random_unused(banks_client.clone()).await;
     let cfg = TempCliConfig::from_keypair_and_local_port(&payer, port);
     let cmd = base_cmd(&cfg);
-    (cmd, cfg, bc, payer)
+    (cmd, cfg, banks_client, payer)
 }
