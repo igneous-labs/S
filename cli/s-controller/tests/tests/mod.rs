@@ -8,3 +8,5 @@ mod init;
 mod remove_disable_auth;
 mod remove_lst;
 mod set_admin;
+mod set_protocol_fee;
+mod set_protocol_fee_beneficiary;

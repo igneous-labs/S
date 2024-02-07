@@ -3,9 +3,9 @@ use clap::{
     Args,
 };
 use s_controller_interface::add_lst_ix_with_program_id;
-use s_controller_lib::{find_pool_state_address, AddLstFreeArgs};
+use s_controller_lib::{find_pool_state_address, try_pool_state, AddLstFreeArgs};
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
-use solana_readonly_account::keyed::Keyed;
+use solana_readonly_account::{keyed::Keyed, ReadonlyAccountData};
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
@@ -13,7 +13,7 @@ use solana_sdk::{
 };
 use std::str::FromStr;
 
-use crate::common::{find_sanctum_lst, sol_val_calc_of_sanctum_lst};
+use crate::common::{find_sanctum_lst, sol_val_calc_of_sanctum_lst, verify_admin};
 
 use super::Subcmd;
 
@@ -74,19 +74,19 @@ impl AddLstArgs {
         let lst_mint_acc = fetched_accs.pop().unwrap().unwrap();
         let pool_state_acc = fetched_accs.pop().unwrap().unwrap();
 
+        let pool_state = try_pool_state(&pool_state_acc.data()).unwrap();
+        verify_admin(pool_state, admin.pubkey()).unwrap();
+
         let (keys, _bumps) = AddLstFreeArgs {
             payer: payer.pubkey(),
             sol_value_calculator: sol_val_calc,
-            pool_state: Keyed {
-                pubkey: pool_state_addr,
-                account: pool_state_acc,
-            },
+            pool_state: pool_state_acc,
             lst_mint: Keyed {
                 pubkey: mint,
                 account: lst_mint_acc,
             },
         }
-        .resolve()
+        .resolve_for_prog(program_id)
         .unwrap();
         let ix = add_lst_ix_with_program_id(program_id, keys).unwrap();
 
