@@ -4,16 +4,15 @@ use s_controller_interface::{
 use s_controller_lib::{
     index_to_u32,
     program::{DISABLE_POOL_AUTHORITY_LIST_ID, POOL_STATE_ID},
-    try_disable_pool_authority_list, try_find_element_in_list,
-    RemoveDisablePoolAuthorityByPubkeyFreeArgs, RemoveDisablePoolAuthorityFreeArgs,
+    try_disable_pool_authority_list, RemoveDisablePoolAuthorityByPubkeyFreeArgs,
+    RemoveDisablePoolAuthorityFreeArgs,
 };
 use s_controller_test_utils::{
-    DisablePoolAuthorityListBanksClient, DisablePoolAuthorityListProgramTest, MockPoolState,
-    PoolStateProgramTest, DEFAULT_POOL_STATE,
+    assert_disable_authority_removed, DisablePoolAuthorityListBanksClient,
+    DisablePoolAuthorityListProgramTest, MockPoolState, PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
 use sanctum_solana_test_utils::{assert_custom_err, test_fixtures_dir, IntoAccount};
-use solana_program::pubkey::Pubkey;
-use solana_program_test::{BanksClient, ProgramTest};
+use solana_program_test::ProgramTest;
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     signature::{read_keypair_file, Keypair},
@@ -81,7 +80,7 @@ async fn basic() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        verify_disable_authority_removed(&mut banks_client, target_authority, before_len).await;
+        assert_disable_authority_removed(&mut banks_client, target_authority, before_len).await;
     }
 
     let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
@@ -151,32 +150,11 @@ async fn basic() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        verify_disable_authority_removed(
+        assert_disable_authority_removed(
             &mut banks_client,
             target_authority_kp.pubkey(),
             before_len,
         )
         .await;
     }
-}
-
-async fn verify_disable_authority_removed(
-    banks_client: &mut BanksClient,
-    target_authority: Pubkey,
-    list_len_before: usize,
-) {
-    if list_len_before == 1 {
-        assert!(banks_client
-            .get_account(DISABLE_POOL_AUTHORITY_LIST_ID)
-            .await
-            .unwrap()
-            .is_none());
-        return;
-    }
-
-    let disable_pool_authority_list_acc = banks_client.get_disable_pool_list_acc().await;
-    let disable_pool_authority_list =
-        try_disable_pool_authority_list(&disable_pool_authority_list_acc.data).unwrap();
-    assert_eq!(disable_pool_authority_list.len(), list_len_before - 1);
-    assert!(try_find_element_in_list(target_authority, disable_pool_authority_list).is_none());
 }

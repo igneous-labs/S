@@ -19,6 +19,8 @@ pub trait TestSctrCmd {
 
     fn cmd_add_disable_auth(&mut self) -> &mut Self;
 
+    fn cmd_remove_disable_auth(&mut self) -> &mut Self;
+
     fn cmd_set_protocol_fee(&mut self) -> &mut Self;
 
     fn cmd_add_lst(&mut self) -> &mut Self;
@@ -73,5 +75,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_enable_pool(&mut self) -> &mut Self {
         self.arg("enable-pool")
+    }
+
+    fn cmd_remove_disable_auth(&mut self) -> &mut Self {
+        self.arg("remove-disable-auth")
     }
 }
