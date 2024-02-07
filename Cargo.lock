@@ -3742,18 +3742,28 @@ dependencies = [
  "assert_cmd",
  "clap 4.4.18",
  "cli-test-utils",
+ "lazy_static",
+ "lido-calculator-lib",
+ "marinade-calculator-lib",
  "s-cli-utils",
  "s-controller",
  "s-controller-lib",
  "s-controller-test-utils",
  "s_controller_interface",
+ "sanctum-lst-list",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
+ "sanctum-spl-stake-pool-keys",
+ "sanctum-token-lib",
  "solana-client",
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-calculator-lib",
+ "spl-token",
+ "test-utils",
  "tokio",
+ "wsol-calculator-lib",
 ]
 
 [[package]]
@@ -3841,6 +3851,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-lst-list"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?rev=9242acc#9242accf1102a4dec00161035a9a1b4246c19459"
+dependencies = [
+ "sanctum-macros",
+ "serde",
+ "serde_with 3.5.1",
+ "solana-program",
+ "toml",
+]
+
+[[package]]
 name = "sanctum-macros"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3916,6 +3938,14 @@ dependencies = [
  "spl-token",
  "tempfile",
  "tokio",
+]
+
+[[package]]
+name = "sanctum-spl-stake-pool-keys"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "solana-program",
 ]
 
 [[package]]
@@ -4947,9 +4977,9 @@ dependencies = [
 
 [[package]]
 name = "solana-readonly-account"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9b42e679d84c59cfe18f19959522bbf8f180be8b138ea26dd4cade77087d05a"
+checksum = "a8cf9c7fb090625aa0be1c81845712cebcbfeadf771146b0829b0f03569e1c4c"
 dependencies = [
  "derive_more",
  "solana-program",

@@ -58,6 +58,7 @@ pub fn jito_marinade_base_program_test(
                 protocol_fee_accumulator_amt: jitosol_protocol_fee_accumulator,
                 token_program: spl_token::ID,
                 sol_value_calculator: spl_calculator_lib::program::ID,
+                is_input_disabled: false,
             },
             MockLstStateArgs {
                 mint: msol::ID,
@@ -66,6 +67,7 @@ pub fn jito_marinade_base_program_test(
                 protocol_fee_accumulator_amt: msol_protocol_fee_accumulator,
                 token_program: spl_token::ID,
                 sol_value_calculator: marinade_calculator_lib::program::ID,
+                is_input_disabled: false,
             },
         ])
         .add_mock_lp_mint(lp_token_mint, lp_token_supply);

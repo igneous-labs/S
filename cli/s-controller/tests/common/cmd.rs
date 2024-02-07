@@ -21,7 +21,15 @@ pub trait TestSctrCmd {
 
     fn cmd_set_protocol_fee(&mut self) -> &mut Self;
 
+    fn cmd_add_lst(&mut self) -> &mut Self;
+
+    fn cmd_disable_lst_input(&mut self) -> &mut Self;
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self;
+
     fn cmd_disable_pool(&mut self) -> &mut Self;
+
+    fn cmd_enable_pool(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -41,7 +49,23 @@ impl TestSctrCmd for Command {
         self.arg("set-protocol-fee")
     }
 
+    fn cmd_add_lst(&mut self) -> &mut Self {
+        self.arg("add-lst")
+    }
+
+    fn cmd_disable_lst_input(&mut self) -> &mut Self {
+        self.arg("disable-lst-input")
+    }
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self {
+        self.arg("enable-lst-input")
+    }
+
     fn cmd_disable_pool(&mut self) -> &mut Self {
         self.arg("disable-pool")
+    }
+
+    fn cmd_enable_pool(&mut self) -> &mut Self {
+        self.arg("enable-pool")
     }
 }

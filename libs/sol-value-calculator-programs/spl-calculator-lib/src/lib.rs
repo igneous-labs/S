@@ -1,7 +1,5 @@
 use generic_pool_calculator_lib::GenericPoolSolValCalc;
 use solana_program::pubkey::Pubkey;
-use spl_stake_pool_keys::{spl_stake_pool_program, spl_stake_pool_program_progdata};
-
 mod account_resolvers;
 mod calc;
 mod instructions;
@@ -25,8 +23,9 @@ pub mod initial_manager {
 pub struct SplSolValCalc;
 
 impl GenericPoolSolValCalc for SplSolValCalc {
-    const POOL_PROGRAM_ID: Pubkey = spl_stake_pool_program::ID;
-    const POOL_PROGRAM_PROGDATA_ID: Pubkey = spl_stake_pool_program_progdata::ID;
+    const POOL_PROGRAM_ID: Pubkey = spl_stake_pool_keys::spl_stake_pool_program::ID;
+    const POOL_PROGRAM_PROGDATA_ID: Pubkey =
+        spl_stake_pool_keys::spl_stake_pool_program_progdata::ID;
     const CALCULATOR_STATE_PDA: Pubkey = program::SPL_CALCULATOR_STATE_ID;
     const CALCULATOR_STATE_BUMP: u8 = program::SPL_CALCULATOR_STATE_BUMP;
     const ID: Pubkey = program::ID;
