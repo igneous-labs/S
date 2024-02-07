@@ -14,7 +14,7 @@ async fn assert_protocol_fee_beneficiary(bc: &mut BanksClient, protocol_fee_bene
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn set_admin_success_payer_admin() {
+async fn set_protocol_fee_beneficiary_success_payer_beneficiary() {
     let new_protocol_fee_beneficiary = Pubkey::new_unique();
     let curr_protocol_fee_beneficiary = Keypair::new();
     let pt = ProgramTest::default()
