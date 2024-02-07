@@ -16,6 +16,11 @@ pub struct SetSolValueCalculatorFreeArgs<S, L, M> {
     pub lst_mint: M,
 }
 
+struct ResolveInner {
+    pool_state_id: Pubkey,
+    lst_state_list_id: Pubkey,
+}
+
 impl<
         S: ReadonlyAccountData + ReadonlyAccountPubkey,
         L: ReadonlyAccountData + ReadonlyAccountPubkey,
@@ -34,7 +39,10 @@ impl<
         if *lst_state_list_account.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
-        self.resolve_with_pdas(POOL_STATE_ID, LST_STATE_LIST_ID)
+        self.resolve_inner(ResolveInner {
+            pool_state_id: POOL_STATE_ID,
+            lst_state_list_id: LST_STATE_LIST_ID,
+        })
     }
 }
 
@@ -48,16 +56,18 @@ impl<
         &self,
         program_id: Pubkey,
     ) -> Result<SetSolValueCalculatorKeys, SControllerError> {
-        let pool_state_id = find_pool_state_address(program_id).0;
-        let lst_state_list_id = find_lst_state_list_address(program_id).0;
-
-        self.resolve_with_pdas(pool_state_id, lst_state_list_id)
+        self.resolve_inner(ResolveInner {
+            pool_state_id: find_pool_state_address(program_id).0,
+            lst_state_list_id: find_lst_state_list_address(program_id).0,
+        })
     }
 
-    pub fn resolve_with_pdas(
+    fn resolve_inner(
         &self,
-        pool_state_id: Pubkey,
-        lst_state_list_id: Pubkey,
+        ResolveInner {
+            pool_state_id,
+            lst_state_list_id,
+        }: ResolveInner,
     ) -> Result<SetSolValueCalculatorKeys, SControllerError> {
         let Self {
             lst_index,
@@ -101,22 +111,27 @@ impl<
 {
     /// Returns (keys, lst_index)
     pub fn resolve(&self) -> Result<(SetSolValueCalculatorKeys, usize), SControllerError> {
-        self.resolve_with_pdas(POOL_STATE_ID, LST_STATE_LIST_ID)
+        self.resolve_inner(ResolveInner {
+            pool_state_id: POOL_STATE_ID,
+            lst_state_list_id: LST_STATE_LIST_ID,
+        })
     }
 
     pub fn resolve_for_prog(
         &self,
         program_id: Pubkey,
     ) -> Result<(SetSolValueCalculatorKeys, usize), SControllerError> {
-        let pool_state_id = find_pool_state_address(program_id).0;
-        let lst_state_list_id = find_lst_state_list_address(program_id).0;
-
-        self.resolve_with_pdas(pool_state_id, lst_state_list_id)
+        self.resolve_inner(ResolveInner {
+            pool_state_id: find_pool_state_address(program_id).0,
+            lst_state_list_id: find_lst_state_list_address(program_id).0,
+        })
     }
-    pub fn resolve_with_pdas(
+    fn resolve_inner(
         &self,
-        pool_state_id: Pubkey,
-        lst_state_list_id: Pubkey,
+        ResolveInner {
+            pool_state_id,
+            lst_state_list_id,
+        }: ResolveInner,
     ) -> Result<(SetSolValueCalculatorKeys, usize), SControllerError> {
         let Self {
             pool_state: pool_state_account,
