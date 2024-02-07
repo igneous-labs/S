@@ -52,6 +52,7 @@ pub fn lido_wsol_base_program_test(
                 protocol_fee_accumulator_amt: stsol_protocol_fee_accumulator,
                 token_program: spl_token::ID,
                 sol_value_calculator: lido_calculator_lib::program::ID,
+                is_input_disabled: false,
             },
             MockLstStateArgs {
                 mint: native_mint::ID,
@@ -60,6 +61,7 @@ pub fn lido_wsol_base_program_test(
                 protocol_fee_accumulator_amt: wsol_protocol_fee_accumulator,
                 token_program: spl_token::ID,
                 sol_value_calculator: wsol_calculator_lib::program::ID,
+                is_input_disabled: false,
             },
         ])
         .add_mock_lp_mint(lp_token_mint, lp_token_supply);

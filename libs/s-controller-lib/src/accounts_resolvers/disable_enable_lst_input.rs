@@ -5,6 +5,7 @@ use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
 
 use crate::{
+    find_lst_state_list_address, find_pool_state_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_pool_state,
 };
@@ -130,6 +131,26 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> DisableEnableLstInputByMint
         ))
     }
 
+    /// Returns (keys, index of lst_mint in lst_state_list)
+    pub fn resolve_disable_for_prog(
+        &self,
+        program_id: Pubkey,
+    ) -> Result<(DisableLstInputKeys, usize), SControllerError> {
+        let (DisableEnableLstInputComputedKeys { admin, lst_mint }, lst_index) =
+            self.compute_keys_and_index()?;
+
+        Ok((
+            DisableLstInputKeys {
+                admin,
+                lst_mint,
+                pool_state: find_pool_state_address(program_id).0,
+                lst_state_list: find_lst_state_list_address(program_id).0,
+            },
+            lst_index,
+        ))
+    }
+
+    /// Returns (keys, index of lst_mint in lst_state_list)
     pub fn resolve_enable(&self) -> Result<(EnableLstInputKeys, usize), SControllerError> {
         let (DisableEnableLstInputComputedKeys { admin, lst_mint }, lst_index) =
             self.compute_keys_and_index()?;
@@ -140,6 +161,25 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> DisableEnableLstInputByMint
                 lst_mint,
                 pool_state: POOL_STATE_ID,
                 lst_state_list: LST_STATE_LIST_ID,
+            },
+            lst_index,
+        ))
+    }
+
+    /// Returns (keys, index of lst_mint in lst_state_list)
+    pub fn resolve_enable_for_prog(
+        &self,
+        program_id: Pubkey,
+    ) -> Result<(EnableLstInputKeys, usize), SControllerError> {
+        let (DisableEnableLstInputComputedKeys { admin, lst_mint }, lst_index) =
+            self.compute_keys_and_index()?;
+
+        Ok((
+            EnableLstInputKeys {
+                admin,
+                lst_mint,
+                pool_state: find_pool_state_address(program_id).0,
+                lst_state_list: find_lst_state_list_address(program_id).0,
             },
             lst_index,
         ))

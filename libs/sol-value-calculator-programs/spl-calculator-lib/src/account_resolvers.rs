@@ -1,19 +1,19 @@
 use borsh::BorshDeserialize;
 use generic_pool_calculator_interface::{GenericPoolCalculatorError, LST_TO_SOL_IX_ACCOUNTS_LEN};
-use generic_pool_calculator_lib::account_resolvers::{
-    LstSolCommonIntermediateArgs, LstSolCommonIntermediateKeys,
+use generic_pool_calculator_lib::{
+    account_resolvers::{LstSolCommonIntermediateArgs, LstSolCommonIntermediateKeys},
+    GenericPoolSolValCalc,
 };
 use solana_program::instruction::AccountMeta;
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 use spl_calculator_interface::{AccountType, SplStakePool};
-use spl_stake_pool_keys::spl_stake_pool_program;
 
 use crate::SplSolValCalc;
 
 fn deserialize_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
     spl_stake_pool: S,
 ) -> Result<SplStakePool, GenericPoolCalculatorError> {
-    if *spl_stake_pool.owner() != spl_stake_pool_program::ID {
+    if *spl_stake_pool.owner() != SplSolValCalc::POOL_PROGRAM_ID {
         return Err(GenericPoolCalculatorError::InvalidStakePoolProgramData);
     }
     let stake_pool = SplStakePool::deserialize(&mut spl_stake_pool.data().as_ref())
@@ -40,7 +40,7 @@ impl<
     pub fn resolve(
         self,
     ) -> Result<(LstSolCommonIntermediateArgs<Q>, SplStakePool), GenericPoolCalculatorError> {
-        if *self.spl_stake_pool_prog.pubkey() != spl_stake_pool_program::ID {
+        if *self.spl_stake_pool_prog.pubkey() != SplSolValCalc::POOL_PROGRAM_ID {
             return Err(GenericPoolCalculatorError::WrongPoolProgram);
         }
         let stake_pool = deserialize_spl_stake_pool_checked(&self.spl_stake_pool)?;

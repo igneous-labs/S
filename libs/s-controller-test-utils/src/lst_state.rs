@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use s_controller_interface::LstState;
 use s_controller_lib::{
-    find_pool_reserves_address, find_protocol_fee_accumulator_address, try_lst_state_list_mut,
-    FindLstPdaAtaKeys, LST_STATE_SIZE,
+    find_pool_reserves_address, find_protocol_fee_accumulator_address, try_find_lst_mint_on_list,
+    try_lst_state_list, try_lst_state_list_mut, FindLstPdaAtaKeys, LST_STATE_SIZE,
 };
 use sanctum_solana_test_utils::{
     est_rent_exempt_lamports,
@@ -21,6 +21,7 @@ pub struct MockLstStateArgs {
     pub sol_value: u64,
     pub reserves_amt: u64,
     pub protocol_fee_accumulator_amt: u64,
+    pub is_input_disabled: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -41,6 +42,7 @@ pub fn mock_lst_state(
         sol_value,
         reserves_amt,
         protocol_fee_accumulator_amt,
+        is_input_disabled,
     }: MockLstStateArgs,
 ) -> MockLstStateRet {
     let find_keys = FindLstPdaAtaKeys {
@@ -53,7 +55,7 @@ pub fn mock_lst_state(
     let lst_state = LstState {
         mint,
         sol_value,
-        is_input_disabled: 0,
+        is_input_disabled: is_input_disabled.into(),
         pool_reserves_bump,
         protocol_fee_accumulator_bump,
         padding: Default::default(),
@@ -127,9 +129,17 @@ impl LstStateListProgramTest for ProgramTest {
     }
 }
 
+// TODO: _for_prog() counterparts
 #[async_trait]
 pub trait LstStateListBanksClient {
     async fn get_lst_state_list_acc(&mut self) -> Account;
+
+    async fn get_lst_state(&mut self, lst_mint: Pubkey) -> LstState {
+        let lst_state_list_acc = self.get_lst_state_list_acc().await;
+        let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
+        let (_i, lst_state) = try_find_lst_mint_on_list(lst_mint, lst_state_list).unwrap();
+        *lst_state
+    }
 }
 
 #[async_trait]
