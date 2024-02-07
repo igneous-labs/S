@@ -33,7 +33,7 @@ async fn basic_set_protocol_fee_beneficiary() {
     let ix = set_protocol_fee_beneficiary_ix(
         SetProtocolFeeBeneficiaryFreeArgs {
             new_beneficiary: new_beneficiary_kp.pubkey(),
-            pool_state_acc: KeyedAccount {
+            pool_state: KeyedAccount {
                 pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
@@ -62,7 +62,7 @@ async fn basic_set_protocol_fee_beneficiary() {
     let ix2 = set_protocol_fee_beneficiary_ix(
         SetProtocolFeeBeneficiaryFreeArgs {
             new_beneficiary: another_new_beneficiary_kp.pubkey(),
-            pool_state_acc: KeyedAccount {
+            pool_state: KeyedAccount {
                 pubkey: POOL_STATE_ID,
                 account: pool_state_acc.clone(),
             },
