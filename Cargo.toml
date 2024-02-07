@@ -34,6 +34,7 @@ bincode = "^1"
 borsh = ">=0.9,<1.0.0"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
+data-encoding = "^2"
 lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
