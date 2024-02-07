@@ -1,7 +1,7 @@
 use s_controller_interface::{enable_pool_ix, PoolState};
-use s_controller_lib::{program::POOL_STATE_ID, try_pool_state, EnablePoolFreeArgs, U8Bool};
+use s_controller_lib::{program::POOL_STATE_ID, EnablePoolFreeArgs};
 use s_controller_test_utils::{
-    MockPoolState, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+    assert_pool_enabled, MockPoolState, PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
 use sanctum_solana_test_utils::{test_fixtures_dir, IntoAccount};
 use solana_program_test::ProgramTest;
@@ -44,9 +44,6 @@ async fn basic_enable_pool() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let pool_state_acc = banks_client.get_pool_state_acc().await;
-        let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-        assert!(U8Bool(pool_state.is_disabled).is_false());
+        assert_pool_enabled(&mut banks_client).await;
     }
 }

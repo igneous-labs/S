@@ -26,6 +26,8 @@ pub trait TestSctrCmd {
     fn cmd_enable_lst_input(&mut self) -> &mut Self;
 
     fn cmd_disable_pool(&mut self) -> &mut Self;
+
+    fn cmd_enable_pool(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -55,5 +57,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_disable_pool(&mut self) -> &mut Self {
         self.arg("disable-pool")
+    }
+
+    fn cmd_enable_pool(&mut self) -> &mut Self {
+        self.arg("enable-pool")
     }
 }

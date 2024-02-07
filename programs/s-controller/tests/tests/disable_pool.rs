@@ -1,8 +1,8 @@
 use s_controller_interface::{disable_pool_ix, SControllerError};
-use s_controller_lib::{try_pool_state, DisablePoolFreeArgs, U8Bool};
+use s_controller_lib::DisablePoolFreeArgs;
 use s_controller_test_utils::{
-    DisablePoolAuthorityListProgramTest, PoolStateBanksClient, PoolStateProgramTest,
-    DEFAULT_POOL_STATE,
+    assert_pool_disabled, assert_pool_enabled, DisablePoolAuthorityListProgramTest,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
 use sanctum_solana_test_utils::assert_custom_err;
 use solana_program_test::ProgramTest;
@@ -33,10 +33,7 @@ async fn basic_disable_pool() {
 
         banks_client.process_transaction(tx).await.unwrap();
 
-        let pool_state_acc = banks_client.get_pool_state_acc().await;
-        let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-        assert!(U8Bool(pool_state.is_disabled).is_true());
+        assert_pool_disabled(&mut banks_client).await;
     }
 }
 
@@ -66,10 +63,6 @@ async fn reject_disable_pool() {
         let err = banks_client.process_transaction(tx).await.unwrap_err();
 
         assert_custom_err(err, SControllerError::InvalidDisablePoolAuthority);
-
-        let pool_state_acc = banks_client.get_pool_state_acc().await;
-        let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-        assert!(U8Bool(pool_state.is_disabled).is_false());
+        assert_pool_enabled(&mut banks_client).await;
     }
 }
