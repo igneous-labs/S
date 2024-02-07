@@ -12,14 +12,21 @@ testing = ["s-controller/testing"]
 
 [dependencies]
 clap = { workspace = true }
+lazy_static = { workspace = true }
+lido-calculator-lib = { workspace = true }
+marinade-calculator-lib = { workspace = true }
 s_controller_interface = { workspace = true }
 s-cli-utils = { workspace = true }
 s-controller-lib = { workspace = true }
+sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+sanctum-spl-stake-pool-keys = { workspace = true }
 solana-client = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }
+spl-calculator-lib = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
+wsol-calculator-lib = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
@@ -27,4 +34,7 @@ cli-test-utils = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli", "token"] }
+sanctum-token-lib = { workspace = true }
 solana-program-test = { workspace = true }
+spl-token = { workspace = true }
+test-utils = { workspace = true }

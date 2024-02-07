@@ -9,6 +9,14 @@ use crate::{
 };
 
 pub fn create_pool_reserves_address(
+    lst_state: &LstState,
+    token_program: Pubkey,
+) -> Result<Pubkey, SControllerError> {
+    create_pool_reserves_address_with_pool_state_id(POOL_STATE_ID, lst_state, token_program)
+}
+
+pub fn create_pool_reserves_address_with_pool_state_id(
+    pool_state_id: Pubkey,
     LstState {
         pool_reserves_bump,
         mint,
@@ -18,7 +26,7 @@ pub fn create_pool_reserves_address(
 ) -> Result<Pubkey, SControllerError> {
     CreateAtaAddressArgs {
         find_ata_args: FindAtaAddressArgs {
-            wallet: POOL_STATE_ID,
+            wallet: pool_state_id,
             mint: *mint,
             token_program,
         },
@@ -29,6 +37,18 @@ pub fn create_pool_reserves_address(
 }
 
 pub fn create_protocol_fee_accumulator_address(
+    lst_state: &LstState,
+    token_program: Pubkey,
+) -> Result<Pubkey, SControllerError> {
+    create_protocol_fee_accumulator_address_with_protocol_fee_id(
+        PROTOCOL_FEE_ID,
+        lst_state,
+        token_program,
+    )
+}
+
+pub fn create_protocol_fee_accumulator_address_with_protocol_fee_id(
+    protocol_fee_id: Pubkey,
     LstState {
         protocol_fee_accumulator_bump,
         mint,
@@ -38,7 +58,7 @@ pub fn create_protocol_fee_accumulator_address(
 ) -> Result<Pubkey, SControllerError> {
     CreateAtaAddressArgs {
         find_ata_args: FindAtaAddressArgs {
-            wallet: PROTOCOL_FEE_ID,
+            wallet: protocol_fee_id,
             mint: *mint,
             token_program,
         },
@@ -54,58 +74,73 @@ pub struct FindLstPdaAtaKeys {
     pub token_program: Pubkey,
 }
 
-pub fn find_pool_reserves_address(
+pub fn find_pool_reserves_address(keys: FindLstPdaAtaKeys) -> (Pubkey, u8) {
+    find_pool_reserves_address_with_pool_state_id(POOL_STATE_ID, keys)
+}
+
+pub fn find_pool_reserves_address_with_pool_state_id(
+    pool_state_id: Pubkey,
     FindLstPdaAtaKeys {
         lst_mint,
         token_program,
     }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
     FindAtaAddressArgs {
-        wallet: POOL_STATE_ID,
+        wallet: pool_state_id,
         mint: lst_mint,
         token_program,
     }
     .find_ata_address()
 }
 
-pub fn find_protocol_fee_accumulator_address(
+pub fn find_protocol_fee_accumulator_address(keys: FindLstPdaAtaKeys) -> (Pubkey, u8) {
+    find_protocol_fee_accumulator_address_with_protocol_fee_id(PROTOCOL_FEE_ID, keys)
+}
+
+pub fn find_protocol_fee_accumulator_address_with_protocol_fee_id(
+    protocol_fee_id: Pubkey,
     FindLstPdaAtaKeys {
         lst_mint,
         token_program,
     }: FindLstPdaAtaKeys,
 ) -> (Pubkey, u8) {
     FindAtaAddressArgs {
-        wallet: PROTOCOL_FEE_ID,
+        wallet: protocol_fee_id,
         mint: lst_mint,
         token_program,
     }
     .find_ata_address()
 }
 
+/// Finds the pool state PDA
 /// For dynamic program IDs.
 /// If using crate's program ID, you can use [`crate::program::POOL_STATE_ID`] directly
 pub fn find_pool_state_address(program_id: Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(&[POOL_STATE_PDA_SEED], &program_id)
 }
 
+/// Finds the lst_state_list PDA
 /// For dynamic program IDs.
 /// If using crate's program ID, you can use [`crate::program::LST_STATE_LIST_ID`] directly
 pub fn find_lst_state_list_address(program_id: Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(&[LST_STATE_LIST_PDA_SEED], &program_id)
 }
 
+/// Finds the disable pool authority list PDA
 /// For dynamic program IDs.
 /// If using crate's program ID, you can use [`crate::program::DISABLE_POOL_AUTHORITY_LIST_ID`] directly
 pub fn find_disable_pool_authority_list_address(program_id: Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(&[DISABLE_POOL_AUTHORITY_LIST_PDA_SEED], &program_id)
 }
 
+/// Finds the rebalance record PDA
 /// For dynamic program IDs.
 /// If using crate's program ID, you can use [`crate::program::REBALANCE_RECORD_ID`] directly
 pub fn find_rebalance_record_address(program_id: Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(&[REBALANCE_RECORD_PDA_SEED], &program_id)
 }
 
+/// Finds the protocol fee auth PDA
 /// For dynamic program IDs.
 /// If using crate's program ID, you can use [`crate::program::PROTOCOL_FEE_ID`] directly.
 /// Returns the PDA that has authority over all the protocol fee accumulator token accounts
