@@ -12,7 +12,9 @@ use crate::{common::verify_admin, rpc::fetch_pool_state};
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(long_about = "Sets the S controller program's protocol fee rate.")]
+#[command(long_about = "Sets the S controller program's protocol fee rate.
+
+Note: Even though the controller program executes no-op, if none of the fee values was given, the cli program will refuse to execute the instruction.")]
 #[clap(group(
     ArgGroup::new("fee")
         .required(true)
