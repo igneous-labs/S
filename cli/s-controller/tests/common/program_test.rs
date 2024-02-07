@@ -12,6 +12,8 @@ use super::base_cmd;
 
 pub trait SctrProgramTest {
     fn add_s_program(self) -> Self;
+
+    fn add_flat_fee_pricing_program(self) -> Self;
 }
 
 impl SctrProgramTest for ProgramTest {
@@ -20,6 +22,15 @@ impl SctrProgramTest for ProgramTest {
             "s_controller",
             s_controller_lib::program::ID,
             processor!(s_controller::entrypoint::process_instruction),
+        );
+        self
+    }
+
+    fn add_flat_fee_pricing_program(mut self) -> Self {
+        self.add_program(
+            "flat_fee",
+            flat_fee_lib::program::ID,
+            processor!(flat_fee::entrypoint::process_instruction),
         );
         self
     }

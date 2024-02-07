@@ -36,6 +36,8 @@ pub trait TestSctrCmd {
     fn cmd_set_protocol_fee_beneficiary(&mut self) -> &mut Self;
 
     fn cmd_enable_pool(&mut self) -> &mut Self;
+
+    fn cmd_set_pricing_prog(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -85,5 +87,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_remove_disable_auth(&mut self) -> &mut Self {
         self.arg("remove-disable-auth")
+    }
+
+    fn cmd_set_pricing_prog(&mut self) -> &mut Self {
+        self.arg("set-pricing-prog")
     }
 }

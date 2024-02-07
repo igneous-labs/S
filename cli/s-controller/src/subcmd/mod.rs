@@ -5,7 +5,7 @@ use self::{
     disable_lst_input::DisableLstInputArgs, disable_pool::DisablePoolArgs,
     enable_lst_input::EnableLstInputArgs, enable_pool::EnablePoolArgs, init::InitArgs,
     remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
-    set_protocol_fee::SetProtocolFeeArgs,
+    set_pricing_prog::SetPricingProgArgs, set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
 };
 
@@ -19,6 +19,7 @@ mod init;
 mod remove_disable_auth;
 mod remove_lst;
 mod set_admin;
+mod set_pricing_prog;
 mod set_protocol_fee;
 mod set_protocol_fee_beneficiary;
 
@@ -36,6 +37,7 @@ pub enum Subcmd {
     DisablePool(DisablePoolArgs),
     SetProtocolFeeBeneficiary(SetProtocolFeeBeneficiaryArgs),
     EnablePool(EnablePoolArgs),
+    SetPricingProg(SetPricingProgArgs),
 }
 
 impl Subcmd {
@@ -53,6 +55,7 @@ impl Subcmd {
             Self::DisablePool(_) => DisablePoolArgs::run(args).await,
             Self::SetProtocolFeeBeneficiary(_) => SetProtocolFeeBeneficiaryArgs::run(args).await,
             Self::EnablePool(_) => EnablePoolArgs::run(args).await,
+            Self::SetPricingProg(_) => SetPricingProgArgs::run(args).await,
         }
     }
 }
