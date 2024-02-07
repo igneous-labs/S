@@ -6,3 +6,4 @@ mod enable_lst_input;
 mod enable_pool;
 mod init;
 mod set_admin;
+mod set_protocol_fee;
