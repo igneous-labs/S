@@ -3,7 +3,9 @@ use s_controller_lib::{
     program::POOL_STATE_ID, try_pool_state, SetPricingProgramFreeArgs, DEFAULT_PRICING_PROGRAM,
 };
 
-use s_controller_test_utils::{PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE};
+use s_controller_test_utils::{
+    assert_pricing_prog_set, PoolStateBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
+};
 use sanctum_solana_test_utils::{assert_custom_err, assert_program_error, test_fixtures_dir};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{processor, ProgramTest};
@@ -55,10 +57,7 @@ async fn basic_success() {
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let pool_state_acc = banks_client.get_pool_state_acc().await;
-    let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
-
-    assert_eq!(pool_state.pricing_program, no_fee_pricing_program::ID);
+    assert_pricing_prog_set(&mut banks_client, no_fee_pricing_program::ID).await;
 }
 
 #[tokio::test]
