@@ -1,9 +1,14 @@
 use std::convert::Infallible;
 
+use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
 use lazy_static::lazy_static;
+use lido_calculator_lib::lido_sol_val_calc_account_metas;
+use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 use s_controller_interface::PoolState;
-use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList};
-use solana_sdk::pubkey::Pubkey;
+use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
+use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
+use spl_calculator_lib::{resolve_to_account_metas_for_calc, SanctumSplSolValCalc, SplSolValCalc};
+use wsol_calculator_lib::WSOL_LST_TO_SOL_METAS;
 
 lazy_static! {
     pub static ref SANCTUM_LST_LIST: SanctumLstList = SanctumLstList::load();
@@ -48,10 +53,39 @@ pub fn sol_val_calc_of_sanctum_lst(sanctum_lst: &SanctumLst) -> Pubkey {
         PoolInfo::Lido => lido_calculator_lib::program::ID,
         PoolInfo::Marinade => marinade_calculator_lib::program::ID,
         PoolInfo::ReservePool => wsol_calculator_lib::program::ID,
-        PoolInfo::SanctumSpl(_) => {
-            sanctum_spl_stake_pool_keys::sanctum_spl_sol_val_calc_program::ID
-        }
+        PoolInfo::SanctumSpl(_) => spl_calculator_lib::sanctum_spl_sol_val_calc_program::ID,
         PoolInfo::Spl(_) => spl_calculator_lib::program::ID,
         PoolInfo::Socean(_) => panic!("Socean sol val calc todo"),
+    }
+}
+
+/// Returns the accounts suffix slice required to call LstToSol or SolToLst, excluding
+/// the sol value calculator program ID.
+///
+/// This can be used as the 2nd arg of [`s_controller_lib::ix_extend_with_sol_value_calculator_accounts`] directly
+pub fn sol_value_calculator_accounts_of_sanctum_lst(
+    SanctumLst { mint, pool, .. }: &SanctumLst,
+) -> Vec<AccountMeta> {
+    match pool {
+        PoolInfo::Lido => lido_sol_val_calc_account_metas().to_vec(),
+        PoolInfo::Marinade => marinade_sol_val_calc_account_metas().to_vec(),
+        PoolInfo::ReservePool => WSOL_LST_TO_SOL_METAS.to_vec(),
+        PoolInfo::SanctumSpl(SplPoolAccounts { pool, .. }) => {
+            resolve_to_account_metas_for_calc::<SanctumSplSolValCalc>(
+                LstSolCommonIntermediateKeys {
+                    lst_mint: *mint,
+                    pool_state: *pool,
+                },
+            )
+            .to_vec()
+        }
+        PoolInfo::Spl(SplPoolAccounts { pool, .. }) => {
+            resolve_to_account_metas_for_calc::<SplSolValCalc>(LstSolCommonIntermediateKeys {
+                lst_mint: *mint,
+                pool_state: *pool,
+            })
+            .to_vec()
+        }
+        PoolInfo::Socean(_) => panic!("Socean sol val calc accounts todo"),
     }
 }

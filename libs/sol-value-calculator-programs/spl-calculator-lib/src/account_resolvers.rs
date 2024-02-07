@@ -77,8 +77,14 @@ impl<S: ReadonlyAccountPubkey + ReadonlyAccountData + ReadonlyAccountOwner>
     pub fn resolve_to_account_metas(
         self,
     ) -> Result<[AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN], GenericPoolCalculatorError> {
-        let keys: generic_pool_calculator_interface::LstToSolKeys =
-            self.resolve()?.resolve::<SplSolValCalc>().into();
-        Ok(keys.into())
+        let keys = self.resolve()?;
+        Ok(resolve_to_account_metas_for_calc::<SplSolValCalc>(keys))
     }
+}
+
+pub fn resolve_to_account_metas_for_calc<T: GenericPoolSolValCalc>(
+    keys: LstSolCommonIntermediateKeys,
+) -> [AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN] {
+    let keys: generic_pool_calculator_interface::LstToSolKeys = keys.resolve::<T>().into();
+    keys.into()
 }
