@@ -19,11 +19,13 @@ use crate::{common::verify_admin, rpc::fetch_pool_state};
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(long_about = "Sets the S controller program's admin authority.
+#[command(
+    about = "Sets the S controller program's admin authority.",
+    long_about = "Sets the S controller program's admin authority.
 
 Prerequisites:
-- The program's pool state must be initialized prior to the invocation.
-")]
+- The program's pool state must be initialized prior to the invocation."
+)]
 pub struct SetAdminArgs {
     #[arg(
         long,

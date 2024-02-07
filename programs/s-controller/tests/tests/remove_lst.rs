@@ -1,13 +1,12 @@
-use s_controller_interface::{remove_lst_ix, LstState, RemoveLstIxArgs};
+use s_controller_interface::{remove_lst_ix, RemoveLstIxArgs};
 use s_controller_lib::{
-    create_pool_reserves_address, create_protocol_fee_accumulator_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
-    try_find_lst_mint_on_list, try_lst_state_list, RemoveLstFreeArgs,
+    try_lst_state_list, FindLstPdaAtaKeys, RemoveLstFreeArgs,
 };
 use s_controller_test_utils::{
-    jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs, LstStateListBanksClient,
-    LstStateListProgramTest, MockLstStateArgs, PoolStateBanksClient, PoolStateProgramTest,
-    DEFAULT_POOL_STATE,
+    assert_lst_removed, jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs,
+    LstStateListBanksClient, LstStateListProgramTest, MockLstStateArgs, PoolStateBanksClient,
+    PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
 use sanctum_solana_test_utils::{
     test_fixtures_dir,
@@ -104,6 +103,7 @@ async fn basic_three_clear_1_0_2() {
         sol_value: 0,
         reserves_amt: 0,
         protocol_fee_accumulator_amt: 0,
+        is_input_disabled: false,
     });
 
     let mut program_test = ProgramTest::default()
@@ -141,10 +141,6 @@ async fn exec_verify_remove(
     let og_lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
     let og_len = og_lst_state_list.len();
     let lst_state = og_lst_state_list[lst_index];
-    let expected_lst_state_list_post: Vec<LstState> = og_lst_state_list
-        .iter()
-        .filter_map(|s| if *s == lst_state { None } else { Some(*s) })
-        .collect();
 
     let mint_acc = banks_client
         .get_account(lst_state.mint)
@@ -183,35 +179,13 @@ async fn exec_verify_remove(
 
     banks_client.process_transaction(tx).await.unwrap();
 
-    let expected_new_len = og_len - 1;
-    if expected_new_len == 0 {
-        assert!(banks_client
-            .get_account(LST_STATE_LIST_ID)
-            .await
-            .unwrap()
-            .is_none())
-    } else {
-        let lst_state_list_acc = banks_client.get_lst_state_list_acc().await;
-        let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        assert_eq!(lst_state_list, expected_lst_state_list_post);
-        assert!(try_find_lst_mint_on_list(lst_state.mint, lst_state_list).is_err());
-    }
-    verify_lst_token_accounts_deleted(banks_client, lst_state, lst_token_program).await;
-}
-
-async fn verify_lst_token_accounts_deleted(
-    banks_client: &mut BanksClient,
-    lst_state: LstState,
-    lst_token_program: Pubkey,
-) {
-    let pool_reserves_addr = create_pool_reserves_address(&lst_state, lst_token_program).unwrap();
-    let protocol_fee_accumulator_addr =
-        create_protocol_fee_accumulator_address(&lst_state, lst_token_program).unwrap();
-    for should_be_deleted in [pool_reserves_addr, protocol_fee_accumulator_addr] {
-        assert!(banks_client
-            .get_account(should_be_deleted)
-            .await
-            .unwrap()
-            .is_none())
-    }
+    assert_lst_removed(
+        banks_client,
+        FindLstPdaAtaKeys {
+            lst_mint: lst_state.mint,
+            token_program: lst_token_program,
+        },
+        og_len,
+    )
+    .await;
 }

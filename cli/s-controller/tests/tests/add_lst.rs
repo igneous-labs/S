@@ -69,6 +69,7 @@ async fn add_lst_jito_matched_sol_val_calc_success_payer_init_auth() {
             sol_value: 0,
             reserves_amt: 0,
             protocol_fee_accumulator_amt: 0,
+            is_input_disabled: false,
         },
     )
     .await;
@@ -94,6 +95,7 @@ async fn add_lst_jitosol_token_name_matched_sol_val_calc_success_payer_init_auth
             sol_value: 0,
             reserves_amt: 0,
             protocol_fee_accumulator_amt: 0,
+            is_input_disabled: false,
         },
     )
     .await;

@@ -19,9 +19,23 @@ pub trait TestSctrCmd {
 
     fn cmd_add_disable_auth(&mut self) -> &mut Self;
 
+    fn cmd_remove_disable_auth(&mut self) -> &mut Self;
+
+    fn cmd_set_protocol_fee(&mut self) -> &mut Self;
+
     fn cmd_add_lst(&mut self) -> &mut Self;
 
+    fn cmd_remove_lst(&mut self) -> &mut Self;
+
+    fn cmd_disable_lst_input(&mut self) -> &mut Self;
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self;
+
     fn cmd_disable_pool(&mut self) -> &mut Self;
+
+    fn cmd_set_protocol_fee_beneficiary(&mut self) -> &mut Self;
+
+    fn cmd_enable_pool(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -37,11 +51,39 @@ impl TestSctrCmd for Command {
         self.arg("add-disable-auth")
     }
 
+    fn cmd_set_protocol_fee(&mut self) -> &mut Self {
+        self.arg("set-protocol-fee")
+    }
+
     fn cmd_add_lst(&mut self) -> &mut Self {
         self.arg("add-lst")
     }
 
+    fn cmd_remove_lst(&mut self) -> &mut Self {
+        self.arg("remove-lst")
+    }
+
+    fn cmd_disable_lst_input(&mut self) -> &mut Self {
+        self.arg("disable-lst-input")
+    }
+
+    fn cmd_enable_lst_input(&mut self) -> &mut Self {
+        self.arg("enable-lst-input")
+    }
+
     fn cmd_disable_pool(&mut self) -> &mut Self {
         self.arg("disable-pool")
+    }
+
+    fn cmd_set_protocol_fee_beneficiary(&mut self) -> &mut Self {
+        self.arg("set-protocol-fee-beneficiary")
+    }
+
+    fn cmd_enable_pool(&mut self) -> &mut Self {
+        self.arg("enable-pool")
+    }
+
+    fn cmd_remove_disable_auth(&mut self) -> &mut Self {
+        self.arg("remove-disable-auth")
     }
 }

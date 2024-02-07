@@ -28,6 +28,20 @@ pub fn verify_disable_pool_authority(
     Ok(())
 }
 
+pub fn verify_protocol_fee_beneficiary(
+    state: &PoolState,
+    beneficiary: Pubkey,
+) -> Result<(), Infallible> {
+    if state.protocol_fee_beneficiary != beneficiary {
+        eprintln!(
+            "Wrong beneficiary. Expected: {}. Got: {}",
+            state.protocol_fee_beneficiary, beneficiary
+        );
+        std::process::exit(-1);
+    }
+    Ok(())
+}
+
 /// Returns program ID of the sol value calculator program corresponding to the LST's program
 pub fn sol_val_calc_of_sanctum_lst(sanctum_lst: &SanctumLst) -> Pubkey {
     match sanctum_lst.pool {
