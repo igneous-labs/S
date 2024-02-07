@@ -31,7 +31,7 @@ async fn admin_set_both() {
     };
     let ix = set_protocol_fee_ix(
         SetProtocolFeeFreeArgs {
-            pool_state_acc: KeyedAccount {
+            pool_state: KeyedAccount {
                 pubkey: POOL_STATE_ID,
                 account: MockPoolState(old_pool_state).into_account(),
             },

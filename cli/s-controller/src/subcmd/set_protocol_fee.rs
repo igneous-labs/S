@@ -67,9 +67,11 @@ impl SetProtocolFeeArgs {
 
         let ix = set_protocol_fee_ix_with_program_id(
             program_id,
-            SetProtocolFeeFreeArgs { pool_state_acc }
-                .resolve_for_prog(program_id)
-                .unwrap(),
+            SetProtocolFeeFreeArgs {
+                pool_state: pool_state_acc,
+            }
+            .resolve_for_prog(program_id)
+            .unwrap(),
             SetProtocolFeeIxArgs {
                 new_trading_protocol_fee_bps,
                 new_lp_protocol_fee_bps,
