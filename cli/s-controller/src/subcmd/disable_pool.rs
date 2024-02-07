@@ -15,11 +15,13 @@ use crate::{
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-#[command(long_about = "Disables functionality of the entire pool.
+#[command(
+    about = "Disables functionality of the entire pool.",
+    long_about = "Disables functionality of the entire pool.
 
 Prerequisites:
-- The program's pool state must be initialized prior to the invokation.
-")]
+- The program's pool state must be initialized prior to the invocation."
+)]
 pub struct DisablePoolArgs {
     #[arg(
         long,

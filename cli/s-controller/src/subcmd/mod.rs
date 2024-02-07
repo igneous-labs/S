@@ -4,7 +4,7 @@ use self::{
     add_disable_auth::AddDisableAuthArgs, add_lst::AddLstArgs,
     disable_lst_input::DisableLstInputArgs, disable_pool::DisablePoolArgs,
     enable_lst_input::EnableLstInputArgs, enable_pool::EnablePoolArgs, init::InitArgs,
-    remove_disable_auth::RemoveDisableAuthArgs, set_admin::SetAdminArgs,
+    remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
     set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
 };
@@ -17,6 +17,7 @@ mod enable_lst_input;
 mod enable_pool;
 mod init;
 mod remove_disable_auth;
+mod remove_lst;
 mod set_admin;
 mod set_protocol_fee;
 mod set_protocol_fee_beneficiary;
@@ -29,6 +30,7 @@ pub enum Subcmd {
     SetAdmin(SetAdminArgs),
     SetProtocolFee(SetProtocolFeeArgs),
     AddLst(AddLstArgs),
+    RemoveLst(RemoveLstArgs),
     DisableLstInput(DisableLstInputArgs),
     EnableLstInput(EnableLstInputArgs),
     DisablePool(DisablePoolArgs),
@@ -45,6 +47,7 @@ impl Subcmd {
             Self::SetAdmin(_) => SetAdminArgs::run(args).await,
             Self::SetProtocolFee(_) => SetProtocolFeeArgs::run(args).await,
             Self::AddLst(_) => AddLstArgs::run(args).await,
+            Self::RemoveLst(_) => RemoveLstArgs::run(args).await,
             Self::DisableLstInput(_) => DisableLstInputArgs::run(args).await,
             Self::EnableLstInput(_) => EnableLstInputArgs::run(args).await,
             Self::DisablePool(_) => DisablePoolArgs::run(args).await,
