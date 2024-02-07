@@ -140,7 +140,7 @@ impl SyncArgs {
             .await;
             if !should_run {
                 eprintln!("Sync not required, --force not provided. Exiting.");
-                std::process::exit(0);
+                return;
             }
         }
 

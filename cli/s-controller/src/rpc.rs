@@ -21,6 +21,10 @@ pub async fn fetch_disable_pool_authority_list(rpc: &RpcClient, program_id: Pubk
         .unwrap()
 }
 
+// NB: this fn is currently not tested because our current BanksRpcServer setup doesn't really
+// allow simulation with post tx accounts results:
+// https://github.com/igneous-labs/sanctum-solana-utils/issues/40#issuecomment-1932036297
+// All cmds that rely on this should provide some way to do without it so that they can be tested
 pub async fn does_tx_modify_pool_state<P: ReadonlyAccountData + ReadonlyAccountPubkey>(
     rpc: &RpcClient,
     tx: &VersionedTransaction,
