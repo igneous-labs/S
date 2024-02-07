@@ -13,7 +13,7 @@ use solana_sdk::{
 };
 use std::str::FromStr;
 
-use crate::common::{find_sanctum_lst, sol_val_calc_of_sanctum_lst, verify_admin};
+use crate::{common::verify_admin, lst_arg::LstArg};
 
 use super::Subcmd;
 
@@ -36,10 +36,10 @@ pub struct AddLstArgs {
     pub sol_val_calc: Option<Pubkey>,
 
     #[arg(
-        help = "Mint of the new LST to add",
-        value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
+        help = "Mint of the new LST to add. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
+        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
     )]
-    pub mint: Pubkey,
+    pub mint: LstArg,
 }
 
 impl AddLstArgs {
@@ -61,14 +61,13 @@ impl AddLstArgs {
         let admin = admin_signer.as_ref().unwrap_or(&payer);
 
         let sol_val_calc = sol_val_calc.unwrap_or_else(|| {
-            let sanctum_lst = find_sanctum_lst(mint)
-                .expect("LST not found on list, --sol-val-calc must be provided");
-            sol_val_calc_of_sanctum_lst(sanctum_lst)
+            mint.sol_val_calc_of()
+                .expect("LST not found on list, --sol-val-calc must be provided")
         });
 
         let pool_state_addr = find_pool_state_address(program_id).0;
         let mut fetched_accs = rpc
-            .get_multiple_accounts(&[pool_state_addr, mint])
+            .get_multiple_accounts(&[pool_state_addr, mint.mint()])
             .await
             .unwrap();
         let lst_mint_acc = fetched_accs.pop().unwrap().unwrap();
@@ -82,7 +81,7 @@ impl AddLstArgs {
             sol_value_calculator: sol_val_calc,
             pool_state: pool_state_acc,
             lst_mint: Keyed {
-                pubkey: mint,
+                pubkey: mint.mint(),
                 account: lst_mint_acc,
             },
         }

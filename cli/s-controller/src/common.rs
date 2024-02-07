@@ -28,13 +28,6 @@ pub fn verify_disable_pool_authority(
     Ok(())
 }
 
-pub fn find_sanctum_lst(mint: Pubkey) -> Option<&'static SanctumLst> {
-    SANCTUM_LST_LIST
-        .sanctum_lst_list
-        .iter()
-        .find(|lst| lst.mint == mint)
-}
-
 /// Returns program ID of the sol value calculator program corresponding to the LST's program
 pub fn sol_val_calc_of_sanctum_lst(sanctum_lst: &SanctumLst) -> Pubkey {
     match sanctum_lst.pool {
