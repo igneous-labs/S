@@ -4,16 +4,15 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_controller_interface::{
-    set_sol_value_calculator_ix_with_program_id, SetSolValueCalculatorIxArgs,
-};
 use s_controller_lib::{
-    find_lst_state_list_address, find_pool_state_address, index_to_u32, try_pool_state,
+    find_lst_state_list_address, find_pool_state_address,
+    set_sol_value_calculator_ix_by_mint_full_with_program_id, try_pool_state,
     SetSolValueCalculatorByMintFreeArgs,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
+    instruction::AccountMeta,
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
     transaction::VersionedTransaction,
@@ -23,7 +22,6 @@ use crate::{common::verify_admin, lst_arg::LstArg};
 
 use super::Subcmd;
 
-// TODO: accept cpi accounts for sync_sol_value (see processor)
 #[derive(Args, Debug)]
 #[command(long_about = "Sets the SOL value calculator program for a LST.")]
 pub struct SetSolValueCalculatorArgs {
@@ -37,24 +35,35 @@ pub struct SetSolValueCalculatorArgs {
     #[arg(
         long,
         short,
-        help = "The LST's SOL value calculator program.",
+        help = "The LST's SOL value calculator program to set to.",
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
     )]
     pub sol_val_calc: Pubkey,
 
     #[arg(
-        help = "Mint of the new LST to add. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
+        long,
+        short,
+        help = "Mint of the LST to set SOL value calculator program for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
         value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
     )]
     pub mint: LstArg,
+
+    #[arg(
+        long = "account-suffixes",
+        short = 'c',
+        help = "List of pubkeys for account suffixes for SOL value calculator program.",
+        num_args(1..),
+    )]
+    pub account_suffixes: Vec<Pubkey>,
 }
 
 impl SetSolValueCalculatorArgs {
     pub async fn run(args: crate::Args) {
         let Self {
             admin,
-            sol_val_calc: _sol_val_calc,
+            sol_val_calc,
             mint,
+            account_suffixes,
         } = match args.subcmd {
             Subcmd::SetSolValueCalculator(a) => a,
             _ => unreachable!(),
@@ -80,31 +89,26 @@ impl SetSolValueCalculatorArgs {
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         verify_admin(pool_state, admin.pubkey()).unwrap();
 
-        let (keys, lst_index) = SetSolValueCalculatorByMintFreeArgs {
-            pool_state: pool_state_acc,
-            lst_state_list: lst_state_list_acc,
-            lst_mint: KeyedAccount {
-                pubkey: mint.mint(),
-                account: lst_mint_acc,
-            },
-        }
-        .resolve_for_prog(program_id)
-        .unwrap();
-
-        // TODO: replace ix with this with sol_val_calc and additional accounts for lst to sol call
-        // set_sol_value_calculator_ix_by_mint_full_with_program_id(
-        //     program_id,
-        //     SetSolValueCalculatorIxArgs {
-        //         lst_index: index_to_u32(lst_index).unwrap(),
-        //     },
-        //     &[],
-        // );
-        let ix = set_sol_value_calculator_ix_with_program_id(
+        let sol_value_calculator_accounts: Vec<AccountMeta> = account_suffixes
+            .into_iter()
+            .map(|pubkey| AccountMeta {
+                pubkey,
+                is_signer: false,
+                is_writable: false,
+            })
+            .collect();
+        let ix = set_sol_value_calculator_ix_by_mint_full_with_program_id(
             program_id,
-            keys,
-            SetSolValueCalculatorIxArgs {
-                lst_index: index_to_u32(lst_index).unwrap(),
+            &SetSolValueCalculatorByMintFreeArgs {
+                pool_state: pool_state_acc,
+                lst_state_list: lst_state_list_acc,
+                lst_mint: KeyedAccount {
+                    pubkey: mint.mint(),
+                    account: lst_mint_acc,
+                },
             },
+            &sol_value_calculator_accounts,
+            sol_val_calc,
         )
         .unwrap();
 

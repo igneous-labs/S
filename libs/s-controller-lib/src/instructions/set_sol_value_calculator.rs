@@ -48,3 +48,23 @@ pub fn set_sol_value_calculator_ix_by_mint_full<
     )?;
     Ok(ix)
 }
+
+pub fn set_sol_value_calculator_ix_by_mint_full_with_program_id<
+    S: ReadonlyAccountData,
+    L: ReadonlyAccountData,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+>(
+    program_id: Pubkey,
+    free_args: &SetSolValueCalculatorByMintFreeArgs<S, L, M>,
+    sol_value_calculator_accounts: &[AccountMeta],
+    sol_value_calculator_program_id: Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let (keys, lst_index) = free_args.resolve_for_prog(program_id)?;
+    let ix = set_sol_value_calculator_ix_full(
+        keys,
+        lst_index,
+        sol_value_calculator_accounts,
+        sol_value_calculator_program_id,
+    )?;
+    Ok(ix)
+}
