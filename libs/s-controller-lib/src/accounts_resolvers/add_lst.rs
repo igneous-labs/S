@@ -17,10 +17,7 @@ pub struct LstStateBumps {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct AddLstFreeArgs<
-    S: ReadonlyAccountData + ReadonlyAccountPubkey,
-    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
-> {
+pub struct AddLstFreeArgs<S, M> {
     pub payer: Pubkey,
     pub sol_value_calculator: Pubkey,
     pub pool_state: S,
@@ -39,13 +36,18 @@ impl<
     > AddLstFreeArgs<S, M>
 {
     pub fn resolve(self) -> Result<(AddLstKeys, LstStateBumps), SControllerError> {
+        if *self.pool_state.pubkey() != POOL_STATE_ID {
+            return Err(SControllerError::IncorrectPoolState);
+        }
         self.resolve_inner(ResolveInner {
             pool_state: POOL_STATE_ID,
             protocol_fee_accumulator_auth: PROTOCOL_FEE_ID,
             lst_state_list: LST_STATE_LIST_ID,
         })
     }
+}
 
+impl<S: ReadonlyAccountData, M: ReadonlyAccountOwner + ReadonlyAccountPubkey> AddLstFreeArgs<S, M> {
     pub fn resolve_for_prog(
         self,
         program_id: Pubkey,
@@ -71,10 +73,6 @@ impl<
             pool_state: pool_state_acc,
             lst_mint,
         } = self;
-
-        if *pool_state_acc.pubkey() != pool_state {
-            return Err(SControllerError::IncorrectPoolState);
-        }
 
         let pool_state_data = pool_state_acc.data();
         let pool_state_data = try_pool_state(&pool_state_data)?;
