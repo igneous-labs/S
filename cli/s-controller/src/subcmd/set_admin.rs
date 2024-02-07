@@ -1,16 +1,10 @@
-use std::str::FromStr;
-
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use s_controller_interface::set_admin_ix_with_program_id;
 use s_controller_lib::{find_pool_state_address, try_pool_state, SetAdminFreeArgs};
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::{parse_pubkey_src, parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
-    pubkey::Pubkey,
     transaction::VersionedTransaction,
 };
 
@@ -34,9 +28,8 @@ pub struct SetAdminArgs {
     )]
     pub curr_admin: Option<String>,
 
-    #[arg(help = "The new program's admin authority to set. Can be a pubkey or signer.",
-    value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)))]
-    pub new_admin: Pubkey,
+    #[arg(help = "The new program's admin authority to set. Can be a pubkey or signer.")]
+    pub new_admin: String,
 }
 
 impl SetAdminArgs {
@@ -55,6 +48,7 @@ impl SetAdminArgs {
 
         let curr_admin_signer = curr_admin.map(|s| parse_signer(&s).unwrap());
         let curr_admin = curr_admin_signer.as_ref().unwrap_or(&payer);
+        let new_admin = parse_pubkey_src(&new_admin).unwrap().pubkey();
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
