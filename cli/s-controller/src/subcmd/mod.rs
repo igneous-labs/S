@@ -5,6 +5,7 @@ use self::{
     disable_lst_input::DisableLstInputArgs, disable_pool::DisablePoolArgs,
     enable_lst_input::EnableLstInputArgs, enable_pool::EnablePoolArgs, init::InitArgs,
     set_admin::SetAdminArgs, set_protocol_fee::SetProtocolFeeArgs,
+    set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
 };
 
 mod add_disable_auth;
@@ -16,6 +17,7 @@ mod enable_pool;
 mod init;
 mod set_admin;
 mod set_protocol_fee;
+mod set_protocol_fee_beneficiary;
 
 #[derive(Debug, Subcommand)]
 pub enum Subcmd {
@@ -27,6 +29,7 @@ pub enum Subcmd {
     DisableLstInput(DisableLstInputArgs),
     EnableLstInput(EnableLstInputArgs),
     DisablePool(DisablePoolArgs),
+    SetProtocolFeeBeneficiary(SetProtocolFeeBeneficiaryArgs),
     EnablePool(EnablePoolArgs),
 }
 
@@ -41,6 +44,7 @@ impl Subcmd {
             Self::DisableLstInput(_) => DisableLstInputArgs::run(args).await,
             Self::EnableLstInput(_) => EnableLstInputArgs::run(args).await,
             Self::DisablePool(_) => DisablePoolArgs::run(args).await,
+            Self::SetProtocolFeeBeneficiary(_) => SetProtocolFeeBeneficiaryArgs::run(args).await,
             Self::EnablePool(_) => EnablePoolArgs::run(args).await,
         }
     }

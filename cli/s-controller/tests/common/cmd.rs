@@ -29,6 +29,8 @@ pub trait TestSctrCmd {
 
     fn cmd_disable_pool(&mut self) -> &mut Self;
 
+    fn cmd_set_protocol_fee_beneficiary(&mut self) -> &mut Self;
+
     fn cmd_enable_pool(&mut self) -> &mut Self;
 }
 
@@ -63,6 +65,10 @@ impl TestSctrCmd for Command {
 
     fn cmd_disable_pool(&mut self) -> &mut Self {
         self.arg("disable-pool")
+    }
+
+    fn cmd_set_protocol_fee_beneficiary(&mut self) -> &mut Self {
+        self.arg("set-protocol-fee-beneficiary")
     }
 
     fn cmd_enable_pool(&mut self) -> &mut Self {
