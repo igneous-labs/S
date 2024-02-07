@@ -82,9 +82,9 @@ impl SetSolValueCalculatorArgs {
             .get_multiple_accounts(&[pool_state_addr, lst_state_list_addr, mint.mint()])
             .await
             .unwrap();
-        let pool_state_acc = fetched.pop().unwrap().unwrap();
-        let lst_state_list_acc = fetched.pop().unwrap().unwrap();
         let lst_mint_acc = fetched.pop().unwrap().unwrap();
+        let lst_state_list_acc = fetched.pop().unwrap().unwrap();
+        let pool_state_acc = fetched.pop().unwrap().unwrap();
 
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         verify_admin(pool_state, admin.pubkey()).unwrap();
