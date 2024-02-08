@@ -7,18 +7,12 @@ use solana_program_test::ProgramTest;
 use solana_sdk::system_program;
 use test_utils::jitosol;
 
-use crate::common::{setup_with_init_auth_as_payer, SctrProgramTest, TestSctrCmd};
+use crate::common::{
+    setup_with_init_auth_as_payer, SctrProgramTest, TestSctrCmd, SPL_CALC_JITO_ACC_SUFFIX_PUBKEY,
+};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn set_sol_value_calculator_jito_success_payer_init_auth() {
-    const SPL_CALC_JITO_ACC_SUFFIXES_PUBKEY_STR: [&str; 5] = [
-        "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
-        "7orJ4kDhn1Ewp54j29tBzUWDFGhyimhYi7sxybZcphHd",
-        "Jito4APyf642JPZPx3hGc6WWJ8zPKtRbRs4P815Awbb",
-        "SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy",
-        "EmiU8AQkB2sswTxVB6aCmsAJftoowZGGDXuytm6X65R3",
-    ];
-
     let pt = ProgramTest::default()
         .add_spl_progs()
         .add_jito_stake_pool()
@@ -40,12 +34,10 @@ async fn set_sol_value_calculator_jito_success_payer_init_auth() {
         .arg("--mint")
         .arg(jitosol::ID_STR);
 
-    cmd.arg("--account-suffixes");
-    for acc_suffix_pubkey_str in SPL_CALC_JITO_ACC_SUFFIXES_PUBKEY_STR {
+    cmd.arg("--account-suffix");
+    for acc_suffix_pubkey_str in SPL_CALC_JITO_ACC_SUFFIX_PUBKEY {
         cmd.arg(acc_suffix_pubkey_str);
     }
-    // TODO: DELETEME
-    cmd.unwrap();
 
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
     assert_all_txs_success_nonempty(&exec_res);

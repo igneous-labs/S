@@ -49,12 +49,12 @@ pub struct SetSolValueCalculatorArgs {
     pub mint: LstArg,
 
     #[arg(
-        long = "account-suffixes",
+        long = "account-suffix",
         short = 'c',
-        help = "List of pubkeys for account suffixes for SOL value calculator program.",
+        help = "List of pubkeys for account suffix for the SOL value calculator program.",
         num_args(1..),
     )]
-    pub account_suffixes: Vec<Pubkey>,
+    pub account_suffix: Vec<Pubkey>,
 }
 
 impl SetSolValueCalculatorArgs {
@@ -63,7 +63,7 @@ impl SetSolValueCalculatorArgs {
             admin,
             sol_val_calc,
             mint,
-            account_suffixes,
+            account_suffix,
         } = match args.subcmd {
             Subcmd::SetSolValueCalculator(a) => a,
             _ => unreachable!(),
@@ -89,7 +89,7 @@ impl SetSolValueCalculatorArgs {
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         verify_admin(pool_state, admin.pubkey()).unwrap();
 
-        let sol_value_calculator_accounts: Vec<AccountMeta> = account_suffixes
+        let sol_value_calculator_accounts: Vec<AccountMeta> = account_suffix
             .into_iter()
             .map(|pubkey| AccountMeta {
                 pubkey,
