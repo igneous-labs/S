@@ -51,7 +51,8 @@ pub struct SetSolValueCalculatorArgs {
     #[arg(
         long = "account-suffix",
         short = 'c',
-        help = "List of pubkeys for account suffix for the SOL value calculator program.",
+        help = "Account suffix slice to call LstToSol for the given LST, excluding the program ID and mint.",
+        required = true,
         num_args(1..),
     )]
     pub account_suffix: Vec<Pubkey>,
@@ -89,14 +90,17 @@ impl SetSolValueCalculatorArgs {
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         verify_admin(pool_state, admin.pubkey()).unwrap();
 
-        let sol_value_calculator_accounts: Vec<AccountMeta> = account_suffix
-            .into_iter()
-            .map(|pubkey| AccountMeta {
-                pubkey,
-                is_signer: false,
-                is_writable: false,
-            })
-            .collect();
+        let sol_value_calculator_accounts: Vec<AccountMeta> = std::iter::once(AccountMeta {
+            pubkey: mint.mint(),
+            is_signer: false,
+            is_writable: false,
+        })
+        .chain(account_suffix.into_iter().map(|pubkey| AccountMeta {
+            pubkey,
+            is_signer: false,
+            is_writable: false,
+        }))
+        .collect();
         let ix = set_sol_value_calculator_ix_by_mint_full_with_program_id(
             program_id,
             &SetSolValueCalculatorByMintFreeArgs {

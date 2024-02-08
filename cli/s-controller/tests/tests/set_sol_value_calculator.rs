@@ -35,7 +35,7 @@ async fn set_sol_value_calculator_jito_success_payer_init_auth() {
         .arg(jitosol::ID_STR);
 
     cmd.arg("--account-suffix");
-    for acc_suffix_pubkey_str in SPL_CALC_JITO_ACC_SUFFIX_PUBKEY {
+    for acc_suffix_pubkey_str in &SPL_CALC_JITO_ACC_SUFFIX_PUBKEY[1..] {
         cmd.arg(acc_suffix_pubkey_str);
     }
 
