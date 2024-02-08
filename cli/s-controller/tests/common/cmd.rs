@@ -42,6 +42,8 @@ pub trait TestSctrCmd {
     fn cmd_set_sol_value_calculator_prog(&mut self) -> &mut Self;
 
     fn cmd_set_rebalance_auth(&mut self) -> &mut Self;
+
+    fn cmd_sync(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -103,5 +105,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_set_rebalance_auth(&mut self) -> &mut Self {
         self.arg("set-rebalance-auth")
+    }
+
+    fn cmd_sync(&mut self) -> &mut Self {
+        self.arg("sync")
     }
 }
