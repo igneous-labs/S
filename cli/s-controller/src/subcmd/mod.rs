@@ -7,7 +7,7 @@ use self::{
     remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
     set_pricing_prog::SetPricingProgArgs, set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
-    set_rebalance_auth::SetRebalanceAuthArgs, sync::SyncArgs,
+    set_rebalance_auth::SetRebalanceAuthArgs, sync::SyncArgs, sync_all::SyncAllArgs,
 };
 
 mod add_disable_auth;
@@ -25,6 +25,7 @@ mod set_protocol_fee;
 mod set_protocol_fee_beneficiary;
 mod set_rebalance_auth;
 mod sync;
+mod sync_all;
 
 #[derive(Debug, Subcommand)]
 pub enum Subcmd {
@@ -43,6 +44,7 @@ pub enum Subcmd {
     SetPricingProg(SetPricingProgArgs),
     SetRebalanceAuth(SetRebalanceAuthArgs),
     Sync(SyncArgs),
+    SyncAll(SyncAllArgs),
 }
 
 impl Subcmd {
@@ -63,6 +65,7 @@ impl Subcmd {
             Self::SetPricingProg(_) => SetPricingProgArgs::run(args).await,
             Self::SetRebalanceAuth(_) => SetRebalanceAuthArgs::run(args).await,
             Self::Sync(_) => SyncArgs::run(args).await,
+            Self::SyncAll(_) => SyncAllArgs::run(args).await,
         }
     }
 }
