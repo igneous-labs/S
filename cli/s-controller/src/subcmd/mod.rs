@@ -8,7 +8,7 @@ use self::{
     set_pricing_prog::SetPricingProgArgs, set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
     set_rebalance_auth::SetRebalanceAuthArgs, set_sol_value_calculator::SetSolValueCalculatorArgs,
-    sync::SyncArgs,
+    sync::SyncArgs, sync_all::SyncAllArgs,
 };
 
 mod add_disable_auth;
@@ -27,6 +27,7 @@ mod set_protocol_fee_beneficiary;
 mod set_rebalance_auth;
 mod set_sol_value_calculator;
 mod sync;
+mod sync_all;
 
 #[derive(Debug, Subcommand)]
 pub enum Subcmd {
@@ -46,6 +47,7 @@ pub enum Subcmd {
     SetSolValueCalculator(SetSolValueCalculatorArgs),
     SetRebalanceAuth(SetRebalanceAuthArgs),
     Sync(SyncArgs),
+    SyncAll(SyncAllArgs),
 }
 
 impl Subcmd {
@@ -67,6 +69,7 @@ impl Subcmd {
             Self::SetSolValueCalculator(_) => SetSolValueCalculatorArgs::run(args).await,
             Self::SetRebalanceAuth(_) => SetRebalanceAuthArgs::run(args).await,
             Self::Sync(_) => SyncArgs::run(args).await,
+            Self::SyncAll(_) => SyncAllArgs::run(args).await,
         }
     }
 }

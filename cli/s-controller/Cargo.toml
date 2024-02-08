@@ -23,6 +23,7 @@ s-cli-utils = { workspace = true }
 s-controller-lib = { workspace = true }
 sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+sanctum-token-lib = { workspace = true }
 solana-client = { workspace = true }
 solana-account-decoder = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
@@ -33,8 +34,10 @@ wsol-calculator-lib = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
+bincode = { workspace = true }
 cli-test-utils = { workspace = true }
 flat-fee = { workspace = true }
+generic_pool_calculator_interface = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli", "token"] }

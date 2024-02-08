@@ -3,7 +3,8 @@ use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 use std::{error::Error, str::FromStr};
 
 use crate::common::{
-    sol_val_calc_of_sanctum_lst, sol_value_calculator_accounts_of_sanctum_lst, SANCTUM_LST_LIST,
+    find_sanctum_lst_by_mint, sol_val_calc_of_sanctum_lst,
+    sol_value_calculator_accounts_of_sanctum_lst, SANCTUM_LST_LIST,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -15,10 +16,7 @@ pub enum LstArg {
 impl LstArg {
     pub fn parse_arg(arg: &str) -> Result<Self, Box<dyn Error + Send + Sync + 'static>> {
         if let Ok(mint) = Pubkey::from_str(arg) {
-            let res = SANCTUM_LST_LIST
-                .sanctum_lst_list
-                .iter()
-                .find(|lst| lst.mint == mint)
+            let res = find_sanctum_lst_by_mint(mint)
                 .map_or_else(|| Self::Unknown(mint), Self::SanctumLst);
             return Ok(res);
         }

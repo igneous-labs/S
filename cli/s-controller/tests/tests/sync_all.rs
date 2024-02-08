@@ -1,0 +1,29 @@
+use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
+use s_controller_test_utils::{jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs};
+use solana_sdk::{pubkey::Pubkey, signature::Keypair};
+
+use crate::common::{setup_with_payer, SctrProgramTest, TestSctrCmd};
+
+#[tokio::test(flavor = "multi_thread")]
+async fn sync_all_success_force() {
+    let payer = Keypair::new();
+    let pt = jito_marinade_no_fee_program_test(JitoMarinadeProgramTestArgs {
+        jitosol_sol_value: 1_000_000_000,
+        jitosol_reserves: 1_000_000_000,
+        msol_sol_value: 1_000_000_000,
+        msol_reserves: 1_000_000_000,
+        // dont cares
+        jitosol_protocol_fee_accumulator: 0,
+        msol_protocol_fee_accumulator: 0,
+        lp_token_mint: Pubkey::new_unique(),
+        lp_token_supply: 0,
+    })
+    .add_s_program();
+
+    let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_payer(pt, payer).await;
+
+    cmd.cmd_sync_all().arg("-f");
+    let exec_res = cmd.exec_b64_txs(&mut bc).await;
+    assert_all_txs_success_nonempty(&exec_res);
+    // TODO: check new synced sol values correct
+}

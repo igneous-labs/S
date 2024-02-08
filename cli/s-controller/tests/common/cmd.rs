@@ -44,6 +44,8 @@ pub trait TestSctrCmd {
     fn cmd_set_rebalance_auth(&mut self) -> &mut Self;
 
     fn cmd_sync(&mut self) -> &mut Self;
+
+    fn cmd_sync_all(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -109,5 +111,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_sync(&mut self) -> &mut Self {
         self.arg("sync")
+    }
+
+    fn cmd_sync_all(&mut self) -> &mut Self {
+        self.arg("sync-all")
     }
 }

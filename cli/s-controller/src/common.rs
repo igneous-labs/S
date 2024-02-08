@@ -89,3 +89,10 @@ pub fn sol_value_calculator_accounts_of_sanctum_lst(
         PoolInfo::Socean(_) => panic!("Socean sol val calc accounts todo"),
     }
 }
+
+pub fn find_sanctum_lst_by_mint(mint: Pubkey) -> Option<&'static SanctumLst> {
+    SANCTUM_LST_LIST
+        .sanctum_lst_list
+        .iter()
+        .find(|lst| lst.mint == mint)
+}
