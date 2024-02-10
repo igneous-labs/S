@@ -36,6 +36,13 @@ impl LstArg {
         }
     }
 
+    pub fn token_program(&self) -> Option<Pubkey> {
+        match self {
+            Self::SanctumLst(lst) => Some(lst.token_program),
+            Self::Unknown(_) => None,
+        }
+    }
+
     pub fn sol_val_calc_of(&self) -> Option<Pubkey> {
         match self {
             Self::SanctumLst(lst) => Some(sol_val_calc_of_sanctum_lst(lst)),
