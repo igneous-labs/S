@@ -48,6 +48,8 @@ pub trait TestSctrCmd {
     fn cmd_sync_all(&mut self) -> &mut Self;
 
     fn cmd_withdraw_protocol_fees(&mut self) -> &mut Self;
+
+    fn cmd_view(&mut self) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -121,5 +123,9 @@ impl TestSctrCmd for Command {
 
     fn cmd_withdraw_protocol_fees(&mut self) -> &mut Self {
         self.arg("withdraw-protocol-fees")
+    }
+
+    fn cmd_view(&mut self) -> &mut Self {
+        self.arg("view")
     }
 }

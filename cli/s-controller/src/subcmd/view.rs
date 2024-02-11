@@ -33,17 +33,13 @@ impl ViewArgs {
             .get_multiple_accounts(&[pool_state_addr, lst_state_list_addr])
             .await
             .unwrap();
-        let pool_state_acc = main_accs.pop().unwrap().unwrap();
         let lst_state_list_acc = main_accs.pop().unwrap().unwrap();
+        let pool_state_acc = main_accs.pop().unwrap().unwrap();
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        eprintln!("State:");
-        eprintln!("{:#?}", pool_state);
+        eprintln!("{pool_state:#?}");
         eprintln!();
-        eprintln!("LstStateList:");
-        eprintln!("{:#?}", lst_state_list);
-        eprintln!();
-        eprintln!("LST balances:");
+        eprintln!("{lst_state_list:#?}");
         eprintln!();
         let protocol_fee_id = find_protocol_fee_address(program_id).0;
         for lst_state in lst_state_list {
@@ -99,6 +95,9 @@ impl ViewArgs {
             eprintln!();
         }
         let lp_mint_acc = rpc.get_account(&pool_state.lp_token_mint).await.unwrap();
-        eprintln!("LP token supply: {}", mint_supply(lp_mint_acc).unwrap());
+        eprintln!(
+            "LP token supply: {}",
+            lamports_to_sol(mint_supply(lp_mint_acc).unwrap())
+        );
     }
 }
