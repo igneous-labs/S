@@ -22,6 +22,7 @@ async fn view_basic() {
     let (mut cmd, _cfg, _bc, _mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
 
     cmd.cmd_view();
-    let Output { stderr, .. } = cmd.output().unwrap();
-    eprintln!("{}", std::str::from_utf8(&stderr).unwrap());
+    let Output { stdout, status, .. } = cmd.output().unwrap();
+    assert!(status.success());
+    eprintln!("{}", std::str::from_utf8(&stdout).unwrap());
 }

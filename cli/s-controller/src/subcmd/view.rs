@@ -37,10 +37,10 @@ impl ViewArgs {
         let pool_state_acc = main_accs.pop().unwrap().unwrap();
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        eprintln!("{pool_state:#?}");
-        eprintln!();
-        eprintln!("{lst_state_list:#?}");
-        eprintln!();
+        println!("{pool_state:#?}");
+        println!();
+        println!("{lst_state_list:#?}");
+        println!();
         let protocol_fee_id = find_protocol_fee_address(program_id).0;
         for lst_state in lst_state_list {
             let LstState {
@@ -51,16 +51,16 @@ impl ViewArgs {
                 ..
             } = lst_state;
             let sanctum_lst_opt = find_sanctum_lst_by_mint(*mint);
-            eprintln!(
+            println!(
                 "{}:",
                 sanctum_lst_opt.map_or_else(|| mint.to_string(), |lst| lst.symbol.clone())
             );
-            eprintln!(
+            println!(
                 "is_input_disabled: {}",
                 U8Bool(*is_input_disabled).is_true()
             );
-            eprintln!("sol_value: {}", lamports_to_sol(*sol_value));
-            eprintln!("sol_value_calculator: {sol_value_calculator}");
+            println!("sol_value: {}", lamports_to_sol(*sol_value));
+            println!("sol_value_calculator: {sol_value_calculator}");
             let token_program = match sanctum_lst_opt {
                 Some(s) => std::future::ready(s.token_program).await,
                 None => async { rpc.get_account(mint).await.unwrap().owner }.await,
@@ -84,18 +84,18 @@ impl ViewArgs {
                 .unwrap();
             let protocol_fee_accum_acc = token_accs.pop().unwrap().unwrap();
             let reserves_acc = token_accs.pop().unwrap().unwrap();
-            eprintln!(
+            println!(
                 "reserves {reserves_addr}: {}",
                 lamports_to_sol(token_account_balance(reserves_acc).unwrap())
             );
-            eprintln!(
+            println!(
                 "protocol fees {protocol_fee_accum_addr}: {}",
                 lamports_to_sol(token_account_balance(protocol_fee_accum_acc).unwrap())
             );
-            eprintln!();
+            println!();
         }
         let lp_mint_acc = rpc.get_account(&pool_state.lp_token_mint).await.unwrap();
-        eprintln!(
+        println!(
             "LP token supply: {}",
             lamports_to_sol(mint_supply(lp_mint_acc).unwrap())
         );

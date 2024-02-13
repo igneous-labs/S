@@ -35,7 +35,8 @@ impl TestCliCmd for Command {
         mut self,
         mut bc: B,
     ) -> Vec<Result<BanksTransactionResultWithMetadata, BanksClientError>> {
-        let Output { stdout, .. } = self.output().unwrap();
+        let Output { stdout, status, .. } = self.output().unwrap();
+        assert!(status.success());
         let stdout = std::str::from_utf8(&stdout).unwrap();
         // run txs in sequence, waiting on result of the prev before exec-ing next
         let mut res = vec![];
