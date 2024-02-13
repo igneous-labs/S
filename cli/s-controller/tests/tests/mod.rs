@@ -15,4 +15,5 @@ mod set_rebalance_auth;
 mod set_sol_value_calculator;
 mod sync;
 mod sync_all;
+mod view;
 mod withdraw_protocol_fees;
