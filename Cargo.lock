@@ -3949,6 +3949,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "sanctum-spl-calculator"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "sanctum-misc-utils",
+ "sanctum-solana-test-utils",
+ "sanctum-token-ratio",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "spl-calculator-lib",
+ "spl_calculator_interface",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "sanctum-spl-stake-pool-keys"
 version = "1.0.0"
 dependencies = [
