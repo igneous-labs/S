@@ -98,7 +98,7 @@ pub struct SplLstSolCommonFreeArgsConst<
 impl<S: ReadonlyAccountPubkey + ReadonlyAccountData + ReadonlyAccountOwner>
     SplLstSolCommonFreeArgsConst<S>
 {
-    pub fn resolve(self) -> Result<LstSolCommonIntermediateKeys, GenericPoolCalculatorError> {
+    pub fn resolve_spl(self) -> Result<LstSolCommonIntermediateKeys, GenericPoolCalculatorError> {
         let stake_pool = deserialize_spl_stake_pool_checked(&self.spl_stake_pool)?;
         Ok(LstSolCommonIntermediateKeys {
             lst_mint: stake_pool.pool_mint,
@@ -106,11 +106,30 @@ impl<S: ReadonlyAccountPubkey + ReadonlyAccountData + ReadonlyAccountOwner>
         })
     }
 
-    pub fn resolve_to_account_metas(
+    pub fn resolve_spl_to_account_metas(
         self,
     ) -> Result<[AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN], GenericPoolCalculatorError> {
-        let keys = self.resolve()?;
+        let keys = self.resolve_spl()?;
         Ok(resolve_to_account_metas_for_calc::<SplSolValCalc>(keys))
+    }
+
+    pub fn resolve_sanctum_spl(
+        self,
+    ) -> Result<LstSolCommonIntermediateKeys, GenericPoolCalculatorError> {
+        let stake_pool = deserialize_sanctum_spl_stake_pool_checked(&self.spl_stake_pool)?;
+        Ok(LstSolCommonIntermediateKeys {
+            lst_mint: stake_pool.pool_mint,
+            pool_state: *self.spl_stake_pool.pubkey(),
+        })
+    }
+
+    pub fn resolve_sanctum_spl_to_account_metas(
+        self,
+    ) -> Result<[AccountMeta; LST_TO_SOL_IX_ACCOUNTS_LEN], GenericPoolCalculatorError> {
+        let keys = self.resolve_sanctum_spl()?;
+        Ok(resolve_to_account_metas_for_calc::<SanctumSplSolValCalc>(
+            keys,
+        ))
     }
 }
 

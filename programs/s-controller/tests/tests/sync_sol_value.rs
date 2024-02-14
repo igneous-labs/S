@@ -67,7 +67,9 @@ async fn basic() {
 
     let ix = sync_sol_value_ix_by_mint_full(
         free_args,
-        &jito_sol_val_calc_args.resolve_to_account_metas().unwrap(),
+        &jito_sol_val_calc_args
+            .resolve_spl_to_account_metas()
+            .unwrap(),
         spl_calculator_lib::program::ID,
     )
     .unwrap();

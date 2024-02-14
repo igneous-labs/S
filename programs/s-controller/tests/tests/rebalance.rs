@@ -68,7 +68,7 @@ fn create_rebalance_donate_ixs(
             account: jito_stake_pool_acc,
         },
     }
-    .resolve_to_account_metas()
+    .resolve_spl_to_account_metas()
     .unwrap();
 
     let marinade_sol_val_calc_accounts = marinade_sol_val_calc_account_metas();
@@ -281,7 +281,7 @@ async fn rebalance_fail_no_end() {
             account: jito_stake_pool_acc,
         },
     }
-    .resolve_to_account_metas()
+    .resolve_spl_to_account_metas()
     .unwrap();
 
     let marinade_sol_val_calc_accounts = marinade_sol_val_calc_account_metas();
