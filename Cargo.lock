@@ -1735,25 +1735,34 @@ name = "generic-pool-calculator-cli"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
+ "borsh 0.10.3",
  "clap 4.4.18",
  "cli-test-utils",
+ "data-encoding",
  "generic-pool-calculator-lib",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
+ "lido-calculator-lib",
+ "marinade-calculator-lib",
  "s-cli-utils",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
+ "sanctum-token-ratio",
  "solana-account-decoder",
+ "solana-client",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-rpc-client-api",
  "solana-sdk",
+ "solana-transaction-status",
  "spl-calculator",
  "spl-calculator-lib",
  "spl-stake-pool-keys",
  "test-utils",
  "tokio",
+ "wsol-calculator-lib",
 ]
 
 [[package]]
@@ -3945,6 +3954,28 @@ dependencies = [
  "solana-version",
  "spl-token",
  "tempfile",
+ "tokio",
+]
+
+[[package]]
+name = "sanctum-spl-calculator"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "sanctum-misc-utils",
+ "sanctum-solana-test-utils",
+ "sanctum-token-ratio",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "spl-calculator-lib",
+ "spl_calculator_interface",
+ "test-utils",
  "tokio",
 ]
 

@@ -16,9 +16,8 @@ pub mod program {
     );
 }
 
-/// TODO: set actual initial manager
 pub mod initial_manager {
-    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+    sanctum_macros::declare_program_keys!("CK9cEJT7K7oRrMCcEbBQRGqHLGpxKXWnKvW7nHSDMHD1", []);
 }
 
 pub struct MarinadeSolValCalc;

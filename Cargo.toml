@@ -65,6 +65,7 @@ solana-program = "^1"
 solana-program-test = "^1"
 solana-rpc-client-api = "^1"
 solana-sdk = "^1"
+solana-transaction-status = "^1"
 
 # sanctum-solana-utils
 # TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor

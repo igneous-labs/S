@@ -47,16 +47,24 @@ pub async fn setup(pt: ProgramTest) -> (Command, TempCliConfig, BanksClient, Key
 pub trait TestGpcCmd {
     fn with_spl_calculator(&mut self) -> &mut Self;
 
+    fn with_spl_calculator_str(&mut self) -> &mut Self;
+
     fn cmd_init(&mut self) -> &mut Self;
 
     fn cmd_set_manager(&mut self) -> &mut Self;
 
     fn cmd_update_last_upgrade_slot(&mut self) -> &mut Self;
+
+    fn cmd_view(&mut self) -> &mut Self;
 }
 
 impl TestGpcCmd for Command {
     fn with_spl_calculator(&mut self) -> &mut Self {
         self.arg(spl_calculator_lib::program::ID_STR)
+    }
+
+    fn with_spl_calculator_str(&mut self) -> &mut Self {
+        self.arg("spl")
     }
 
     fn cmd_init(&mut self) -> &mut Self {
@@ -69,5 +77,9 @@ impl TestGpcCmd for Command {
 
     fn cmd_update_last_upgrade_slot(&mut self) -> &mut Self {
         self.arg("update-last-upgrade-slot")
+    }
+
+    fn cmd_view(&mut self) -> &mut Self {
+        self.arg("view")
     }
 }

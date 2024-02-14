@@ -37,7 +37,7 @@ async fn jito_basic() {
         spl_stake_pool: jito_stake_pool,
         spl_stake_pool_prog,
     };
-    let (intermediate, _stake_pool) = free_args.resolve().unwrap();
+    let (intermediate, _stake_pool) = free_args.resolve_spl().unwrap();
     let accounts: SolToLstKeys = intermediate.resolve::<SplSolValCalc>().unwrap().into();
 
     let ix = spl_sol_to_lst_ix(

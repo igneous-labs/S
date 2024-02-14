@@ -92,7 +92,7 @@ async fn basic_add_liquidity_twice_no_fee() {
                 account: jito_stake_pool_acc,
             },
         }
-        .resolve_to_account_metas()
+        .resolve_spl_to_account_metas()
         .unwrap(),
         pricing_program_id: no_fee_pricing_program::ID,
         pricing_program_accounts: &[AccountMeta {
@@ -436,7 +436,7 @@ async fn fail_add_liquidity_slippage() {
                     account: jito_stake_pool_acc,
                 },
             }
-            .resolve_to_account_metas()
+            .resolve_spl_to_account_metas()
             .unwrap(),
             pricing_program_price_lp_accounts: &[AccountMeta {
                 pubkey: jitosol::ID,

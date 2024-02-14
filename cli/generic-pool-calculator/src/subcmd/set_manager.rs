@@ -34,7 +34,7 @@ impl SetManagerArgs {
         };
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
-        let program_id = args.program;
+        let program_id = args.program.program_id();
 
         let curr_manager_signer = curr_manager.map(|s| parse_signer(&s).unwrap());
         let curr_manager = curr_manager_signer.as_ref().unwrap_or(&payer);

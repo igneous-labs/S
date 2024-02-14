@@ -8,15 +8,25 @@ name = "gpc"
 path = "src/main.rs"
 
 [dependencies]
+borsh = { workspace = true }
 clap = { workspace = true }
+data-encoding = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
+lido-calculator-lib = { workspace = true }
+marinade-calculator-lib = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+sanctum-token-ratio = { workspace = true, features = ["borsh"] }
 solana-account-decoder = { workspace = true }
+solana-client = { workspace = true }
 solana-rpc-client-api = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] } # needed for trait bounds on Account
 solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+spl-calculator-lib = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
+wsol-calculator-lib = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
