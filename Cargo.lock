@@ -1747,6 +1747,7 @@ dependencies = [
  "solana-account-decoder",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-rpc-client-api",
  "solana-sdk",
  "spl-calculator",

@@ -12,7 +12,7 @@ use generic_pool_calculator_lib::{
     utils::{read_stake_pool_progdata_meta, try_calculator_state},
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
-use solana_account_decoder::UiDataSliceConfig;
+use solana_account_decoder::{UiAccountEncoding, UiDataSliceConfig};
 use solana_rpc_client_api::config::RpcAccountInfoConfig;
 use solana_sdk::{
     bpf_loader_upgradeable,
@@ -77,6 +77,9 @@ impl UpdateLastUpgradeSlotArgs {
                         offset: 0,
                         length: bpf_loader_upgradeable::UpgradeableLoaderState::size_of_programdata_metadata(),
                     }),
+                    // must use base64 otherwise `Encoded binary (base 58) data should be less than 128 bytes, please use Base64 encoding.`
+                    // idk why base64 isnt default
+                    encoding: Some(UiAccountEncoding::Base64),
                     ..Default::default()
                 },
             )
