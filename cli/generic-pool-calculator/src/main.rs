@@ -4,10 +4,10 @@ use clap::{
 };
 use s_cli_utils::{CONFIG_HELP, TX_SEND_MODE_HELP};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
-use solana_sdk::pubkey::Pubkey;
-use std::str::FromStr;
+use sol_val_calc_arg::SolValCalcArg;
 use tokio::runtime::Runtime;
 
+mod sol_val_calc_arg;
 mod subcmd;
 
 use subcmd::Subcmd;
@@ -38,10 +38,10 @@ pub struct Args {
     pub send_mode: TxSendMode,
 
     #[arg(
-        help = "program ID of the generic stake pool SOL value calculator program",
-        value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
+        help = SolValCalcArg::HELP_STR,
+        value_parser = StringValueParser::new().try_map(|s| SolValCalcArg::parse_arg(&s)),
     )]
-    pub program: Pubkey,
+    pub program: SolValCalcArg,
 
     #[command(subcommand)]
     pub subcmd: Subcmd,

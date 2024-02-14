@@ -14,7 +14,7 @@ impl ViewArgs {
             _ => unreachable!(),
         };
         let rpc = args.config.nonblocking_rpc_client();
-        let program_id = args.program;
+        let program_id = args.program.program_id();
         let state_pda = CalculatorStateFindPdaArgs { program_id }
             .get_calculator_state_address_and_bump_seed()
             .0;

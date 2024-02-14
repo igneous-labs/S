@@ -18,13 +18,11 @@ impl InitArgs {
     pub async fn run(args: crate::Args) {
         let signer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
-        let program = args.program;
+        let program_id = args.program.program_id();
 
-        let state_pda = CalculatorStateFindPdaArgs {
-            program_id: program,
-        }
-        .get_calculator_state_address_and_bump_seed()
-        .0;
+        let state_pda = CalculatorStateFindPdaArgs { program_id }
+            .get_calculator_state_address_and_bump_seed()
+            .0;
 
         let state = rpc
             .get_account_with_commitment(&state_pda, CommitmentConfig::default())
@@ -38,11 +36,11 @@ impl InitArgs {
         }
 
         let ix = init_ix_with_program_id(
-            program,
+            program_id,
             InitFreeArgs {
                 payer: signer.pubkey(),
             }
-            .resolve_for_prog(program),
+            .resolve_for_prog(program_id),
         )
         .unwrap();
 

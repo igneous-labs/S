@@ -1740,6 +1740,8 @@ dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-test-utils",
  "generic_pool_calculator_interface",
+ "lido-calculator-lib",
+ "marinade-calculator-lib",
  "s-cli-utils",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
@@ -1755,6 +1757,7 @@ dependencies = [
  "spl-stake-pool-keys",
  "test-utils",
  "tokio",
+ "wsol-calculator-lib",
 ]
 
 [[package]]
