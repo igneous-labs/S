@@ -87,11 +87,11 @@ Given an input LP token amount and its SOL value, calculate the SOL value of the
 
 #### Data
 
-| Name         | Value                                  | Type |
-| ------------ | -------------------------------------- | ---- |
-| discriminant | 1                                      | u8   |
-| amount       | amount of LST to redeem into           | u64  |
-| sol_value    | SOL value of amount LST to redeem into | u64  |
+| Name         | Value                        | Type |
+| ------------ | ---------------------------- | ---- |
+| discriminant | 1                            | u8   |
+| amount       | amount of the input LP       | u64  |
+| sol_value    | SOL value of amount input LP | u64  |
 
 #### Return Data
 
