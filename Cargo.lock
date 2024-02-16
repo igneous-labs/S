@@ -1537,18 +1537,23 @@ dependencies = [
  "assert_cmd",
  "clap 4.4.18",
  "cli-test-utils",
+ "data-encoding",
  "flat-fee",
  "flat-fee-lib",
  "flat-fee-test-utils",
  "flat_fee_interface",
+ "lazy_static",
  "s-cli-utils",
+ "sanctum-lst-list",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
+ "solana-client",
  "solana-program",
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "solana-transaction-status",
  "test-utils",
  "tokio",
 ]
@@ -3870,7 +3875,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?rev=9242acc#9242accf1102a4dec00161035a9a1b4246c19459"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?rev=70e955f#70e955fd8910a7306c0637b14ee70ed9b8888f16"
 dependencies = [
  "sanctum-macros",
  "serde",

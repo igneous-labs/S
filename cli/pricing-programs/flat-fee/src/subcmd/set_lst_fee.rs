@@ -1,15 +1,20 @@
-use clap::Args;
+use clap::{
+    builder::{StringValueParser, TypedValueParser},
+    Args,
+};
 use flat_fee_interface::{set_lst_fee_ix_with_program_id, SetLstFeeIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetLstFeeByMintFreeArgs, pda::ProgramStateFindPdaArgs,
     utils::try_program_state,
 };
-use sanctum_solana_cli_utils::{parse_pubkey_src, parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     transaction::VersionedTransaction,
 };
+
+use crate::lst_arg::LstArg;
 
 use super::{common::verify_manager, Subcmd};
 
@@ -23,8 +28,11 @@ pub struct SetLstFeeArgs {
     )]
     pub manager: Option<String>,
 
-    #[arg(help = "The mint of LST")]
-    pub lst_mint: String,
+    #[arg(
+        help = "Mint of the LST to set fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
+        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+    )]
+    pub lst_mint: LstArg,
 
     #[arg(help = "Fee in bips to impose when the LST is used as input")]
     pub input_fee_bps: i16,
@@ -58,12 +66,10 @@ impl SetLstFeeArgs {
         let state = try_program_state(&state_acc.data).unwrap();
         verify_manager(state, manager.pubkey()).unwrap();
 
-        let lst_mint = parse_pubkey_src(&lst_mint).unwrap().pubkey();
-
         let ix = set_lst_fee_ix_with_program_id(
             program_id,
             SetLstFeeByMintFreeArgs {
-                lst_mint,
+                lst_mint: lst_mint.mint(),
                 state_acc: KeyedAccount {
                     pubkey: state_pda,
                     account: state_acc,

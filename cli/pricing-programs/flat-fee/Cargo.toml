@@ -4,17 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "flat-fee-cli"
+name = "flt"
 path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
+data-encoding = { workspace = true }
 flat_fee_interface = { workspace = true }
 flat-fee-lib = { workspace = true }
+lazy_static = { workspace = true }
 s-cli-utils = { workspace = true }
+sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+solana-client = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 
 [dev-dependencies]

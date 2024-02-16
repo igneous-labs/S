@@ -1,4 +1,7 @@
-use clap::Args;
+use clap::{
+    builder::{StringValueParser, TypedValueParser},
+    Args,
+};
 use flat_fee_interface::remove_lst_ix_with_program_id;
 use flat_fee_lib::{
     account_resolvers::RemoveLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
@@ -9,6 +12,8 @@ use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     transaction::VersionedTransaction,
 };
+
+use crate::lst_arg::LstArg;
 
 use super::{common::verify_manager, Subcmd};
 
@@ -22,8 +27,11 @@ pub struct RemoveLstArgs {
     )]
     pub manager: Option<String>,
 
-    #[arg(help = "The mint of the LST to remove")]
-    pub lst_mint: String,
+    #[arg(
+        help = "Mint of the LST to remove. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
+        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+    )]
+    pub lst_mint: LstArg,
 
     #[arg(help = "Account to refund SOL rent to")]
     pub refund_rent_to: String,
@@ -53,14 +61,13 @@ impl RemoveLstArgs {
         let state = try_program_state(&state_acc.data).unwrap();
         verify_manager(state, manager.pubkey()).unwrap();
 
-        let lst_mint = parse_pubkey_src(&lst_mint).unwrap();
         let refund_rent_to = parse_pubkey_src(&refund_rent_to).unwrap();
 
         let ix = remove_lst_ix_with_program_id(
             program_id,
             RemoveLstFreeArgs {
                 refund_rent_to: refund_rent_to.pubkey(),
-                lst_mint: lst_mint.pubkey(),
+                lst_mint: lst_mint.mint(),
                 state_acc: KeyedAccount {
                     pubkey: state_pda,
                     account: state_acc,
