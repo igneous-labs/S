@@ -29,9 +29,8 @@ pub mod initial_constants {
         #[cfg(feature = "testing")]
         sanctum_macros::declare_program_keys!("J5aMuYiKNHUzMTpUS85413DxxvDVjNXs63EXW5twG1Mx", []);
 
-        // TODO: set actual initial authority key
         #[cfg(not(feature = "testing"))]
-        sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+        sanctum_macros::declare_program_keys!("CK9cEJT7K7oRrMCcEbBQRGqHLGpxKXWnKvW7nHSDMHD1", []);
     }
 
     pub const INITIAL_LP_WITHDRAWAL_FEE_BPS: u16 = 5;

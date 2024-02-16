@@ -4,3 +4,5 @@ mod remove_lst;
 mod set_lp_withdrawal_fee;
 mod set_lst_fee;
 mod set_manager;
+mod view;
+mod view_lst;

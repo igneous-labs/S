@@ -72,6 +72,12 @@ solana-verify build
 
 ### Mainnet Program Hashes
 
+#### Flat Fee Pricing Program
+
+```
+b09e282d68af7534a46006c8e995f55c2766b4bf7d1d3e08c88abf0b449f72a6
+```
+
 #### SPL SOL Value Calculator
 
 ```
