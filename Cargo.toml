@@ -18,6 +18,7 @@ members = [
     "programs/pricing-programs/*",
     "programs/s-controller",
     "programs/sol-value-calculator-programs/*",
+    "socean-migration",
     "test-utils",
 ]
 
@@ -39,7 +40,7 @@ lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
-sanctum-macros = "^1"
+sanctum-macros = "^1.2"
 serde = "^1"
 serde_json = "^1"
 spl-pod = ">=0.1.0"

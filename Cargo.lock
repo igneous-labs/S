@@ -3886,9 +3886,9 @@ dependencies = [
 
 [[package]]
 name = "sanctum-macros"
-version = "1.0.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2798eaa062e9d5a3aebde36c23f8c7a368898c41367afe4af2ca9c6970bec1b0"
+checksum = "23668fc5661fe63573abfbb823e3bfe246d3939dafbf56d361a9b3dbea72fa0d"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -4330,6 +4330,17 @@ name = "smallvec"
 version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
+
+[[package]]
+name = "socean-migration"
+version = "0.1.0"
+dependencies = [
+ "s-controller-lib",
+ "sanctum-macros",
+ "sanctum-misc-utils",
+ "solana-program",
+ "spl-token",
+]
 
 [[package]]
 name = "socket2"

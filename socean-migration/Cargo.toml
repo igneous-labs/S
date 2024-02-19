@@ -1,0 +1,17 @@
+[package]
+name = "socean-migration"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+testing = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+s-controller-lib = { workspace = true }
+sanctum-macros = { workspace = true }
+sanctum-misc-utils = { workspace = true }
+solana-program = { workspace = true }
+spl-token = { workspace = true }
