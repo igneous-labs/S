@@ -37,6 +37,7 @@ bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
 lazy_static = "^1"
+mpl-token-metadata = "^4"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
@@ -75,6 +76,7 @@ sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-uti
 sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3", features = ["clap"] }
 sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
+stake_program_interface = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" } 
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
