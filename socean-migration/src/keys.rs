@@ -129,3 +129,9 @@ pub mod spl_stake_pool_program {
         ]
     );
 }
+
+// The hard-coded authority to take the ownership of the DOS'd VSAs
+pub mod designated_stake_authority {
+    // TODO: Set this to actual auth pubkey
+    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+}
