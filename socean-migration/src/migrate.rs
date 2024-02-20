@@ -2,6 +2,8 @@
 //! - All validators except laine removed from SPL pool. Use remove-stake to achieve this.
 //! - All SOL is staked to laine (no SOL except rent-exempt reserves in SPL pool reserves). Use remove-stake to remove SPL pool reserves once reserves is empty.
 //! - Validator List and Pool has enough SOL rent to pay for new accounts' rent (definitely, since our validator list is huge)
+//! - migrate_auth must have enough SOL to pay for rent of new S pool state and lst state list first.
+//!   We can only close the SPL stake pool accounts and refund the rent SOL last because the runtime sucks.  
 
 use mpl_token_metadata::{
     instructions::{
@@ -57,7 +59,7 @@ const INFSOL_SYMBOL: &str = "infSOL";
 // TODO: set actual metadata URI
 const INFSOL_METADATA_URI: &str = "https://google.com";
 
-pub const MIGRATE_ACCOUNTS_LEN: usize = 29;
+pub const MIGRATE_ACCOUNTS_LEN: usize = 30;
 
 pub struct MigrateKeys {
     pub spl_pool: Pubkey,
@@ -89,6 +91,197 @@ pub struct MigrateKeys {
     pub lainesol_withdraw_auth: Pubkey,
     pub lainesol_stake_reserves: Pubkey,
     pub lainesol_fee_dest: Pubkey,
+    pub ata_program: Pubkey,
+}
+
+impl From<MigrateKeys> for [AccountMeta; MIGRATE_ACCOUNTS_LEN] {
+    fn from(
+        MigrateKeys {
+            spl_pool,
+            spl_validator_list,
+            metadata_pda,
+            metadata_update_authority,
+            s_pool_state,
+            s_lst_state_list,
+            s_protocol_fee,
+            lainesol_reserves,
+            lainesol_protocol_fee_accum,
+            scnsol_mint,
+            socean_withdraw_auth,
+            lainesol_mint,
+            token_metadata_program,
+            stake_program,
+            token_program,
+            system_program,
+            rent,
+            migrate_auth,
+            spl_stake_pool_prog,
+            socean_laine_vsa,
+            lainesol_stake_pool,
+            lainesol_validator_list,
+            lainesol_vsa,
+            clock,
+            stake_history,
+            lainesol_deposit_auth,
+            lainesol_withdraw_auth,
+            lainesol_stake_reserves,
+            lainesol_fee_dest,
+            ata_program,
+        }: MigrateKeys,
+    ) -> Self {
+        [
+            AccountMeta {
+                pubkey: spl_pool,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: spl_validator_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: metadata_pda,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: metadata_update_authority,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: s_pool_state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: s_lst_state_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: s_protocol_fee,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: lainesol_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: lainesol_protocol_fee_accum,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: scnsol_mint,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: socean_withdraw_auth,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: lainesol_mint,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: token_metadata_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: stake_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: system_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: rent,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: migrate_auth,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: spl_stake_pool_prog,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: socean_laine_vsa,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: lainesol_stake_pool,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: lainesol_validator_list,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: lainesol_vsa,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: clock,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: stake_history,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: lainesol_deposit_auth,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: lainesol_withdraw_auth,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: lainesol_stake_reserves,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: lainesol_fee_dest,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: ata_program,
+                is_signer: false,
+                is_writable: false,
+            },
+        ]
+    }
 }
 
 pub const MIGRATE_KEYS: MigrateKeys = MigrateKeys {
@@ -121,6 +314,7 @@ pub const MIGRATE_KEYS: MigrateKeys = MigrateKeys {
     lainesol_withdraw_auth: LAINESOL_WITHDRAW_AUTH_ID,
     lainesol_stake_reserves: lainesol_stake_reserves::ID,
     lainesol_fee_dest: lainesol_fee_dest::ID,
+    ata_program: spl_associated_token_account::ID,
 };
 
 pub struct MigrateAccounts<'me, 'info> {
@@ -153,6 +347,7 @@ pub struct MigrateAccounts<'me, 'info> {
     pub lainesol_withdraw_auth: &'me AccountInfo<'info>,
     pub lainesol_stake_reserves: &'me AccountInfo<'info>,
     pub lainesol_fee_dest: &'me AccountInfo<'info>,
+    pub ata_program: &'me AccountInfo<'info>,
 }
 
 impl MigrateAccounts<'_, '_> {
@@ -205,6 +400,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; MIGRATE_ACCOUNTS_LEN]>
         lainesol_withdraw_auth,
         lainesol_stake_reserves,
         lainesol_fee_dest,
+        ata_program,
     ]: &'me [AccountInfo<'info>; MIGRATE_ACCOUNTS_LEN],
     ) -> Self {
         Self {
@@ -237,6 +433,7 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; MIGRATE_ACCOUNTS_LEN]>
             lainesol_withdraw_auth,
             lainesol_stake_reserves,
             lainesol_fee_dest,
+            ata_program,
         }
     }
 }
@@ -253,19 +450,17 @@ fn metadata() -> DataV2 {
     }
 }
 
+pub fn migrate_ix() -> Instruction {
+    Instruction {
+        program_id: s_controller_lib::program::ID,
+        accounts: Vec::from(<[AccountMeta; MIGRATE_ACCOUNTS_LEN]>::from(MIGRATE_KEYS)),
+        data: vec![0],
+    }
+}
+
 pub fn process_migrate(accounts: &[AccountInfo]) -> ProgramResult {
     let accounts: MigrateAccounts = load_accounts(accounts)?;
     accounts.verify()?;
-
-    // Close validator list and stake pool
-    close_account(CloseAccountAccounts {
-        refund_rent_to: accounts.migrate_auth,
-        close: accounts.spl_pool,
-    })?;
-    close_account(CloseAccountAccounts {
-        refund_rent_to: accounts.migrate_auth,
-        close: accounts.spl_validator_list,
-    })?;
 
     // Update scnSOL metadata to infSOL + metadata update auth
     UpdateMetadataAccountV2Cpi::new(
@@ -286,16 +481,16 @@ pub fn process_migrate(accounts: &[AccountInfo]) -> ProgramResult {
     // Create new laineSOL ATAs
     create_ata_invoke(CreateAtaAccounts {
         ata_to_create: accounts.lainesol_reserves,
-        payer: accounts.migrate_auth,
         wallet: accounts.s_pool_state,
+        payer: accounts.migrate_auth,
         mint: accounts.lainesol_mint,
         system_program: accounts.system_program,
         token_program: accounts.token_program,
     })?;
     create_ata_invoke(CreateAtaAccounts {
         ata_to_create: accounts.lainesol_protocol_fee_accum,
+        wallet: accounts.s_protocol_fee,
         payer: accounts.migrate_auth,
-        wallet: accounts.s_pool_state,
         mint: accounts.lainesol_mint,
         system_program: accounts.system_program,
         token_program: accounts.token_program,
@@ -507,6 +702,18 @@ pub fn process_migrate(accounts: &[AccountInfo]) -> ProgramResult {
         is_input_disabled: 0,
         padding: [0u8; 5],
     };
+
+    // Close validator list and stake pool.
+    // Must do last to avoid
+    // https://github.com/solana-labs/solana/issues/9711
+    close_account(CloseAccountAccounts {
+        refund_rent_to: accounts.migrate_auth,
+        close: accounts.spl_pool,
+    })?;
+    close_account(CloseAccountAccounts {
+        refund_rent_to: accounts.migrate_auth,
+        close: accounts.spl_validator_list,
+    })?;
 
     Ok(())
 }
