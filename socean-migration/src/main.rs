@@ -22,6 +22,13 @@ pub struct Args {
     #[arg(
         long,
         short,
+        help = "The migrate authority signer. Defaults to config wallet if not set."
+    )]
+    pub migrate_auth: Option<String>,
+
+    #[arg(
+        long,
+        short,
         help = "Transaction send mode.
 - send-actual: signs and sends the tx to the cluster specified in config and outputs hash to stderr
 - sim-only: simulates the tx against the cluster and outputs logs to stderr
