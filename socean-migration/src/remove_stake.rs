@@ -3,8 +3,12 @@
 
 use sanctum_misc_utils::load_accounts;
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
-    pubkey::Pubkey, stake, sysvar,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
+    instruction::{AccountMeta, Instruction},
+    program_error::ProgramError,
+    pubkey::Pubkey,
+    stake, sysvar,
 };
 use stake_program_interface::{AuthorizeAccounts, AuthorizeIxArgs, StakeAuthorize};
 
@@ -26,6 +30,40 @@ pub struct RemoveStakeKeys {
     pub clock: Pubkey,
 }
 
+impl From<RemoveStakeKeys> for [AccountMeta; REMOVE_STAKE_ACCOUNTS_LEN - 1] {
+    fn from(
+        RemoveStakeKeys {
+            migrate_auth,
+            socean_withdraw_auth,
+            stake_program,
+            clock,
+        }: RemoveStakeKeys,
+    ) -> Self {
+        [
+            AccountMeta {
+                pubkey: migrate_auth,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: socean_withdraw_auth,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: stake_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: clock,
+                is_signer: false,
+                is_writable: false,
+            },
+        ]
+    }
+}
+
 pub const REMOVE_STAKE_KEYS: RemoveStakeKeys = RemoveStakeKeys {
     migrate_auth: migrate_auth::ID,
     socean_withdraw_auth: socean_program::WITHDRAW_AUTH_ID,
@@ -37,8 +75,8 @@ pub struct RemoveStakeAccounts<'me, 'info> {
     pub migrate_auth: &'me AccountInfo<'info>,
     pub socean_withdraw_auth: &'me AccountInfo<'info>,
     pub stake_program: &'me AccountInfo<'info>,
-    pub validator_stake_account: &'me AccountInfo<'info>,
     pub clock: &'me AccountInfo<'info>,
+    pub validator_stake_account: &'me AccountInfo<'info>,
 }
 
 impl RemoveStakeAccounts<'_, '_> {
@@ -62,17 +100,33 @@ impl<'me, 'info> From<&'me [AccountInfo<'info>; REMOVE_STAKE_ACCOUNTS_LEN]>
             migrate_auth,
             socean_withdraw_auth,
             stake_program,
-            validator_stake_account,
             clock,
+            validator_stake_account,
         ]: &'me [AccountInfo<'info>; REMOVE_STAKE_ACCOUNTS_LEN],
     ) -> Self {
         Self {
             migrate_auth,
             socean_withdraw_auth,
             stake_program,
-            validator_stake_account,
             clock,
+            validator_stake_account,
         }
+    }
+}
+
+pub fn remove_stake_ix(validator_stake_account: Pubkey) -> Instruction {
+    let mut accounts = Vec::from(<[AccountMeta; REMOVE_STAKE_ACCOUNTS_LEN - 1]>::from(
+        REMOVE_STAKE_KEYS,
+    ));
+    accounts.push(AccountMeta {
+        pubkey: validator_stake_account,
+        is_signer: false,
+        is_writable: true,
+    });
+    Instruction {
+        program_id: s_controller_lib::program::ID,
+        accounts,
+        data: vec![1],
     }
 }
 

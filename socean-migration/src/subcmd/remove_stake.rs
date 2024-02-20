@@ -5,6 +5,7 @@ use clap::{
     Args,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use socean_migration::remove_stake_ix;
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
@@ -26,7 +27,7 @@ pub struct RemoveStakeArgs {
 impl RemoveStakeArgs {
     pub async fn run(args: crate::Args) {
         let Self {
-            validator_stake_account: _,
+            validator_stake_account,
         } = match args.subcmd {
             Subcmd::RemoveStake(a) => a,
             _ => unreachable!(),
@@ -41,12 +42,11 @@ impl RemoveStakeArgs {
         let mut signers = vec![payer.as_ref(), auth.as_ref()];
         signers.dedup();
 
-        //let ix = ;
+        let ix = remove_stake_ix(validator_stake_account);
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
         let tx = VersionedTransaction::try_new(
-            // VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[], &[], rbh).unwrap()),
+            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
             &signers,
         )
         .unwrap();
