@@ -34,3 +34,4 @@ tokio = { workspace = true }
 s-controller-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
 sanctum-solana-test-utils = { workspace = true }
+bincode = { workspace = true }
