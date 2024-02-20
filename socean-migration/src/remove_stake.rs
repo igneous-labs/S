@@ -8,7 +8,7 @@ use solana_program::{
 };
 use stake_program_interface::{AuthorizeAccounts, AuthorizeIxArgs, StakeAuthorize};
 
-use crate::keys::{designated_stake_authority, migrate_auth, socean_program};
+use crate::keys::{migrate_auth, socean_program};
 
 // TODO: move this, share with migrate
 const SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS: &[&[&[u8]]] = &[&[
@@ -87,7 +87,7 @@ pub fn process_remove_stake(accounts: &[AccountInfo]) -> ProgramResult {
             authority: accounts.socean_withdraw_auth,
         },
         AuthorizeIxArgs {
-            new_authority: designated_stake_authority::ID,
+            new_authority: *accounts.migrate_auth.key,
             stake_authorize: StakeAuthorize::Withdrawer,
         },
         SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS,
