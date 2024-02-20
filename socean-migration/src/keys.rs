@@ -1,10 +1,6 @@
 pub mod scnsol_metadata_update_auth {
     // TODO: Set this to actual metadata update authority pubkey
-    #[cfg(not(feature = "testing"))]
     sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
-
-    #[cfg(feature = "testing")]
-    sanctum_macros::declare_program_keys!("CK9cEJT7K7oRrMCcEbBQRGqHLGpxKXWnKvW7nHSDMHD1", []);
 }
 
 /// Signer of the migrate instruction.
@@ -14,8 +10,9 @@ pub mod migrate_auth {
     #[cfg(not(feature = "testing"))]
     sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
 
+    // s-controller-test-initial-authority-key.json
     #[cfg(feature = "testing")]
-    sanctum_macros::declare_program_keys!("CK9cEJT7K7oRrMCcEbBQRGqHLGpxKXWnKvW7nHSDMHD1", []);
+    sanctum_macros::declare_program_keys!("9S3avfRxH9RYbMHbvxnhwiwpdF9iuXG7uWiatqWvQskT", []);
 }
 
 pub mod socean_spl_pool {

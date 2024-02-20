@@ -4350,18 +4350,24 @@ version = "0.1.0"
 dependencies = [
  "mpl-token-metadata",
  "s-controller-lib",
+ "s-controller-test-utils",
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-macros",
  "sanctum-misc-utils",
+ "sanctum-solana-test-utils",
  "sanctum-system-program-lib",
  "sanctum-token-lib",
  "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "spl-associated-token-account",
  "spl-calculator-lib",
  "spl-token",
  "spl-token-2022 1.0.0",
  "stake_program_interface",
  "system_program_interface",
+ "tokio",
 ]
 
 [[package]]

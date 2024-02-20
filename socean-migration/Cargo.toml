@@ -19,8 +19,16 @@ sanctum-misc-utils = { workspace = true }
 sanctum-system-program-lib = { workspace = true }
 sanctum-token-lib = { workspace = true }
 solana-program = { workspace = true }
+spl-associated-token-account = { workspace = true }
 spl-calculator-lib = { workspace = true }
 spl-token = { workspace = true }
 spl-token-2022 = { workspace = true }
 stake_program_interface = { workspace = true }
 system_program_interface = { workspace = true }
+
+[dev-dependencies]
+s-controller-test-utils = { workspace = true }
+solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
+sanctum-solana-test-utils = { workspace = true }
+tokio = { workspace = true }

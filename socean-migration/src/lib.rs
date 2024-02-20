@@ -2,6 +2,10 @@ mod keys;
 mod migrate;
 mod remove_stake;
 
+// re-exports
+pub use keys::*;
+pub use migrate::migrate_ix;
+
 use migrate::process_migrate;
 use remove_stake::process_remove_stake;
 use solana_program::{
@@ -11,7 +15,7 @@ use solana_program::{
 
 solana_program::entrypoint!(process_instruction);
 
-fn process_instruction(
+pub fn process_instruction(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
     data: &[u8],
