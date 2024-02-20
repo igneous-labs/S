@@ -178,7 +178,7 @@ impl From<MigrateKeys> for [AccountMeta; MIGRATE_ACCOUNTS_LEN] {
             AccountMeta {
                 pubkey: scnsol_mint,
                 is_signer: false,
-                is_writable: false,
+                is_writable: true,
             },
             AccountMeta {
                 pubkey: socean_withdraw_auth,

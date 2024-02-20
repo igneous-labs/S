@@ -8,7 +8,7 @@ use solana_sdk::{
 
 /// Creates a ProgramTest with all accounts required for final migration:
 /// - spl-stake-pool prog + spl-sol-value-calculator prog + state to facilitate testing of SyncSolValue after
-/// - laine stake pool accounts - lainesol mint, pool, validator list, reserves, lainesol fee dest,
+/// - laine stake pool accounts - lainesol mint, pool, validator list, reserves, lainesol fee dest, vsa
 /// - socean stake pool accounts - scnsol mint, socean stake pool, validator list, laine VSA
 /// - metaplex program
 /// - metadata PDA
@@ -31,6 +31,7 @@ pub fn base_program_test() -> (ProgramTest, Keypair) {
             .add_test_fixtures_account("lainesol-list.json")
             .add_test_fixtures_account("lainesol-reserves.json")
             .add_test_fixtures_account("lainesol-fee-dest.json")
+            .add_test_fixtures_account("lainesol-vsa.json")
             .add_test_fixtures_account("scnsol-mint.json")
             .add_test_fixtures_account("socean-pool.json")
             .add_test_fixtures_account("socean-list.json")
