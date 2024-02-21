@@ -12,9 +12,11 @@ use socean_migration::{
 use solana_program_test::{find_file, read_file, ProgramTestContext};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
-    account::ReadableAccount,
+    account::{Account, ReadableAccount},
     bpf_loader_upgradeable::{self, UpgradeableLoaderState},
     pubkey::Pubkey,
+    rent::Rent,
+    signature::Keypair,
     signer::Signer,
     transaction::Transaction,
 };
@@ -38,7 +40,7 @@ async fn migrate_success() {
 
     ctx.banks_client.process_transaction(tx).await.unwrap();
 
-    upgrade_s_program(&mut ctx).await;
+    upgrade_s_program(&mut ctx, &migrate_auth).await;
 
     // SyncSolValue
     let lst_state_list_acc = ctx.banks_client.get_lst_state_list_acc().await;
@@ -96,20 +98,37 @@ async fn migrate_success() {
     );
 }
 
-async fn upgrade_s_program(ctx: &mut ProgramTestContext) {
-    let (s_prog_data_addr, _bump) = Pubkey::find_program_address(
-        &[s_controller_lib::program::ID.as_ref()],
-        &bpf_loader_upgradeable::ID,
-    );
-    let mut s_prog_data_acc = ctx
-        .banks_client
-        .get_account_unwrapped(s_prog_data_addr)
-        .await;
+async fn upgrade_s_program(ctx: &mut ProgramTestContext, auth: &Keypair) {
     let pb = find_file("s_controller.so").expect("s_controller.so not found");
     let so_prog_data = read_file(pb);
-    s_prog_data_acc
-        .data
-        .truncate(UpgradeableLoaderState::size_of_programdata_metadata());
-    s_prog_data_acc.data.write_all(&so_prog_data).unwrap();
-    ctx.set_account(&s_prog_data_addr, &s_prog_data_acc.to_account_shared_data());
+    // must do upgrade via a transaction, cannot use ctx.set_account() on programdata address
+    // else old program will not be replaced
+    let buffer_addr = Pubkey::new_unique();
+    let mut buffer_acc_data =
+        Vec::with_capacity(UpgradeableLoaderState::size_of_buffer_metadata() + so_prog_data.len());
+    buffer_acc_data.write_all(&1u32.to_le_bytes()).unwrap();
+    buffer_acc_data.write_all(&[1u8]).unwrap();
+    buffer_acc_data.write_all(auth.pubkey().as_ref()).unwrap();
+    buffer_acc_data.write_all(&so_prog_data).unwrap();
+    ctx.set_account(
+        &buffer_addr,
+        &Account {
+            lamports: Rent::default().minimum_balance(buffer_acc_data.len()),
+            data: buffer_acc_data,
+            owner: bpf_loader_upgradeable::ID,
+            executable: false,
+            rent_epoch: u64::MAX,
+        }
+        .to_account_shared_data(),
+    );
+
+    let upgrade_ix = bpf_loader_upgradeable::upgrade(
+        &s_controller_lib::program::ID,
+        &buffer_addr,
+        &auth.pubkey(),
+        &auth.pubkey(),
+    );
+    let mut tx = Transaction::new_with_payer(&[upgrade_ix], Some(&auth.pubkey()));
+    tx.sign(&[auth], ctx.last_blockhash);
+    ctx.banks_client.process_transaction(tx).await.unwrap();
 }

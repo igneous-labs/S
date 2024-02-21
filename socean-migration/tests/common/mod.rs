@@ -16,6 +16,7 @@ use solana_sdk::{
 /// ProgramTest::add_program() sets the owner to bpf_loader instead of
 /// bpf_loader_upgradeable:
 /// https://docs.rs/solana-program-test/latest/src/solana_program_test/lib.rs.html#657
+/// NB: need to manually cargo-build-sbf whenever program changes
 fn add_upgradeable_program(
     pt: &mut ProgramTest,
     program_id: Pubkey,
@@ -87,7 +88,7 @@ pub fn base_program_test() -> (ProgramTest, Keypair) {
         &mut pt,
         s_controller_lib::program::ID,
         "socean_migration",
-        Some(Pubkey::new_unique()), // dont care, since we will overwrite this acc via ProgramTestContext ltr
+        Some(mock_auth_kp.pubkey()),
         0,
     );
     (

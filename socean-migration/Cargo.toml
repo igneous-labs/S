@@ -4,35 +4,45 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
+cli = [
+    "dep:clap",
+    "dep:sanctum-solana-cli-utils",
+    "dep:solana-sdk",
+    "dep:tokio"
+]
 testing = []
 
 [lib]
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-clap = { workspace = true }
 mpl-token-metadata = { workspace = true }
 s_controller_interface = { workspace = true }
 s-controller-lib = { workspace = true }
 sanctum-associated-token-lib = { workspace = true }
 sanctum-macros = { workspace = true }
 sanctum-misc-utils = { workspace = true }
-sanctum-solana-cli-utils = { workspace = true }
 sanctum-system-program-lib = { workspace = true }
 sanctum-token-lib = { workspace = true }
 solana-program = { workspace = true }
-solana-sdk = { workspace = true }
 spl-associated-token-account = { workspace = true }
 spl-calculator-lib = { workspace = true }
 spl-token = { workspace = true }
 spl-token-2022 = { workspace = true }
 stake_program_interface = { workspace = true }
 system_program_interface = { workspace = true }
-tokio = { workspace = true }
+
+# cli
+clap = { workspace = true, optional = true }
+sanctum-solana-cli-utils = { workspace = true, optional = true }
+solana-sdk = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
 
 [dev-dependencies]
 s-controller-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
+solana-sdk = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 sanctum-solana-test-utils = { workspace = true }
 bincode = { workspace = true }
+tokio = { workspace = true }
