@@ -12,14 +12,10 @@ use solana_program::{
 };
 use stake_program_interface::{AuthorizeAccounts, AuthorizeIxArgs, StakeAuthorize};
 
-use crate::keys::{migrate_auth, socean_program};
-
-// TODO: move this, share with migrate
-const SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS: &[&[&[u8]]] = &[&[
-    socean_program::WITHDRAW_AUTH_SEED_0,
-    socean_program::WITHDRAW_AUTH_SEED_1,
-    &[socean_program::WITHDRAW_AUTH_BUMP],
-]];
+use crate::keys::{
+    migrate_auth,
+    socean_program::{self, SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS},
+};
 
 pub const REMOVE_STAKE_ACCOUNTS_LEN: usize = 5;
 

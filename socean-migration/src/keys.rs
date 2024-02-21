@@ -50,6 +50,12 @@ pub mod socean_program {
             b"withdraw"
         ),]
     );
+
+    pub const SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS: &[&[&[u8]]] = &[&[
+        WITHDRAW_AUTH_SEED_0,
+        WITHDRAW_AUTH_SEED_1,
+        &[WITHDRAW_AUTH_BUMP],
+    ]];
 }
 
 pub mod ata_program {
