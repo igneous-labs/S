@@ -29,6 +29,7 @@ system_program_interface = { workspace = true }
 [dev-dependencies]
 s-controller-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }
 sanctum-solana-test-utils = { workspace = true }
 tokio = { workspace = true }
