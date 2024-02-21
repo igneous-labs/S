@@ -4348,6 +4348,8 @@ checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
 name = "socean-migration"
 version = "0.1.0"
 dependencies = [
+ "bincode",
+ "clap 4.4.18",
  "mpl-token-metadata",
  "s-controller-lib",
  "s-controller-test-utils",
@@ -4355,6 +4357,7 @@ dependencies = [
  "sanctum-associated-token-lib",
  "sanctum-macros",
  "sanctum-misc-utils",
+ "sanctum-solana-cli-utils",
  "sanctum-solana-test-utils",
  "sanctum-system-program-lib",
  "sanctum-token-lib",

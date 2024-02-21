@@ -43,16 +43,12 @@ use crate::keys::{
     ata_program::{self, LAINESOL_PROTOCOL_FEE_ACCUM_BUMP, LAINESOL_RESERVES_BUMP},
     lainesol_fee_dest, lainesol_mint, lainesol_stake_pool, lainesol_stake_reserves,
     lainesol_validator_list, lainesol_vsa, migrate_auth, scnsol_metadata_update_auth, scnsol_mint,
-    socean_laine_vsa, socean_program, socean_spl_pool, socean_spl_validator_list,
+    socean_laine_vsa,
+    socean_program::{self, SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS},
+    socean_spl_pool, socean_spl_validator_list,
     spl_stake_pool_program::{self, LAINESOL_DEPOSIT_AUTH_ID, LAINESOL_WITHDRAW_AUTH_ID},
     token_metadata_program,
 };
-
-const SOCEAN_WITHDRAW_AUTH_SIGNER_SEEDS: &[&[&[u8]]] = &[&[
-    socean_program::WITHDRAW_AUTH_SEED_0,
-    socean_program::WITHDRAW_AUTH_SEED_1,
-    &[socean_program::WITHDRAW_AUTH_BUMP],
-]];
 
 const INFSOL_NAME: &str = "Sanctum Infinity Staked SOL";
 const INFSOL_SYMBOL: &str = "infSOL";

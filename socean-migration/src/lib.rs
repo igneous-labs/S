@@ -5,6 +5,7 @@ mod remove_stake;
 // re-exports
 pub use keys::*;
 pub use migrate::migrate_ix;
+pub use remove_stake::remove_stake_ix;
 
 use migrate::process_migrate;
 use remove_stake::process_remove_stake;
