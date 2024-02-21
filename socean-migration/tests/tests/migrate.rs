@@ -14,21 +14,24 @@ use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
     account::{Account, ReadableAccount},
     bpf_loader_upgradeable::{self, UpgradeableLoaderState},
+    clock::Clock,
     pubkey::Pubkey,
     rent::Rent,
     signature::Keypair,
     signer::Signer,
+    sysvar,
     transaction::Transaction,
 };
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 
 use crate::common::base_program_test;
 
+const LAINE_STAKE_POOL_LAST_UPDATE_EPOCH: u64 = 577;
+
 #[tokio::test]
 async fn migrate_success() {
-    // TODO: replace with actual values
-    const EXPECTED_LAINESOL_RESERVES_AMT: u64 = 1000;
-    const EXPECTED_LAINESOL_RESERVES_SOL_VALUE: u64 = 1001;
+    const EXPECTED_LAINESOL_RESERVES_AMT: u64 = 2_976_224;
+    const EXPECTED_LAINESOL_RESERVES_SOL_VALUE: u64 = 3_282_029;
 
     let (pt, migrate_auth) = base_program_test();
 
@@ -41,6 +44,13 @@ async fn migrate_success() {
     ctx.banks_client.process_transaction(tx).await.unwrap();
 
     upgrade_s_program(&mut ctx, &migrate_auth).await;
+
+    // set epoch after upgrade since warping mightve incremented epoch
+    let clock: Clock = ctx.banks_client.get_sysvar().await.unwrap();
+    ctx.set_sysvar(&sysvar::clock::Clock {
+        epoch: LAINE_STAKE_POOL_LAST_UPDATE_EPOCH,
+        ..clock
+    });
 
     // SyncSolValue
     let lst_state_list_acc = ctx.banks_client.get_lst_state_list_acc().await;
@@ -71,7 +81,6 @@ async fn migrate_success() {
     let mut tx = Transaction::new_with_payer(&[ix], Some(&migrate_auth.pubkey()));
     tx.sign(&[&migrate_auth], ctx.last_blockhash);
 
-    // TODO: this is currently failing with insufficient account keys for instruction
     ctx.banks_client.process_transaction(tx).await.unwrap();
 
     // Check SOL values
@@ -99,6 +108,16 @@ async fn migrate_success() {
 }
 
 async fn upgrade_s_program(ctx: &mut ProgramTestContext, auth: &Keypair) {
+    let (prog_data_addr, _bump) = Pubkey::find_program_address(
+        &[s_controller_lib::program::ID.as_ref()],
+        &bpf_loader_upgradeable::ID,
+    );
+    let old_prog_data_len = ctx
+        .banks_client
+        .get_account_data(prog_data_addr)
+        .await
+        .len();
+
     let pb = find_file("s_controller.so").expect("s_controller.so not found");
     let so_prog_data = read_file(pb);
     // must do upgrade via a transaction, cannot use ctx.set_account() on programdata address
@@ -110,6 +129,9 @@ async fn upgrade_s_program(ctx: &mut ProgramTestContext, auth: &Keypair) {
     buffer_acc_data.write_all(&[1u8]).unwrap();
     buffer_acc_data.write_all(auth.pubkey().as_ref()).unwrap();
     buffer_acc_data.write_all(&so_prog_data).unwrap();
+    let new_prog_data_len =
+        so_prog_data.len() + UpgradeableLoaderState::size_of_programdata_metadata();
+    let extend_by = new_prog_data_len.saturating_sub(old_prog_data_len);
     ctx.set_account(
         &buffer_addr,
         &Account {
@@ -122,13 +144,39 @@ async fn upgrade_s_program(ctx: &mut ProgramTestContext, auth: &Keypair) {
         .to_account_shared_data(),
     );
 
-    let upgrade_ix = bpf_loader_upgradeable::upgrade(
-        &s_controller_lib::program::ID,
-        &buffer_addr,
-        &auth.pubkey(),
-        &auth.pubkey(),
+    if extend_by > 0 {
+        // must warp forward or will get
+        // `Program was extended in this block already` error
+        ctx.warp_forward_force_reward_interval_end().unwrap();
+        let mut tx = Transaction::new_with_payer(
+            &[bpf_loader_upgradeable::extend_program(
+                &s_controller_lib::program::ID,
+                Some(&auth.pubkey()),
+                extend_by.try_into().unwrap(),
+            )],
+            Some(&auth.pubkey()),
+        );
+        tx.sign(&[auth], ctx.last_blockhash);
+        ctx.banks_client.process_transaction(tx).await.unwrap();
+    }
+
+    // must extend and upgrade as 2 separate transactions separated by >=1 slot in between or will get
+    // `Program was deployed in this block already` error
+    ctx.warp_forward_force_reward_interval_end().unwrap();
+    let mut tx = Transaction::new_with_payer(
+        &[bpf_loader_upgradeable::upgrade(
+            &s_controller_lib::program::ID,
+            &buffer_addr,
+            &auth.pubkey(),
+            &auth.pubkey(),
+        )],
+        Some(&auth.pubkey()),
     );
-    let mut tx = Transaction::new_with_payer(&[upgrade_ix], Some(&auth.pubkey()));
     tx.sign(&[auth], ctx.last_blockhash);
     ctx.banks_client.process_transaction(tx).await.unwrap();
+
+    // need to warp forward 1 slot again because newly upgraded programs are not visible
+    // on their slot of deployment:
+    // https://github.com/solana-labs/solana/blob/cd4cf814fc2ffb84d6165231d2578cd7c6a25dcb/programs/loader-v4/src/lib.rs#L604
+    ctx.warp_forward_force_reward_interval_end().unwrap();
 }
