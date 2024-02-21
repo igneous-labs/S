@@ -1,7 +1,5 @@
-use std::str::FromStr;
-
 use bincode::deserialize;
-use socean_migration::remove_stake_ix;
+use socean_migration::{remove_stake_ix, socean_laine_vsa};
 use solana_program::stake::state::StakeStateV2;
 use solana_program_test::BanksClient;
 use solana_sdk::{
@@ -9,8 +7,6 @@ use solana_sdk::{
 };
 
 use crate::common::base_program_test;
-
-const SOCEAN_LAINE_SOL_VSA: &str = "335H9DZJVjyQHrb8MiEaLhbD5i1sG4YFMWX5t8jLi5bm";
 
 async fn verify_vsa_withdrawer(banks_client: &mut BanksClient, vsa: Pubkey, auth: Pubkey) {
     let vsa_acc = banks_client.get_account(vsa).await.unwrap().unwrap();
@@ -28,12 +24,12 @@ async fn remove_stake_success() {
     let mut bc = ctx.banks_client;
     let last_blockhash = ctx.last_blockhash;
 
-    let socean_lain_sol_vsa = Pubkey::from_str(SOCEAN_LAINE_SOL_VSA).unwrap();
-    let ix = remove_stake_ix(socean_lain_sol_vsa);
+    // NB: DO NOT REMOVE LAINE VSA WHEN ACTUALLY RUNNING THE MIGRATION
+    let ix = remove_stake_ix(socean_laine_vsa::ID);
     let mut tx = Transaction::new_with_payer(&[ix], Some(&migrate_auth.pubkey()));
     tx.sign(&[&migrate_auth], last_blockhash);
 
     bc.process_transaction(tx).await.unwrap();
 
-    verify_vsa_withdrawer(&mut bc, socean_lain_sol_vsa, migrate_auth.pubkey()).await;
+    verify_vsa_withdrawer(&mut bc, socean_laine_vsa::ID, migrate_auth.pubkey()).await;
 }
