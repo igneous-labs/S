@@ -4363,6 +4363,7 @@ dependencies = [
  "sanctum-token-lib",
  "solana-program",
  "solana-program-test",
+ "solana-readonly-account",
  "solana-sdk",
  "spl-associated-token-account",
  "spl-calculator-lib",

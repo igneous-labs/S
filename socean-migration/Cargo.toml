@@ -33,5 +33,6 @@ tokio = { workspace = true }
 [dev-dependencies]
 s-controller-test-utils = { workspace = true }
 solana-program-test = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 sanctum-solana-test-utils = { workspace = true }
 bincode = { workspace = true }
