@@ -88,7 +88,7 @@ async fn basic_redeem_full_no_fees() {
             token_program: spl_token::ID,
         },
     };
-    let (keys, lst_index) = args.resolve().unwrap();
+    let (keys, lst_index, _program_ids) = args.resolve().unwrap();
     let pool_reserves = keys.pool_reserves;
     let protocol_fee_accumulator = keys.protocol_fee_accumulator;
     let ix = remove_liquidity_ix_full(
@@ -231,7 +231,7 @@ async fn basic_redeem_full_flat_fees() {
             token_program: spl_token::ID,
         },
     };
-    let (keys, lst_index) = args.resolve().unwrap();
+    let (keys, lst_index, _program_ids) = args.resolve().unwrap();
     let pool_reserves = keys.pool_reserves;
     let protocol_fee_accumulator = keys.protocol_fee_accumulator;
     let ix = remove_liquidity_ix_full(
@@ -362,7 +362,7 @@ async fn fail_remove_liquidity_slippage() {
             account: lst_mint_account,
         },
     };
-    let (keys, lst_index) = args.resolve().unwrap();
+    let (keys, lst_index, _program_ids) = args.resolve().unwrap();
     let ix = remove_liquidity_ix_full(
         keys,
         RemoveLiquidityIxFullArgs {

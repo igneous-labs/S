@@ -21,11 +21,43 @@ pub struct SrcDstLstSolValueCalcExtendCount {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct AddRemoveLiquidityProgramIds {
+    pub lst_calculator_program_id: Pubkey,
+    pub pricing_program_id: Pubkey,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct AddRemoveLiquidityAccountSuffixes<'me> {
+    pub lst_calculator_accounts: &'me [AccountMeta],
+    pub pricing_program_price_lp_accounts: &'me [AccountMeta],
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct AddRemoveLiquidityExtraAccounts<'me> {
     pub lst_calculator_program_id: Pubkey,
     pub pricing_program_id: Pubkey,
     pub lst_calculator_accounts: &'me [AccountMeta],
     pub pricing_program_price_lp_accounts: &'me [AccountMeta],
+}
+
+impl<'me> AddRemoveLiquidityExtraAccounts<'me> {
+    pub fn new(
+        AddRemoveLiquidityProgramIds {
+            lst_calculator_program_id,
+            pricing_program_id,
+        }: AddRemoveLiquidityProgramIds,
+        AddRemoveLiquidityAccountSuffixes {
+            lst_calculator_accounts,
+            pricing_program_price_lp_accounts,
+        }: AddRemoveLiquidityAccountSuffixes<'me>,
+    ) -> Self {
+        Self {
+            lst_calculator_program_id,
+            pricing_program_id,
+            lst_calculator_accounts,
+            pricing_program_price_lp_accounts,
+        }
+    }
 }
 
 /// Returns number of accounts added to the instruction's accounts array

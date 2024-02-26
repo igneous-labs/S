@@ -6,6 +6,7 @@ use crate::{
     create_pool_reserves_address, create_protocol_fee_accumulator_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, try_pool_state,
+    AddRemoveLiquidityProgramIds,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -95,8 +96,11 @@ impl<
     > AddLiquidityByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
-    /// Returns partial instructions keys + index of lst on lst_state_list
-    pub fn resolve(self) -> Result<(AddLiquidityKeys, usize), SControllerError> {
+    /// Returns:
+    /// (partial instructions keys, index of lst on lst_state_list, additional program IDs)
+    pub fn resolve(
+        self,
+    ) -> Result<(AddLiquidityKeys, usize, AddRemoveLiquidityProgramIds), SControllerError> {
         let Self {
             signer,
             src_lst_acc,
@@ -130,6 +134,10 @@ impl<
                 pool_reserves,
             },
             lst_index,
+            AddRemoveLiquidityProgramIds {
+                lst_calculator_program_id: lst_state.sol_value_calculator,
+                pricing_program_id: pool_state.pricing_program,
+            },
         ))
     }
 }

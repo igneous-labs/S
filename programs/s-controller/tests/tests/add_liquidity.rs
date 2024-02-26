@@ -276,7 +276,7 @@ async fn exec_verify_add_liq_success_no_fees(
             account: lst_mint_account,
         },
     };
-    let (keys, lst_index) = args.resolve().unwrap();
+    let (keys, lst_index, _program_ids) = args.resolve().unwrap();
     let ix = add_liquidity_ix_full(
         keys,
         AddLiquidityIxFullArgs {
@@ -417,7 +417,7 @@ async fn fail_add_liquidity_slippage() {
             account: lst_mint_account,
         },
     };
-    let (keys, lst_index) = args.resolve().unwrap();
+    let (keys, lst_index, _program_ids) = args.resolve().unwrap();
     let ix = add_liquidity_ix_full(
         keys,
         AddLiquidityIxFullArgs {
