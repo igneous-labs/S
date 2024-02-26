@@ -20,7 +20,7 @@ pub struct SrcDstLstSolValueCalcAccountSuffixes<'me> {
     pub dst_lst_calculator_accounts: &'me [AccountMeta],
 }
 
-/// Account suffixes should include the common interface account prefixes
+/// dst/src_lst_calculator_accounts should include the common interface account prefixes
 /// but exclude the program ID
 #[derive(Debug, Clone, Copy)]
 pub struct SrcDstLstSolValueCalcAccounts<'me> {
@@ -70,7 +70,7 @@ pub struct AddRemoveLiquidityAccountSuffixes<'me> {
     pub pricing_program_price_lp_accounts: &'me [AccountMeta],
 }
 
-/// Account suffixes should include the common interface account prefixes
+/// lst_calculator_accounts & pricing_program_price_lp_accounts should include the common interface account prefixes
 /// but exclude the program ID
 #[derive(Debug, Clone, Copy)]
 pub struct AddRemoveLiquidityExtraAccounts<'me> {

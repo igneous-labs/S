@@ -1,6 +1,7 @@
 mod add_disable_pool_authority;
 mod add_liquidity;
 mod add_lst;
+mod common;
 mod disable_enable_lst_input;
 mod disable_pool;
 mod enable_pool;
@@ -23,6 +24,7 @@ mod withdraw_protocol_fees;
 pub use add_disable_pool_authority::*;
 pub use add_liquidity::*;
 pub use add_lst::*;
+pub use common::*;
 pub use disable_enable_lst_input::*;
 pub use disable_pool::*;
 pub use enable_pool::*;
