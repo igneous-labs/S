@@ -11,7 +11,8 @@ use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, Readonl
 use crate::{
     index_to_u32, ix_extend_with_pricing_program_price_swap_accounts,
     ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstIndexes,
-    SrcDstLstSolValueCalcAccounts, SrcDstLstSolValueCalcExtendCount, SwapByMintsFreeArgs,
+    SrcDstLstSolValueCalcAccountSuffixes, SrcDstLstSolValueCalcAccounts,
+    SrcDstLstSolValueCalcExtendCount, SwapByMintsFreeArgs,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -88,7 +89,7 @@ pub fn swap_exact_in_ix_by_mint_full<
         min_amount_out,
         amount,
     }: SwapExactInAmounts,
-    sol_val_calc_accounts: SrcDstLstSolValueCalcAccounts,
+    src_dst_lst_sol_value_calc_account_suffixes: SrcDstLstSolValueCalcAccountSuffixes,
     pricing_program_accounts: &[AccountMeta],
     pricing_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
@@ -98,6 +99,7 @@ pub fn swap_exact_in_ix_by_mint_full<
             src_lst_index,
             dst_lst_index,
         },
+        src_dst_lst_sol_value_calc_program_ids,
     ) = free_args.resolve_exact_in()?;
     let ix = swap_exact_in_ix_full(
         keys,
@@ -107,7 +109,10 @@ pub fn swap_exact_in_ix_by_mint_full<
             min_amount_out,
             amount,
         },
-        sol_val_calc_accounts,
+        SrcDstLstSolValueCalcAccounts::new(
+            src_dst_lst_sol_value_calc_program_ids,
+            src_dst_lst_sol_value_calc_account_suffixes,
+        ),
         pricing_program_accounts,
         pricing_program_id,
     )?;

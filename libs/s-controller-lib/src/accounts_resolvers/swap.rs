@@ -6,6 +6,7 @@ use crate::{
     create_pool_reserves_address, create_protocol_fee_accumulator_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, SrcDstLstIndexes,
+    SrcDstLstSolValueCalcProgramIds,
 };
 
 pub struct SwapFreeArgs<
@@ -153,7 +154,14 @@ impl<
 {
     fn compute_keys_and_indexes(
         &self,
-    ) -> Result<(SwapComputedKeys, SrcDstLstIndexes), SControllerError> {
+    ) -> Result<
+        (
+            SwapComputedKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         let Self {
             lst_state_list: lst_state_list_account,
             src_lst_mint,
@@ -184,12 +192,25 @@ impl<
                 src_lst_index,
                 dst_lst_index,
             },
+            SrcDstLstSolValueCalcProgramIds {
+                src_lst_calculator_program_id: src_lst_state.sol_value_calculator,
+                dst_lst_calculator_program_id: dst_lst_state.sol_value_calculator,
+            },
         ))
     }
 
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
     pub fn resolve_exact_in(
         &self,
-    ) -> Result<(SwapExactInKeys, SrcDstLstIndexes), SControllerError> {
+    ) -> Result<
+        (
+            SwapExactInKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         let (
             SwapComputedKeys {
                 src_pool_reserves,
@@ -197,6 +218,7 @@ impl<
                 protocol_fee_accumulator,
             },
             indexes,
+            program_ids,
         ) = self.compute_keys_and_indexes()?;
 
         let Self {
@@ -223,12 +245,22 @@ impl<
                 dst_pool_reserves,
             },
             indexes,
+            program_ids,
         ))
     }
 
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
     pub fn resolve_exact_out(
         &self,
-    ) -> Result<(SwapExactOutKeys, SrcDstLstIndexes), SControllerError> {
+    ) -> Result<
+        (
+            SwapExactOutKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         let (
             SwapComputedKeys {
                 src_pool_reserves,
@@ -236,6 +268,7 @@ impl<
                 protocol_fee_accumulator,
             },
             indexes,
+            program_ids,
         ) = self.compute_keys_and_indexes()?;
 
         let Self {
@@ -262,6 +295,7 @@ impl<
                 dst_pool_reserves,
             },
             indexes,
+            program_ids,
         ))
     }
 }

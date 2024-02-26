@@ -8,7 +8,7 @@ use marinade_calculator_lib::{
 use marinade_keys::msol;
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
-    swap_exact_out_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
+    swap_exact_out_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccountSuffixes,
     SwapByMintsFreeArgs, SwapExactOutAmounts,
 };
 use s_controller_test_utils::{
@@ -138,10 +138,8 @@ async fn basic_swap_exact_out_no_fee() {
             max_amount_in: JITOSOL_TO_RECEIVE,
             amount: JITOSOL_TO_RECEIVE,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
             src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
         &[
@@ -314,10 +312,8 @@ async fn basic_swap_exact_out_flat_fee() {
             max_amount_in: JITOSOL_TO_RECEIVE,
             amount: JITOSOL_TO_RECEIVE,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
             src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
         &PriceExactOutFreeArgs {
@@ -441,10 +437,8 @@ async fn fail_swap_exact_out_same_mint() {
             max_amount_in: u64::MAX,
             amount: MSOL_STARTING_BALANCE,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: marinade_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
-            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
             src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
         &[
