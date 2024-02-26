@@ -7,11 +7,47 @@ use solana_program::{
 };
 
 #[derive(Debug, Clone, Copy)]
+pub struct SrcDstLstSolValueCalcProgramIds {
+    pub src_lst_calculator_program_id: Pubkey,
+    pub dst_lst_calculator_program_id: Pubkey,
+}
+
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
+pub struct SrcDstLstSolValueCalcAccountSuffixes<'me> {
+    pub src_lst_calculator_accounts: &'me [AccountMeta],
+    pub dst_lst_calculator_accounts: &'me [AccountMeta],
+}
+
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
 pub struct SrcDstLstSolValueCalcAccounts<'me> {
     pub src_lst_calculator_program_id: Pubkey,
     pub dst_lst_calculator_program_id: Pubkey,
     pub src_lst_calculator_accounts: &'me [AccountMeta],
     pub dst_lst_calculator_accounts: &'me [AccountMeta],
+}
+
+impl<'me> SrcDstLstSolValueCalcAccounts<'me> {
+    pub fn new(
+        SrcDstLstSolValueCalcProgramIds {
+            src_lst_calculator_program_id,
+            dst_lst_calculator_program_id,
+        }: SrcDstLstSolValueCalcProgramIds,
+        SrcDstLstSolValueCalcAccountSuffixes {
+            src_lst_calculator_accounts,
+            dst_lst_calculator_accounts,
+        }: SrcDstLstSolValueCalcAccountSuffixes<'me>,
+    ) -> Self {
+        Self {
+            src_lst_calculator_program_id,
+            dst_lst_calculator_program_id,
+            src_lst_calculator_accounts,
+            dst_lst_calculator_accounts,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -26,12 +62,16 @@ pub struct AddRemoveLiquidityProgramIds {
     pub pricing_program_id: Pubkey,
 }
 
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
 #[derive(Debug, Clone, Copy)]
 pub struct AddRemoveLiquidityAccountSuffixes<'me> {
     pub lst_calculator_accounts: &'me [AccountMeta],
     pub pricing_program_price_lp_accounts: &'me [AccountMeta],
 }
 
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
 #[derive(Debug, Clone, Copy)]
 pub struct AddRemoveLiquidityExtraAccounts<'me> {
     pub lst_calculator_program_id: Pubkey,

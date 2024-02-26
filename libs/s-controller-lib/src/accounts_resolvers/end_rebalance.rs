@@ -69,7 +69,10 @@ impl<
 }
 
 /// Creates a corresponding EndRebalanceKeys for a reference StartRebalanceKeys.
-/// Suitable for use on client side
+///
+/// Suitable for use on client side.
+///
+/// Newtype to impl From<StartRebalanceKeys> for EndRebalanceKeys
 #[derive(Clone, Copy, Debug)]
 pub struct EndRebalanceFromStartRebalanceKeys<'a>(pub &'a StartRebalanceKeys);
 
@@ -79,15 +82,18 @@ impl<'a> EndRebalanceFromStartRebalanceKeys<'a> {
             rebalance_authority,
             dst_lst_mint,
             dst_pool_reserves,
+            pool_state,
+            lst_state_list,
+            rebalance_record,
             ..
         }) = self;
         EndRebalanceKeys {
             rebalance_authority: *rebalance_authority,
             dst_lst_mint: *dst_lst_mint,
             dst_pool_reserves: *dst_pool_reserves,
-            pool_state: POOL_STATE_ID,
-            lst_state_list: LST_STATE_LIST_ID,
-            rebalance_record: REBALANCE_RECORD_ID,
+            pool_state: *pool_state,
+            lst_state_list: *lst_state_list,
+            rebalance_record: *rebalance_record,
         }
     }
 }
