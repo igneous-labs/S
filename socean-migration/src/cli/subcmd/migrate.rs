@@ -9,18 +9,11 @@ use solana_sdk::{
 use super::Subcmd;
 
 #[derive(Args, Debug)]
-pub struct MigrateArgs {
-    #[arg(
-        long,
-        short,
-        help = "The migrate auth. Defaults to config wallet if not set."
-    )]
-    pub migrate_auth: Option<String>,
-}
+pub struct MigrateArgs;
 
 impl MigrateArgs {
     pub async fn run(args: crate::cli::Args) {
-        let Self { migrate_auth } = match args.subcmd {
+        let Self = match args.subcmd {
             Subcmd::Migrate(a) => a,
             _ => unreachable!(),
         };
@@ -28,10 +21,10 @@ impl MigrateArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let payer = args.config.signer();
 
-        let migrate_auth_signer = migrate_auth.map(|s| parse_signer(&s).unwrap());
-        let migrate_auth = migrate_auth_signer.as_ref().unwrap_or(&payer);
+        let auth_signer = args.migrate_auth.map(|s| parse_signer(&s).unwrap());
+        let auth = auth_signer.as_ref().unwrap_or(&payer);
 
-        let mut signers = vec![payer.as_ref(), migrate_auth.as_ref()];
+        let mut signers = vec![payer.as_ref(), auth.as_ref()];
         signers.dedup();
 
         let ix = migrate_ix();
