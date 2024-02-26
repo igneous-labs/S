@@ -100,6 +100,8 @@ impl<'me> AddRemoveLiquidityExtraAccounts<'me> {
     }
 }
 
+/// sol_value_calculator_accounts should include common interface account prefixes
+/// but exclude sol_value_calculator_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_sol_value_calculator_accounts(
     ix: &mut Instruction,
@@ -118,6 +120,8 @@ pub fn ix_extend_with_sol_value_calculator_accounts(
     sol_value_calculator_accounts.len().try_into()
 }
 
+/// dst/src_lst_calculator_accounts should include common interface account prefixes
+/// but exclude sol_value_calculator_program_id
 pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
     ix: &mut Instruction,
     SrcDstLstSolValueCalcAccounts {
@@ -142,6 +146,8 @@ pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
 
 // actually the same as ix_extend_with_sol_value_calculator_accounts
 // since this interface also takes a single lst_mint prefix account
+/// pricing_program_price_lp_accounts should include common interface account prefixes
+/// but exclude pricing_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_pricing_program_price_lp_accounts(
     ix: &mut Instruction,
@@ -160,6 +166,8 @@ pub fn ix_extend_with_pricing_program_price_lp_accounts(
     pricing_program_price_lp_accounts.len().try_into()
 }
 
+/// pricing_program_price_swap_accounts should include common interface account prefixes
+/// but exclude pricing_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_pricing_program_price_swap_accounts(
     ix: &mut Instruction,

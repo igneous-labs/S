@@ -60,8 +60,8 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + ReadonlyAccountPubkey>
     SyncSolValueByMintFreeArgs<L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
-    /// Returns (keys, index of lst_mint on lst_state_list)
-    pub fn resolve(self) -> Result<(SyncSolValueKeys, usize), SControllerError> {
+    /// Returns (keys, index of lst_mint on lst_state_list, sol value calculator program ID)
+    pub fn resolve(self) -> Result<(SyncSolValueKeys, usize, Pubkey), SControllerError> {
         self.resolve_with_pdas(SyncSolValuePdas {
             pool_state: POOL_STATE_ID,
             lst_state_list: LST_STATE_LIST_ID,
@@ -69,11 +69,11 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + ReadonlyAccountPubkey>
     }
 
     /// Does not check identity of pool_state and lst_state_list
-    /// Returns (keys, index of lst_mint on lst_state_list)
+    /// Returns (keys, index of lst_mint on lst_state_list, sol value calculator program ID)
     pub fn resolve_for_prog(
         self,
         program_id: Pubkey,
-    ) -> Result<(SyncSolValueKeys, usize), SControllerError> {
+    ) -> Result<(SyncSolValueKeys, usize, Pubkey), SControllerError> {
         self.resolve_with_pdas(SyncSolValuePdas {
             pool_state: find_pool_state_address(program_id).0,
             lst_state_list: find_lst_state_list_address(program_id).0,
@@ -81,14 +81,14 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + ReadonlyAccountPubkey>
     }
 
     /// Does not check identity of pool_state and lst_state_list
-    /// Returns (keys, index of lst_mint on lst_state_list)
+    /// Returns (keys, index of lst_mint on lst_state_list, sol value calculator program ID)
     pub fn resolve_with_pdas(
         self,
         SyncSolValuePdas {
             pool_state,
             lst_state_list,
         }: SyncSolValuePdas,
-    ) -> Result<(SyncSolValueKeys, usize), SControllerError> {
+    ) -> Result<(SyncSolValueKeys, usize, Pubkey), SControllerError> {
         let lst_state_list_acc_data = self.lst_state_list.data();
         let list = try_lst_state_list(&lst_state_list_acc_data)?;
 
@@ -103,6 +103,7 @@ impl<L: ReadonlyAccountData, M: ReadonlyAccountOwner + ReadonlyAccountPubkey>
                 pool_reserves,
             },
             lst_index,
+            lst_state.sol_value_calculator,
         ))
     }
 }

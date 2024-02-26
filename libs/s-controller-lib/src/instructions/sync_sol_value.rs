@@ -52,9 +52,8 @@ pub fn sync_sol_value_ix_by_mint_full<
 >(
     free_args: SyncSolValueByMintFreeArgs<L, M>,
     sol_value_calculator_accounts: &[AccountMeta],
-    sol_value_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
-    let (keys, lst_index) = free_args.resolve()?;
+    let (keys, lst_index, sol_value_calculator_program_id) = free_args.resolve()?;
     let ix = sync_sol_value_ix_full(
         keys,
         lst_index,
