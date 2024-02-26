@@ -10,5 +10,5 @@
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
-  "rust-analyzer.checkOnSave": true
+  "rust-analyzer.cargo.features": ["cli"]
 }

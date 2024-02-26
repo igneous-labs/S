@@ -12,7 +12,7 @@ pub enum Subcmd {
 }
 
 impl Subcmd {
-    pub async fn run(args: crate::Args) {
+    pub async fn run(args: crate::cli::Args) {
         match &args.subcmd {
             Self::Migrate(_) => MigrateArgs::run(args).await,
             Self::RemoveStake(_) => RemoveStakeArgs::run(args).await,

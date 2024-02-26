@@ -661,7 +661,7 @@ pub fn process_migrate(accounts: &[AccountInfo]) -> ProgramResult {
             to: accounts.s_lst_state_list,
         },
         InitRentExemptAccountArgs {
-            space: LST_STATE_SIZE, // single elem lsit
+            space: LST_STATE_SIZE, // single elem list for laineSOL
             owner: s_controller_lib::program::ID,
         },
         &[&[LST_STATE_LIST_SEED, &[LST_STATE_LIST_BUMP]]],

@@ -1,14 +1,12 @@
 #![cfg(feature = "cli")]
 
-mod subcmd;
-
 use clap::{builder::ValueParser, Parser};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use tokio::runtime::Runtime;
 
-use subcmd::Subcmd;
-
 mod subcmd;
+
+use subcmd::Subcmd;
 
 #[derive(Parser, Debug)]
 pub struct Args {

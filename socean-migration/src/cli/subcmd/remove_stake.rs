@@ -25,7 +25,7 @@ pub struct RemoveStakeArgs {
 }
 
 impl RemoveStakeArgs {
-    pub async fn run(args: crate::Args) {
+    pub async fn run(args: crate::cli::Args) {
         let Self {
             validator_stake_account,
         } = match args.subcmd {
