@@ -98,6 +98,7 @@ fn create_rebalance_donate_ixs(
             src_lst_index,
             dst_lst_index,
         },
+        _program_ids,
     ) = args.resolve().unwrap();
     let end_rebalance_keys = EndRebalanceFromStartRebalanceKeys(&start_rebalance_keys).resolve();
 
@@ -311,6 +312,7 @@ async fn rebalance_fail_no_end() {
             src_lst_index,
             dst_lst_index,
         },
+        _program_ids,
     ) = args.resolve().unwrap();
 
     let start_rebalance_ix = start_rebalance_ix_full(

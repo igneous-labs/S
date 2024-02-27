@@ -4,7 +4,7 @@ use clap::{
 };
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, sync_sol_value_ix_full_for_prog,
-    try_find_lst_mint_on_list, try_lst_state_list, SyncSolValueByMintFreeArgs, SyncSolValuePdas,
+    SyncSolValueByMintFreeArgs, SyncSolValuePdas,
 };
 use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
 use solana_readonly_account::keyed::Keyed;
@@ -93,14 +93,7 @@ impl SyncArgs {
         let lst_state_list_acc = fetched_accs.pop().unwrap().unwrap();
         let mint_acc = fetched_accs.pop().unwrap().unwrap();
 
-        let lst_state_list = try_lst_state_list(&lst_state_list_acc.data).unwrap();
-        // TODO: optim - resolve_with_pdas() below calls try_find_lst_mint_on_list() again
-        let sol_val_calc_program_id = try_find_lst_mint_on_list(mint_addr, lst_state_list)
-            .unwrap()
-            .1
-            .sol_value_calculator;
-
-        let (keys, index) = SyncSolValueByMintFreeArgs {
+        let (keys, lst_index, sol_value_calculator_program_id) = SyncSolValueByMintFreeArgs {
             lst_state_list: lst_state_list_acc,
             lst_mint: Keyed {
                 pubkey: mint_addr,
@@ -115,9 +108,9 @@ impl SyncArgs {
         let ix = sync_sol_value_ix_full_for_prog(
             program_id,
             keys,
-            index,
+            lst_index,
             &suffix,
-            sol_val_calc_program_id,
+            sol_value_calculator_program_id,
         )
         .unwrap();
 

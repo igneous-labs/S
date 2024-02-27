@@ -15,10 +15,7 @@ use solana_sdk::{
 };
 
 use crate::{
-    common::{
-        find_sanctum_lst_by_mint, sol_val_calc_of_sanctum_lst,
-        sol_value_calculator_accounts_of_sanctum_lst,
-    },
+    common::{find_sanctum_lst_by_mint, sol_value_calculator_accounts_of_sanctum_lst},
     rpc::does_tx_modify_pool_state,
 };
 
@@ -84,24 +81,25 @@ impl SyncAllArgs {
                 let ixs: Vec<Instruction> = chunk
                     .iter()
                     .map(|sanctum_lst| {
-                        let (keys, index) = SyncSolValueByMintFreeArgs {
-                            lst_state_list: &lst_state_list_acc,
-                            lst_mint: MintWithTokenProgram {
-                                pubkey: sanctum_lst.mint,
-                                token_program: sanctum_lst.token_program,
-                            },
-                        }
-                        .resolve_with_pdas(SyncSolValuePdas {
-                            pool_state: pool_state_addr,
-                            lst_state_list: lst_state_list_addr,
-                        })
-                        .unwrap();
+                        let (keys, index, sol_value_calculator_program_id) =
+                            SyncSolValueByMintFreeArgs {
+                                lst_state_list: &lst_state_list_acc,
+                                lst_mint: MintWithTokenProgram {
+                                    pubkey: sanctum_lst.mint,
+                                    token_program: sanctum_lst.token_program,
+                                },
+                            }
+                            .resolve_with_pdas(SyncSolValuePdas {
+                                pool_state: pool_state_addr,
+                                lst_state_list: lst_state_list_addr,
+                            })
+                            .unwrap();
                         sync_sol_value_ix_full_for_prog(
                             program_id,
                             keys,
                             index,
                             &sol_value_calculator_accounts_of_sanctum_lst(sanctum_lst),
-                            sol_val_calc_of_sanctum_lst(sanctum_lst),
+                            sol_value_calculator_program_id,
                         )
                         .unwrap()
                     })

@@ -3,9 +3,12 @@ use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
-    create_pool_reserves_address, create_protocol_fee_accumulator_address,
-    program::{LST_STATE_LIST_ID, POOL_STATE_ID},
+    create_pool_reserves_address, create_pool_reserves_address_with_pool_state_id,
+    create_protocol_fee_accumulator_address,
+    create_protocol_fee_accumulator_address_with_protocol_fee_id,
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, try_pool_state,
+    AddRemoveLiquidityProgramIds, SwapLiquidityPdas,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -95,8 +98,36 @@ impl<
     > RemoveLiquidityByMintFreeArgs<S, L, M>
 {
     /// Does not check identity of pool_state and lst_state_list
-    /// Returns partial instructions keys + index of lst on lst_state_list
-    pub fn resolve(self) -> Result<(RemoveLiquidityKeys, usize), SControllerError> {
+    /// Returns:
+    /// (partial instructions keys, index of lst on lst_state_list, additional program IDs)
+    pub fn resolve(
+        self,
+    ) -> Result<(RemoveLiquidityKeys, usize, AddRemoveLiquidityProgramIds), SControllerError> {
+        self.resolve_with_pdas(SwapLiquidityPdas {
+            pool_state: POOL_STATE_ID,
+            lst_state_list: LST_STATE_LIST_ID,
+            protocol_fee: PROTOCOL_FEE_ID,
+        })
+    }
+
+    pub fn resolve_for_prog(
+        self,
+        program_id: Pubkey,
+    ) -> Result<(RemoveLiquidityKeys, usize, AddRemoveLiquidityProgramIds), SControllerError> {
+        self.resolve_with_pdas(SwapLiquidityPdas::find_for_program_id(program_id))
+    }
+
+    /// Does not check identity of pool_state and lst_state_list
+    /// Returns:
+    /// (partial instructions keys, index of lst on lst_state_list, additional program IDs)
+    pub fn resolve_with_pdas(
+        self,
+        SwapLiquidityPdas {
+            pool_state: pool_state_id,
+            lst_state_list: lst_state_list_id,
+            protocol_fee: protocol_fee_id,
+        }: SwapLiquidityPdas,
+    ) -> Result<(RemoveLiquidityKeys, usize, AddRemoveLiquidityProgramIds), SControllerError> {
         let Self {
             signer,
             src_lp_acc,
@@ -108,9 +139,17 @@ impl<
         let lst_state_list_acc_data = lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
         let (lst_index, lst_state) = try_find_lst_mint_on_list(*lst_mint.pubkey(), lst_state_list)?;
-        let pool_reserves = create_pool_reserves_address(lst_state, *lst_mint.owner())?;
+        let pool_reserves = create_pool_reserves_address_with_pool_state_id(
+            pool_state_id,
+            lst_state,
+            *lst_mint.owner(),
+        )?;
         let protocol_fee_accumulator =
-            create_protocol_fee_accumulator_address(lst_state, *lst_mint.owner())?;
+            create_protocol_fee_accumulator_address_with_protocol_fee_id(
+                protocol_fee_id,
+                lst_state,
+                *lst_mint.owner(),
+            )?;
 
         let pool_state_data = pool_state_account.data();
         let pool_state = try_pool_state(&pool_state_data)?;
@@ -125,11 +164,15 @@ impl<
                 protocol_fee_accumulator,
                 lst_token_program: *lst_mint.owner(),
                 lp_token_program: spl_token::ID,
-                pool_state: POOL_STATE_ID,
-                lst_state_list: LST_STATE_LIST_ID,
+                pool_state: pool_state_id,
+                lst_state_list: lst_state_list_id,
                 pool_reserves,
             },
             lst_index,
+            AddRemoveLiquidityProgramIds {
+                lst_calculator_program_id: lst_state.sol_value_calculator,
+                pricing_program_id: pool_state.pricing_program,
+            },
         ))
     }
 }

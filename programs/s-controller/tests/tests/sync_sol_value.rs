@@ -70,7 +70,6 @@ async fn basic() {
         &jito_sol_val_calc_args
             .resolve_spl_to_account_metas()
             .unwrap(),
-        spl_calculator_lib::program::ID,
     )
     .unwrap();
 

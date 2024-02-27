@@ -3,9 +3,12 @@ use solana_program::pubkey::Pubkey;
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
-    create_pool_reserves_address, create_protocol_fee_accumulator_address,
-    program::{LST_STATE_LIST_ID, POOL_STATE_ID},
+    create_pool_reserves_address, create_pool_reserves_address_with_pool_state_id,
+    create_protocol_fee_accumulator_address,
+    create_protocol_fee_accumulator_address_with_protocol_fee_id,
+    program::{LST_STATE_LIST_ID, POOL_STATE_ID, PROTOCOL_FEE_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, SrcDstLstIndexes,
+    SrcDstLstSolValueCalcProgramIds, SwapLiquidityPdas,
 };
 
 pub struct SwapFreeArgs<
@@ -151,45 +154,89 @@ impl<
         L: ReadonlyAccountData,
     > SwapByMintsFreeArgs<SM, DM, L>
 {
-    fn compute_keys_and_indexes(
-        &self,
-    ) -> Result<(SwapComputedKeys, SrcDstLstIndexes), SControllerError> {
-        let Self {
-            lst_state_list: lst_state_list_account,
-            src_lst_mint,
-            dst_lst_mint,
-            ..
-        } = self;
-
-        let lst_state_list_acc_data = lst_state_list_account.data();
-        let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
-
-        let (src_lst_index, src_lst_state) =
-            try_find_lst_mint_on_list(*src_lst_mint.pubkey(), lst_state_list)?;
-        let src_pool_reserves = create_pool_reserves_address(src_lst_state, *src_lst_mint.owner())?;
-
-        let (dst_lst_index, dst_lst_state) =
-            try_find_lst_mint_on_list(*dst_lst_mint.pubkey(), lst_state_list)?;
-        let dst_pool_reserves = create_pool_reserves_address(dst_lst_state, *dst_lst_mint.owner())?;
-        let protocol_fee_accumulator =
-            create_protocol_fee_accumulator_address(dst_lst_state, *dst_lst_mint.owner())?;
-
-        Ok((
-            SwapComputedKeys {
-                src_pool_reserves,
-                dst_pool_reserves,
-                protocol_fee_accumulator,
-            },
-            SrcDstLstIndexes {
-                src_lst_index,
-                dst_lst_index,
-            },
-        ))
-    }
-
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
     pub fn resolve_exact_in(
         &self,
-    ) -> Result<(SwapExactInKeys, SrcDstLstIndexes), SControllerError> {
+    ) -> Result<
+        (
+            SwapExactInKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
+        self.resolve_exact_in_with_pdas(SwapLiquidityPdas {
+            pool_state: POOL_STATE_ID,
+            lst_state_list: LST_STATE_LIST_ID,
+            protocol_fee: PROTOCOL_FEE_ID,
+        })
+    }
+
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
+    pub fn resolve_exact_out(
+        &self,
+    ) -> Result<
+        (
+            SwapExactOutKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
+        self.resolve_exact_out_with_pdas(SwapLiquidityPdas {
+            pool_state: POOL_STATE_ID,
+            lst_state_list: LST_STATE_LIST_ID,
+            protocol_fee: PROTOCOL_FEE_ID,
+        })
+    }
+
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
+    pub fn resolve_exact_in_for_prog(
+        &self,
+        program_id: Pubkey,
+    ) -> Result<
+        (
+            SwapExactInKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
+        self.resolve_exact_in_with_pdas(SwapLiquidityPdas::find_for_program_id(program_id))
+    }
+
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
+    pub fn resolve_exact_out_for_prog(
+        &self,
+        program_id: Pubkey,
+    ) -> Result<
+        (
+            SwapExactOutKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
+        self.resolve_exact_out_with_pdas(SwapLiquidityPdas::find_for_program_id(program_id))
+    }
+
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
+    pub fn resolve_exact_in_with_pdas(
+        &self,
+        pdas: SwapLiquidityPdas,
+    ) -> Result<
+        (
+            SwapExactInKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         let (
             SwapComputedKeys {
                 src_pool_reserves,
@@ -197,7 +244,8 @@ impl<
                 protocol_fee_accumulator,
             },
             indexes,
-        ) = self.compute_keys_and_indexes()?;
+            program_ids,
+        ) = self.compute_keys_and_indexes(pdas)?;
 
         let Self {
             signer,
@@ -217,18 +265,29 @@ impl<
                 protocol_fee_accumulator,
                 src_lst_token_program: *src_lst_mint.owner(),
                 dst_lst_token_program: *dst_lst_mint.owner(),
-                pool_state: POOL_STATE_ID,
-                lst_state_list: LST_STATE_LIST_ID,
+                pool_state: pdas.pool_state,
+                lst_state_list: pdas.lst_state_list,
                 src_pool_reserves,
                 dst_pool_reserves,
             },
             indexes,
+            program_ids,
         ))
     }
 
-    pub fn resolve_exact_out(
+    /// Returns
+    /// (keys, indices, src_dst_lst_sol_value_calc_program_ids, pricing_program_program_id)
+    pub fn resolve_exact_out_with_pdas(
         &self,
-    ) -> Result<(SwapExactOutKeys, SrcDstLstIndexes), SControllerError> {
+        pdas: SwapLiquidityPdas,
+    ) -> Result<
+        (
+            SwapExactOutKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         let (
             SwapComputedKeys {
                 src_pool_reserves,
@@ -236,7 +295,8 @@ impl<
                 protocol_fee_accumulator,
             },
             indexes,
-        ) = self.compute_keys_and_indexes()?;
+            program_ids,
+        ) = self.compute_keys_and_indexes(pdas)?;
 
         let Self {
             signer,
@@ -256,12 +316,77 @@ impl<
                 protocol_fee_accumulator,
                 src_lst_token_program: *src_lst_mint.owner(),
                 dst_lst_token_program: *dst_lst_mint.owner(),
-                pool_state: POOL_STATE_ID,
-                lst_state_list: LST_STATE_LIST_ID,
+                pool_state: pdas.pool_state,
+                lst_state_list: pdas.lst_state_list,
                 src_pool_reserves,
                 dst_pool_reserves,
             },
             indexes,
+            program_ids,
+        ))
+    }
+
+    fn compute_keys_and_indexes(
+        &self,
+        SwapLiquidityPdas {
+            pool_state: pool_state_id,
+            protocol_fee: protocol_fee_id,
+            ..
+        }: SwapLiquidityPdas,
+    ) -> Result<
+        (
+            SwapComputedKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
+        let Self {
+            lst_state_list: lst_state_list_account,
+            src_lst_mint,
+            dst_lst_mint,
+            ..
+        } = self;
+
+        let lst_state_list_acc_data = lst_state_list_account.data();
+        let lst_state_list = try_lst_state_list(&lst_state_list_acc_data)?;
+
+        let (src_lst_index, src_lst_state) =
+            try_find_lst_mint_on_list(*src_lst_mint.pubkey(), lst_state_list)?;
+        let src_pool_reserves = create_pool_reserves_address_with_pool_state_id(
+            pool_state_id,
+            src_lst_state,
+            *src_lst_mint.owner(),
+        )?;
+
+        let (dst_lst_index, dst_lst_state) =
+            try_find_lst_mint_on_list(*dst_lst_mint.pubkey(), lst_state_list)?;
+        let dst_pool_reserves = create_pool_reserves_address_with_pool_state_id(
+            pool_state_id,
+            dst_lst_state,
+            *dst_lst_mint.owner(),
+        )?;
+        let protocol_fee_accumulator =
+            create_protocol_fee_accumulator_address_with_protocol_fee_id(
+                protocol_fee_id,
+                dst_lst_state,
+                *dst_lst_mint.owner(),
+            )?;
+
+        Ok((
+            SwapComputedKeys {
+                src_pool_reserves,
+                dst_pool_reserves,
+                protocol_fee_accumulator,
+            },
+            SrcDstLstIndexes {
+                src_lst_index,
+                dst_lst_index,
+            },
+            SrcDstLstSolValueCalcProgramIds {
+                src_lst_calculator_program_id: src_lst_state.sol_value_calculator,
+                dst_lst_calculator_program_id: dst_lst_state.sol_value_calculator,
+            },
         ))
     }
 }

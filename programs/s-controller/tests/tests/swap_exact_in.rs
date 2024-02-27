@@ -4,7 +4,7 @@ use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 use marinade_keys::msol;
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
-    swap_exact_in_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccounts,
+    swap_exact_in_ix_by_mint_full, try_pool_state, SrcDstLstSolValueCalcAccountSuffixes,
     SwapByMintsFreeArgs, SwapExactInAmounts,
 };
 use s_controller_test_utils::{
@@ -110,10 +110,8 @@ async fn basic_swap_exact_in_no_fee() {
             min_amount_out: MSOL_TO_SWAP_IN,
             amount: MSOL_TO_SWAP_IN,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
             src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
         &[
@@ -283,10 +281,8 @@ async fn basic_swap_exact_in_flat_fee() {
             min_amount_out: MSOL_TO_SWAP_IN,
             amount: MSOL_TO_SWAP_IN,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            src_lst_calculator_program_id: marinade_calculator_lib::program::ID,
             src_lst_calculator_accounts: &marinade_sol_val_calc_accounts,
         },
         &PriceExactInFreeArgs {
@@ -421,10 +417,8 @@ async fn fail_swap_exact_in_same_mint() {
             min_amount_out: 0,
             amount: JITOSOL_TO_SWAP_IN,
         },
-        SrcDstLstSolValueCalcAccounts {
-            dst_lst_calculator_program_id: spl_calculator_lib::program::ID,
+        SrcDstLstSolValueCalcAccountSuffixes {
             dst_lst_calculator_accounts: &jito_sol_val_calc_accounts,
-            src_lst_calculator_program_id: spl_calculator_lib::program::ID,
             src_lst_calculator_accounts: &jito_sol_val_calc_accounts,
         },
         &[

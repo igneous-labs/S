@@ -6,7 +6,7 @@ use crate::{
     create_pool_reserves_address,
     program::{LST_STATE_LIST_ID, POOL_STATE_ID, REBALANCE_RECORD_ID},
     try_find_lst_mint_on_list, try_lst_state_list, try_match_lst_mint_on_list, try_pool_state,
-    SrcDstLstIndexes,
+    SrcDstLstIndexes, SrcDstLstSolValueCalcProgramIds,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -96,7 +96,16 @@ impl<
         L: ReadonlyAccountData + ReadonlyAccountPubkey,
     > StartRebalanceByMintsFreeArgs<SM, DM, S, L>
 {
-    pub fn resolve(self) -> Result<(StartRebalanceKeys, SrcDstLstIndexes), SControllerError> {
+    pub fn resolve(
+        self,
+    ) -> Result<
+        (
+            StartRebalanceKeys,
+            SrcDstLstIndexes,
+            SrcDstLstSolValueCalcProgramIds,
+        ),
+        SControllerError,
+    > {
         if *self.lst_state_list.pubkey() != LST_STATE_LIST_ID {
             return Err(SControllerError::IncorrectLstStateList);
         }
@@ -138,6 +147,10 @@ impl<
             SrcDstLstIndexes {
                 src_lst_index,
                 dst_lst_index,
+            },
+            SrcDstLstSolValueCalcProgramIds {
+                src_lst_calculator_program_id: src_lst_state.sol_value_calculator,
+                dst_lst_calculator_program_id: dst_lst_state.sol_value_calculator,
             },
         ))
     }

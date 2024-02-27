@@ -7,11 +7,47 @@ use solana_program::{
 };
 
 #[derive(Debug, Clone, Copy)]
+pub struct SrcDstLstSolValueCalcProgramIds {
+    pub src_lst_calculator_program_id: Pubkey,
+    pub dst_lst_calculator_program_id: Pubkey,
+}
+
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
+pub struct SrcDstLstSolValueCalcAccountSuffixes<'me> {
+    pub src_lst_calculator_accounts: &'me [AccountMeta],
+    pub dst_lst_calculator_accounts: &'me [AccountMeta],
+}
+
+/// dst/src_lst_calculator_accounts should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
 pub struct SrcDstLstSolValueCalcAccounts<'me> {
     pub src_lst_calculator_program_id: Pubkey,
     pub dst_lst_calculator_program_id: Pubkey,
     pub src_lst_calculator_accounts: &'me [AccountMeta],
     pub dst_lst_calculator_accounts: &'me [AccountMeta],
+}
+
+impl<'me> SrcDstLstSolValueCalcAccounts<'me> {
+    pub fn new(
+        SrcDstLstSolValueCalcProgramIds {
+            src_lst_calculator_program_id,
+            dst_lst_calculator_program_id,
+        }: SrcDstLstSolValueCalcProgramIds,
+        SrcDstLstSolValueCalcAccountSuffixes {
+            src_lst_calculator_accounts,
+            dst_lst_calculator_accounts,
+        }: SrcDstLstSolValueCalcAccountSuffixes<'me>,
+    ) -> Self {
+        Self {
+            src_lst_calculator_program_id,
+            dst_lst_calculator_program_id,
+            src_lst_calculator_accounts,
+            dst_lst_calculator_accounts,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -21,6 +57,22 @@ pub struct SrcDstLstSolValueCalcExtendCount {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct AddRemoveLiquidityProgramIds {
+    pub lst_calculator_program_id: Pubkey,
+    pub pricing_program_id: Pubkey,
+}
+
+/// Account suffixes should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
+pub struct AddRemoveLiquidityAccountSuffixes<'me> {
+    pub lst_calculator_accounts: &'me [AccountMeta],
+    pub pricing_program_price_lp_accounts: &'me [AccountMeta],
+}
+
+/// lst_calculator_accounts & pricing_program_price_lp_accounts should include the common interface account prefixes
+/// but exclude the program ID
+#[derive(Debug, Clone, Copy)]
 pub struct AddRemoveLiquidityExtraAccounts<'me> {
     pub lst_calculator_program_id: Pubkey,
     pub pricing_program_id: Pubkey,
@@ -28,6 +80,28 @@ pub struct AddRemoveLiquidityExtraAccounts<'me> {
     pub pricing_program_price_lp_accounts: &'me [AccountMeta],
 }
 
+impl<'me> AddRemoveLiquidityExtraAccounts<'me> {
+    pub fn new(
+        AddRemoveLiquidityProgramIds {
+            lst_calculator_program_id,
+            pricing_program_id,
+        }: AddRemoveLiquidityProgramIds,
+        AddRemoveLiquidityAccountSuffixes {
+            lst_calculator_accounts,
+            pricing_program_price_lp_accounts,
+        }: AddRemoveLiquidityAccountSuffixes<'me>,
+    ) -> Self {
+        Self {
+            lst_calculator_program_id,
+            pricing_program_id,
+            lst_calculator_accounts,
+            pricing_program_price_lp_accounts,
+        }
+    }
+}
+
+/// sol_value_calculator_accounts should include common interface account prefixes
+/// but exclude sol_value_calculator_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_sol_value_calculator_accounts(
     ix: &mut Instruction,
@@ -46,6 +120,8 @@ pub fn ix_extend_with_sol_value_calculator_accounts(
     sol_value_calculator_accounts.len().try_into()
 }
 
+/// dst/src_lst_calculator_accounts should include common interface account prefixes
+/// but exclude sol_value_calculator_program_id
 pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
     ix: &mut Instruction,
     SrcDstLstSolValueCalcAccounts {
@@ -70,6 +146,8 @@ pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
 
 // actually the same as ix_extend_with_sol_value_calculator_accounts
 // since this interface also takes a single lst_mint prefix account
+/// pricing_program_price_lp_accounts should include common interface account prefixes
+/// but exclude pricing_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_pricing_program_price_lp_accounts(
     ix: &mut Instruction,
@@ -88,6 +166,8 @@ pub fn ix_extend_with_pricing_program_price_lp_accounts(
     pricing_program_price_lp_accounts.len().try_into()
 }
 
+/// pricing_program_price_swap_accounts should include common interface account prefixes
+/// but exclude pricing_program_id
 /// Returns number of accounts added to the instruction's accounts array
 pub fn ix_extend_with_pricing_program_price_swap_accounts(
     ix: &mut Instruction,

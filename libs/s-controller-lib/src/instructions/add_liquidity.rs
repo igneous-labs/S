@@ -7,7 +7,7 @@ use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, Readonl
 use crate::{
     index_to_u32, ix_extend_with_pricing_program_price_lp_accounts,
     ix_extend_with_sol_value_calculator_accounts, AddLiquidityByMintFreeArgs,
-    AddRemoveLiquidityExtraAccounts,
+    AddRemoveLiquidityAccountSuffixes, AddRemoveLiquidityExtraAccounts,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -79,13 +79,13 @@ pub fn add_liquidity_ix_by_mint_full<
 >(
     free_args: AddLiquidityByMintFreeArgs<S, L, M>,
     amts: AddLiquidityIxAmts,
-    extra_accounts: AddRemoveLiquidityExtraAccounts,
+    account_suffixes: AddRemoveLiquidityAccountSuffixes,
 ) -> Result<Instruction, ProgramError> {
-    let (keys, lst_index) = free_args.resolve()?;
+    let (keys, lst_index, program_ids) = free_args.resolve()?;
     let ix = add_liquidity_ix_full(
         keys,
         AddLiquidityIxFullArgs { lst_index, amts },
-        extra_accounts,
+        AddRemoveLiquidityExtraAccounts::new(program_ids, account_suffixes),
     )?;
     Ok(ix)
 }

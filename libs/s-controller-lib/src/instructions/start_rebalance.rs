@@ -5,7 +5,10 @@ use s_controller_interface::{
 use solana_program::{instruction::Instruction, program_error::ProgramError};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
-use crate::{index_to_u32, SrcDstLstIndexes, StartRebalanceByMintsFreeArgs};
+use crate::{
+    index_to_u32, SrcDstLstIndexes, SrcDstLstSolValueCalcAccountSuffixes,
+    StartRebalanceByMintsFreeArgs,
+};
 
 use super::{ix_extend_with_src_dst_sol_value_calculator_accounts, SrcDstLstSolValueCalcAccounts};
 
@@ -75,7 +78,7 @@ pub fn start_rebalance_ix_by_mints_full<
 >(
     free_args: StartRebalanceByMintsFreeArgs<SM, DM, S, L>,
     lst_amts: StartRebalanceIxLstAmts,
-    sol_val_calc_accounts: SrcDstLstSolValueCalcAccounts,
+    sol_val_calc_account_suffixes: SrcDstLstSolValueCalcAccountSuffixes,
 ) -> Result<Instruction, ProgramError> {
     let (
         start_rebalance_keys,
@@ -83,6 +86,7 @@ pub fn start_rebalance_ix_by_mints_full<
             src_lst_index,
             dst_lst_index,
         },
+        program_ids,
     ) = free_args.resolve()?;
     start_rebalance_ix_full(
         start_rebalance_keys,
@@ -91,6 +95,6 @@ pub fn start_rebalance_ix_by_mints_full<
             dst_lst_index,
             lst_amts,
         },
-        sol_val_calc_accounts,
+        SrcDstLstSolValueCalcAccounts::new(program_ids, sol_val_calc_account_suffixes),
     )
 }
