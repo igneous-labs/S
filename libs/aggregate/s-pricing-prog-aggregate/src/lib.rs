@@ -1,5 +1,6 @@
 use pricing_programs_interface::{
-    PriceExactInIxArgs, PriceExactInKeys, PriceLpTokensToMintIxArgs, PriceLpTokensToRedeemIxArgs,
+    PriceExactInIxArgs, PriceExactInKeys, PriceExactOutIxArgs, PriceExactOutKeys,
+    PriceLpTokensToMintIxArgs, PriceLpTokensToRedeemIxArgs,
 };
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
@@ -99,6 +100,26 @@ impl PricingProg {
     ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
         Ok(match self {
             Self::FlatFee(p) => p.price_exact_in_accounts_suffix(keys)?,
+        })
+    }
+
+    /// Returns SOL value of the input LST
+    pub fn quote_exact_out(
+        &self,
+        keys: PriceExactOutKeys,
+        args: &PriceExactOutIxArgs,
+    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.quote_exact_out(keys, args)?,
+        })
+    }
+
+    pub fn price_exact_out_accounts_suffix(
+        &self,
+        keys: PriceExactOutKeys,
+    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.price_exact_out_accounts_suffix(keys)?,
         })
     }
 }

@@ -4,7 +4,7 @@ use flat_fee_interface::{
 };
 use flat_fee_lib::{
     account_resolvers::{PriceExactOutFreeArgs, PriceExactOutWithBumpFreeArgs},
-    calc::{calculate_price_exact_out, CalculatePriceExactOut},
+    calc::{calculate_price_exact_out, CalculatePriceExactOutArgs},
     utils::try_fee_account,
 };
 use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
@@ -28,7 +28,7 @@ pub fn process_price_exact_out(
     let output_fee_acc_bytes = output_fee_acc.try_borrow_data()?;
     let output_fee_acc = try_fee_account(&output_fee_acc_bytes)?;
 
-    let result = calculate_price_exact_out(CalculatePriceExactOut {
+    let result = calculate_price_exact_out(CalculatePriceExactOutArgs {
         input_fee_bps: input_fee_acc.input_fee_bps,
         output_fee_bps: output_fee_acc.output_fee_bps,
         out_sol_value: sol_value,
@@ -50,7 +50,7 @@ fn verify_price_exact_out<'me, 'info>(
     let output_fee_acc_bump = try_fee_account(&output_fee_acc_bytes)?.bump;
 
     let free_args = PriceExactOutWithBumpFreeArgs {
-        find_pda_args: PriceExactOutFreeArgs {
+        args: PriceExactOutFreeArgs {
             input_lst_mint: *actual.input_lst_mint.key,
             output_lst_mint: *actual.output_lst_mint.key,
         },

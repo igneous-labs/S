@@ -1,14 +1,16 @@
 use flat_fee_interface::{
     FeeAccount, FlatFeeError, PriceLpTokensToMintKeys, ProgramState,
-    PRICE_EXACT_IN_IX_ACCOUNTS_LEN, PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN,
-    PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN,
+    PRICE_EXACT_IN_IX_ACCOUNTS_LEN, PRICE_EXACT_OUT_IX_ACCOUNTS_LEN,
+    PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN, PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN,
 };
 use flat_fee_lib::{
     account_resolvers::{
-        PriceExactInFreeArgs, PriceExactInWithBumpFreeArgs, PriceLpTokensToRedeemFreeArgs,
+        PriceExactInFreeArgs, PriceExactInWithBumpFreeArgs, PriceExactOutFreeArgs,
+        PriceExactOutWithBumpFreeArgs, PriceLpTokensToRedeemFreeArgs,
     },
     calc::{
-        calculate_price_exact_in, calculate_price_lp_tokens_to_redeem, CalculatePriceExactInArgs,
+        calculate_price_exact_in, calculate_price_exact_out, calculate_price_lp_tokens_to_redeem,
+        CalculatePriceExactInArgs, CalculatePriceExactOutArgs,
     },
     pda::{FeeAccountCreatePdaArgs, FeeAccountFindPdaArgs, ProgramStateFindPdaArgs},
     utils::{try_fee_account, try_program_state},
@@ -183,6 +185,46 @@ impl FlatFeePricingProg {
             None => args.resolve(),
         };
         Ok(<[AccountMeta; PRICE_EXACT_IN_IX_ACCOUNTS_LEN]>::from(keys).into())
+    }
+
+    pub fn quote_exact_out(
+        &self,
+        pricing_programs_interface::PriceExactOutKeys {
+            input_lst_mint,
+            output_lst_mint,
+        }: pricing_programs_interface::PriceExactOutKeys,
+        pricing_programs_interface::PriceExactOutIxArgs { sol_value, .. }: &pricing_programs_interface::PriceExactOutIxArgs,
+    ) -> Result<u64, FlatFeeError> {
+        let FeeAccount { input_fee_bps, .. } = self.get_fee_account_checked(&input_lst_mint)?;
+        let FeeAccount { output_fee_bps, .. } = self.get_fee_account_checked(&output_lst_mint)?;
+        calculate_price_exact_out(CalculatePriceExactOutArgs {
+            input_fee_bps: *input_fee_bps,
+            output_fee_bps: *output_fee_bps,
+            out_sol_value: *sol_value,
+        })
+    }
+
+    pub fn price_exact_out_accounts_suffix(
+        &self,
+        pricing_programs_interface::PriceExactOutKeys {
+            input_lst_mint,
+            output_lst_mint,
+        }: pricing_programs_interface::PriceExactOutKeys,
+    ) -> Result<Vec<AccountMeta>, ProgramError> {
+        let args = PriceExactOutFreeArgs {
+            input_lst_mint,
+            output_lst_mint,
+        };
+        let keys = match self.get_cached_bumps(input_lst_mint, output_lst_mint) {
+            Some((input_fee_acc_bump, output_fee_acc_bump)) => PriceExactOutWithBumpFreeArgs {
+                args,
+                input_fee_acc_bump,
+                output_fee_acc_bump,
+            }
+            .resolve()?,
+            None => args.resolve(),
+        };
+        Ok(<[AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]>::from(keys).into())
     }
 
     fn get_fee_account_checked(&self, lst_mint: &Pubkey) -> Result<&FeeAccount, FlatFeeError> {
