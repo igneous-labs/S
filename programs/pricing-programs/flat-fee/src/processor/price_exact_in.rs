@@ -49,7 +49,7 @@ fn verify_price_exact_in<'me, 'info>(
     let output_fee_acc_bump = try_fee_account(&output_fee_acc_bytes)?.bump;
 
     let free_args = PriceExactInWithBumpFreeArgs {
-        find_pda_args: PriceExactInFreeArgs {
+        args: PriceExactInFreeArgs {
             input_lst_mint: *actual.input_lst_mint.key,
             output_lst_mint: *actual.output_lst_mint.key,
         },

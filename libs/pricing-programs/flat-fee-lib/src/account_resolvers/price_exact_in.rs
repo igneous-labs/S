@@ -54,7 +54,7 @@ impl PriceExactInFreeArgs {
 }
 
 pub struct PriceExactInWithBumpFreeArgs {
-    pub find_pda_args: PriceExactInFreeArgs,
+    pub args: PriceExactInFreeArgs,
     pub input_fee_acc_bump: u8,
     pub output_fee_acc_bump: u8,
 }
@@ -71,7 +71,7 @@ impl PriceExactInWithBumpFreeArgs {
     fn resolve_inner(self, program_id: Pubkey) -> Result<PriceExactInKeys, PubkeyError> {
         let input_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
-                lst_mint: self.find_pda_args.input_lst_mint,
+                lst_mint: self.args.input_lst_mint,
                 program_id,
             },
             bump: self.input_fee_acc_bump,
@@ -80,7 +80,7 @@ impl PriceExactInWithBumpFreeArgs {
 
         let output_create_pda_args = FeeAccountCreatePdaArgs {
             find_pda_args: FeeAccountFindPdaArgs {
-                lst_mint: self.find_pda_args.output_lst_mint,
+                lst_mint: self.args.output_lst_mint,
                 program_id,
             },
             bump: self.output_fee_acc_bump,
@@ -88,8 +88,8 @@ impl PriceExactInWithBumpFreeArgs {
         let output_fee_acc = output_create_pda_args.get_fee_account_address()?;
 
         Ok(PriceExactInKeys {
-            input_lst_mint: self.find_pda_args.input_lst_mint,
-            output_lst_mint: self.find_pda_args.output_lst_mint,
+            input_lst_mint: self.args.input_lst_mint,
+            output_lst_mint: self.args.output_lst_mint,
             input_fee_acc,
             output_fee_acc,
         })

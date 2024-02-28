@@ -1,4 +1,6 @@
-use pricing_programs_interface::PriceLpTokensToRedeemIxArgs;
+use pricing_programs_interface::{
+    PriceExactInIxArgs, PriceExactInKeys, PriceLpTokensToMintIxArgs, PriceLpTokensToRedeemIxArgs,
+};
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 use std::{collections::HashMap, error::Error};
@@ -54,9 +56,49 @@ impl PricingProg {
     pub fn price_lp_tokens_to_redeem_accounts_suffix(
         &self,
         output_lst_mint: Pubkey,
-    ) -> Vec<AccountMeta> {
-        match self {
-            Self::FlatFee(p) => p.price_lp_tokens_to_redeem_accounts_suffix(output_lst_mint),
-        }
+    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.price_lp_tokens_to_redeem_accounts_suffix(output_lst_mint)?,
+        })
+    }
+
+    /// Returns SOL value of the LP tokens to mint
+    pub fn quote_lp_tokens_to_mint(
+        &self,
+        input_lst_mint: Pubkey,
+        args: &PriceLpTokensToMintIxArgs,
+    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.quote_lp_tokens_to_mint(input_lst_mint, args)?,
+        })
+    }
+
+    pub fn price_lp_tokens_to_mint_accounts_suffix(
+        &self,
+        input_lst_mint: Pubkey,
+    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.price_lp_tokens_to_mint_accounts_suffix(input_lst_mint)?,
+        })
+    }
+
+    /// Returns SOL value of the output LST
+    pub fn quote_exact_in(
+        &self,
+        keys: PriceExactInKeys,
+        args: &PriceExactInIxArgs,
+    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.quote_exact_in(keys, args)?,
+        })
+    }
+
+    pub fn price_exact_in_accounts_suffix(
+        &self,
+        keys: PriceExactInKeys,
+    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+        Ok(match self {
+            Self::FlatFee(p) => p.price_exact_in_accounts_suffix(keys)?,
+        })
     }
 }
