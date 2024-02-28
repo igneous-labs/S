@@ -1,0 +1,13 @@
+[package]
+name = "s-pricing-prog-aggregate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pricing_programs_interface = { workspace = true }
+solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
+
+# flat fee prog
+flat-fee-lib = { workspace = true }
+flat_fee_interface = { workspace = true }

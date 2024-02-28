@@ -3841,6 +3841,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "s-pricing-prog-aggregate"
+version = "0.1.0"
+dependencies = [
+ "flat-fee-lib",
+ "flat_fee_interface",
+ "pricing_programs_interface",
+ "solana-program",
+ "solana-readonly-account",
+]
+
+[[package]]
+name = "s-sol-val-cal-prog-aggregate"
+version = "0.1.0"
+
+[[package]]
 name = "s_controller_interface"
 version = "1.0.0"
 dependencies = [
