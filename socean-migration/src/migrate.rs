@@ -50,10 +50,10 @@ use crate::keys::{
     token_metadata_program,
 };
 
-const INFSOL_NAME: &str = "Sanctum Infinity Staked SOL";
-const INFSOL_SYMBOL: &str = "infSOL";
-// TODO: set actual metadata URI
-const INFSOL_METADATA_URI: &str = "https://google.com";
+const INFSOL_NAME: &str = "Infinity";
+const INFSOL_SYMBOL: &str = "INF";
+const INFSOL_METADATA_URI: &str =
+    "https://bafkreigok7uw2i4ovxzjautejollex65pxj7ta5sf6sn6slvp6m5gdczp4.ipfs.nftstorage.link/";
 
 pub const MIGRATE_ACCOUNTS_LEN: usize = 30;
 

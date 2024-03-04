@@ -1,14 +1,12 @@
 pub mod scnsol_metadata_update_auth {
-    // TODO: Set this to actual metadata update authority pubkey
-    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+    sanctum_macros::declare_program_keys!("GRwm4EXMyVwtftQeTft7DZT3HBRxx439PrKq4oM6BwoZ", []);
 }
 
 /// Signer of the migrate instruction.
 /// Excess rent lamports is refunded to here
 pub mod migrate_auth {
-    // TODO: Set this to actual migrate auth pubkey
     #[cfg(not(feature = "testing"))]
-    sanctum_macros::declare_program_keys!("TH1S1SNoTAVAL1DPUBKEYDoNoTUSE11111111111111", []);
+    sanctum_macros::declare_program_keys!("CK9cEJT7K7oRrMCcEbBQRGqHLGpxKXWnKvW7nHSDMHD1", []);
 
     // s-controller-test-initial-authority-key.json
     #[cfg(feature = "testing")]

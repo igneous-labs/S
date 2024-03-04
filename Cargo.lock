@@ -3807,6 +3807,7 @@ version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
  "bytemuck",
+ "flat-fee-lib",
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-macros",
