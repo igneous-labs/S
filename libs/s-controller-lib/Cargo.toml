@@ -9,6 +9,7 @@ testing = []
 [dependencies]
 borsh = { workspace = true }
 bytemuck = { workspace = true }
+flat-fee-lib = { workspace = true }
 s_controller_interface = { workspace = true }
 sanctum-associated-token-lib = { workspace = true }
 sanctum-macros = { workspace = true }
