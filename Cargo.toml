@@ -79,7 +79,7 @@ sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-ut
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 
 # sanctum-lst-list
-sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", rev = "4de2fe5" }
+sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", rev = "70e955f" }
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
