@@ -2681,19 +2681,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mpl-token-metadata"
-version = "4.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4b2de608098eb2ef2a5392069dea83084967e25a4d69d0380a6bb02454fc0fe"
-dependencies = [
- "borsh 0.10.3",
- "num-derive 0.3.3",
- "num-traits",
- "solana-program",
- "thiserror",
-]
-
-[[package]]
 name = "nix"
 version = "0.26.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4346,36 +4333,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
 
 [[package]]
-name = "socean-migration"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "clap 4.4.18",
- "mpl-token-metadata",
- "s-controller-lib",
- "s-controller-test-utils",
- "s_controller_interface",
- "sanctum-associated-token-lib",
- "sanctum-macros",
- "sanctum-misc-utils",
- "sanctum-solana-cli-utils",
- "sanctum-solana-test-utils",
- "sanctum-system-program-lib",
- "sanctum-token-lib",
- "solana-program",
- "solana-program-test",
- "solana-readonly-account",
- "solana-sdk",
- "spl-associated-token-account",
- "spl-calculator-lib",
- "spl-token",
- "spl-token-2022 1.0.0",
- "stake_program_interface",
- "system_program_interface",
- "tokio",
-]
-
-[[package]]
 name = "socket2"
 version = "0.4.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5918,15 +5875,6 @@ dependencies = [
  "serde",
  "solana-program",
  "thiserror",
-]
-
-[[package]]
-name = "stake_program_interface"
-version = "1.17.13"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
-dependencies = [
- "serde",
- "solana-program",
 ]
 
 [[package]]

@@ -18,7 +18,6 @@ members = [
     "programs/pricing-programs/*",
     "programs/s-controller",
     "programs/sol-value-calculator-programs/*",
-    "socean-migration",
     "test-utils",
 ]
 
