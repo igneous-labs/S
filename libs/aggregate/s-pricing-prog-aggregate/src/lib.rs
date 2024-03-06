@@ -128,3 +128,9 @@ impl PricingProg for KnownPricingProg {
         })
     }
 }
+
+impl From<FlatFeePricingProg> for KnownPricingProg {
+    fn from(value: FlatFeePricingProg) -> Self {
+        Self::FlatFee(value)
+    }
+}

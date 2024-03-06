@@ -19,7 +19,7 @@ use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 use std::{collections::HashMap, error::Error};
 
-use crate::{MutablePricingProg, PricingProg, PricingProgErr};
+use crate::{KnownPricingProg, MutablePricingProg, PricingProg, PricingProgErr};
 
 #[derive(Clone, Debug, Default)]
 pub struct FlatFeePricingProg {
@@ -269,5 +269,17 @@ impl PricingProg for FlatFeePricingProg {
             None => args.resolve(),
         };
         Ok(<[AccountMeta; PRICE_EXACT_OUT_IX_ACCOUNTS_LEN]>::from(keys).into())
+    }
+}
+
+impl TryFrom<KnownPricingProg> for FlatFeePricingProg {
+    type Error = PricingProgErr;
+
+    fn try_from(value: KnownPricingProg) -> Result<Self, Self::Error> {
+        match value {
+            KnownPricingProg::FlatFee(f) => Ok(f),
+            // TODO: uncomment when we add more variants
+            // _ => Err(PricingProgErr::WrongPricingProg),
+        }
     }
 }
