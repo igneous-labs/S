@@ -8,32 +8,36 @@ use std::{collections::HashMap, error::Error};
 
 mod err;
 mod flat_fee;
+mod traits;
 
 pub use err::*;
 pub use flat_fee::*;
+pub use traits::*;
 
-pub enum PricingProg {
+pub enum KnownPricingProg {
     FlatFee(FlatFeePricingProg), // only variant for now
 }
 
-impl PricingProg {
-    pub fn try_new_known_program(
+impl MutablePricingProg for KnownPricingProg {
+    fn try_new<I: Iterator<Item = Pubkey>>(
         program_id: Pubkey,
-        mints: impl Iterator<Item = Pubkey>,
+        mints: I,
     ) -> Result<Self, PricingProgErr> {
         Ok(match program_id {
-            flat_fee_lib::program::ID => Self::FlatFee(FlatFeePricingProg::new(program_id, mints)),
+            flat_fee_lib::program::ID => {
+                Self::FlatFee(FlatFeePricingProg::try_new(program_id, mints)?)
+            }
             _ => Err(PricingProgErr::UnknownPricingProg)?,
         })
     }
 
-    pub fn get_accounts_to_update(&self) -> Vec<Pubkey> {
+    fn get_accounts_to_update(&self) -> Vec<Pubkey> {
         match self {
             Self::FlatFee(p) => p.get_accounts_to_update(),
         }
     }
 
-    pub fn update<D: ReadonlyAccountData>(
+    fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -42,9 +46,10 @@ impl PricingProg {
         }
         Ok(())
     }
+}
 
-    /// Returns SOL value of the LST to redeem
-    pub fn quote_lp_tokens_to_redeem(
+impl PricingProg for KnownPricingProg {
+    fn quote_lp_tokens_to_redeem(
         &self,
         output_lst_mint: Pubkey,
         args: &PriceLpTokensToRedeemIxArgs,
@@ -54,17 +59,17 @@ impl PricingProg {
         })
     }
 
-    pub fn price_lp_tokens_to_redeem_accounts_suffix(
+    fn price_lp_tokens_to_redeem_accounts(
         &self,
         output_lst_mint: Pubkey,
     ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
         Ok(match self {
-            Self::FlatFee(p) => p.price_lp_tokens_to_redeem_accounts_suffix(output_lst_mint)?,
+            Self::FlatFee(p) => p.price_lp_tokens_to_redeem_accounts(output_lst_mint)?,
         })
     }
 
     /// Returns SOL value of the LP tokens to mint
-    pub fn quote_lp_tokens_to_mint(
+    fn quote_lp_tokens_to_mint(
         &self,
         input_lst_mint: Pubkey,
         args: &PriceLpTokensToMintIxArgs,
@@ -74,17 +79,17 @@ impl PricingProg {
         })
     }
 
-    pub fn price_lp_tokens_to_mint_accounts_suffix(
+    fn price_lp_tokens_to_mint_accounts(
         &self,
         input_lst_mint: Pubkey,
     ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
         Ok(match self {
-            Self::FlatFee(p) => p.price_lp_tokens_to_mint_accounts_suffix(input_lst_mint)?,
+            Self::FlatFee(p) => p.price_lp_tokens_to_mint_accounts(input_lst_mint)?,
         })
     }
 
     /// Returns SOL value of the output LST
-    pub fn quote_exact_in(
+    fn quote_exact_in(
         &self,
         keys: PriceExactInKeys,
         args: &PriceExactInIxArgs,
@@ -94,17 +99,17 @@ impl PricingProg {
         })
     }
 
-    pub fn price_exact_in_accounts_suffix(
+    fn price_exact_in_accounts(
         &self,
         keys: PriceExactInKeys,
     ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
         Ok(match self {
-            Self::FlatFee(p) => p.price_exact_in_accounts_suffix(keys)?,
+            Self::FlatFee(p) => p.price_exact_in_accounts(keys)?,
         })
     }
 
     /// Returns SOL value of the input LST
-    pub fn quote_exact_out(
+    fn quote_exact_out(
         &self,
         keys: PriceExactOutKeys,
         args: &PriceExactOutIxArgs,
@@ -114,12 +119,12 @@ impl PricingProg {
         })
     }
 
-    pub fn price_exact_out_accounts_suffix(
+    fn price_exact_out_accounts(
         &self,
         keys: PriceExactOutKeys,
     ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
         Ok(match self {
-            Self::FlatFee(p) => p.price_exact_out_accounts_suffix(keys)?,
+            Self::FlatFee(p) => p.price_exact_out_accounts(keys)?,
         })
     }
 }
