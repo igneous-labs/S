@@ -1,26 +1,30 @@
 // TODO: all generic pool calculator implementations currently assume the stake pool program is never updated,
 // otherwise, get_accounts_to_update() will include the very large programdata accounts.
 
-use solana_program::pubkey::Pubkey;
+use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 use std::{collections::HashMap, error::Error};
 
 mod err;
+mod sanctum_spl;
 mod spl;
 mod traits;
 
 pub use err::*;
+pub use sanctum_spl::*;
 pub use spl::*;
 pub use traits::*;
 
 pub enum KnownLstSolValCalc {
     Spl(SplLstSolValCalc),
+    SanctumSpl(SanctumSplLstSolValCalc),
 }
 
 impl MutableLstSolValCalc for KnownLstSolValCalc {
     fn get_accounts_to_update(&self) -> Vec<Pubkey> {
         match self {
             Self::Spl(s) => s.get_accounts_to_update(),
+            Self::SanctumSpl(s) => s.get_accounts_to_update(),
         }
     }
 
@@ -30,6 +34,7 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         match self {
             Self::Spl(s) => s.update(account_map),
+            Self::SanctumSpl(s) => s.update(account_map),
         }
     }
 }
@@ -38,6 +43,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
     fn lst_mint(&self) -> Pubkey {
         match self {
             Self::Spl(s) => s.lst_mint,
+            Self::SanctumSpl(s) => s.lst_mint,
         }
     }
 
@@ -47,6 +53,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
     ) -> Result<sanctum_token_ratio::U64ValueRange, Box<dyn Error + Send + Sync>> {
         match self {
             Self::Spl(s) => s.lst_to_sol(lst_amount),
+            Self::SanctumSpl(s) => s.lst_to_sol(lst_amount),
         }
     }
 
@@ -56,14 +63,14 @@ impl LstSolValCalc for KnownLstSolValCalc {
     ) -> Result<sanctum_token_ratio::U64ValueRange, Box<dyn Error + Send + Sync>> {
         match self {
             Self::Spl(s) => s.sol_to_lst(lamports),
+            Self::SanctumSpl(s) => s.sol_to_lst(lamports),
         }
     }
 
-    fn ix_accounts(
-        &self,
-    ) -> Result<Vec<solana_program::instruction::AccountMeta>, Box<dyn Error + Send + Sync>> {
+    fn ix_accounts(&self) -> Vec<AccountMeta> {
         match self {
             Self::Spl(s) => s.ix_accounts(),
+            Self::SanctumSpl(s) => s.ix_accounts(),
         }
     }
 }
@@ -71,5 +78,11 @@ impl LstSolValCalc for KnownLstSolValCalc {
 impl From<SplLstSolValCalc> for KnownLstSolValCalc {
     fn from(value: SplLstSolValCalc) -> Self {
         Self::Spl(value)
+    }
+}
+
+impl From<SanctumSplLstSolValCalc> for KnownLstSolValCalc {
+    fn from(value: SanctumSplLstSolValCalc) -> Self {
+        Self::SanctumSpl(value)
     }
 }

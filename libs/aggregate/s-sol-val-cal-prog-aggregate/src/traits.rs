@@ -60,5 +60,5 @@ pub trait LstSolValCalc {
     /// instructions. Both should be the same.
     ///
     /// This should exclude the program_id and include the common interface account prefixes
-    fn ix_accounts(&self) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>>;
+    fn ix_accounts(&self) -> Vec<AccountMeta>;
 }
