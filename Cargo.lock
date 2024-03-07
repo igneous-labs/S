@@ -3854,6 +3854,17 @@ dependencies = [
 [[package]]
 name = "s-sol-val-cal-prog-aggregate"
 version = "0.1.0"
+dependencies = [
+ "bincode",
+ "generic-pool-calculator-lib",
+ "generic_pool_calculator_interface",
+ "sanctum-token-ratio",
+ "sol-value-calculator-lib",
+ "sol_value_calculator_interface",
+ "solana-program",
+ "solana-readonly-account",
+ "spl-calculator-lib",
+]
 
 [[package]]
 name = "s_controller_interface"

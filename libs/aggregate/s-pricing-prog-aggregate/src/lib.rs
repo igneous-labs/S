@@ -14,6 +14,7 @@ pub use err::*;
 pub use flat_fee::*;
 pub use traits::*;
 
+#[derive(Clone, Debug)]
 pub enum KnownPricingProg {
     FlatFee(FlatFeePricingProg), // only variant for now
 }

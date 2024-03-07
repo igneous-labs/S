@@ -48,6 +48,9 @@ pub trait MutablePricingProg {
 
     fn get_accounts_to_update(&self) -> Vec<Pubkey>;
 
+    /// Currently, all update() implementations
+    /// - no-ops if account to update is not in account_map
+    /// - errors if account exists but deserialization failed / other failure
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
