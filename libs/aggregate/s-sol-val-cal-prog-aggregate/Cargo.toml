@@ -14,6 +14,11 @@ solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 sol-value-calculator-lib = { workspace = true }
 
+# lido
+lido_calculator_interface = { workspace = true }
+lido-calculator-lib = { workspace = true }
+lido-keys = { workspace = true }
+
 # marinade
 marinade_calculator_interface = { workspace = true }
 marinade-calculator-lib = { workspace = true }
