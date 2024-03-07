@@ -8,7 +8,7 @@ use wsol_keys::wsol;
 
 use crate::{KnownLstSolValCalc, LstSolValCalc, LstSolValCalcErr, MutableLstSolValCalc};
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct WsolLstSolValCalc;
 
 impl MutableLstSolValCalc for WsolLstSolValCalc {

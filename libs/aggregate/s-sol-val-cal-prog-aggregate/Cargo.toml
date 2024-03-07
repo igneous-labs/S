@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 bincode = { workspace = true }
+borsh = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
 sanctum-token-ratio = { workspace = true }
@@ -12,6 +13,11 @@ sol_value_calculator_interface = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }
 sol-value-calculator-lib = { workspace = true }
+
+# marinade
+marinade_calculator_interface = { workspace = true }
+marinade-calculator-lib = { workspace = true }
+marinade-keys = { workspace = true }
 
 # spl
 spl-calculator-lib = { workspace = true }
