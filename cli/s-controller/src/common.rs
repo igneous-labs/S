@@ -8,7 +8,7 @@ use s_controller_interface::PoolState;
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
 use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 use spl_calculator_lib::{resolve_to_account_metas_for_calc, SanctumSplSolValCalc, SplSolValCalc};
-use wsol_calculator_lib::WSOL_LST_TO_SOL_METAS;
+use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 lazy_static! {
     pub static ref SANCTUM_LST_LIST: SanctumLstList = SanctumLstList::load();
@@ -69,7 +69,7 @@ pub fn sol_value_calculator_accounts_of_sanctum_lst(
     match pool {
         PoolInfo::Lido => lido_sol_val_calc_account_metas().to_vec(),
         PoolInfo::Marinade => marinade_sol_val_calc_account_metas().to_vec(),
-        PoolInfo::ReservePool => WSOL_LST_TO_SOL_METAS.to_vec(),
+        PoolInfo::ReservePool => WSOL_LST_SOL_COMMON_METAS.to_vec(),
         PoolInfo::SanctumSpl(SplPoolAccounts { pool, .. }) => {
             resolve_to_account_metas_for_calc::<SanctumSplSolValCalc>(
                 LstSolCommonIntermediateKeys {

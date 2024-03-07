@@ -3864,6 +3864,8 @@ dependencies = [
  "solana-program",
  "solana-readonly-account",
  "spl-calculator-lib",
+ "wsol-calculator-lib",
+ "wsol-keys",
 ]
 
 [[package]]

@@ -15,3 +15,7 @@ sol-value-calculator-lib = { workspace = true }
 
 # spl
 spl-calculator-lib = { workspace = true }
+
+# wsol
+wsol-calculator-lib = { workspace = true }
+wsol-keys = { workspace = true }

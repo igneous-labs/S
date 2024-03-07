@@ -8,6 +8,7 @@ pub mod program {
     pub const ID: solana_program::pubkey::Pubkey = wsol_calculator_interface::ID;
 }
 
+#[derive(Clone, Copy, Debug, Default)]
 pub struct WsolSolCalc;
 
 impl SolValueCalculator for WsolSolCalc {
@@ -32,11 +33,9 @@ mod account_resolvers {
         lst_mint: wsol_keys::wsol::ID,
     };
 
-    pub const WSOL_LST_TO_SOL_METAS: [AccountMeta; 1] = [AccountMeta {
+    pub const WSOL_LST_SOL_COMMON_METAS: [AccountMeta; 1] = [AccountMeta {
         pubkey: wsol_keys::wsol::ID,
         is_signer: false,
         is_writable: false,
     }];
-
-    pub const WSOL_SOL_TO_LST_METAS: [AccountMeta; 1] = WSOL_LST_TO_SOL_METAS;
 }
