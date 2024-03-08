@@ -40,7 +40,7 @@ pub struct Args {
     #[arg(
         long,
         short,
-        help = "program ID of the S controlker program",
+        help = "program ID of the S controller program",
         default_value_t = s_controller_lib::program::ID,
         value_parser = StringValueParser::new().try_map(|s| Pubkey::from_str(&s)),
     )]

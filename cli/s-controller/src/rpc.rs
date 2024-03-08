@@ -40,7 +40,7 @@ pub async fn does_tx_modify_pool_state<P: ReadonlyAccountData + ReadonlyAccountP
             tx,
             RpcSimulateTransactionConfig {
                 sig_verify: false,
-                replace_recent_blockhash: false,
+                replace_recent_blockhash: true, // must set to true or sim will error with blockhash not found
                 commitment: None,
                 encoding: None,
                 accounts: Some(RpcSimulateTransactionAccountsConfig {
