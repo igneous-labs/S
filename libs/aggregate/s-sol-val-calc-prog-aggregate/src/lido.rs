@@ -37,6 +37,10 @@ impl MutableLstSolValCalc for LidoLstSolValCalc {
 }
 
 impl LstSolValCalc for LidoLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        lido_calculator_lib::program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         stsol::ID
     }

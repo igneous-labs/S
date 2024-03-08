@@ -4,7 +4,6 @@
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 use std::{collections::HashMap, error::Error};
-use wsol::WsolLstSolValCalc;
 
 mod err;
 mod lido;
@@ -20,7 +19,9 @@ pub use marinade::*;
 pub use sanctum_spl::*;
 pub use spl::*;
 pub use traits::*;
+pub use wsol::*;
 
+#[derive(Debug, Clone)]
 pub enum KnownLstSolValCalc {
     Lido(LidoLstSolValCalc),
     Marinade(MarinadeLstSolValCalc),
@@ -55,6 +56,16 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
 }
 
 impl LstSolValCalc for KnownLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        match self {
+            Self::Lido(s) => s.sol_value_calculator_program_id(),
+            Self::Marinade(s) => s.sol_value_calculator_program_id(),
+            Self::Spl(s) => s.sol_value_calculator_program_id(),
+            Self::SanctumSpl(s) => s.sol_value_calculator_program_id(),
+            Self::Wsol(s) => s.sol_value_calculator_program_id(),
+        }
+    }
+
     fn lst_mint(&self) -> Pubkey {
         match self {
             Self::Lido(s) => s.lst_mint(),

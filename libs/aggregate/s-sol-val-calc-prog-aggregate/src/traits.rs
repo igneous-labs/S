@@ -47,6 +47,9 @@ pub trait MutableLstSolValCalc {
 
 /// Each LstSolValCalc handles SOL value calculation for a single LST mint
 pub trait LstSolValCalc {
+    /// Returns the program ID of the SOL value calculator program
+    fn sol_value_calculator_program_id(&self) -> Pubkey;
+
     /// Returns the LST mint this calculator works for
     fn lst_mint(&self) -> Pubkey;
 

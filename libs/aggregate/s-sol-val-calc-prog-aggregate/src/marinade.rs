@@ -37,6 +37,10 @@ impl MutableLstSolValCalc for MarinadeLstSolValCalc {
 }
 
 impl LstSolValCalc for MarinadeLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        marinade_calculator_lib::program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         msol::ID
     }

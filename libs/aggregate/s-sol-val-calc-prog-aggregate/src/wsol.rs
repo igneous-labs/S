@@ -25,6 +25,10 @@ impl MutableLstSolValCalc for WsolLstSolValCalc {
 }
 
 impl LstSolValCalc for WsolLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        wsol_calculator_lib::program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         wsol::ID
     }

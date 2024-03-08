@@ -1,0 +1,16 @@
+[package]
+name = "s-jup-interface"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+jupiter-amm-interface = { workspace = true }
+rust_decimal = { workspace = true }
+s_controller_interface = { workspace = true }
+s-controller-lib = { workspace = true }
+s-pricing-prog-aggregate = { workspace = true }
+s-sol-val-calc-prog-aggregate = { workspace = true }
+sanctum-lst-list = { workspace = true }
+serde_json = { workspace = true }
+solana-program = { workspace = true }
