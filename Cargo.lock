@@ -3990,12 +3990,14 @@ dependencies = [
  "sanctum-lst-list",
  "serde_json",
  "solana-program",
+ "solana-readonly-account",
 ]
 
 [[package]]
 name = "s-pricing-prog-aggregate"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "flat-fee-lib",
  "flat_fee_interface",
  "pricing_programs_interface",
@@ -4007,6 +4009,7 @@ dependencies = [
 name = "s-sol-val-calc-prog-aggregate"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "borsh 0.10.3",
  "generic-pool-calculator-lib",

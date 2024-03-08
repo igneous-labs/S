@@ -62,6 +62,15 @@ impl From<SPoolInitAccounts> for [Pubkey; 2] {
     }
 }
 
+impl Default for SPoolInitAccounts {
+    fn default() -> Self {
+        Self {
+            lst_state_list: s_controller_lib::program::LST_STATE_LIST_ID,
+            pool_state: s_controller_lib::program::POOL_STATE_ID,
+        }
+    }
+}
+
 impl SPool {
     /// Gets the list of accounts that must be fetched first to initialize
     /// SPool by passing the result into [`Self::from_fetched_accounts`]
@@ -119,6 +128,60 @@ impl SPool {
         res.pool_state = Some(*pool_state);
         res.pricing_prog = Some(pricing_prog);
         Ok(res)
+    }
+
+    fn update_lst_state_list(&mut self, new_lst_state_list: Vec<LstState>) {
+        // simple model for diffs:
+        // - if new and old list differs in mints, then try to find the mismatch and replace it
+        // - if sol val calc program changed, then just invalidate to None. Otherwise we would need a
+        //   SanctumLstList to reinitialize the KnownLstSolValCalc
+        // - if list was extended, the new entries will just be None and we cant handle it. Otherwise we would need a
+        //   SanctumLstList to reinitialize the KnownLstSolValCalc
+        if self.lst_state_list.len() == new_lst_state_list.len()
+            && self
+                .lst_state_list
+                .iter()
+                .zip(new_lst_state_list.iter())
+                .all(|(old_lst_state, new_lst_state)| {
+                    old_lst_state.mint == new_lst_state.mint
+                        && old_lst_state.sol_value_calculator == new_lst_state.sol_value_calculator
+                })
+        {
+            self.lst_state_list = new_lst_state_list;
+            return;
+        }
+        // rebuild entire sol val calcs vec by cloning from old vec
+        let mut new_sol_val_calcs = vec![None; new_lst_state_list.len()];
+        self.lst_state_list
+            .iter()
+            .zip(self.lst_sol_val_calcs.iter())
+            .zip(new_sol_val_calcs.iter_mut())
+            .zip(new_lst_state_list.iter())
+            .for_each(
+                |(((old_lst_state, old_lst_sol_val_calc), new_sol_val_calc), new_lst_state)| {
+                    if old_lst_state.mint != new_lst_state.mint {
+                        let replacement_sol_val_calc = self
+                            .lst_sol_val_calcs
+                            .iter()
+                            .find(|opt| match opt {
+                                Some(lsvc) => {
+                                    lsvc.lst_mint() == new_lst_state.mint
+                                        && lsvc.sol_value_calculator_program_id()
+                                            == new_lst_state.sol_value_calculator
+                                }
+                                None => false,
+                            })
+                            .map_or_else(|| None, |x| x.as_ref().cloned());
+                        *new_sol_val_calc = replacement_sol_val_calc;
+                    } else if old_lst_state.sol_value_calculator
+                        == new_lst_state.sol_value_calculator
+                    {
+                        *new_sol_val_calc = old_lst_sol_val_calc.clone();
+                    }
+                },
+            );
+        self.lst_sol_val_calcs = new_sol_val_calcs;
+        self.lst_state_list = new_lst_state_list;
     }
 }
 
@@ -205,20 +268,62 @@ impl Amm for SPool {
         res
     }
 
-    fn update(&mut self, _account_map: &AccountMap) -> anyhow::Result<()> {
+    fn update(&mut self, account_map: &AccountMap) -> anyhow::Result<()> {
         // returns the first encountered error, but tries to update everything eagerly
         // even after encountering an error
-        // let mut res = Ok(());
-        // update pool state and lst_state_list last so we can invalidate
-        // pricing_prog and lst_sol_val_calcs if anything changed
-        /*
-        if let Some(pool_state_acc) = account_map.get(&self.pool_state_addr) {
-            res = try_pool_state(&pool_state_acc.data)
-                .map(|ps| if let Some(old_ps) = self.pricing_prog {})
-                .map_err(|e| e.into());
+        #[allow(clippy::manual_try_fold)] // we dont want to short-circuit, so dont try_fold()
+        let mut res = self
+            .lst_sol_val_calcs
+            .iter_mut()
+            .map(|lsvc| {
+                let lsvc = match lsvc {
+                    Some(l) => l,
+                    None => return Ok(()),
+                };
+                lsvc.update(account_map)
+            })
+            .fold(Ok(()), |res, curr_res| res.and(curr_res));
+        if let Some(pp) = self.pricing_prog.as_mut() {
+            res = res.and(pp.update(account_map));
         }
-         */
-        Ok(())
+        // update pool state and lst_state_list last so we can invalidate
+        // pricing_prog and lst_sol_val_calcs if any of them changed
+
+        // update lst_state_list first so we can use the new lst_state_list to reset pricing program
+        if let Some(lst_state_list_acc) = account_map.get(&self.lst_state_list_addr) {
+            res = res.and(try_lst_state_list(&lst_state_list_acc.data).map_or_else(
+                |e| Err(e.into()),
+                |lst_state_list| {
+                    self.update_lst_state_list(Vec::from(lst_state_list));
+                    Ok(())
+                },
+            ));
+        }
+
+        if let Some(pool_state_acc) = account_map.get(&self.pool_state_addr) {
+            res = res.and(try_pool_state(&pool_state_acc.data).map_or_else(
+                |e| Err(e.into()),
+                |ps| {
+                    let mut r = Ok(());
+                    // reinitialize pricing program if changed
+                    if let Some(old_ps) = self.pool_state {
+                        if old_ps.pricing_program != ps.pricing_program {
+                            let new_pricing_prog = try_pricing_prog(ps, &self.lst_state_list)
+                                .map(|mut pp| {
+                                    r = pp.update(account_map);
+                                    pp
+                                })
+                                .ok();
+                            self.pricing_prog = new_pricing_prog;
+                        }
+                    }
+                    self.pool_state = Some(*ps);
+                    r
+                },
+            ));
+        }
+
+        res
     }
 
     fn quote(&self, _quote_params: &QuoteParams) -> anyhow::Result<Quote> {

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use sanctum_token_ratio::U64ValueRange;
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
@@ -17,7 +17,7 @@ use solana_readonly_account::ReadonlyAccountData;
 ///     fn update(
 ///         &mut self,
 ///         account_map: &HashMap<Pubkey, Account>,
-///     ) -> Result<(), Box<dyn Error + Send + Sync>>;
+///     ) -> anyhow::Result<()>;
 /// }
 ///
 /// impl<P: MutableLstSolValCalc> JupPricingProg for P {
@@ -28,7 +28,7 @@ use solana_readonly_account::ReadonlyAccountData;
 ///     fn update(
 ///         &mut self,
 ///         account_map: &HashMap<Pubkey, Account>,
-///     ) -> Result<(), Box<dyn Error + Send + Sync>> {
+///     ) -> anyhow::Result<()> {
 ///         MutableLstSolValCalc::update(self, account_map)
 ///     }
 /// }
@@ -42,7 +42,7 @@ pub trait MutableLstSolValCalc {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<()>;
 }
 
 /// Each LstSolValCalc handles SOL value calculation for a single LST mint
@@ -54,10 +54,10 @@ pub trait LstSolValCalc {
     fn lst_mint(&self) -> Pubkey;
 
     /// Returns lamport value range of `lst_amount`
-    fn lst_to_sol(&self, lst_amount: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>>;
+    fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<U64ValueRange>;
 
     /// Returns LST value range of `lamports`
-    fn sol_to_lst(&self, lamports: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>>;
+    fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange>;
 
     /// Returns the account inputs to the program's SolToLst and LstToSol
     /// instructions. Both should be the same.
