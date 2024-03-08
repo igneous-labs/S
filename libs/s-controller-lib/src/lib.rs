@@ -71,7 +71,7 @@ pub const PROTOCOL_FEE_PDA_SEED: &[u8] = b"protocol-fee";
 
 pub mod program {
     sanctum_macros::declare_program_keys!(
-        "scoeWYRwSor53KxfQ8EkNCkka1vasF8td3P3nfHQvsv",
+        "5ocnV1qiCgaQR8Jb8xWnVbApfaygJ8tNoZfgPwsgx9kx",
         [
             ("pool-state", b"state"),
             ("lst-state-list", b"lst-state-list"),
