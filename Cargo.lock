@@ -3853,7 +3853,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "s-sol-val-cal-prog-aggregate"
+name = "s-sol-val-calc-prog-aggregate"
 version = "0.1.0"
 dependencies = [
  "bincode",
