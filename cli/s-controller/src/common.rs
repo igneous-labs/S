@@ -55,7 +55,7 @@ pub fn sol_val_calc_of_sanctum_lst(sanctum_lst: &SanctumLst) -> Pubkey {
         PoolInfo::ReservePool => wsol_calculator_lib::program::ID,
         PoolInfo::SanctumSpl(_) => spl_calculator_lib::sanctum_spl_sol_val_calc_program::ID,
         PoolInfo::Spl(_) => spl_calculator_lib::program::ID,
-        PoolInfo::Socean(_) => panic!("Socean sol val calc todo"),
+        PoolInfo::SPool(_) => todo!(),
     }
 }
 
@@ -86,7 +86,7 @@ pub fn sol_value_calculator_accounts_of_sanctum_lst(
             })
             .to_vec()
         }
-        PoolInfo::Socean(_) => panic!("Socean sol val calc accounts todo"),
+        PoolInfo::SPool(_) => todo!(),
     }
 }
 

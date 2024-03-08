@@ -3794,6 +3794,7 @@ version = "1.0.0"
 dependencies = [
  "borsh 0.10.3",
  "bytemuck",
+ "flat-fee-lib",
  "s_controller_interface",
  "sanctum-associated-token-lib",
  "sanctum-macros",
@@ -3890,7 +3891,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?rev=70e955f#70e955fd8910a7306c0637b14ee70ed9b8888f16"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?rev=4de2fe5#4de2fe5a6f0ae2bf119c12ff26d0fdace182fcf0"
 dependencies = [
  "sanctum-macros",
  "serde",
@@ -3901,9 +3902,9 @@ dependencies = [
 
 [[package]]
 name = "sanctum-macros"
-version = "1.0.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2798eaa062e9d5a3aebde36c23f8c7a368898c41367afe4af2ca9c6970bec1b0"
+checksum = "23668fc5661fe63573abfbb823e3bfe246d3939dafbf56d361a9b3dbea72fa0d"
 dependencies = [
  "heck",
  "proc-macro2",
