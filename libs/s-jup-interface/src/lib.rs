@@ -12,23 +12,34 @@ use s_sol_val_calc_prog_aggregate::{
     MutableLstSolValCalc, SanctumSplLstSolValCalc, SplLstSolValCalc, SplLstSolValCalcInitKeys,
     WsolLstSolValCalc,
 };
+use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
-use solana_program::pubkey::Pubkey;
+use sanctum_token_lib::{mint_supply, token_account_balance};
+use solana_program::pubkey::{Pubkey, PubkeyError};
 use std::str::FromStr;
 
 pub const LABEL: &str = "Sanctum Infinity";
+
+#[derive(Debug, Clone)]
+pub struct LstData {
+    pub sol_val_calc: KnownLstSolValCalc,
+    pub reserves_balance: Option<u64>,
+    pub token_program: Pubkey,
+}
 
 #[derive(Debug, Clone)]
 pub struct SPool {
     pub program_id: Pubkey,
     pub lst_state_list_addr: Pubkey,
     pub pool_state_addr: Pubkey,
+    pub lp_mint_supply: Option<u64>,
     pub pool_state: Option<PoolState>,
     pub pricing_prog: Option<KnownPricingProg>,
     pub lst_state_list: Vec<LstState>,
     // indices match that of lst_state_list.
-    // None means we don't know how to handle the given lst sol val calc
-    pub lst_sol_val_calcs: Vec<Option<KnownLstSolValCalc>>,
+    // None means we don't know how to handle the given lst
+    // this could be due to incomplete data or unknown LST sol value calculator program
+    pub lst_data_list: Vec<Option<LstData>>,
 }
 
 impl Default for SPool {
@@ -37,10 +48,11 @@ impl Default for SPool {
             program_id: s_controller_lib::program::ID,
             lst_state_list_addr: s_controller_lib::program::LST_STATE_LIST_ID,
             pool_state_addr: s_controller_lib::program::POOL_STATE_ID,
+            lp_mint_supply: None,
             pool_state: None,
             pricing_prog: None,
             lst_state_list: Vec::new(),
-            lst_sol_val_calcs: Vec::new(),
+            lst_data_list: Vec::new(),
         }
     }
 }
@@ -90,9 +102,9 @@ impl SPool {
             lst_state_list: lst_state_list_addr,
             pool_state: pool_state_addr,
         } = Self::init_accounts(program_id);
-        let lst_sol_val_calcs = lst_state_list
+        let lst_data_list = lst_state_list
             .iter()
-            .map(|lst_state| try_lst_sol_val_calc(lst_list, lst_state))
+            .map(|lst_state| try_lst_data(lst_list, lst_state))
             .collect();
         Self {
             program_id,
@@ -100,8 +112,9 @@ impl SPool {
             pool_state_addr,
             pool_state: None,
             pricing_prog: None,
+            lp_mint_supply: None,
             lst_state_list,
-            lst_sol_val_calcs,
+            lst_data_list,
         }
     }
 
@@ -114,6 +127,7 @@ impl SPool {
             lst_state_list: lst_state_list_addr,
             pool_state: pool_state_addr,
         } = Self::init_accounts(program_id);
+
         let lst_state_list_acc = accounts
             .get(&lst_state_list_addr)
             .ok_or_else(|| anyhow!("Missing LST state list {lst_state_list_addr}"))?;
@@ -132,7 +146,7 @@ impl SPool {
 
     fn update_lst_state_list(&mut self, new_lst_state_list: Vec<LstState>) {
         // simple model for diffs:
-        // - if new and old list differs in mints, then try to find the mismatch and replace it
+        // - if new and old list differs in mints, then try to find the mismatches and replace them
         // - if sol val calc program changed, then just invalidate to None. Otherwise we would need a
         //   SanctumLstList to reinitialize the KnownLstSolValCalc
         // - if list was extended, the new entries will just be None and we cant handle it. Otherwise we would need a
@@ -150,38 +164,75 @@ impl SPool {
             self.lst_state_list = new_lst_state_list;
             return;
         }
-        // rebuild entire sol val calcs vec by cloning from old vec
-        let mut new_sol_val_calcs = vec![None; new_lst_state_list.len()];
+        // Either at least 1 sol value calculator changed or mint changed:
+        // rebuild entire sol val calcs and lst_reserves_balance vec by cloning from old vec
+        let mut new_lst_data_list = vec![None; new_lst_state_list.len()];
         self.lst_state_list
             .iter()
-            .zip(self.lst_sol_val_calcs.iter())
-            .zip(new_sol_val_calcs.iter_mut())
+            .zip(self.lst_data_list.iter())
             .zip(new_lst_state_list.iter())
+            .zip(new_lst_data_list.iter_mut())
             .for_each(
-                |(((old_lst_state, old_lst_sol_val_calc), new_sol_val_calc), new_lst_state)| {
-                    if old_lst_state.mint != new_lst_state.mint {
-                        let replacement_sol_val_calc = self
-                            .lst_sol_val_calcs
+                |(((old_lst_state, old_lst_data), new_lst_state), new_lst_data)| {
+                    let replacement = if old_lst_state.mint != new_lst_state.mint {
+                        self.lst_data_list
                             .iter()
                             .find(|opt| match opt {
-                                Some(lsvc) => {
-                                    lsvc.lst_mint() == new_lst_state.mint
-                                        && lsvc.sol_value_calculator_program_id()
+                                Some(ld) => {
+                                    ld.sol_val_calc.lst_mint() == new_lst_state.mint
+                                        && ld.sol_val_calc.sol_value_calculator_program_id()
                                             == new_lst_state.sol_value_calculator
                                 }
                                 None => false,
                             })
-                            .map_or_else(|| None, |x| x.as_ref().cloned());
-                        *new_sol_val_calc = replacement_sol_val_calc;
-                    } else if old_lst_state.sol_value_calculator
-                        == new_lst_state.sol_value_calculator
-                    {
-                        *new_sol_val_calc = old_lst_sol_val_calc.clone();
-                    }
+                            .cloned()
+                            .flatten()
+                    } else {
+                        old_lst_data
+                            .as_ref()
+                            .map_or_else(
+                                || None,
+                                |ld| {
+                                    if ld.sol_val_calc.sol_value_calculator_program_id()
+                                        == new_lst_state.sol_value_calculator
+                                    {
+                                        Some(ld)
+                                    } else {
+                                        None
+                                    }
+                                },
+                            )
+                            .cloned()
+                    };
+                    *new_lst_data = replacement;
                 },
             );
-        self.lst_sol_val_calcs = new_sol_val_calcs;
+        self.lst_data_list = new_lst_data_list;
         self.lst_state_list = new_lst_state_list;
+    }
+
+    pub fn pool_reserves_account(
+        &self,
+        LstState {
+            mint,
+            pool_reserves_bump,
+            ..
+        }: &LstState,
+        LstData { token_program, .. }: &LstData,
+    ) -> Result<Pubkey, PubkeyError> {
+        CreateAtaAddressArgs {
+            find_ata_args: FindAtaAddressArgs {
+                wallet: self.pool_state_addr,
+                mint: *mint,
+                token_program: *token_program,
+            },
+            bump: *pool_reserves_bump,
+        }
+        .create_ata_address()
+    }
+
+    pub fn quote_swap_exact_in(&self, QuoteParams { .. }: &QuoteParams) -> anyhow::Result<Quote> {
+        todo!()
     }
 }
 
@@ -256,12 +307,20 @@ impl Amm for SPool {
         if let Some(pricing_prog) = &self.pricing_prog {
             res.extend(pricing_prog.get_accounts_to_update());
         }
+        if let Some(pool_state) = &self.pool_state {
+            res.push(pool_state.lp_token_mint);
+        }
         res.extend(
-            self.lst_sol_val_calcs
+            self.lst_state_list
                 .iter()
-                .filter_map(|lst_sol_val_calc| {
-                    let lst_sol_val_calc = lst_sol_val_calc.as_ref()?;
-                    Some(lst_sol_val_calc.get_accounts_to_update())
+                .zip(self.lst_data_list.iter())
+                .filter_map(|(lst_state, lst_data)| {
+                    let lst_data = lst_data.as_ref()?;
+                    let mut res = lst_data.sol_val_calc.get_accounts_to_update();
+                    if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
+                        res.push(ata);
+                    }
+                    Some(res)
                 })
                 .flatten(),
         );
@@ -271,21 +330,45 @@ impl Amm for SPool {
     fn update(&mut self, account_map: &AccountMap) -> anyhow::Result<()> {
         // returns the first encountered error, but tries to update everything eagerly
         // even after encountering an error
+
+        // use raw indices to avoid lifetime errs from borrowing immut field (self.lst_state_list)
+        // while borrowing mut field (self.lst_data_list)
         #[allow(clippy::manual_try_fold)] // we dont want to short-circuit, so dont try_fold()
-        let mut res = self
-            .lst_sol_val_calcs
-            .iter_mut()
-            .map(|lsvc| {
-                let lsvc = match lsvc {
+        let mut res = (0..self.lst_data_list.len())
+            .map(|i| {
+                let mut r = Ok(());
+                let ld = match &self.lst_data_list[i] {
                     Some(l) => l,
                     None => return Ok(()),
                 };
-                lsvc.update(account_map)
+                let ata = match self.pool_reserves_account(&self.lst_state_list[i], ld) {
+                    Ok(pk) => Some(pk),
+                    Err(e) => {
+                        r = r.and(Err(e.into()));
+                        None
+                    }
+                };
+                let ld = match &mut self.lst_data_list[i] {
+                    Some(l) => l,
+                    None => return Ok(()),
+                };
+                r = r.and(ld.sol_val_calc.update(account_map));
+                if let Some(ata) = ata {
+                    if let Some(fetched) = account_map.get(&ata) {
+                        match token_account_balance(fetched) {
+                            Ok(b) => ld.reserves_balance = Some(b),
+                            Err(e) => r = r.and(Err(e.into())),
+                        }
+                    }
+                }
+                r
             })
             .fold(Ok(()), |res, curr_res| res.and(curr_res));
+
         if let Some(pp) = self.pricing_prog.as_mut() {
             res = res.and(pp.update(account_map));
         }
+
         // update pool state and lst_state_list last so we can invalidate
         // pricing_prog and lst_sol_val_calcs if any of them changed
 
@@ -321,6 +404,16 @@ impl Amm for SPool {
                     r
                 },
             ));
+        }
+
+        // finally, update LP token supply after pool state has been updated
+        if let Some(pool_state) = self.pool_state {
+            if let Some(lp_token_mint_acc) = account_map.get(&pool_state.lp_token_mint) {
+                match mint_supply(lp_token_mint_acc) {
+                    Ok(supply) => self.lp_mint_supply = Some(supply),
+                    Err(e) => res = res.and(Err(e.into())),
+                }
+            }
         }
 
         res
@@ -361,15 +454,19 @@ fn try_pricing_prog(
     )?)
 }
 
-fn try_lst_sol_val_calc(
+fn try_lst_data(
     lst_list: &[SanctumLst],
     LstState {
         mint,
         sol_value_calculator,
         ..
     }: &LstState,
-) -> Option<KnownLstSolValCalc> {
-    let SanctumLst { pool, .. } = lst_list.iter().find(|s| s.mint == *mint)?;
+) -> Option<LstData> {
+    let SanctumLst {
+        pool,
+        token_program,
+        ..
+    } = lst_list.iter().find(|s| s.mint == *mint)?;
     let calc = match pool {
         PoolInfo::Lido => KnownLstSolValCalc::Lido(LidoLstSolValCalc::default()),
         PoolInfo::Marinade => KnownLstSolValCalc::Marinade(MarinadeLstSolValCalc::default()),
@@ -391,6 +488,10 @@ fn try_lst_sol_val_calc(
     if *sol_value_calculator != calc.sol_value_calculator_program_id() {
         None
     } else {
-        Some(calc)
+        Some(LstData {
+            sol_val_calc: calc,
+            reserves_balance: None,
+            token_program: *token_program,
+        })
     }
 }
