@@ -336,32 +336,25 @@ impl Amm for SPool {
         #[allow(clippy::manual_try_fold)] // we dont want to short-circuit, so dont try_fold()
         let mut res = (0..self.lst_data_list.len())
             .map(|i| {
-                let mut r = Ok(());
                 let ld = match &self.lst_data_list[i] {
                     Some(l) => l,
                     None => return Ok(()),
                 };
-                let ata = match self.pool_reserves_account(&self.lst_state_list[i], ld) {
-                    Ok(pk) => Some(pk),
-                    Err(e) => {
-                        r = r.and(Err(e.into()));
-                        None
-                    }
-                };
+                let ata_res = self.pool_reserves_account(&self.lst_state_list[i], ld);
                 let ld = match &mut self.lst_data_list[i] {
                     Some(l) => l,
                     None => return Ok(()),
                 };
-                r = r.and(ld.sol_val_calc.update(account_map));
-                if let Some(ata) = ata {
-                    if let Some(fetched) = account_map.get(&ata) {
-                        match token_account_balance(fetched) {
-                            Ok(b) => ld.reserves_balance = Some(b),
-                            Err(e) => r = r.and(Err(e.into())),
+                let r = ld.sol_val_calc.update(account_map);
+                r.and(ata_res.map_or_else(
+                    |e| Err(e.into()),
+                    |ata| {
+                        if let Some(fetched) = account_map.get(&ata) {
+                            ld.reserves_balance = Some(token_account_balance(fetched)?);
                         }
-                    }
-                }
-                r
+                        Ok(())
+                    },
+                ))
             })
             .fold(Ok(()), |res, curr_res| res.and(curr_res));
 
