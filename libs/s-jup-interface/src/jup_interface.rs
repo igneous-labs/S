@@ -124,8 +124,14 @@ impl Amm for SPoolJup {
     fn quote(&self, quote_params: &QuoteParams) -> anyhow::Result<Quote> {
         let lp_mint = self.pool_state()?.lp_token_mint;
         if quote_params.input_mint == lp_mint {
+            if let SwapMode::ExactOut = quote_params.swap_mode {
+                return Err(anyhow!("ExactOut not supported for remove liquidity"));
+            }
             self.quote_remove_liquidity(quote_params)
         } else if quote_params.output_mint == lp_mint {
+            if let SwapMode::ExactOut = quote_params.swap_mode {
+                return Err(anyhow!("ExactOut not supported for add liquidity"));
+            }
             self.quote_add_liquidity(quote_params)
         } else {
             match quote_params.swap_mode {
