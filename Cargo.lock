@@ -3995,6 +3995,7 @@ dependencies = [
  "serde_json",
  "solana-program",
  "solana-readonly-account",
+ "solana-sdk",
 ]
 
 [[package]]

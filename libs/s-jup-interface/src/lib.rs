@@ -7,7 +7,9 @@ use rust_decimal::{prelude::FromPrimitive, Decimal};
 use s_controller_interface::{LstState, PoolState, SControllerError};
 use s_controller_lib::{
     calc_swap_protocol_fees, find_lst_state_list_address, find_pool_state_address,
-    sync_sol_value_with_retval, try_lst_state_list, try_pool_state, CalcSwapProtocolFeesArgs,
+    swap_exact_in_ix_by_mint_full, sync_sol_value_with_retval, try_lst_state_list, try_pool_state,
+    CalcSwapProtocolFeesArgs, SrcDstLstSolValueCalcAccountSuffixes, SwapByMintsFreeArgs,
+    SwapExactInAmounts,
 };
 use s_pricing_prog_aggregate::{KnownPricingProg, MutablePricingProg, PricingProg};
 use s_sol_val_calc_prog_aggregate::{
@@ -17,9 +19,10 @@ use s_sol_val_calc_prog_aggregate::{
 };
 use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
-use sanctum_token_lib::{mint_supply, token_account_balance};
+use sanctum_token_lib::{mint_supply, token_account_balance, MintWithTokenProgram};
 use sanctum_token_ratio::{AmtsAfterFee, AmtsAfterFeeBuilder};
 use solana_program::pubkey::{Pubkey, PubkeyError};
+use solana_sdk::{account::Account, instruction::Instruction};
 use std::str::FromStr;
 
 pub const LABEL: &str = "Sanctum Infinity";
@@ -32,30 +35,31 @@ pub struct LstData {
 }
 
 #[derive(Debug, Clone)]
-pub struct SPool {
+pub struct SPoolJup {
     pub program_id: Pubkey,
     pub lst_state_list_addr: Pubkey,
     pub pool_state_addr: Pubkey,
     pub lp_mint_supply: Option<u64>,
-    pub pool_state: Option<PoolState>,
+    // keep as raw Account to use with solana-readonly-account traits
+    pub pool_state_account: Option<Account>,
+    pub lst_state_list_account: Account,
     pub pricing_prog: Option<KnownPricingProg>,
-    pub lst_state_list: Vec<LstState>,
     // indices match that of lst_state_list.
     // None means we don't know how to handle the given lst
     // this could be due to incomplete data or unknown LST sol value calculator program
     pub lst_data_list: Vec<Option<LstData>>,
 }
 
-impl Default for SPool {
+impl Default for SPoolJup {
     fn default() -> Self {
         Self {
             program_id: s_controller_lib::program::ID,
             lst_state_list_addr: s_controller_lib::program::LST_STATE_LIST_ID,
             pool_state_addr: s_controller_lib::program::POOL_STATE_ID,
             lp_mint_supply: None,
-            pool_state: None,
+            pool_state_account: None,
             pricing_prog: None,
-            lst_state_list: Vec::new(),
+            lst_state_list_account: Account::default(),
             lst_data_list: Vec::new(),
         }
     }
@@ -87,7 +91,25 @@ impl Default for SPoolInitAccounts {
     }
 }
 
-impl SPool {
+impl SPoolJup {
+    pub fn pool_state(&self) -> anyhow::Result<&PoolState> {
+        let pool_state = self
+            .pool_state_account
+            .as_ref()
+            .ok_or_else(|| anyhow!("Pool state not fetched"))?;
+        Ok(try_pool_state(&pool_state.data)?)
+    }
+
+    pub fn lst_state_list(&self) -> anyhow::Result<&[LstState]> {
+        Ok(try_lst_state_list(&self.lst_state_list_account.data)?)
+    }
+
+    pub fn pricing_prog(&self) -> anyhow::Result<&KnownPricingProg> {
+        self.pricing_prog
+            .as_ref()
+            .ok_or_else(|| anyhow!("pricing program not fetched"))
+    }
+
     /// Gets the list of accounts that must be fetched first to initialize
     /// SPool by passing the result into [`Self::from_fetched_accounts`]
     pub fn init_accounts(program_id: Pubkey) -> SPoolInitAccounts {
@@ -97,29 +119,30 @@ impl SPool {
         }
     }
 
-    pub fn from_lst_state_list(
+    pub fn from_lst_state_list_account(
         program_id: Pubkey,
-        lst_state_list: Vec<LstState>,
+        lst_state_list_account: Account,
         lst_list: &[SanctumLst],
-    ) -> Self {
+    ) -> anyhow::Result<Self> {
         let SPoolInitAccounts {
             lst_state_list: lst_state_list_addr,
             pool_state: pool_state_addr,
         } = Self::init_accounts(program_id);
+        let lst_state_list = try_lst_state_list(&lst_state_list_account.data)?;
         let lst_data_list = lst_state_list
             .iter()
             .map(|lst_state| try_lst_data(lst_list, lst_state))
             .collect();
-        Self {
+        Ok(Self {
             program_id,
             lst_state_list_addr,
             pool_state_addr,
-            pool_state: None,
+            pool_state_account: None,
             pricing_prog: None,
             lp_mint_supply: None,
-            lst_state_list,
+            lst_state_list_account,
             lst_data_list,
-        }
+        })
     }
 
     pub fn from_fetched_accounts(
@@ -142,8 +165,9 @@ impl SPool {
         let pool_state = try_pool_state(&pool_state_acc.data)?;
         let pricing_prog = try_pricing_prog(pool_state, &lst_state_list)?;
 
-        let mut res = Self::from_lst_state_list(program_id, lst_state_list, lst_list);
-        res.pool_state = Some(*pool_state);
+        let mut res =
+            Self::from_lst_state_list_account(program_id, lst_state_list_acc.clone(), lst_list)?;
+        res.pool_state_account = Some(pool_state_acc.clone());
         res.pricing_prog = Some(pricing_prog);
         Ok(res)
     }
@@ -177,9 +201,7 @@ impl SPool {
             swap_mode: _,
         }: &QuoteParams,
     ) -> anyhow::Result<Quote> {
-        let pool_state = self
-            .pool_state
-            .ok_or_else(|| anyhow!("pool state not fetched"))?;
+        let pool_state = self.pool_state()?;
         let pricing_prog = self
             .pricing_prog
             .as_ref()
@@ -187,7 +209,7 @@ impl SPool {
 
         let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
         let (pool_state, _input_lst_state, _input_reserves_balance) =
-            apply_sync_sol_value(pool_state, *input_lst_state, input_lst_data)?;
+            apply_sync_sol_value(*pool_state, *input_lst_state, input_lst_data)?;
         let (output_lst_state, output_lst_data) = self.find_ready_lst(*output_mint)?;
         let (pool_state, _output_lst_state, output_reserves_balance) =
             apply_sync_sol_value(pool_state, *output_lst_state, output_lst_data)?;
@@ -242,9 +264,77 @@ impl SPool {
         })
     }
 
+    pub fn swap_exact_in(
+        &self,
+        SwapParams {
+            in_amount,
+            out_amount,
+            source_mint,
+            destination_mint,
+            source_token_account,
+            destination_token_account,
+            token_transfer_authority,
+            ..
+        }: &SwapParams,
+    ) -> anyhow::Result<SwapAndAccountMetas> {
+        let (
+            _,
+            LstData {
+                token_program: src_token_program,
+                sol_val_calc: src_sol_val_calc,
+                ..
+            },
+        ) = self.find_ready_lst(*source_mint)?;
+        let (
+            _,
+            LstData {
+                token_program: dst_token_program,
+                sol_val_calc: dst_sol_val_calc,
+                ..
+            },
+        ) = self.find_ready_lst(*destination_mint)?;
+        let Instruction { accounts, .. } = swap_exact_in_ix_by_mint_full(
+            SwapByMintsFreeArgs {
+                signer: *token_transfer_authority,
+                src_lst_acc: *source_token_account,
+                dst_lst_acc: *destination_token_account,
+                src_lst_mint: MintWithTokenProgram {
+                    pubkey: *source_mint,
+                    token_program: *src_token_program,
+                },
+                dst_lst_mint: MintWithTokenProgram {
+                    pubkey: *destination_mint,
+                    token_program: *dst_token_program,
+                },
+                lst_state_list: &self.lst_state_list_account,
+            },
+            SwapExactInAmounts {
+                // TODO: where did other_amount_threshold go?
+                min_amount_out: *out_amount,
+                amount: *in_amount,
+            },
+            SrcDstLstSolValueCalcAccountSuffixes {
+                src_lst_calculator_accounts: &src_sol_val_calc.ix_accounts(),
+                dst_lst_calculator_accounts: &dst_sol_val_calc.ix_accounts(),
+            },
+            &self
+                .pricing_prog()?
+                .price_exact_in_accounts(PriceExactInKeys {
+                    input_lst_mint: *source_mint,
+                    output_lst_mint: *destination_mint,
+                })?,
+            self.pool_state()?.pricing_program,
+        )?;
+        Ok(SwapAndAccountMetas {
+            // TODO: update this
+            swap: jupiter_amm_interface::Swap::StakeDexStakeWrappedSol,
+            account_metas: accounts,
+        })
+    }
+
     fn find_ready_lst(&self, lst_mint: Pubkey) -> anyhow::Result<(&LstState, &LstData)> {
         let (lst_state, lst_data) = self
-            .lst_state_list
+            .lst_state_list()?
             .iter()
             .zip(self.lst_data_list.iter())
             .find(|(state, _data)| state.mint == lst_mint)
@@ -255,30 +345,30 @@ impl SPool {
         Ok((lst_state, lst_data))
     }
 
-    fn update_lst_state_list(&mut self, new_lst_state_list: Vec<LstState>) {
+    fn update_lst_state_list(&mut self, new_lst_state_list_account: Account) -> anyhow::Result<()> {
         // simple model for diffs:
         // - if new and old list differs in mints, then try to find the mismatches and replace them
         // - if sol val calc program changed, then just invalidate to None. Otherwise we would need a
         //   SanctumLstList to reinitialize the KnownLstSolValCalc
         // - if list was extended, the new entries will just be None and we cant handle it. Otherwise we would need a
         //   SanctumLstList to initialize the KnownLstSolValCalc
-        if self.lst_state_list.len() == new_lst_state_list.len()
-            && self
-                .lst_state_list
-                .iter()
-                .zip(new_lst_state_list.iter())
-                .all(|(old_lst_state, new_lst_state)| {
+        let lst_state_list = self.lst_state_list()?;
+        let new_lst_state_list = try_lst_state_list(&new_lst_state_list_account.data)?;
+        if lst_state_list.len() == new_lst_state_list.len()
+            && lst_state_list.iter().zip(new_lst_state_list.iter()).all(
+                |(old_lst_state, new_lst_state)| {
                     old_lst_state.mint == new_lst_state.mint
                         && old_lst_state.sol_value_calculator == new_lst_state.sol_value_calculator
-                })
+                },
+            )
         {
-            self.lst_state_list = new_lst_state_list;
-            return;
+            self.lst_state_list_account = new_lst_state_list_account;
+            return Ok(());
         }
         // Either at least 1 sol value calculator changed or mint changed:
-        // rebuild entire sol val calcs and lst_reserves_balance vec by cloning from old vec
+        // rebuild entire lst_data vec by cloning from old vec
         let mut new_lst_data_list = vec![None; new_lst_state_list.len()];
-        self.lst_state_list
+        lst_state_list
             .iter()
             .zip(self.lst_data_list.iter())
             .zip(new_lst_state_list.iter())
@@ -319,11 +409,12 @@ impl SPool {
                 },
             );
         self.lst_data_list = new_lst_data_list;
-        self.lst_state_list = new_lst_state_list;
+        self.lst_state_list_account = new_lst_state_list_account;
+        Ok(())
     }
 }
 
-impl Amm for SPool {
+impl Amm for SPoolJup {
     /// Initialized by lst_state_list account, NOT pool_state.
     ///
     /// Params can optionally be a b58-encoded pubkey string that is the S controller program's program_id
@@ -355,13 +446,8 @@ impl Amm for SPool {
                 "Incorrect LST state list addr. Expected {lst_state_list_addr}. Got {key}"
             ));
         }
-        let lst_state_list = Vec::from(try_lst_state_list(&account.data)?);
         let SanctumLstList { sanctum_lst_list } = SanctumLstList::load();
-        Ok(Self::from_lst_state_list(
-            program_id,
-            lst_state_list,
-            &sanctum_lst_list,
-        ))
+        Self::from_lst_state_list_account(program_id, account.clone(), &sanctum_lst_list)
     }
 
     fn label(&self) -> String {
@@ -378,12 +464,11 @@ impl Amm for SPool {
     }
 
     fn get_reserve_mints(&self) -> Vec<Pubkey> {
-        let mut res: Vec<Pubkey> = self
-            .lst_state_list
-            .iter()
-            .map(|LstState { mint, .. }| *mint)
-            .collect();
-        if let Some(pool_state) = self.pool_state {
+        let mut res: Vec<Pubkey> = match self.lst_state_list() {
+            Ok(list) => list.iter().map(|LstState { mint, .. }| *mint).collect(),
+            Err(_e) => vec![],
+        };
+        if let Ok(pool_state) = self.pool_state() {
             res.push(pool_state.lp_token_mint);
         }
         res
@@ -394,23 +479,25 @@ impl Amm for SPool {
         if let Some(pricing_prog) = &self.pricing_prog {
             res.extend(pricing_prog.get_accounts_to_update());
         }
-        if let Some(pool_state) = &self.pool_state {
+        if let Ok(pool_state) = &self.pool_state() {
             res.push(pool_state.lp_token_mint);
         }
-        res.extend(
-            self.lst_state_list
-                .iter()
-                .zip(self.lst_data_list.iter())
-                .filter_map(|(lst_state, lst_data)| {
-                    let lst_data = lst_data.as_ref()?;
-                    let mut res = lst_data.sol_val_calc.get_accounts_to_update();
-                    if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
-                        res.push(ata);
-                    }
-                    Some(res)
-                })
-                .flatten(),
-        );
+        if let Ok(lst_state_list) = self.lst_state_list() {
+            res.extend(
+                lst_state_list
+                    .iter()
+                    .zip(self.lst_data_list.iter())
+                    .filter_map(|(lst_state, lst_data)| {
+                        let lst_data = lst_data.as_ref()?;
+                        let mut res = lst_data.sol_val_calc.get_accounts_to_update();
+                        if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
+                            res.push(ata);
+                        }
+                        Some(res)
+                    })
+                    .flatten(),
+            );
+        }
         res
     }
 
@@ -427,7 +514,7 @@ impl Amm for SPool {
                     Some(l) => l,
                     None => return Ok(()),
                 };
-                let ata_res = self.pool_reserves_account(&self.lst_state_list[i], ld);
+                let ata_res = self.pool_reserves_account(&self.lst_state_list()?[i], ld);
                 let ld = match &mut self.lst_data_list[i] {
                     Some(l) => l,
                     None => return Ok(()),
@@ -454,24 +541,19 @@ impl Amm for SPool {
 
         // update lst_state_list first so we can use the new lst_state_list to reset pricing program
         if let Some(lst_state_list_acc) = account_map.get(&self.lst_state_list_addr) {
-            res = res.and(try_lst_state_list(&lst_state_list_acc.data).map_or_else(
-                |e| Err(e.into()),
-                |lst_state_list| {
-                    self.update_lst_state_list(Vec::from(lst_state_list));
-                    Ok(())
-                },
-            ));
+            res = res.and(self.update_lst_state_list(lst_state_list_acc.clone()));
         }
 
         if let Some(pool_state_acc) = account_map.get(&self.pool_state_addr) {
             res = res.and(try_pool_state(&pool_state_acc.data).map_or_else(
                 |e| Err(e.into()),
                 |ps| {
+                    let lst_state_list = self.lst_state_list()?;
                     let mut r = Ok(());
                     // reinitialize pricing program if changed
-                    if let Some(old_ps) = self.pool_state {
+                    if let Ok(old_ps) = self.pool_state() {
                         if old_ps.pricing_program != ps.pricing_program {
-                            let new_pricing_prog = try_pricing_prog(ps, &self.lst_state_list)
+                            let new_pricing_prog = try_pricing_prog(ps, lst_state_list)
                                 .map(|mut pp| {
                                     r = pp.update(account_map);
                                     pp
@@ -480,14 +562,14 @@ impl Amm for SPool {
                             self.pricing_prog = new_pricing_prog;
                         }
                     }
-                    self.pool_state = Some(*ps);
+                    self.pool_state_account = Some(pool_state_acc.clone());
                     r
                 },
             ));
         }
 
         // finally, update LP token supply after pool state has been updated
-        if let Some(pool_state) = self.pool_state {
+        if let Ok(pool_state) = self.pool_state() {
             if let Some(lp_token_mint_acc) = account_map.get(&pool_state.lp_token_mint) {
                 match mint_supply(lp_token_mint_acc) {
                     Ok(supply) => self.lp_mint_supply = Some(supply),
