@@ -126,7 +126,7 @@ impl Amm for SPoolJup {
         if quote_params.input_mint == lp_mint {
             unimplemented!("remove liquidity");
         } else if quote_params.output_mint == lp_mint {
-            unimplemented!("add liquidity")
+            self.quote_add_liquidity(quote_params)
         } else {
             match quote_params.swap_mode {
                 SwapMode::ExactIn => self.quote_swap_exact_in(quote_params),
@@ -143,7 +143,7 @@ impl Amm for SPoolJup {
         if swap_params.source_mint == lp_mint {
             unimplemented!("remove liquidity");
         } else if swap_params.destination_mint == lp_mint {
-            unimplemented!("add liquidity")
+            self.add_liquidity_swap_and_account_metas(swap_params)
         } else {
             // TODO: wtf where did swap_params.swap_mode go?
             // right now if output == 0 => assume ExactIn

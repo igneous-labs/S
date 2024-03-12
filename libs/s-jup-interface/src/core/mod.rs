@@ -5,10 +5,12 @@ use solana_sdk::instruction::Instruction;
 
 use crate::SPoolJup;
 
+mod add_liquidity;
 mod common;
 mod swap_exact_in;
 mod swap_exact_out;
 
+pub use add_liquidity::*;
 pub use swap_exact_in::*;
 pub use swap_exact_out::*;
 
@@ -21,7 +23,7 @@ impl SPoolJup {
         if swap_params.source_mint == lp_mint {
             unimplemented!("remove liquidity");
         } else if swap_params.destination_mint == lp_mint {
-            unimplemented!("add liquidity")
+            self.add_liquidity_ix(swap_params)
         } else {
             // TODO: wtf where did swap_params.swap_mode go?
             // right now if output == 0 => assume ExactIn
