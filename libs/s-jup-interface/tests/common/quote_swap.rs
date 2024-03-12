@@ -1,4 +1,4 @@
-use jupiter_amm_interface::{Amm, Quote, QuoteParams, SwapMode, SwapParams};
+use jupiter_amm_interface::{Amm, Quote, QuoteParams, SwapParams};
 use s_jup_interface::SPoolJup;
 use sanctum_associated_token_lib::FindAtaAddressArgs;
 use sanctum_solana_test_utils::ExtendedBanksClient;
@@ -44,23 +44,21 @@ pub async fn assert_quote_swap_eq(
 
     assert!(!not_enough_liquidity);
     let ix = s
-        .swap_ix(&SwapParams {
-            in_amount,
-            // TODO: wtf where did swap_params.swap_mode go?
-            out_amount: if quote.swap_mode == SwapMode::ExactIn {
-                0
-            } else {
-                out_amount
+        .swap_ix(
+            &SwapParams {
+                in_amount,
+                out_amount,
+                source_mint: quote.input_mint,
+                destination_mint: quote.output_mint,
+                source_token_account,
+                destination_token_account,
+                token_transfer_authority: ata_wallet.pubkey(),
+                open_order_address: None,
+                quote_mint_to_referrer: None,
+                jupiter_program_id: &Pubkey::default(),
             },
-            source_mint: quote.input_mint,
-            destination_mint: quote.output_mint,
-            source_token_account,
-            destination_token_account,
-            token_transfer_authority: ata_wallet.pubkey(),
-            open_order_address: None,
-            quote_mint_to_referrer: None,
-            jupiter_program_id: &Pubkey::default(),
-        })
+            quote.swap_mode,
+        )
         .unwrap();
     let mut tx = Transaction::new_with_payer(&[ix], Some(&ata_wallet.pubkey()));
     let last_blockhash = bc.get_latest_blockhash().await.unwrap();

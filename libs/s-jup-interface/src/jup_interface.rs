@@ -152,11 +152,11 @@ impl Amm for SPoolJup {
             self.add_liquidity_swap_and_account_metas(swap_params)
         } else {
             // TODO: wtf where did swap_params.swap_mode go?
-            // right now if output == 0 => assume ExactIn
-            if swap_params.out_amount == 0 {
-                self.swap_exact_in_swap_and_account_metas(swap_params)
-            } else {
+            // right now if in_amount == 0 => assume ExactOut
+            if swap_params.in_amount == 0 {
                 self.swap_exact_out_swap_and_account_metas(swap_params)
+            } else {
+                self.swap_exact_in_swap_and_account_metas(swap_params)
             }
         }
     }
