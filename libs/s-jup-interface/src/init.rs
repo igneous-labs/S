@@ -48,6 +48,9 @@ impl SPoolJup {
         }
     }
 
+    /// `Self`s created from this fn must be updated 2 more times before they can be used
+    /// - first update fetches pool_state
+    /// - second update fetches LP token mint read from fetched pool_state
     pub fn from_lst_state_list_account(
         program_id: Pubkey,
         lst_state_list_account: Account,
@@ -74,6 +77,7 @@ impl SPoolJup {
         })
     }
 
+    /// `AccountMap` must contain accounts in [Self::init_accounts]
     pub fn from_fetched_accounts(
         program_id: Pubkey,
         accounts: &AccountMap,

@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use jupiter_amm_interface::{
-    AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
+    AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapMode, SwapParams,
 };
 use s_controller_interface::LstState;
 use s_controller_lib::find_lst_state_list_address;
@@ -17,7 +17,9 @@ pub const LABEL: &str = "Sanctum Infinity";
 impl Amm for SPoolJup {
     /// Initialized by lst_state_list account, NOT pool_state.
     ///
-    /// Params can optionally be a b58-encoded pubkey string that is the S controller program's program_id
+    /// params can optionally be a b58-encoded pubkey string that is the S controller program's program_id.
+    ///
+    /// Must be updated 2 more times before it can be used, see docs for [`Self::from_lst_state_list_account`]
     fn from_keyed_account(
         KeyedAccount {
             key,
@@ -29,7 +31,7 @@ impl Amm for SPoolJup {
         Self: Sized,
     {
         let (program_id, lst_state_list_addr) = match params {
-            // default to INF if program-id params not provided
+            // default to INF if program_id params not provided
             None => (
                 s_controller_lib::program::ID,
                 s_controller_lib::program::LST_STATE_LIST_ID,
@@ -58,7 +60,7 @@ impl Amm for SPoolJup {
         self.program_id
     }
 
-    /// S Pools are 1 per program
+    /// S Pools are 1 per program, so just use program ID as key
     fn key(&self) -> Pubkey {
         self.program_id()
     }
@@ -119,15 +121,38 @@ impl Amm for SPoolJup {
             .and(self.update_lp_token_supply(account_map))
     }
 
-    fn quote(&self, _quote_params: &QuoteParams) -> anyhow::Result<Quote> {
-        todo!()
+    fn quote(&self, quote_params: &QuoteParams) -> anyhow::Result<Quote> {
+        let lp_mint = self.pool_state()?.lp_token_mint;
+        if quote_params.input_mint == lp_mint {
+            unimplemented!("remove liquidity");
+        } else if quote_params.output_mint == lp_mint {
+            unimplemented!("add liquidity")
+        } else {
+            match quote_params.swap_mode {
+                SwapMode::ExactIn => self.quote_swap_exact_in(quote_params),
+                SwapMode::ExactOut => unimplemented!("swap exact out"),
+            }
+        }
     }
 
     fn get_swap_and_account_metas(
         &self,
-        _swap_params: &SwapParams,
+        swap_params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {
-        todo!()
+        let lp_mint = self.pool_state()?.lp_token_mint;
+        if swap_params.source_mint == lp_mint {
+            unimplemented!("remove liquidity");
+        } else if swap_params.destination_mint == lp_mint {
+            unimplemented!("add liquidity")
+        } else {
+            // TODO: wtf where did swap_params.swap_mode go?
+            // right now if output == 0 => assume ExactIn
+            if swap_params.out_amount == 0 {
+                self.swap_exact_in_swap_and_account_metas(swap_params)
+            } else {
+                unimplemented!("swap exact out")
+            }
+        }
     }
 
     fn clone_amm(&self) -> Box<dyn Amm + Send + Sync> {

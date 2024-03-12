@@ -3,7 +3,7 @@ use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams}
 use pricing_programs_interface::{PriceExactInIxArgs, PriceExactInKeys};
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
-    calc_swap_protocol_fees, swap_exact_in_ix_by_mint_full, CalcSwapProtocolFeesArgs,
+    calc_swap_protocol_fees, swap_exact_in_ix_by_mint_full_for_prog, CalcSwapProtocolFeesArgs,
     SrcDstLstSolValueCalcAccountSuffixes, SwapByMintsFreeArgs, SwapExactInAmounts,
 };
 use s_pricing_prog_aggregate::PricingProg;
@@ -89,7 +89,7 @@ impl SPoolJup {
         })
     }
 
-    pub fn swap_exact_in(
+    pub fn swap_exact_in_ix(
         &self,
         SwapParams {
             in_amount,
@@ -101,7 +101,7 @@ impl SPoolJup {
             token_transfer_authority,
             ..
         }: &SwapParams,
-    ) -> anyhow::Result<SwapAndAccountMetas> {
+    ) -> anyhow::Result<Instruction> {
         let (
             _,
             LstData {
@@ -118,7 +118,8 @@ impl SPoolJup {
                 ..
             },
         ) = self.find_ready_lst(*destination_mint)?;
-        let Instruction { accounts, .. } = swap_exact_in_ix_by_mint_full(
+        Ok(swap_exact_in_ix_by_mint_full_for_prog(
+            self.program_id,
             SwapByMintsFreeArgs {
                 signer: *token_transfer_authority,
                 src_lst_acc: *source_token_account,
@@ -149,7 +150,14 @@ impl SPoolJup {
                     output_lst_mint: *destination_mint,
                 })?,
             self.pool_state()?.pricing_program,
-        )?;
+        )?)
+    }
+
+    pub fn swap_exact_in_swap_and_account_metas(
+        &self,
+        params: &SwapParams,
+    ) -> anyhow::Result<SwapAndAccountMetas> {
+        let Instruction { accounts, .. } = self.swap_exact_in_ix(params)?;
         Ok(SwapAndAccountMetas {
             // TODO: jup to update this once new variant introduced
             swap: jupiter_amm_interface::Swap::StakeDexStakeWrappedSol,
