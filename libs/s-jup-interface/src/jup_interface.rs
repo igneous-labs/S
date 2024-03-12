@@ -130,7 +130,7 @@ impl Amm for SPoolJup {
         } else {
             match quote_params.swap_mode {
                 SwapMode::ExactIn => self.quote_swap_exact_in(quote_params),
-                SwapMode::ExactOut => unimplemented!("swap exact out"),
+                SwapMode::ExactOut => self.quote_swap_exact_out(quote_params),
             }
         }
     }
@@ -150,7 +150,7 @@ impl Amm for SPoolJup {
             if swap_params.out_amount == 0 {
                 self.swap_exact_in_swap_and_account_metas(swap_params)
             } else {
-                unimplemented!("swap exact out")
+                self.swap_exact_out_swap_and_account_metas(swap_params)
             }
         }
     }

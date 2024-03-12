@@ -7,8 +7,10 @@ use crate::SPoolJup;
 
 mod common;
 mod swap_exact_in;
+mod swap_exact_out;
 
 pub use swap_exact_in::*;
+pub use swap_exact_out::*;
 
 use common::*;
 
@@ -26,7 +28,7 @@ impl SPoolJup {
             if swap_params.out_amount == 0 {
                 self.swap_exact_in_ix(swap_params)
             } else {
-                unimplemented!("swap exact out")
+                self.swap_exact_out_ix(swap_params)
             }
         }
     }

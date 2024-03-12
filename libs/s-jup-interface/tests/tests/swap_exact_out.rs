@@ -13,7 +13,7 @@ use test_utils::{jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
 use crate::{assert_quote_swap_eq, fully_init_amm, MiscProgramTest};
 
 #[tokio::test]
-async fn swap_exact_in_jito_marinade_basic() {
+async fn swap_exact_out_jito_marinade_basic() {
     const AMT: u64 = 1_000_000_000;
 
     let wallet = Keypair::new();
@@ -58,7 +58,7 @@ async fn swap_exact_in_jito_marinade_basic() {
             pubkey: jitosol::ID,
             token_program: spl_token::ID,
         },
-        AMT,
+        4 * AMT, // make sure enough for exactout
     )
     .add_ata(
         wallet.pubkey(),
@@ -87,7 +87,7 @@ async fn swap_exact_in_jito_marinade_basic() {
             amount: AMT,
             input_mint: jitosol::ID,
             output_mint: msol::ID,
-            swap_mode: SwapMode::ExactIn,
+            swap_mode: SwapMode::ExactOut,
         },
     )
     .await;

@@ -1,4 +1,4 @@
-use jupiter_amm_interface::{Quote, QuoteParams, SwapMode, SwapParams};
+use jupiter_amm_interface::{Amm, Quote, QuoteParams, SwapMode, SwapParams};
 use s_jup_interface::SPoolJup;
 use sanctum_associated_token_lib::FindAtaAddressArgs;
 use sanctum_solana_test_utils::ExtendedBanksClient;
@@ -21,7 +21,7 @@ pub async fn assert_quote_swap_eq(
         in_amount,
         out_amount,
         ..
-    } = s.quote_swap_exact_in(quote).unwrap();
+    } = s.quote(quote).unwrap();
     let input_token_prog = bc.get_account_unwrapped(quote.input_mint).await.owner;
     let output_token_prog = bc.get_account_unwrapped(quote.output_mint).await.owner;
     let [source_token_account, destination_token_account] = [
