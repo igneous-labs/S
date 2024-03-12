@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapMode, SwapParams};
+use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams};
 use pricing_programs_interface::PriceLpTokensToMintIxArgs;
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
@@ -17,18 +17,12 @@ use crate::{LstData, SPoolJup};
 use super::{apply_sync_sol_value, calc_quote_fees};
 
 impl SPoolJup {
-    pub fn quote_add_liquidity(
+    pub(crate) fn quote_add_liquidity(
         &self,
         QuoteParams {
-            amount,
-            input_mint,
-            swap_mode,
-            output_mint: _,
+            amount, input_mint, ..
         }: &QuoteParams,
     ) -> anyhow::Result<Quote> {
-        if let SwapMode::ExactOut = swap_mode {
-            return Err(anyhow!("ExactOut not supported for add liquidity"));
-        }
         let pool_state = self.pool_state()?;
         let pricing_prog = self
             .pricing_prog
@@ -78,7 +72,7 @@ impl SPoolJup {
         })
     }
 
-    pub fn add_liquidity_ix(
+    pub(crate) fn add_liquidity_ix(
         &self,
         SwapParams {
             in_amount,
@@ -127,7 +121,7 @@ impl SPoolJup {
         )?)
     }
 
-    pub fn add_liquidity_swap_and_account_metas(
+    pub(crate) fn add_liquidity_swap_and_account_metas(
         &self,
         params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {

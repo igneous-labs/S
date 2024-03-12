@@ -17,13 +17,13 @@ use crate::{LstData, SPoolJup};
 use super::{apply_sync_sol_value, calc_quote_fees};
 
 impl SPoolJup {
-    pub fn quote_swap_exact_out(
+    pub(crate) fn quote_swap_exact_out(
         &self,
         QuoteParams {
             amount,
             input_mint,
             output_mint,
-            swap_mode: _,
+            ..
         }: &QuoteParams,
     ) -> anyhow::Result<Quote> {
         let pool_state = self.pool_state()?;
@@ -89,7 +89,7 @@ impl SPoolJup {
         })
     }
 
-    pub fn swap_exact_out_ix(
+    pub(crate) fn swap_exact_out_ix(
         &self,
         SwapParams {
             in_amount,
@@ -153,7 +153,7 @@ impl SPoolJup {
         )?)
     }
 
-    pub fn swap_exact_out_swap_and_account_metas(
+    pub(crate) fn swap_exact_out_swap_and_account_metas(
         &self,
         params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {

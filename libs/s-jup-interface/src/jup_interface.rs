@@ -124,7 +124,7 @@ impl Amm for SPoolJup {
     fn quote(&self, quote_params: &QuoteParams) -> anyhow::Result<Quote> {
         let lp_mint = self.pool_state()?.lp_token_mint;
         if quote_params.input_mint == lp_mint {
-            unimplemented!("remove liquidity");
+            self.quote_remove_liquidity(quote_params)
         } else if quote_params.output_mint == lp_mint {
             self.quote_add_liquidity(quote_params)
         } else {
@@ -141,7 +141,7 @@ impl Amm for SPoolJup {
     ) -> anyhow::Result<SwapAndAccountMetas> {
         let lp_mint = self.pool_state()?.lp_token_mint;
         if swap_params.source_mint == lp_mint {
-            unimplemented!("remove liquidity");
+            self.remove_liquidity_swap_and_account_metas(swap_params)
         } else if swap_params.destination_mint == lp_mint {
             self.add_liquidity_swap_and_account_metas(swap_params)
         } else {

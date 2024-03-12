@@ -7,21 +7,23 @@ use crate::SPoolJup;
 
 mod add_liquidity;
 mod common;
+mod remove_liquidity;
 mod swap_exact_in;
 mod swap_exact_out;
 
 pub use add_liquidity::*;
+pub use remove_liquidity::*;
 pub use swap_exact_in::*;
 pub use swap_exact_out::*;
 
 use common::*;
 
 impl SPoolJup {
-    // Used for testing before jup has SwapAndAccountMetas updated
+    // Allows for use with transactions without jup program
     pub fn swap_ix(&self, swap_params: &SwapParams) -> anyhow::Result<Instruction> {
         let lp_mint = self.pool_state()?.lp_token_mint;
         if swap_params.source_mint == lp_mint {
-            unimplemented!("remove liquidity");
+            self.remove_liquidity_ix(swap_params)
         } else if swap_params.destination_mint == lp_mint {
             self.add_liquidity_ix(swap_params)
         } else {
