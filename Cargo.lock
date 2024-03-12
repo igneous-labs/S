@@ -3982,6 +3982,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "jupiter-amm-interface",
+ "pricing_programs_interface",
  "rust_decimal",
  "s-controller-lib",
  "s-pricing-prog-aggregate",
@@ -3990,6 +3991,7 @@ dependencies = [
  "sanctum-associated-token-lib",
  "sanctum-lst-list",
  "sanctum-token-lib",
+ "sanctum-token-ratio",
  "serde_json",
  "solana-program",
  "solana-readonly-account",

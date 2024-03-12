@@ -2,11 +2,14 @@ use anyhow::anyhow;
 use jupiter_amm_interface::{
     AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
 };
-use s_controller_interface::{LstState, PoolState};
+use pricing_programs_interface::{PriceExactInIxArgs, PriceExactInKeys};
+use rust_decimal::{prelude::FromPrimitive, Decimal};
+use s_controller_interface::{LstState, PoolState, SControllerError};
 use s_controller_lib::{
-    find_lst_state_list_address, find_pool_state_address, try_lst_state_list, try_pool_state,
+    calc_swap_protocol_fees, find_lst_state_list_address, find_pool_state_address,
+    sync_sol_value_with_retval, try_lst_state_list, try_pool_state, CalcSwapProtocolFeesArgs,
 };
-use s_pricing_prog_aggregate::{KnownPricingProg, MutablePricingProg};
+use s_pricing_prog_aggregate::{KnownPricingProg, MutablePricingProg, PricingProg};
 use s_sol_val_calc_prog_aggregate::{
     KnownLstSolValCalc, LidoLstSolValCalc, LstSolValCalc, MarinadeLstSolValCalc,
     MutableLstSolValCalc, SanctumSplLstSolValCalc, SplLstSolValCalc, SplLstSolValCalcInitKeys,
@@ -15,6 +18,7 @@ use s_sol_val_calc_prog_aggregate::{
 use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
 use sanctum_token_lib::{mint_supply, token_account_balance};
+use sanctum_token_ratio::{AmtsAfterFee, AmtsAfterFeeBuilder};
 use solana_program::pubkey::{Pubkey, PubkeyError};
 use std::str::FromStr;
 
@@ -144,13 +148,120 @@ impl SPool {
         Ok(res)
     }
 
+    pub fn pool_reserves_account(
+        &self,
+        LstState {
+            mint,
+            pool_reserves_bump,
+            ..
+        }: &LstState,
+        LstData { token_program, .. }: &LstData,
+    ) -> Result<Pubkey, PubkeyError> {
+        CreateAtaAddressArgs {
+            find_ata_args: FindAtaAddressArgs {
+                wallet: self.pool_state_addr,
+                mint: *mint,
+                token_program: *token_program,
+            },
+            bump: *pool_reserves_bump,
+        }
+        .create_ata_address()
+    }
+
+    pub fn quote_swap_exact_in(
+        &self,
+        QuoteParams {
+            amount,
+            input_mint,
+            output_mint,
+            swap_mode: _,
+        }: &QuoteParams,
+    ) -> anyhow::Result<Quote> {
+        let pool_state = self
+            .pool_state
+            .ok_or_else(|| anyhow!("pool state not fetched"))?;
+        let pricing_prog = self
+            .pricing_prog
+            .as_ref()
+            .ok_or_else(|| anyhow!("pricing program not fetched"))?;
+
+        let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
+        let (pool_state, _input_lst_state, _input_reserves_balance) =
+            apply_sync_sol_value(pool_state, *input_lst_state, input_lst_data)?;
+        let (output_lst_state, output_lst_data) = self.find_ready_lst(*output_mint)?;
+        let (pool_state, _output_lst_state, output_reserves_balance) =
+            apply_sync_sol_value(pool_state, *output_lst_state, output_lst_data)?;
+
+        let in_sol_value = input_lst_data.sol_val_calc.lst_to_sol(*amount)?.get_min();
+        if in_sol_value == 0 {
+            return Err(SControllerError::ZeroValue.into());
+        }
+        let out_sol_value = pricing_prog.quote_exact_in(
+            PriceExactInKeys {
+                input_lst_mint: *input_mint,
+                output_lst_mint: *output_mint,
+            },
+            &PriceExactInIxArgs {
+                amount: *amount,
+                sol_value: in_sol_value,
+            },
+        )?;
+        if out_sol_value > in_sol_value {
+            return Err(SControllerError::PoolWouldLoseSolValue.into());
+        }
+        let dst_lst_out = output_lst_data
+            .sol_val_calc
+            .sol_to_lst(out_sol_value)?
+            .get_min();
+        if dst_lst_out == 0 {
+            return Err(SControllerError::ZeroValue.into());
+        }
+        let to_protocol_fees_lst_amount = calc_swap_protocol_fees(CalcSwapProtocolFeesArgs {
+            in_sol_value,
+            out_sol_value,
+            dst_lst_out,
+            trading_protocol_fee_bps: pool_state.trading_protocol_fee_bps,
+        })?;
+        let total_dst_lst_out = dst_lst_out
+            .checked_add(to_protocol_fees_lst_amount)
+            .ok_or(SControllerError::MathError)?;
+        let not_enough_liquidity = total_dst_lst_out > output_reserves_balance;
+        let (fee_amount, fee_pct) = calc_quote_fees(
+            AmtsAfterFeeBuilder::new_amt_bef_fee(in_sol_value).with_amt_aft_fee(out_sol_value)?,
+            &output_lst_data.sol_val_calc,
+        )?;
+        Ok(Quote {
+            not_enough_liquidity,
+            min_in_amount: None,
+            min_out_amount: None,
+            in_amount: *amount,
+            out_amount: dst_lst_out,
+            fee_mint: *output_mint,
+            fee_amount,
+            fee_pct,
+        })
+    }
+
+    fn find_ready_lst(&self, lst_mint: Pubkey) -> anyhow::Result<(&LstState, &LstData)> {
+        let (lst_state, lst_data) = self
+            .lst_state_list
+            .iter()
+            .zip(self.lst_data_list.iter())
+            .find(|(state, _data)| state.mint == lst_mint)
+            .ok_or_else(|| anyhow!("LST {lst_mint} not on list"))?;
+        let lst_data = lst_data
+            .as_ref()
+            .ok_or_else(|| anyhow!("LST {lst_mint} not supported"))?;
+        Ok((lst_state, lst_data))
+    }
+
     fn update_lst_state_list(&mut self, new_lst_state_list: Vec<LstState>) {
         // simple model for diffs:
         // - if new and old list differs in mints, then try to find the mismatches and replace them
         // - if sol val calc program changed, then just invalidate to None. Otherwise we would need a
         //   SanctumLstList to reinitialize the KnownLstSolValCalc
         // - if list was extended, the new entries will just be None and we cant handle it. Otherwise we would need a
-        //   SanctumLstList to reinitialize the KnownLstSolValCalc
+        //   SanctumLstList to initialize the KnownLstSolValCalc
         if self.lst_state_list.len() == new_lst_state_list.len()
             && self
                 .lst_state_list
@@ -209,30 +320,6 @@ impl SPool {
             );
         self.lst_data_list = new_lst_data_list;
         self.lst_state_list = new_lst_state_list;
-    }
-
-    pub fn pool_reserves_account(
-        &self,
-        LstState {
-            mint,
-            pool_reserves_bump,
-            ..
-        }: &LstState,
-        LstData { token_program, .. }: &LstData,
-    ) -> Result<Pubkey, PubkeyError> {
-        CreateAtaAddressArgs {
-            find_ata_args: FindAtaAddressArgs {
-                wallet: self.pool_state_addr,
-                mint: *mint,
-                token_program: *token_program,
-            },
-            bump: *pool_reserves_bump,
-        }
-        .create_ata_address()
-    }
-
-    pub fn quote_swap_exact_in(&self, QuoteParams { .. }: &QuoteParams) -> anyhow::Result<Quote> {
-        todo!()
     }
 }
 
@@ -435,6 +522,44 @@ impl Amm for SPool {
     fn supports_exact_out(&self) -> bool {
         true
     }
+}
+
+/// Returns (fee_amount, fee_pct)
+/// fee_pct is [0.0, 1.0], not [0, 100],
+/// so 0.1 (NOT 10.0) means 10%
+fn calc_quote_fees(
+    sol_value_amts: AmtsAfterFee,
+    sol_val_calc: &KnownLstSolValCalc,
+) -> anyhow::Result<(u64, Decimal)> {
+    let fee_amount_sol = sol_value_amts.fee_charged();
+    let fee_pct_num = Decimal::from_u64(fee_amount_sol)
+        .ok_or_else(|| anyhow!("Decimal conv error fees_charged"))?;
+    let fee_pct_denom = Decimal::from_u64(sol_value_amts.amt_before_fee()?)
+        .ok_or_else(|| anyhow!("Decimal conv error amt_before_fee"))?;
+    let fee_pct = fee_pct_num
+        .checked_div(fee_pct_denom)
+        .ok_or_else(|| anyhow!("Decimal fee_pct div err"))?;
+    let fee_amount = sol_val_calc.sol_to_lst(fee_amount_sol)?.get_min();
+    Ok((fee_amount, fee_pct))
+}
+
+/// Returns
+/// (updated pool state, update lst state, reserves balance)
+fn apply_sync_sol_value(
+    mut pool_state: PoolState,
+    mut lst_state: LstState,
+    LstData {
+        sol_val_calc,
+        reserves_balance,
+        token_program: _,
+    }: &LstData,
+) -> anyhow::Result<(PoolState, LstState, u64)> {
+    let reserves_balance = *reserves_balance
+        .as_ref()
+        .ok_or_else(|| anyhow!("Reserves balance not fetched"))?;
+    let ret_sol_val = sol_val_calc.lst_to_sol(reserves_balance)?;
+    sync_sol_value_with_retval(&mut pool_state, &mut lst_state, ret_sol_val.get_min())?;
+    Ok((pool_state, lst_state, reserves_balance))
 }
 
 fn try_pricing_prog(
