@@ -111,7 +111,7 @@ impl Amm for SPoolJup {
         //
         // update pool_state and lst_state_list afterwards so we can invalidate
         // pricing_prog and lst_sol_val_calcs if any of them changed
-        //  - update lst_state_list before pool_state so we can use the new lst_state_list to reset pricing program
+        //  - update lst_state_list before pool_state so we can use the new lst_state_list to reinitialize pricing program if required
         //
         // finally update LP token supply using the newest pool state
         self.update_lst_data_list(account_map)

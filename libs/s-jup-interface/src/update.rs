@@ -126,16 +126,19 @@ impl SPoolJup {
                 let lst_state_list = self.lst_state_list()?;
                 let mut r = Ok(());
                 // reinitialize pricing program if changed
-                if let Ok(old_ps) = self.pool_state() {
-                    if old_ps.pricing_program != ps.pricing_program {
-                        let new_pricing_prog = try_pricing_prog(ps, lst_state_list)
-                            .map(|mut pp| {
-                                r = pp.update(account_map);
-                                pp
-                            })
-                            .ok();
-                        self.pricing_prog = new_pricing_prog;
-                    }
+                let should_reinitialize_pricing_program = self.pricing_prog.is_none()
+                    || self.pool_state().map_or_else(
+                        |_err| false,
+                        |old_ps| old_ps.pricing_program != ps.pricing_program,
+                    );
+                if should_reinitialize_pricing_program {
+                    let new_pricing_prog = try_pricing_prog(ps, lst_state_list)
+                        .map(|mut pp| {
+                            r = pp.update(account_map);
+                            pp
+                        })
+                        .ok();
+                    self.pricing_prog = new_pricing_prog;
                 }
                 self.pool_state_account = Some(pool_state_acc.clone());
                 r

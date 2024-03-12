@@ -20,3 +20,16 @@ serde_json = { workspace = true }
 solana-program = { workspace = true }
 solana-sdk = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+
+[dev-dependencies]
+async-trait = { workspace = true }
+flat_fee_interface = { workspace = true }
+flat-fee-test-utils = { workspace = true }
+marinade-keys = { workspace = true }
+s-controller = { workspace = true }
+s-controller-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
+solana-program-test = { workspace = true }
+spl-token = { workspace = true }
+test-utils = { workspace = true }
+tokio = { workspace = true }
