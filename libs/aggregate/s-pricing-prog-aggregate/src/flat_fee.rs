@@ -17,7 +17,7 @@ use flat_fee_lib::{
 };
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use crate::{KnownPricingProg, MutablePricingProg, PricingProg, PricingProgErr};
 
@@ -115,7 +115,7 @@ impl MutablePricingProg for FlatFeePricingProg {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         let psa = self.find_program_state_addr();
         if let Some(acc) = account_map.get(&psa) {
             self.program_state = Some(*try_program_state(&acc.data())?);
@@ -148,7 +148,7 @@ impl PricingProg for FlatFeePricingProg {
         &self,
         _output_lst_mint: Pubkey,
         pricing_programs_interface::PriceLpTokensToRedeemIxArgs { sol_value, .. }: &pricing_programs_interface::PriceLpTokensToRedeemIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         let lp_withdrawal_fee_bps = self
             .program_state
             .ok_or(FlatFeeError::InvalidProgramStateData)?
@@ -162,7 +162,7 @@ impl PricingProg for FlatFeePricingProg {
     fn price_lp_tokens_to_redeem_accounts(
         &self,
         output_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         Ok(
             <[AccountMeta; PRICE_LP_TOKENS_TO_REDEEM_IX_ACCOUNTS_LEN]>::from(
                 PriceLpTokensToRedeemFreeArgs { output_lst_mint }.resolve_for_prog(self.program_id),
@@ -175,14 +175,14 @@ impl PricingProg for FlatFeePricingProg {
         &self,
         _input_lst_mint: Pubkey,
         pricing_programs_interface::PriceLpTokensToMintIxArgs { sol_value, .. }: &pricing_programs_interface::PriceLpTokensToMintIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         Ok(*sol_value)
     }
 
     fn price_lp_tokens_to_mint_accounts(
         &self,
         input_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         Ok(
             <[AccountMeta; PRICE_LP_TOKENS_TO_MINT_IX_ACCOUNTS_LEN]>::from(
                 PriceLpTokensToMintKeys { input_lst_mint },
@@ -198,7 +198,7 @@ impl PricingProg for FlatFeePricingProg {
             output_lst_mint,
         }: pricing_programs_interface::PriceExactInKeys,
         pricing_programs_interface::PriceExactInIxArgs { sol_value, .. }: &pricing_programs_interface::PriceExactInIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         let FeeAccount { input_fee_bps, .. } = self.get_fee_account_checked(&input_lst_mint)?;
         let FeeAccount { output_fee_bps, .. } = self.get_fee_account_checked(&output_lst_mint)?;
         Ok(calculate_price_exact_in(CalculatePriceExactInArgs {
@@ -214,7 +214,7 @@ impl PricingProg for FlatFeePricingProg {
             input_lst_mint,
             output_lst_mint,
         }: pricing_programs_interface::PriceExactInKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         let args = PriceExactInFreeArgs {
             input_lst_mint,
             output_lst_mint,
@@ -238,7 +238,7 @@ impl PricingProg for FlatFeePricingProg {
             output_lst_mint,
         }: pricing_programs_interface::PriceExactOutKeys,
         pricing_programs_interface::PriceExactOutIxArgs { sol_value, .. }: &pricing_programs_interface::PriceExactOutIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         let FeeAccount { input_fee_bps, .. } = self.get_fee_account_checked(&input_lst_mint)?;
         let FeeAccount { output_fee_bps, .. } = self.get_fee_account_checked(&output_lst_mint)?;
         Ok(calculate_price_exact_out(CalculatePriceExactOutArgs {
@@ -254,7 +254,7 @@ impl PricingProg for FlatFeePricingProg {
             input_lst_mint,
             output_lst_mint,
         }: pricing_programs_interface::PriceExactOutKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         let args = PriceExactOutFreeArgs {
             input_lst_mint,
             output_lst_mint,

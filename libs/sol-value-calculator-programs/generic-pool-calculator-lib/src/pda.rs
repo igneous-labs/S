@@ -1,4 +1,7 @@
-use solana_program::pubkey::{Pubkey, PubkeyError};
+use solana_program::{
+    bpf_loader_upgradeable,
+    pubkey::{Pubkey, PubkeyError},
+};
 
 use crate::CALCULATOR_STATE_SEED;
 
@@ -31,5 +34,15 @@ impl CalculatorStateCreatePdaArgs {
 
     pub fn get_calculator_state_address(&self) -> Result<Pubkey, PubkeyError> {
         Pubkey::create_program_address(&self.to_signer_seeds(), &self.find_pda_args.program_id)
+    }
+}
+
+pub struct ProgDataFindPdaArgs {
+    pub program_id: Pubkey,
+}
+
+impl ProgDataFindPdaArgs {
+    pub fn get_upgradeable_progdata_addr_and_bump(&self) -> (Pubkey, u8) {
+        Pubkey::find_program_address(&[self.program_id.as_ref()], &bpf_loader_upgradeable::ID)
     }
 }

@@ -10,7 +10,7 @@ use spl_calculator_interface::{AccountType, SplStakePool};
 
 use crate::{SanctumSplSolValCalc, SplSolValCalc};
 
-fn deserialize_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
+pub fn deserialize_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
     spl_stake_pool: S,
 ) -> Result<SplStakePool, GenericPoolCalculatorError> {
     if *spl_stake_pool.owner() != SplSolValCalc::POOL_PROGRAM_ID {
@@ -19,7 +19,7 @@ fn deserialize_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOw
     deserialize_stake_pool_checked(spl_stake_pool)
 }
 
-fn deserialize_sanctum_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
+pub fn deserialize_sanctum_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
     sanctum_spl_stake_pool: S,
 ) -> Result<SplStakePool, GenericPoolCalculatorError> {
     if *sanctum_spl_stake_pool.owner() != SanctumSplSolValCalc::POOL_PROGRAM_ID {
@@ -28,8 +28,8 @@ fn deserialize_sanctum_spl_stake_pool_checked<S: ReadonlyAccountData + ReadonlyA
     deserialize_stake_pool_checked(sanctum_spl_stake_pool)
 }
 
-fn deserialize_stake_pool_checked<S: ReadonlyAccountData + ReadonlyAccountOwner>(
-    spl_stake_pool: S,
+pub fn deserialize_stake_pool_checked<D: ReadonlyAccountData>(
+    spl_stake_pool: D,
 ) -> Result<SplStakePool, GenericPoolCalculatorError> {
     let stake_pool = SplStakePool::deserialize(&mut spl_stake_pool.data().as_ref())
         .map_err(|_e| GenericPoolCalculatorError::InvalidStakePoolProgramData)?;

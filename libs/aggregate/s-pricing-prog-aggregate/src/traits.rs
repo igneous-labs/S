@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use pricing_programs_interface::{
     PriceExactInIxArgs, PriceExactInKeys, PriceExactOutIxArgs, PriceExactOutKeys,
@@ -22,7 +22,7 @@ use crate::PricingProgErr;
 ///     fn update(
 ///         &mut self,
 ///         account_map: &HashMap<Pubkey, Account>,
-///     ) -> Result<(), Box<dyn Error + Send + Sync>>;
+///     ) -> anyhow::Result<()>;
 /// }
 ///
 /// impl<P: MutablePricingProg> JupPricingProg for P {
@@ -33,7 +33,7 @@ use crate::PricingProgErr;
 ///     fn update(
 ///         &mut self,
 ///         account_map: &HashMap<Pubkey, Account>,
-///     ) -> Result<(), Box<dyn Error + Send + Sync>> {
+///     ) -> anyhow::Result<()> {
 ///         MutablePricingProg::update(self, account_map)
 ///     }
 /// }
@@ -48,10 +48,13 @@ pub trait MutablePricingProg {
 
     fn get_accounts_to_update(&self) -> Vec<Pubkey>;
 
+    /// Currently, all update() implementations
+    /// - no-ops if account to update is not in account_map
+    /// - errors if account exists but deserialization failed / other failure
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<()>;
 }
 
 pub trait PricingProg {
@@ -60,7 +63,7 @@ pub trait PricingProg {
         &self,
         output_lst_mint: Pubkey,
         args: &PriceLpTokensToRedeemIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<u64>;
 
     /// Returns the account inputs to the program's PriceLpTokensToRedeem
     /// instruction.
@@ -69,14 +72,14 @@ pub trait PricingProg {
     fn price_lp_tokens_to_redeem_accounts(
         &self,
         output_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<Vec<AccountMeta>>;
 
     /// Returns SOL value of the LP tokens to mint
     fn quote_lp_tokens_to_mint(
         &self,
         input_lst_mint: Pubkey,
         args: &PriceLpTokensToMintIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<u64>;
 
     /// Returns the account inputs to the program's PriceLpTokensToMint
     /// instruction.
@@ -85,37 +88,32 @@ pub trait PricingProg {
     fn price_lp_tokens_to_mint_accounts(
         &self,
         input_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<Vec<AccountMeta>>;
 
     /// Returns SOL value of the output LST
     fn quote_exact_in(
         &self,
         keys: PriceExactInKeys,
         args: &PriceExactInIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<u64>;
 
     /// Returns the account inputs to the program's PriceExactIn
     /// instruction.
     ///
     /// This should exclude the program_id and include the common interface account prefixes
-    fn price_exact_in_accounts(
-        &self,
-        keys: PriceExactInKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>>;
+    fn price_exact_in_accounts(&self, keys: PriceExactInKeys) -> anyhow::Result<Vec<AccountMeta>>;
 
     /// Returns SOL value of the input LST
     fn quote_exact_out(
         &self,
         keys: PriceExactOutKeys,
         args: &PriceExactOutIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>>;
+    ) -> anyhow::Result<u64>;
 
     /// Returns the account inputs to the program's PriceExactOut
     /// instruction.
     ///
     /// This should exclude the program_id and include the common interface account prefixes
-    fn price_exact_out_accounts(
-        &self,
-        keys: PriceExactOutKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>>;
+    fn price_exact_out_accounts(&self, keys: PriceExactOutKeys)
+        -> anyhow::Result<Vec<AccountMeta>>;
 }

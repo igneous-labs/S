@@ -1,5 +1,6 @@
 use s_controller_interface::{
-    swap_exact_in_ix, SControllerError, SwapExactInIxArgs, SwapExactInIxData, SwapExactInKeys,
+    swap_exact_in_ix_with_program_id, SControllerError, SwapExactInIxArgs, SwapExactInIxData,
+    SwapExactInKeys,
 };
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -25,6 +26,24 @@ pub struct SwapExactInIxFullArgs {
 
 pub fn swap_exact_in_ix_full(
     accounts: SwapExactInKeys,
+    args: SwapExactInIxFullArgs,
+    sol_val_calc_accounts: SrcDstLstSolValueCalcAccounts,
+    pricing_program_accounts: &[AccountMeta],
+    pricing_program_id: Pubkey,
+) -> Result<Instruction, ProgramError> {
+    swap_exact_in_ix_full_for_prog(
+        crate::program::ID,
+        accounts,
+        args,
+        sol_val_calc_accounts,
+        pricing_program_accounts,
+        pricing_program_id,
+    )
+}
+
+pub fn swap_exact_in_ix_full_for_prog(
+    program_id: Pubkey,
+    accounts: SwapExactInKeys,
     SwapExactInIxFullArgs {
         src_lst_index,
         dst_lst_index,
@@ -37,9 +56,11 @@ pub fn swap_exact_in_ix_full(
 ) -> Result<Instruction, ProgramError> {
     let src_lst_index = index_to_u32(src_lst_index)?;
     let dst_lst_index = index_to_u32(dst_lst_index)?;
-    let mut ix = swap_exact_in_ix(
+    let mut ix = swap_exact_in_ix_with_program_id(
+        program_id,
         accounts,
         SwapExactInIxArgs {
+            // zeroes replaced by ix_extend below
             src_lst_value_calc_accs: 0,
             dst_lst_value_calc_accs: 0,
             src_lst_index,
@@ -102,6 +123,48 @@ pub fn swap_exact_in_ix_by_mint_full<
         src_dst_lst_sol_value_calc_program_ids,
     ) = free_args.resolve_exact_in()?;
     let ix = swap_exact_in_ix_full(
+        keys,
+        SwapExactInIxFullArgs {
+            src_lst_index,
+            dst_lst_index,
+            min_amount_out,
+            amount,
+        },
+        SrcDstLstSolValueCalcAccounts::new(
+            src_dst_lst_sol_value_calc_program_ids,
+            src_dst_lst_sol_value_calc_account_suffixes,
+        ),
+        pricing_program_accounts,
+        pricing_program_id,
+    )?;
+    Ok(ix)
+}
+
+pub fn swap_exact_in_ix_by_mint_full_for_prog<
+    SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData,
+>(
+    program_id: Pubkey,
+    free_args: SwapByMintsFreeArgs<SM, DM, L>,
+    SwapExactInAmounts {
+        min_amount_out,
+        amount,
+    }: SwapExactInAmounts,
+    src_dst_lst_sol_value_calc_account_suffixes: SrcDstLstSolValueCalcAccountSuffixes,
+    pricing_program_accounts: &[AccountMeta],
+    pricing_program_id: Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let (
+        keys,
+        SrcDstLstIndexes {
+            src_lst_index,
+            dst_lst_index,
+        },
+        src_dst_lst_sol_value_calc_program_ids,
+    ) = free_args.resolve_exact_in_for_prog(program_id)?;
+    let ix = swap_exact_in_ix_full_for_prog(
+        program_id,
         keys,
         SwapExactInIxFullArgs {
             src_lst_index,

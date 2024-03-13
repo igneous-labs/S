@@ -19,7 +19,7 @@ use solana_sdk::{
 };
 use solana_transaction_status::{UiReturnDataEncoding, UiTransactionReturnData};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
-use wsol_calculator_lib::WSOL_SOL_TO_LST_METAS;
+use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::sol_val_calc_arg::SolValCalcArg;
 
@@ -72,7 +72,7 @@ pub async fn lst_sol_common_account_metas(
             .unwrap()
             .to_vec()
         }
-        SolValCalcArg::Wsol => WSOL_SOL_TO_LST_METAS.to_vec(),
+        SolValCalcArg::Wsol => WSOL_LST_SOL_COMMON_METAS.to_vec(),
         SolValCalcArg::Unknown(_) => unreachable!(),
     }
 }

@@ -1,7 +1,8 @@
 use s_controller_interface::{
-    add_liquidity_ix, AddLiquidityIxArgs, AddLiquidityIxData, AddLiquidityKeys, SControllerError,
+    add_liquidity_ix_with_program_id, AddLiquidityIxArgs, AddLiquidityIxData, AddLiquidityKeys,
+    SControllerError,
 };
-use solana_program::{instruction::Instruction, program_error::ProgramError};
+use solana_program::{instruction::Instruction, program_error::ProgramError, pubkey::Pubkey};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
@@ -24,6 +25,15 @@ pub struct AddLiquidityIxFullArgs {
 
 pub fn add_liquidity_ix_full(
     accounts: AddLiquidityKeys,
+    args: AddLiquidityIxFullArgs,
+    extra_accounts: AddRemoveLiquidityExtraAccounts,
+) -> Result<Instruction, ProgramError> {
+    add_liquidity_ix_full_for_prog(crate::program::ID, accounts, args, extra_accounts)
+}
+
+pub fn add_liquidity_ix_full_for_prog(
+    program_id: Pubkey,
+    accounts: AddLiquidityKeys,
     AddLiquidityIxFullArgs {
         lst_index,
         amts: AddLiquidityIxAmts {
@@ -39,7 +49,8 @@ pub fn add_liquidity_ix_full(
     }: AddRemoveLiquidityExtraAccounts,
 ) -> Result<Instruction, ProgramError> {
     let lst_index = index_to_u32(lst_index)?;
-    let mut ix = add_liquidity_ix(
+    let mut ix = add_liquidity_ix_with_program_id(
+        program_id,
         accounts,
         AddLiquidityIxArgs {
             lst_value_calc_accs: 0,
@@ -83,6 +94,26 @@ pub fn add_liquidity_ix_by_mint_full<
 ) -> Result<Instruction, ProgramError> {
     let (keys, lst_index, program_ids) = free_args.resolve()?;
     let ix = add_liquidity_ix_full(
+        keys,
+        AddLiquidityIxFullArgs { lst_index, amts },
+        AddRemoveLiquidityExtraAccounts::new(program_ids, account_suffixes),
+    )?;
+    Ok(ix)
+}
+
+pub fn add_liquidity_ix_by_mint_full_for_prog<
+    S: ReadonlyAccountData,
+    L: ReadonlyAccountData,
+    M: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+>(
+    program_id: Pubkey,
+    free_args: AddLiquidityByMintFreeArgs<S, L, M>,
+    amts: AddLiquidityIxAmts,
+    account_suffixes: AddRemoveLiquidityAccountSuffixes,
+) -> Result<Instruction, ProgramError> {
+    let (keys, lst_index, program_ids) = free_args.resolve_for_prog(program_id)?;
+    let ix = add_liquidity_ix_full_for_prog(
+        program_id,
         keys,
         AddLiquidityIxFullArgs { lst_index, amts },
         AddRemoveLiquidityExtraAccounts::new(program_ids, account_suffixes),

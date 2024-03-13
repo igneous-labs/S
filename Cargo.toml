@@ -14,6 +14,7 @@ members = [
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
     "libs/s-controller-test-utils",
+    "libs/s-jup-interface",
     "libs/sanctum-s-common",
     "libs/sol-value-calculator-programs/*",
     "programs/pricing-programs/*",
@@ -29,6 +30,7 @@ members = [
 #strip = true # cargo-build-sbf strips symbols after building
 
 [workspace.dependencies]
+anyhow = "^1"
 assert_cmd = "^2"
 async-trait = ">=0.1"
 bincode = "^1"
@@ -36,10 +38,12 @@ borsh = ">=0.9,<1.0.0"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
+jupiter-amm-interface = "^0.3"
 lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
+rust_decimal = ">=1.0,<=1.32.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
 serde = "^1"
 serde_json = "^1"
@@ -80,7 +84,7 @@ sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-ut
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 
 # sanctum-lst-list
-sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", rev = "4de2fe5" }
+sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "4de2fe5"
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }

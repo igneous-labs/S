@@ -27,7 +27,7 @@ use spl_token::native_mint;
 use test_utils::{
     jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH, LIDO_STATE_LAST_UPDATE_EPOCH,
 };
-use wsol_calculator_lib::WSOL_LST_TO_SOL_METAS;
+use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::common::*;
 
@@ -210,7 +210,7 @@ async fn basic_add_liquidity_twice_flat_fee() {
         lst_account_to_add_from: liquidity_provider_wsol_acc_addr,
         lst_mint: native_mint::ID,
         lst_calculator_program_id: wsol_calculator_lib::program::ID,
-        lst_calculator_accounts: &WSOL_LST_TO_SOL_METAS,
+        lst_calculator_accounts: &WSOL_LST_SOL_COMMON_METAS,
         pricing_program_id: flat_fee_lib::program::ID,
         pricing_program_accounts: &flat_fee_add_liq_account_metas,
     })
