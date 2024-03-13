@@ -3,20 +3,22 @@ use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams}
 use pricing_programs_interface::{PriceExactOutIxArgs, PriceExactOutKeys};
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
-    calc_swap_protocol_fees, swap_exact_out_ix_by_mint_full_for_prog, CalcSwapProtocolFeesArgs,
-    SrcDstLstSolValueCalcAccountSuffixes, SwapByMintsFreeArgs, SwapExactOutAmounts,
+    calc_swap_protocol_fees, swap_exact_out_ix_by_mint_full_for_prog, try_pool_state,
+    CalcSwapProtocolFeesArgs, SrcDstLstSolValueCalcAccountSuffixes, SwapByMintsFreeArgs,
+    SwapExactOutAmounts,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_token_lib::MintWithTokenProgram;
 use sanctum_token_ratio::AmtsAfterFeeBuilder;
+use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::instruction::Instruction;
 
-use crate::{LstData, SPoolJup};
+use crate::{LstData, SPool};
 
 use super::{apply_sync_sol_value, calc_quote_fees};
 
-impl SPoolJup {
+impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     pub(crate) fn quote_swap_exact_out(
         &self,
         QuoteParams {
@@ -26,7 +28,8 @@ impl SPoolJup {
             ..
         }: &QuoteParams,
     ) -> anyhow::Result<Quote> {
-        let pool_state = self.pool_state()?;
+        let pool_state_data = self.pool_state_data()?;
+        let pool_state = try_pool_state(&pool_state_data)?;
         let pricing_prog = self
             .pricing_prog
             .as_ref()
@@ -34,10 +37,10 @@ impl SPoolJup {
 
         let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
         let (pool_state, _input_lst_state, _input_reserves_balance) =
-            apply_sync_sol_value(*pool_state, *input_lst_state, input_lst_data)?;
+            apply_sync_sol_value(*pool_state, input_lst_state, input_lst_data)?;
         let (output_lst_state, output_lst_data) = self.find_ready_lst(*output_mint)?;
         let (pool_state, _output_lst_state, output_reserves_balance) =
-            apply_sync_sol_value(pool_state, *output_lst_state, output_lst_data)?;
+            apply_sync_sol_value(pool_state, output_lst_state, output_lst_data)?;
 
         let out_sol_value = output_lst_data.sol_val_calc.lst_to_sol(*amount)?.get_max();
         if out_sol_value == 0 {
@@ -118,6 +121,10 @@ impl SPoolJup {
                 ..
             },
         ) = self.find_ready_lst(*destination_mint)?;
+        let pricing_program = {
+            let pool_state_data = self.pool_state_data()?;
+            try_pool_state(&pool_state_data)?.pricing_program
+        };
         Ok(swap_exact_out_ix_by_mint_full_for_prog(
             self.program_id,
             SwapByMintsFreeArgs {
@@ -149,7 +156,7 @@ impl SPoolJup {
                     input_lst_mint: *source_mint,
                     output_lst_mint: *destination_mint,
                 })?,
-            self.pool_state()?.pricing_program,
+            pricing_program,
         )?)
     }
 

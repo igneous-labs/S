@@ -3,27 +3,30 @@ use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams}
 use pricing_programs_interface::PriceLpTokensToMintIxArgs;
 use s_controller_interface::SControllerError;
 use s_controller_lib::{
-    add_liquidity_ix_by_mint_full_for_prog, calc_lp_tokens_to_mint, AddLiquidityByMintFreeArgs,
-    AddLiquidityIxAmts, AddRemoveLiquidityAccountSuffixes, LpTokenRateArgs,
+    add_liquidity_ix_by_mint_full_for_prog, calc_lp_tokens_to_mint, try_pool_state,
+    AddLiquidityByMintFreeArgs, AddLiquidityIxAmts, AddRemoveLiquidityAccountSuffixes,
+    LpTokenRateArgs,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_token_lib::MintWithTokenProgram;
 use sanctum_token_ratio::AmtsAfterFeeBuilder;
+use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::instruction::Instruction;
 
-use crate::{LstData, SPoolJup};
+use crate::{LstData, SPool};
 
 use super::{apply_sync_sol_value, calc_quote_fees};
 
-impl SPoolJup {
+impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     pub(crate) fn quote_add_liquidity(
         &self,
         QuoteParams {
             amount, input_mint, ..
         }: &QuoteParams,
     ) -> anyhow::Result<Quote> {
-        let pool_state = self.pool_state()?;
+        let pool_state_data = self.pool_state_data()?;
+        let pool_state = try_pool_state(&pool_state_data)?;
         let pricing_prog = self
             .pricing_prog
             .as_ref()
@@ -34,7 +37,7 @@ impl SPoolJup {
 
         let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
         let (pool_state, _input_lst_state, _input_reserves_balance) =
-            apply_sync_sol_value(*pool_state, *input_lst_state, input_lst_data)?;
+            apply_sync_sol_value(*pool_state, input_lst_state, input_lst_data)?;
 
         let lst_amount_sol_value = input_lst_data.sol_val_calc.lst_to_sol(*amount)?.get_min();
 

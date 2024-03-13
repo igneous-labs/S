@@ -1,13 +1,13 @@
 use async_trait::async_trait;
 use jupiter_amm_interface::{Amm, KeyedAccount};
-use s_jup_interface::{SPoolInitAccounts, SPoolJup};
+use s_jup_interface::{SPoolInitKeys, SPoolJup};
 use sanctum_solana_test_utils::ExtendedBanksClient;
 use solana_program_test::BanksClient;
 use solana_sdk::pubkey::Pubkey;
 use std::collections::{HashMap, HashSet};
 
 pub async fn fully_init_amm(bc: &mut BanksClient, program_id: Pubkey) -> SPoolJup {
-    let SPoolInitAccounts { lst_state_list, .. } = SPoolJup::init_accounts(program_id);
+    let SPoolInitKeys { lst_state_list, .. } = SPoolJup::init_keys(program_id);
     let lst_state_list_acc = bc.get_account_unwrapped(lst_state_list).await;
     SPoolJup::from_keyed_account(&KeyedAccount {
         key: lst_state_list,
