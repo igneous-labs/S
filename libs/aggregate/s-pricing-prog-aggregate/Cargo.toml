@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = { workspace = true }
 pricing_programs_interface = { workspace = true }
 solana-program = { workspace = true }
 solana-readonly-account = { workspace = true }

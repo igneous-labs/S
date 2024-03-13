@@ -3,6 +3,8 @@ use solana_readonly_account::ReadonlyAccountData;
 
 use crate::{try_pool_state, U8Bool};
 
+/// sync SOL value using the SOL value of the current pool reserves balance,
+/// which is the min val of the range returned by the LST's SOL value calculator
 pub fn sync_sol_value_with_retval(
     pool_state: &mut PoolState,
     lst_state: &mut LstState,

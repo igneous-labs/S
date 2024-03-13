@@ -26,7 +26,7 @@ impl MutableLstSolValCalc for MarinadeLstSolValCalc {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         if let Some(acc) = account_map.get(&marinade_state::ID) {
             self.calc = Some(MarinadeStateCalc::from(MarinadeState::deserialize(
                 &mut acc.data().as_ref(),
@@ -37,17 +37,21 @@ impl MutableLstSolValCalc for MarinadeLstSolValCalc {
 }
 
 impl LstSolValCalc for MarinadeLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        marinade_calculator_lib::program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         msol::ID
     }
 
-    fn lst_to_sol(&self, lst_amount: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(MarinadeLstSolValCalcErr::StateNotFetched)?;
         calc.verify_can_withdraw_stake()?;
         Ok(calc.calc_lst_to_sol(lst_amount)?)
     }
 
-    fn sol_to_lst(&self, lamports: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(MarinadeLstSolValCalcErr::StateNotFetched)?;
         calc.verify_can_withdraw_stake()?;
         Ok(calc.calc_sol_to_lst(lamports)?)

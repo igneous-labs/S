@@ -3,8 +3,7 @@
 
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
-use std::{collections::HashMap, error::Error};
-use wsol::WsolLstSolValCalc;
+use std::collections::HashMap;
 
 mod err;
 mod lido;
@@ -20,7 +19,9 @@ pub use marinade::*;
 pub use sanctum_spl::*;
 pub use spl::*;
 pub use traits::*;
+pub use wsol::*;
 
+#[derive(Debug, Clone)]
 pub enum KnownLstSolValCalc {
     Lido(LidoLstSolValCalc),
     Marinade(MarinadeLstSolValCalc),
@@ -43,7 +44,7 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         match self {
             Self::Lido(s) => s.update(account_map),
             Self::Marinade(s) => s.update(account_map),
@@ -55,6 +56,16 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
 }
 
 impl LstSolValCalc for KnownLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        match self {
+            Self::Lido(s) => s.sol_value_calculator_program_id(),
+            Self::Marinade(s) => s.sol_value_calculator_program_id(),
+            Self::Spl(s) => s.sol_value_calculator_program_id(),
+            Self::SanctumSpl(s) => s.sol_value_calculator_program_id(),
+            Self::Wsol(s) => s.sol_value_calculator_program_id(),
+        }
+    }
+
     fn lst_mint(&self) -> Pubkey {
         match self {
             Self::Lido(s) => s.lst_mint(),
@@ -65,10 +76,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
         }
     }
 
-    fn lst_to_sol(
-        &self,
-        lst_amount: u64,
-    ) -> Result<sanctum_token_ratio::U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<sanctum_token_ratio::U64ValueRange> {
         match self {
             Self::Lido(s) => s.lst_to_sol(lst_amount),
             Self::Marinade(s) => s.lst_to_sol(lst_amount),
@@ -78,10 +86,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
         }
     }
 
-    fn sol_to_lst(
-        &self,
-        lamports: u64,
-    ) -> Result<sanctum_token_ratio::U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<sanctum_token_ratio::U64ValueRange> {
         match self {
             Self::Lido(s) => s.sol_to_lst(lamports),
             Self::Marinade(s) => s.sol_to_lst(lamports),

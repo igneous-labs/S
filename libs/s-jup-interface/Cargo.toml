@@ -1,0 +1,35 @@
+[package]
+name = "s-jup-interface"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+jupiter-amm-interface = { workspace = true }
+pricing_programs_interface = { workspace = true }
+rust_decimal = { workspace = true }
+s_controller_interface = { workspace = true }
+s-controller-lib = { workspace = true }
+s-pricing-prog-aggregate = { workspace = true }
+s-sol-val-calc-prog-aggregate = { workspace = true }
+sanctum-associated-token-lib = { workspace = true }
+sanctum-lst-list = { workspace = true }
+sanctum-token-lib = { workspace = true }
+sanctum-token-ratio = { workspace = true }
+serde_json = { workspace = true }
+solana-program = { workspace = true }
+solana-sdk = { workspace = true }
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+
+[dev-dependencies]
+async-trait = { workspace = true }
+flat_fee_interface = { workspace = true }
+flat-fee-test-utils = { workspace = true }
+marinade-keys = { workspace = true }
+s-controller = { workspace = true }
+s-controller-test-utils = { workspace = true }
+sanctum-solana-test-utils = { workspace = true, features = ["token"] }
+solana-program-test = { workspace = true }
+spl-token = { workspace = true }
+test-utils = { workspace = true }
+tokio = { workspace = true }

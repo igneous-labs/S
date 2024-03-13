@@ -4,7 +4,7 @@ use pricing_programs_interface::{
 };
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 mod err;
 mod flat_fee;
@@ -41,7 +41,7 @@ impl MutablePricingProg for KnownPricingProg {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         match self {
             Self::FlatFee(p) => p.update(account_map),
         }
@@ -53,7 +53,7 @@ impl PricingProg for KnownPricingProg {
         &self,
         output_lst_mint: Pubkey,
         args: &PriceLpTokensToRedeemIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         match self {
             Self::FlatFee(p) => p.quote_lp_tokens_to_redeem(output_lst_mint, args),
         }
@@ -62,7 +62,7 @@ impl PricingProg for KnownPricingProg {
     fn price_lp_tokens_to_redeem_accounts(
         &self,
         output_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         match self {
             Self::FlatFee(p) => p.price_lp_tokens_to_redeem_accounts(output_lst_mint),
         }
@@ -72,7 +72,7 @@ impl PricingProg for KnownPricingProg {
         &self,
         input_lst_mint: Pubkey,
         args: &PriceLpTokensToMintIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         match self {
             Self::FlatFee(p) => p.quote_lp_tokens_to_mint(input_lst_mint, args),
         }
@@ -81,7 +81,7 @@ impl PricingProg for KnownPricingProg {
     fn price_lp_tokens_to_mint_accounts(
         &self,
         input_lst_mint: Pubkey,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         match self {
             Self::FlatFee(p) => p.price_lp_tokens_to_mint_accounts(input_lst_mint),
         }
@@ -91,16 +91,13 @@ impl PricingProg for KnownPricingProg {
         &self,
         keys: PriceExactInKeys,
         args: &PriceExactInIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         match self {
             Self::FlatFee(p) => p.quote_exact_in(keys, args),
         }
     }
 
-    fn price_exact_in_accounts(
-        &self,
-        keys: PriceExactInKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    fn price_exact_in_accounts(&self, keys: PriceExactInKeys) -> anyhow::Result<Vec<AccountMeta>> {
         match self {
             Self::FlatFee(p) => p.price_exact_in_accounts(keys),
         }
@@ -110,7 +107,7 @@ impl PricingProg for KnownPricingProg {
         &self,
         keys: PriceExactOutKeys,
         args: &PriceExactOutIxArgs,
-    ) -> Result<u64, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<u64> {
         match self {
             Self::FlatFee(p) => p.quote_exact_out(keys, args),
         }
@@ -119,7 +116,7 @@ impl PricingProg for KnownPricingProg {
     fn price_exact_out_accounts(
         &self,
         keys: PriceExactOutKeys,
-    ) -> Result<Vec<AccountMeta>, Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<Vec<AccountMeta>> {
         match self {
             Self::FlatFee(p) => p.price_exact_out_accounts(keys),
         }

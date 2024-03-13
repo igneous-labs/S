@@ -10,9 +10,10 @@ use solana_program::{
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 use spl_calculator_lib::{
     deserialize_sanctum_spl_stake_pool_checked, deserialize_stake_pool_checked,
-    resolve_to_account_metas_for_calc, SanctumSplSolValCalc, SplStakePoolCalc,
+    resolve_to_account_metas_for_calc, sanctum_spl_sol_val_calc_program, SanctumSplSolValCalc,
+    SplStakePoolCalc,
 };
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use crate::{
     KnownLstSolValCalc, LstSolValCalc, LstSolValCalcErr, MutableLstSolValCalc, SplLstSolValCalcErr,
@@ -64,7 +65,7 @@ impl MutableLstSolValCalc for SanctumSplLstSolValCalc {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         if let Some(acc) = account_map.get(&sysvar::clock::ID) {
             self.clock = Some(bincode::deserialize::<Clock>(&acc.data())?);
         }
@@ -80,11 +81,15 @@ impl MutableLstSolValCalc for SanctumSplLstSolValCalc {
 }
 
 impl LstSolValCalc for SanctumSplLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        sanctum_spl_sol_val_calc_program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         self.lst_mint
     }
 
-    fn lst_to_sol(&self, lst_amount: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(SplLstSolValCalcErr::StakePoolNotFetched)?;
         let clock = self
             .clock
@@ -94,7 +99,7 @@ impl LstSolValCalc for SanctumSplLstSolValCalc {
         Ok(calc.calc_lst_to_sol(lst_amount)?)
     }
 
-    fn sol_to_lst(&self, lamports: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(SplLstSolValCalcErr::StakePoolNotFetched)?;
         let clock = self
             .clock

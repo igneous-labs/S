@@ -25,7 +25,7 @@ impl MutableLstSolValCalc for LidoLstSolValCalc {
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    ) -> anyhow::Result<()> {
         if let Some(acc) = account_map.get(&sysvar::clock::ID) {
             self.clock = Some(bincode::deserialize::<Clock>(&acc.data())?);
         }
@@ -37,11 +37,15 @@ impl MutableLstSolValCalc for LidoLstSolValCalc {
 }
 
 impl LstSolValCalc for LidoLstSolValCalc {
+    fn sol_value_calculator_program_id(&self) -> Pubkey {
+        lido_calculator_lib::program::ID
+    }
+
     fn lst_mint(&self) -> Pubkey {
         stsol::ID
     }
 
-    fn lst_to_sol(&self, lst_amount: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(LidoLstSolValCalcErr::StateNotFetched)?;
         let clock = self
             .clock
@@ -51,7 +55,7 @@ impl LstSolValCalc for LidoLstSolValCalc {
         Ok(calc.calc_lst_to_sol(lst_amount)?)
     }
 
-    fn sol_to_lst(&self, lamports: u64) -> Result<U64ValueRange, Box<dyn Error + Send + Sync>> {
+    fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(LidoLstSolValCalcErr::StateNotFetched)?;
         let clock = self
             .clock
