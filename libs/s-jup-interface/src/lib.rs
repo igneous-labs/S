@@ -104,7 +104,7 @@ impl<S: ReadonlyAccountData, L> SPool<S, L> {
 }
 
 impl<S, L: ReadonlyAccountData> SPool<S, L> {
-    fn find_ready_lst(&self, lst_mint: Pubkey) -> anyhow::Result<(LstState, &LstData)> {
+    pub fn find_ready_lst(&self, lst_mint: Pubkey) -> anyhow::Result<(LstState, &LstData)> {
         let lst_state_list_account_data = self.lst_state_list_account.data();
         let lst_state_list = try_lst_state_list(&lst_state_list_account_data)?;
         let (lst_state, lst_data) = lst_state_list
