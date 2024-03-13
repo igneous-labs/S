@@ -10,9 +10,11 @@ members = [
     "generated/s_controller_interface",
     "generated/sol-value-calculator-programs/*",
     "keys/*",
+    "libs/aggregate/*",
     "libs/pricing-programs/*",
     "libs/s-controller-lib",
     "libs/s-controller-test-utils",
+    "libs/s-jup-interface",
     "libs/sanctum-s-common",
     "libs/sol-value-calculator-programs/*",
     "programs/pricing-programs/*",
@@ -28,6 +30,7 @@ members = [
 #strip = true # cargo-build-sbf strips symbols after building
 
 [workspace.dependencies]
+anyhow = "^1"
 assert_cmd = "^2"
 async-trait = ">=0.1"
 bincode = "^1"
@@ -35,10 +38,12 @@ borsh = ">=0.9,<1.0.0"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
+jupiter-amm-interface = "^0.3"
 lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
+rust_decimal = ">=1.0,<=1.32.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
 serde = "^1"
 serde_json = "^1"
@@ -79,7 +84,7 @@ sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-ut
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 
 # sanctum-lst-list
-sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", rev = "4de2fe5" }
+sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "4de2fe5"
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
@@ -104,6 +109,8 @@ generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs
 generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
 lido-calculator-lib = { path = "./libs/sol-value-calculator-programs/lido-calculator-lib" }
 marinade-calculator-lib = { path = "./libs/sol-value-calculator-programs/marinade-calculator-lib" }
+s-pricing-prog-aggregate = { path = "./libs/aggregate/s-pricing-prog-aggregate"}
+s-sol-val-calc-prog-aggregate = { path = "./libs/aggregate/s-sol-val-calc-prog-aggregate" }
 sanctum-s-common = { path = "./libs/sanctum-s-common" }
 sanctum-spl-stake-pool-keys = { path = "./keys/sanctum-spl-stake-pool-keys" }
 sol-value-calculator-lib = { path = "./libs/sol-value-calculator-programs/sol-value-calculator-lib" }

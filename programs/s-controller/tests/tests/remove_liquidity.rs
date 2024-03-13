@@ -23,7 +23,7 @@ use solana_sdk::{signature::Keypair, signer::Signer, transaction::Transaction};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
 use spl_token::native_mint;
 use test_utils::{jito_stake_pool, jitosol, JITO_STAKE_POOL_LAST_UPDATE_EPOCH};
-use wsol_calculator_lib::WSOL_SOL_TO_LST_METAS;
+use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::common::SControllerProgramTest;
 
@@ -245,7 +245,7 @@ async fn basic_redeem_full_flat_fees() {
         },
         AddRemoveLiquidityExtraAccounts {
             lst_calculator_program_id: wsol_calculator_lib::program::ID,
-            lst_calculator_accounts: &WSOL_SOL_TO_LST_METAS,
+            lst_calculator_accounts: &WSOL_LST_SOL_COMMON_METAS,
             pricing_program_id: flat_fee_lib::program::ID,
             pricing_program_price_lp_accounts: &PriceLpTokensToRedeemFreeArgs {
                 output_lst_mint: native_mint::ID,

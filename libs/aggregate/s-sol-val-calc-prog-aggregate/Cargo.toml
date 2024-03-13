@@ -1,0 +1,33 @@
+[package]
+name = "s-sol-val-calc-prog-aggregate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+bincode = { workspace = true }
+borsh = { workspace = true }
+generic_pool_calculator_interface = { workspace = true }
+generic-pool-calculator-lib = { workspace = true }
+sanctum-token-ratio = { workspace = true }
+sol_value_calculator_interface = { workspace = true }
+solana-program = { workspace = true }
+solana-readonly-account = { workspace = true }
+sol-value-calculator-lib = { workspace = true }
+
+# lido
+lido_calculator_interface = { workspace = true }
+lido-calculator-lib = { workspace = true }
+lido-keys = { workspace = true }
+
+# marinade
+marinade_calculator_interface = { workspace = true }
+marinade-calculator-lib = { workspace = true }
+marinade-keys = { workspace = true }
+
+# spl
+spl-calculator-lib = { workspace = true }
+
+# wsol
+wsol-calculator-lib = { workspace = true }
+wsol-keys = { workspace = true }
