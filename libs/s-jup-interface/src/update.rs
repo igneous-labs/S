@@ -126,10 +126,11 @@ impl<S, L: ReadonlyAccountData> SPool<S, L> {
             .iter()
             .zip(self.lst_data_list.iter())
             .filter_map(|(lst_state, lst_data)| {
-                if !filter_pred(lst_state, lst_data) {
-                    return None;
+                if filter_pred(lst_state, lst_data) {
+                    Some(self.lst_accounts_to_update(lst_state, lst_data))
+                } else {
+                    None
                 }
-                Some(self.lst_accounts_to_update(lst_state, lst_data))
             })
             .flatten()
             .collect()
