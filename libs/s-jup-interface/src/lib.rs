@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use s_controller_interface::LstState;
-use s_controller_lib::try_lst_state_list;
+use s_controller_lib::{try_lst_state_list, try_pool_state};
 use s_pricing_prog_aggregate::KnownPricingProg;
 use s_sol_val_calc_prog_aggregate::KnownLstSolValCalc;
 use sanctum_associated_token_lib::{CreateAtaAddressArgs, FindAtaAddressArgs};
@@ -100,6 +100,13 @@ impl<S: ReadonlyAccountData, L> SPool<S, L> {
             .as_ref()
             .ok_or_else(|| anyhow!("Pool state not fetched"))?;
         Ok(pool_state.data())
+    }
+
+    pub fn lp_token_mint(&self) -> Option<Pubkey> {
+        let pool_state_acc_data = self.pool_state_data().ok()?;
+        try_pool_state(&pool_state_acc_data)
+            .ok()
+            .map(|ps| ps.lp_token_mint)
     }
 }
 

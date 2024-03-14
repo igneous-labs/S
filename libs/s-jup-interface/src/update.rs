@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use s_controller_interface::LstState;
 use s_controller_lib::{try_lst_state_list, try_pool_state};
 use s_pricing_prog_aggregate::MutablePricingProg;
 use s_sol_val_calc_prog_aggregate::{LstSolValCalc, MutableLstSolValCalc};
@@ -7,34 +8,18 @@ use sanctum_token_lib::{mint_supply, token_account_balance};
 use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{utils::try_pricing_prog, SPool};
+use crate::{utils::try_pricing_prog, LstData, SPool};
 
 impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     pub fn get_accounts_to_update_full(&self) -> Vec<Pubkey> {
-        let mut res = vec![self.lst_state_list_addr, self.pool_state_addr];
-        if let Some(pricing_prog) = &self.pricing_prog {
-            res.extend(pricing_prog.get_accounts_to_update());
-        }
-        if let Ok(pool_state_acc_data) = self.pool_state_data() {
-            if let Ok(pool_state) = try_pool_state(&pool_state_acc_data) {
-                res.push(pool_state.lp_token_mint);
-            }
-        }
-        if let Ok(lst_state_list) = try_lst_state_list(&self.lst_state_list_account.data()) {
-            res.extend(
-                lst_state_list
-                    .iter()
-                    .zip(self.lst_data_list.iter())
-                    .filter_map(|(lst_state, lst_data)| {
-                        let lst_data = lst_data.as_ref()?;
-                        let mut res = lst_data.sol_val_calc.get_accounts_to_update();
-                        if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
-                            res.push(ata);
-                        }
-                        Some(res)
-                    })
-                    .flatten(),
-            );
+        let mut res: Vec<Pubkey> = self
+            .get_accounts_to_update_base()
+            .into_iter()
+            .chain(self.get_accounts_to_update_pricing_prog())
+            .chain(self.get_accounts_to_update_lsts_all())
+            .collect();
+        if let Some(lp_token_mint) = self.lp_token_mint() {
+            res.push(lp_token_mint)
         }
         res
     }
@@ -61,6 +46,17 @@ impl<D: ReadonlyAccountData + Clone> SPool<D, D> {
 }
 
 impl<S, L> SPool<S, L> {
+    pub fn get_accounts_to_update_base(&self) -> [Pubkey; 2] {
+        [self.lst_state_list_addr, self.pool_state_addr]
+    }
+
+    pub fn get_accounts_to_update_pricing_prog(&self) -> Vec<Pubkey> {
+        match &self.pricing_prog {
+            Some(pp) => pp.get_accounts_to_update(),
+            None => vec![],
+        }
+    }
+
     pub fn update_pricing_prog<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
@@ -73,6 +69,55 @@ impl<S, L> SPool<S, L> {
 }
 
 impl<S, L: ReadonlyAccountData> SPool<S, L> {
+    pub fn get_accounts_to_update_lsts_all(&self) -> Vec<Pubkey> {
+        let lst_state_list_data = self.lst_state_list_account.data();
+        let lst_state_list = match try_lst_state_list(&lst_state_list_data) {
+            Ok(l) => l,
+            Err(_) => return vec![],
+        };
+        lst_state_list
+            .iter()
+            .zip(self.lst_data_list.iter())
+            .filter_map(|(lst_state, lst_data)| {
+                let lst_data = lst_data.as_ref()?;
+                let mut res = lst_data.sol_val_calc.get_accounts_to_update();
+                if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
+                    res.push(ata);
+                }
+                Some(res)
+            })
+            .flatten()
+            .collect()
+    }
+
+    /// Can be used to only fetch certain accounts for partial updates for specific LSTs
+    pub fn get_accounts_to_update_lsts_filtered<F: Fn(&LstState, &Option<LstData>) -> bool>(
+        &self,
+        filter_pred: F,
+    ) -> Vec<Pubkey> {
+        let lst_state_list_data = self.lst_state_list_account.data();
+        let lst_state_list = match try_lst_state_list(&lst_state_list_data) {
+            Ok(l) => l,
+            Err(_) => return vec![],
+        };
+        lst_state_list
+            .iter()
+            .zip(self.lst_data_list.iter())
+            .filter_map(|(lst_state, lst_data)| {
+                if !filter_pred(lst_state, lst_data) {
+                    return None;
+                }
+                let lst_data = lst_data.as_ref()?;
+                let mut res = lst_data.sol_val_calc.get_accounts_to_update();
+                if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
+                    res.push(ata);
+                }
+                Some(res)
+            })
+            .flatten()
+            .collect()
+    }
+
     pub fn update_lst_data_list<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
