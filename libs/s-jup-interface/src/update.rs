@@ -30,13 +30,13 @@ impl<D: ReadonlyAccountData + Clone> SPool<D, D> {
         // returns the first encountered error, but tries to update everything eagerly
         // even after encountering an error
 
-        // first update lst_data_list and pricing_program
+        // first, update lst_data_list and pricing_program
         //
-        // update pool_state and lst_state_list afterwards so we can invalidate
+        // then, update pool_state and lst_state_list so we can invalidate
         // pricing_prog and lst_sol_val_calcs if any of them changed
         //  - update lst_state_list before pool_state so we can use the new lst_state_list to reinitialize pricing program if required
         //
-        // finally update LP token supply using the newest pool state
+        // finally, update LP token supply using the newest pool state
         self.update_lst_data_list(account_map)
             .and(self.update_pricing_prog(account_map))
             .and(self.update_lst_state_list(account_map))
@@ -297,6 +297,8 @@ impl<S: ReadonlyAccountData + Clone, L: ReadonlyAccountData> SPool<S, L> {
                         |old_ps| old_ps.pricing_program != new_pool_state.pricing_program,
                     );
                 if should_reinitialize_pricing_program {
+                    // None if unable to initialize new_pricing_prog, with error captured
+                    // for return later
                     let new_pricing_prog = try_pricing_prog(new_pool_state, lst_state_list)
                         .map(|mut pp| {
                             r = pp.update(account_map);
