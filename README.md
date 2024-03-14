@@ -72,6 +72,12 @@ solana-verify build
 
 ### Mainnet Program Hashes
 
+#### S Controller (INF)
+
+```
+9bbcaada4b4aa3099023cf551749ddf4c956afa46ceade4ddf772709673b0496
+```
+
 #### Flat Fee Pricing Program
 
 ```
