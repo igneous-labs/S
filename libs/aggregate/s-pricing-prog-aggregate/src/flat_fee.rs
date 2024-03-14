@@ -69,6 +69,30 @@ impl FlatFeePricingProg {
             _ => None,
         }
     }
+
+    fn fee_account_for_mint(
+        &self,
+        lst_mint: &Pubkey,
+        fee_account_opt: &Option<FeeAccount>,
+    ) -> Pubkey {
+        let find_pda_args = FeeAccountFindPdaArgs {
+            program_id: self.program_id,
+            lst_mint: *lst_mint,
+        };
+        let bump = match fee_account_opt {
+            Some(FeeAccount { bump, .. }) => bump,
+            None => return find_pda_args.get_fee_account_address_and_bump_seed().0,
+        };
+        FeeAccountCreatePdaArgs {
+            find_pda_args,
+            bump: *bump,
+        }
+        .get_fee_account_address()
+        .map_or_else(
+            |_e| find_pda_args.get_fee_account_address_and_bump_seed().0,
+            |pk| pk,
+        )
+    }
 }
 
 impl MutablePricingProg for FlatFeePricingProg {
@@ -86,29 +110,29 @@ impl MutablePricingProg for FlatFeePricingProg {
         })
     }
 
-    /// ## Panics
-    /// - if a bump stored in self.mints_to_fee_accounts is invalid
-    fn get_accounts_to_update(&self) -> Vec<Pubkey> {
-        std::iter::once(self.find_program_state_addr())
-            .chain(
-                self.mints_to_fee_accounts
-                    .iter()
-                    .map(|(lst_mint, fee_account_opt)| {
-                        let find_pda_args = FeeAccountFindPdaArgs {
-                            program_id: self.program_id,
-                            lst_mint: *lst_mint,
-                        };
-                        match fee_account_opt {
-                            Some(FeeAccount { bump, .. }) => FeeAccountCreatePdaArgs {
-                                find_pda_args,
-                                bump: *bump,
-                            }
-                            .get_fee_account_address()
-                            .unwrap(),
-                            None => find_pda_args.get_fee_account_address_and_bump_seed().0,
-                        }
-                    }),
-            )
+    fn get_accounts_to_update_for_liquidity(&self) -> Vec<Pubkey> {
+        vec![self.find_program_state_addr()]
+    }
+
+    fn get_accounts_to_update_for_all_lsts(&self) -> Vec<Pubkey> {
+        self.mints_to_fee_accounts
+            .iter()
+            .map(|(lst_mint, fee_account_opt)| self.fee_account_for_mint(lst_mint, fee_account_opt))
+            .collect()
+    }
+
+    fn get_accounts_to_update_for_lsts<I: Iterator<Item = Pubkey>>(
+        &self,
+        lst_mints: I,
+    ) -> Vec<Pubkey> {
+        lst_mints
+            .map(|lst_mint| {
+                let fee_account_opt = self
+                    .mints_to_fee_accounts
+                    .get(&lst_mint)
+                    .map_or_else(|| &None, |opt| opt);
+                self.fee_account_for_mint(&lst_mint, fee_account_opt)
+            })
             .collect()
     }
 

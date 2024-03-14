@@ -3,7 +3,7 @@
 use anyhow::anyhow;
 use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapMode, SwapParams};
 use s_controller_interface::LstState;
-use s_controller_lib::{try_lst_state_list, try_pool_state};
+use s_controller_lib::try_lst_state_list;
 use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::{instruction::Instruction, pubkey::Pubkey};
 
@@ -29,10 +29,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
         swap_params: &SwapParams,
         swap_mode: SwapMode, // to make up for lack of swap_mode in swap_params
     ) -> anyhow::Result<Instruction> {
-        let lp_mint = {
-            let pool_state_data = self.pool_state_data()?;
-            try_pool_state(&pool_state_data)?.lp_token_mint
-        };
+        let lp_mint = self.lp_token_mint()?;
         if swap_params.source_mint == lp_mint {
             if let SwapMode::ExactOut = swap_mode {
                 return Err(anyhow!("ExactOut not supported for remove liquidity"));
@@ -52,10 +49,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     }
 
     pub fn quote_full(&self, quote_params: &QuoteParams) -> anyhow::Result<Quote> {
-        let lp_mint = {
-            let pool_state_data = self.pool_state_data()?;
-            try_pool_state(&pool_state_data)?.lp_token_mint
-        };
+        let lp_mint = self.lp_token_mint()?;
         if quote_params.input_mint == lp_mint {
             if let SwapMode::ExactOut = quote_params.swap_mode {
                 return Err(anyhow!("ExactOut not supported for remove liquidity"));
@@ -78,10 +72,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
         &self,
         swap_params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {
-        let lp_mint = {
-            let pool_state_data = self.pool_state_data()?;
-            try_pool_state(&pool_state_data)?.lp_token_mint
-        };
+        let lp_mint = self.lp_token_mint()?;
         if swap_params.source_mint == lp_mint {
             self.remove_liquidity_swap_and_account_metas(swap_params)
         } else if swap_params.destination_mint == lp_mint {
@@ -100,14 +91,12 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     /// Returns all mints this SPool can swap between (includes LP token mint)
     pub fn get_reserve_mints_full(&self) -> Vec<Pubkey> {
         let lst_state_list_data = self.lst_state_list_account.data();
-        let mut res: Vec<Pubkey> = match try_lst_state_list(&lst_state_list_data) {
-            Ok(list) => list.iter().map(|LstState { mint, .. }| *mint).collect(),
-            Err(_e) => vec![],
-        };
-        if let Ok(pool_state_data) = self.pool_state_data() {
-            if let Ok(pool_state) = try_pool_state(&pool_state_data) {
-                res.push(pool_state.lp_token_mint);
-            }
+        let mut res: Vec<Pubkey> = try_lst_state_list(&lst_state_list_data).map_or_else(
+            |_e| vec![],
+            |list| list.iter().map(|LstState { mint, .. }| *mint).collect(),
+        );
+        if let Ok(lp_token_mint) = self.lp_token_mint() {
+            res.push(lp_token_mint);
         }
         res
     }
