@@ -18,7 +18,7 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             .chain(self.get_accounts_to_update_pricing_prog())
             .chain(self.get_accounts_to_update_lsts_all())
             .collect();
-        if let Some(lp_token_mint) = self.lp_token_mint() {
+        if let Ok(lp_token_mint) = self.lp_token_mint() {
             res.push(lp_token_mint)
         }
         res
@@ -51,10 +51,24 @@ impl<S, L> SPool<S, L> {
     }
 
     pub fn get_accounts_to_update_pricing_prog(&self) -> Vec<Pubkey> {
-        match &self.pricing_prog {
-            Some(pp) => pp.get_accounts_to_update(),
-            None => vec![],
-        }
+        self.pricing_prog
+            .as_ref()
+            .map_or_else(Vec::new, |pp| pp.get_accounts_to_update())
+    }
+
+    pub fn get_accounts_to_update_pricing_prog_for_lsts<I: Iterator<Item = Pubkey>>(
+        &self,
+        lst_mints: I,
+    ) -> Vec<Pubkey> {
+        self.pricing_prog
+            .as_ref()
+            .map_or_else(Vec::new, |pp| pp.get_accounts_to_update_for_lsts(lst_mints))
+    }
+
+    pub fn get_accounts_to_update_pricing_prog_for_liquidity(&self) -> Vec<Pubkey> {
+        self.pricing_prog
+            .as_ref()
+            .map_or_else(Vec::new, |pp| pp.get_accounts_to_update_for_liquidity())
     }
 
     pub fn update_pricing_prog<D: ReadonlyAccountData>(
@@ -69,6 +83,22 @@ impl<S, L> SPool<S, L> {
 }
 
 impl<S, L: ReadonlyAccountData> SPool<S, L> {
+    fn lst_accounts_to_update(
+        &self,
+        lst_state: &LstState,
+        lst_data: &Option<LstData>,
+    ) -> Vec<Pubkey> {
+        let lst_data = match lst_data.as_ref() {
+            Some(l) => l,
+            None => return vec![],
+        };
+        let mut res = lst_data.sol_val_calc.get_accounts_to_update();
+        if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
+            res.push(ata);
+        }
+        res
+    }
+
     pub fn get_accounts_to_update_lsts_all(&self) -> Vec<Pubkey> {
         let lst_state_list_data = self.lst_state_list_account.data();
         let lst_state_list = match try_lst_state_list(&lst_state_list_data) {
@@ -78,22 +108,14 @@ impl<S, L: ReadonlyAccountData> SPool<S, L> {
         lst_state_list
             .iter()
             .zip(self.lst_data_list.iter())
-            .filter_map(|(lst_state, lst_data)| {
-                let lst_data = lst_data.as_ref()?;
-                let mut res = lst_data.sol_val_calc.get_accounts_to_update();
-                if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
-                    res.push(ata);
-                }
-                Some(res)
-            })
-            .flatten()
+            .flat_map(|(lst_state, lst_data)| self.lst_accounts_to_update(lst_state, lst_data))
             .collect()
     }
 
-    /// Can be used to only fetch certain accounts for partial updates for specific LSTs
-    pub fn get_accounts_to_update_lsts_filtered<F: Fn(&LstState, &Option<LstData>) -> bool>(
+    /// Used to only fetch certain accounts for partial updates for specific LSTs
+    pub fn get_accounts_to_update_lsts_filtered<F: FnMut(&LstState, &Option<LstData>) -> bool>(
         &self,
-        filter_pred: F,
+        mut filter_pred: F,
     ) -> Vec<Pubkey> {
         let lst_state_list_data = self.lst_state_list_account.data();
         let lst_state_list = match try_lst_state_list(&lst_state_list_data) {
@@ -107,12 +129,7 @@ impl<S, L: ReadonlyAccountData> SPool<S, L> {
                 if !filter_pred(lst_state, lst_data) {
                     return None;
                 }
-                let lst_data = lst_data.as_ref()?;
-                let mut res = lst_data.sol_val_calc.get_accounts_to_update();
-                if let Ok(ata) = self.pool_reserves_account(lst_state, lst_data) {
-                    res.push(ata);
-                }
-                Some(res)
+                Some(self.lst_accounts_to_update(lst_state, lst_data))
             })
             .flatten()
             .collect()

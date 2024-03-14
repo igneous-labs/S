@@ -32,9 +32,24 @@ impl MutablePricingProg for KnownPricingProg {
         })
     }
 
-    fn get_accounts_to_update(&self) -> Vec<Pubkey> {
+    fn get_accounts_to_update_for_all_lsts(&self) -> Vec<Pubkey> {
         match self {
-            Self::FlatFee(p) => p.get_accounts_to_update(),
+            Self::FlatFee(p) => p.get_accounts_to_update_for_all_lsts(),
+        }
+    }
+
+    fn get_accounts_to_update_for_liquidity(&self) -> Vec<Pubkey> {
+        match self {
+            Self::FlatFee(p) => p.get_accounts_to_update_for_liquidity(),
+        }
+    }
+
+    fn get_accounts_to_update_for_lsts<I: Iterator<Item = Pubkey>>(
+        &self,
+        lst_mints: I,
+    ) -> Vec<Pubkey> {
+        match self {
+            Self::FlatFee(p) => p.get_accounts_to_update_for_lsts(lst_mints),
         }
     }
 

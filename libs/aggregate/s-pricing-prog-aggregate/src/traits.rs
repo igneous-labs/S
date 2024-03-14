@@ -46,7 +46,24 @@ pub trait MutablePricingProg {
     where
         Self: Sized;
 
-    fn get_accounts_to_update(&self) -> Vec<Pubkey>;
+    fn get_accounts_to_update(&self) -> Vec<Pubkey> {
+        [
+            self.get_accounts_to_update_for_liquidity(),
+            self.get_accounts_to_update_for_all_lsts(),
+        ]
+        .concat()
+    }
+
+    /// Used to only fetch certain accounts for partial updates to support PriceLpTokensToMint/Redeem
+    fn get_accounts_to_update_for_liquidity(&self) -> Vec<Pubkey>;
+
+    fn get_accounts_to_update_for_all_lsts(&self) -> Vec<Pubkey>;
+
+    /// Used to only fetch certain accounts for partial updates for specific LSTs
+    fn get_accounts_to_update_for_lsts<I: Iterator<Item = Pubkey>>(
+        &self,
+        lst_mints: I,
+    ) -> Vec<Pubkey>;
 
     /// Currently, all update() implementations
     /// - no-ops if account to update is not in account_map

@@ -102,11 +102,9 @@ impl<S: ReadonlyAccountData, L> SPool<S, L> {
         Ok(pool_state.data())
     }
 
-    pub fn lp_token_mint(&self) -> Option<Pubkey> {
-        let pool_state_acc_data = self.pool_state_data().ok()?;
-        try_pool_state(&pool_state_acc_data)
-            .ok()
-            .map(|ps| ps.lp_token_mint)
+    pub fn lp_token_mint(&self) -> anyhow::Result<Pubkey> {
+        let pool_state_acc_data = self.pool_state_data()?;
+        Ok(try_pool_state(&pool_state_acc_data).map(|ps| ps.lp_token_mint)?)
     }
 }
 
