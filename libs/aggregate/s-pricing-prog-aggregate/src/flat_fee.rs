@@ -79,15 +79,19 @@ impl FlatFeePricingProg {
             program_id: self.program_id,
             lst_mint: *lst_mint,
         };
-        match fee_account_opt {
-            Some(FeeAccount { bump, .. }) => FeeAccountCreatePdaArgs {
-                find_pda_args,
-                bump: *bump,
-            }
-            .get_fee_account_address()
-            .unwrap(),
-            None => find_pda_args.get_fee_account_address_and_bump_seed().0,
+        let bump = match fee_account_opt {
+            Some(FeeAccount { bump, .. }) => bump,
+            None => return find_pda_args.get_fee_account_address_and_bump_seed().0,
+        };
+        FeeAccountCreatePdaArgs {
+            find_pda_args,
+            bump: *bump,
         }
+        .get_fee_account_address()
+        .map_or_else(
+            |_e| find_pda_args.get_fee_account_address_and_bump_seed().0,
+            |pk| pk,
+        )
     }
 }
 
@@ -110,8 +114,6 @@ impl MutablePricingProg for FlatFeePricingProg {
         vec![self.find_program_state_addr()]
     }
 
-    /// ## Panics
-    /// - if a bump stored in self.mints_to_fee_accounts is invalid
     fn get_accounts_to_update_for_all_lsts(&self) -> Vec<Pubkey> {
         self.mints_to_fee_accounts
             .iter()
