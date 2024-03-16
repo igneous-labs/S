@@ -2,11 +2,12 @@ use clap::Args;
 use flat_fee_interface::{set_lp_withdrawal_fee_ix_with_program_id, SetLpWithdrawalFeeIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetLpWithdrawalFeeFreeArgs, pda::ProgramStateFindPdaArgs,
-    utils::try_program_state,
+    utils::try_program_state, SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
+    compute_budget::ComputeBudgetInstruction,
     message::{v0::Message, VersionedMessage},
     transaction::VersionedTransaction,
 };
@@ -71,7 +72,21 @@ impl SetLpWithdrawalFeeArgs {
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
         let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
+            VersionedMessage::V0(
+                Message::try_compile(
+                    &payer.pubkey(),
+                    &[
+                        ComputeBudgetInstruction::set_compute_unit_limit(
+                            SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL,
+                        ),
+                        ComputeBudgetInstruction::set_compute_unit_price(100),
+                        ix,
+                    ],
+                    &[],
+                    rbh,
+                )
+                .unwrap(),
+            ),
             &signers,
         )
         .unwrap();
