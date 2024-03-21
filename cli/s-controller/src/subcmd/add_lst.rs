@@ -3,10 +3,13 @@ use clap::{
     Args,
 };
 use s_controller_interface::add_lst_ix_with_program_id;
-use s_controller_lib::{find_pool_state_address, try_pool_state, AddLstFreeArgs};
+use s_controller_lib::{
+    find_pool_state_address, try_pool_state, AddLstFreeArgs, ADD_LST_IX_COMPUTE_UNIT_CEIL,
+};
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::{keyed::Keyed, ReadonlyAccountData};
 use solana_sdk::{
+    compute_budget::ComputeBudgetInstruction,
     message::{v0::Message, VersionedMessage},
     pubkey::Pubkey,
     transaction::VersionedTransaction,
@@ -94,7 +97,22 @@ impl AddLstArgs {
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
         let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
+            VersionedMessage::V0(
+                Message::try_compile(
+                    &payer.pubkey(),
+                    &[
+                        ComputeBudgetInstruction::set_compute_unit_limit(
+                            ADD_LST_IX_COMPUTE_UNIT_CEIL,
+                        ),
+                        // TODO: make compute unit price dynamic
+                        ComputeBudgetInstruction::set_compute_unit_price(20),
+                        ix,
+                    ],
+                    &[],
+                    rbh,
+                )
+                .unwrap(),
+            ),
             &signers,
         )
         .unwrap();

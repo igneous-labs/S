@@ -5,10 +5,12 @@ use clap::{
 use flat_fee_interface::{add_lst_ix_with_program_id, AddLstIxArgs};
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
+    ADD_LST_IX_COMPUTE_UNIT_CEIL,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
 use solana_sdk::{
+    compute_budget::ComputeBudgetInstruction,
     message::{v0::Message, VersionedMessage},
     transaction::VersionedTransaction,
 };
@@ -90,7 +92,22 @@ impl AddLstArgs {
 
         let rbh = rpc.get_latest_blockhash().await.unwrap();
         let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
+            VersionedMessage::V0(
+                Message::try_compile(
+                    &payer.pubkey(),
+                    &[
+                        ComputeBudgetInstruction::set_compute_unit_limit(
+                            ADD_LST_IX_COMPUTE_UNIT_CEIL,
+                        ),
+                        // TODO: make compute unit price dynamic
+                        ComputeBudgetInstruction::set_compute_unit_price(33),
+                        ix,
+                    ],
+                    &[],
+                    rbh,
+                )
+                .unwrap(),
+            ),
             &signers,
         )
         .unwrap();

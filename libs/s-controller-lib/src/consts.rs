@@ -17,3 +17,6 @@ pub const DEFAULT_TRADING_PROTOCOL_FEE_BPS: u16 = 1_000;
 pub const DEFAULT_LP_PROTOCOL_FEE_BPS: u16 = 1_000;
 
 pub const DEFAULT_PRICING_PROGRAM: Pubkey = flat_fee_lib::program::ID;
+
+// Compute Unit ceilings for instructions
+pub const ADD_LST_IX_COMPUTE_UNIT_CEIL: u32 = 100_000;
