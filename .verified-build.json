@@ -1,0 +1,8 @@
+{
+    "5ocnV1qiCgaQR8Jb8xWnVbApfaygJ8tNoZfgPwsgx9kx" : "--commit-hash 4e35462fb335a24738a57e7ced424a27b3c52f34 --library-name s_controller",
+    "f1tUoNEKrDp1oeGn4zxr7bh41eN6VcfHjfrL3ZqQday" : "--commit-hash 658f728dd476ca5f99ba11810e8ad8621caca70b --library-name flat_fee",
+    "wsoGmxQLSvwWpuaidCApxN5kEowLe2HLQLJhCQnj4bE" : "--commit-hash 658f728dd476ca5f99ba11810e8ad8621caca70b --library-name wsol_calculator",
+    "1idUSy4MGGKyKhvjSnGZ6Zc7Q4eKQcibym4BkEEw9KR" : "--commit-hash 658f728dd476ca5f99ba11810e8ad8621caca70b --library-name lido_calculator",
+    "mare3SCyfZkAndpBRBeonETmkCCB3TJTTrz8ZN2dnhP" : "--commit-hash 658f728dd476ca5f99ba11810e8ad8621caca70b --library-name marinade_calculator",
+    "sp1V4h2gWorkGhVcazBc22Hfo2f5sd7jcjT4EDPrWFF" : "--commit-hash 658f728dd476ca5f99ba11810e8ad8621caca70b --library-name spl_calculator"
+}
