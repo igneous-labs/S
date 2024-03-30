@@ -37,3 +37,9 @@ pub trait GenericPoolSolValCalc {
     /// The SOL value calculator program ID
     const ID: Pubkey;
 }
+
+// Compute Unit ceilings for instructions
+
+pub const INIT_COMPUTE_UNIT_CEIL: u32 = 10_000;
+
+pub const UPDATE_LAST_UPGRADE_SLOT_COMPUTE_UNIT_CEIL: u32 = 5_000;

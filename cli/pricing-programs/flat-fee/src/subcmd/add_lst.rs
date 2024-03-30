@@ -5,7 +5,7 @@ use clap::{
 use flat_fee_interface::{add_lst_ix_with_program_id, AddLstIxArgs};
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
-    ADD_LST_IX_COMPUTE_UNIT_CEIL,
+    ADD_LST_COMPUTE_UNIT_CEIL,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::sdk::KeyedAccount;
@@ -96,9 +96,7 @@ impl AddLstArgs {
                 Message::try_compile(
                     &payer.pubkey(),
                     &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(
-                            ADD_LST_IX_COMPUTE_UNIT_CEIL,
-                        ),
+                        ComputeBudgetInstruction::set_compute_unit_limit(ADD_LST_COMPUTE_UNIT_CEIL),
                         // TODO: make compute unit price dynamic
                         ComputeBudgetInstruction::set_compute_unit_price(33),
                         ix,
