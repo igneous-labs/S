@@ -99,6 +99,7 @@ spl_calculator_interface = { path = "./generated/sol-value-calculator-programs/s
 wsol_calculator_interface = { path = "./generated/sol-value-calculator-programs/wsol_calculator_interface" }
 lido-keys = { path = "./keys/lido-keys" }
 marinade-keys = { path = "./keys/marinade-keys" }
+sanctum-spl-multi-stake-pool-keys = { path = "./keys/sanctum-spl-multi-stake-pool-keys" }
 spl-stake-pool-keys = { path = "./keys/spl-stake-pool-keys" }
 wsol-keys = { path = "./keys/wsol-keys" }
 flat-fee-lib = { path = "./libs/pricing-programs/flat-fee-lib" }

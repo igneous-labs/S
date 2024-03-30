@@ -62,10 +62,10 @@ pub mod sanctum_spl_multi_sol_val_calc_program {
 pub struct SanctumSplMultiSolValCalc;
 
 impl GenericPoolSolValCalc for SanctumSplMultiSolValCalc {
-    // TODO: deploy sanctum multi spl stake pool program and update these 2 consts
-    const POOL_PROGRAM_ID: Pubkey = sanctum_spl_stake_pool_keys::sanctum_spl_stake_pool_program::ID;
+    const POOL_PROGRAM_ID: Pubkey =
+        sanctum_spl_multi_stake_pool_keys::sanctum_spl_multi_stake_pool_program::ID;
     const POOL_PROGRAM_PROGDATA_ID: Pubkey =
-        sanctum_spl_stake_pool_keys::sanctum_spl_stake_pool_program_progdata::ID;
+        sanctum_spl_multi_stake_pool_keys::sanctum_spl_multi_stake_pool_program_progdata::ID;
     const CALCULATOR_STATE_PDA: Pubkey =
         sanctum_spl_multi_sol_val_calc_program::SANCTUM_SPL_MULTI_CALCULATOR_STATE_ID;
     const CALCULATOR_STATE_BUMP: u8 =
