@@ -60,6 +60,18 @@ pub async fn lst_sol_common_account_metas(
             .unwrap()
             .to_vec()
         }
+        SolValCalcArg::SanctumSplMulti => {
+            let pool_acc = rpc.get_account(&pool).await.unwrap();
+            SplLstSolCommonFreeArgsConst {
+                spl_stake_pool: Keyed {
+                    account: pool_acc,
+                    pubkey: pool,
+                },
+            }
+            .resolve_sanctum_spl_multi_to_account_metas()
+            .unwrap()
+            .to_vec()
+        }
         SolValCalcArg::Spl => {
             let pool_acc = rpc.get_account(&pool).await.unwrap();
             SplLstSolCommonFreeArgsConst {

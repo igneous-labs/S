@@ -1,13 +1,16 @@
 use std::{error::Error, str::FromStr};
 
 use solana_sdk::pubkey::Pubkey;
-use spl_calculator_lib::sanctum_spl_sol_val_calc_program;
+use spl_calculator_lib::{
+    sanctum_spl_multi_sol_val_calc_program, sanctum_spl_sol_val_calc_program,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub enum SolValCalcArg {
     Lido,
     Marinade,
     SanctumSpl,
+    SanctumSplMulti,
     Spl,
     Wsol,
     Unknown(Pubkey),
@@ -18,6 +21,7 @@ impl SolValCalcArg {
 - lido
 - marinade
 - sanctum-spl
+- sanctum-spl-multi
 - spl
 - wsol";
 
@@ -26,6 +30,7 @@ impl SolValCalcArg {
             "lido" => Self::Lido,
             "marinade" => Self::Marinade,
             "sanctum-spl" => Self::SanctumSpl,
+            "sanctum-spl-multi" => Self::SanctumSplMulti,
             "spl" => Self::Spl,
             "wsol" => Self::Wsol,
             _ => {
@@ -47,6 +52,7 @@ impl SolValCalcArg {
             Self::Lido => lido_calculator_lib::program::ID,
             Self::Marinade => marinade_calculator_lib::program::ID,
             Self::SanctumSpl => sanctum_spl_sol_val_calc_program::ID,
+            Self::SanctumSplMulti => sanctum_spl_multi_sol_val_calc_program::ID,
             Self::Spl => spl_calculator_lib::program::ID,
             Self::Wsol => wsol_calculator_lib::program::ID,
             Self::Unknown(pk) => *pk,
