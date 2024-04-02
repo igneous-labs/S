@@ -51,3 +51,24 @@ impl GenericPoolSolValCalc for SanctumSplSolValCalc {
         sanctum_spl_sol_val_calc_program::SANCTUM_SPL_CALCULATOR_STATE_BUMP;
     const ID: Pubkey = sanctum_spl_sol_val_calc_program::ID;
 }
+
+pub mod sanctum_spl_multi_sol_val_calc_program {
+    sanctum_macros::declare_program_keys!(
+        "ssmbu3KZxgonUtjEMCKspZzxvUQCxAFnyh1rcHUeEDo",
+        [("sanctum_spl_multi_calculator_state", b"state")]
+    );
+}
+
+pub struct SanctumSplMultiSolValCalc;
+
+impl GenericPoolSolValCalc for SanctumSplMultiSolValCalc {
+    const POOL_PROGRAM_ID: Pubkey =
+        sanctum_spl_multi_stake_pool_keys::sanctum_spl_multi_stake_pool_program::ID;
+    const POOL_PROGRAM_PROGDATA_ID: Pubkey =
+        sanctum_spl_multi_stake_pool_keys::sanctum_spl_multi_stake_pool_program_progdata::ID;
+    const CALCULATOR_STATE_PDA: Pubkey =
+        sanctum_spl_multi_sol_val_calc_program::SANCTUM_SPL_MULTI_CALCULATOR_STATE_ID;
+    const CALCULATOR_STATE_BUMP: u8 =
+        sanctum_spl_multi_sol_val_calc_program::SANCTUM_SPL_MULTI_CALCULATOR_STATE_BUMP;
+    const ID: Pubkey = sanctum_spl_multi_sol_val_calc_program::ID;
+}

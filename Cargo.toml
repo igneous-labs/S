@@ -84,7 +84,8 @@ sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-ut
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2db58d3" }
 
 # sanctum-lst-list
-sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b2f8fed"
+# TODO: update to 0.2.0 to include SanctumSplMulti
+sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b4f05b2"
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
@@ -99,6 +100,7 @@ spl_calculator_interface = { path = "./generated/sol-value-calculator-programs/s
 wsol_calculator_interface = { path = "./generated/sol-value-calculator-programs/wsol_calculator_interface" }
 lido-keys = { path = "./keys/lido-keys" }
 marinade-keys = { path = "./keys/marinade-keys" }
+sanctum-spl-multi-stake-pool-keys = { path = "./keys/sanctum-spl-multi-stake-pool-keys" }
 spl-stake-pool-keys = { path = "./keys/spl-stake-pool-keys" }
 wsol-keys = { path = "./keys/wsol-keys" }
 flat-fee-lib = { path = "./libs/pricing-programs/flat-fee-lib" }

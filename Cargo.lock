@@ -4080,8 +4080,8 @@ dependencies = [
 
 [[package]]
 name = "sanctum-lst-list"
-version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#b2f8fedd21b4cfc41fb860e4f63f33db52f7e241"
+version = "0.2.0"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#b4f05b27086fcdf98c3cdf16d3c9531b6a98160b"
 dependencies = [
  "sanctum-macros",
  "serde",
@@ -4188,6 +4188,36 @@ dependencies = [
  "spl_calculator_interface",
  "test-utils",
  "tokio",
+]
+
+[[package]]
+name = "sanctum-spl-multi-calculator"
+version = "1.0.0"
+dependencies = [
+ "generic-pool-calculator-lib",
+ "generic-pool-calculator-onchain",
+ "generic-pool-calculator-test-utils",
+ "generic_pool_calculator_interface",
+ "sanctum-misc-utils",
+ "sanctum-solana-test-utils",
+ "sanctum-token-ratio",
+ "sol-value-calculator-onchain",
+ "solana-program",
+ "solana-program-test",
+ "solana-readonly-account",
+ "solana-sdk",
+ "spl-calculator-lib",
+ "spl_calculator_interface",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "sanctum-spl-multi-stake-pool-keys"
+version = "1.0.0"
+dependencies = [
+ "sanctum-macros",
+ "solana-program",
 ]
 
 [[package]]
@@ -5822,6 +5852,7 @@ dependencies = [
  "generic_pool_calculator_interface",
  "proptest",
  "sanctum-macros",
+ "sanctum-spl-multi-stake-pool-keys",
  "sanctum-spl-stake-pool-keys",
  "sanctum-token-ratio",
  "sol-value-calculator-lib",

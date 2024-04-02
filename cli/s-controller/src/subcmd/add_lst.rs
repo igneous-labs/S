@@ -4,7 +4,7 @@ use clap::{
 };
 use s_controller_interface::add_lst_ix_with_program_id;
 use s_controller_lib::{
-    find_pool_state_address, try_pool_state, AddLstFreeArgs, ADD_LST_IX_COMPUTE_UNIT_CEIL,
+    find_pool_state_address, try_pool_state, AddLstFreeArgs, ADD_LST_COMPUTE_UNIT_CEIL,
 };
 use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
 use solana_readonly_account::{keyed::Keyed, ReadonlyAccountData};
@@ -101,9 +101,7 @@ impl AddLstArgs {
                 Message::try_compile(
                     &payer.pubkey(),
                     &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(
-                            ADD_LST_IX_COMPUTE_UNIT_CEIL,
-                        ),
+                        ComputeBudgetInstruction::set_compute_unit_limit(ADD_LST_COMPUTE_UNIT_CEIL),
                         // TODO: make compute unit price dynamic
                         ComputeBudgetInstruction::set_compute_unit_price(20),
                         ix,

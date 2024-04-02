@@ -38,6 +38,6 @@ pub mod initial_constants {
 
 // Compute Unit ceilings for instructions
 
-pub const ADD_LST_IX_COMPUTE_UNIT_CEIL: u32 = 30_000;
+pub const ADD_LST_COMPUTE_UNIT_CEIL: u32 = 30_000;
 
 pub const SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL: u32 = 10_000;
