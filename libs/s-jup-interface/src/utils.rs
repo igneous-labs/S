@@ -2,7 +2,8 @@ use s_controller_interface::{LstState, PoolState};
 use s_pricing_prog_aggregate::{KnownPricingProg, MutablePricingProg};
 use s_sol_val_calc_prog_aggregate::{
     KnownLstSolValCalc, LidoLstSolValCalc, LstSolValCalc, MarinadeLstSolValCalc,
-    SanctumSplLstSolValCalc, SplLstSolValCalc, SplLstSolValCalcInitKeys, WsolLstSolValCalc,
+    SanctumSplLstSolValCalc, SanctumSplMultiLstSolValCalc, SplLstSolValCalc,
+    SplLstSolValCalcInitKeys, WsolLstSolValCalc,
 };
 use sanctum_lst_list::{PoolInfo, SanctumLst, SplPoolAccounts};
 
@@ -46,6 +47,14 @@ pub fn try_lst_data(
                 lst_mint: *mint,
                 stake_pool_addr: *pool,
             }))
+        }
+        PoolInfo::SanctumSplMulti(SplPoolAccounts { pool, .. }) => {
+            KnownLstSolValCalc::SanctumSplMulti(SanctumSplMultiLstSolValCalc::from_keys(
+                SplLstSolValCalcInitKeys {
+                    lst_mint: *mint,
+                    stake_pool_addr: *pool,
+                },
+            ))
         }
         PoolInfo::SPool(_) => None?,
     };

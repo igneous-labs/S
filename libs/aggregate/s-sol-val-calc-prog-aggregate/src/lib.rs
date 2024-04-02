@@ -9,6 +9,7 @@ mod err;
 mod lido;
 mod marinade;
 mod sanctum_spl;
+mod sanctum_spl_multi;
 mod spl;
 mod traits;
 mod wsol;
@@ -17,6 +18,7 @@ pub use err::*;
 pub use lido::*;
 pub use marinade::*;
 pub use sanctum_spl::*;
+pub use sanctum_spl_multi::*;
 pub use spl::*;
 pub use traits::*;
 pub use wsol::*;
@@ -28,6 +30,7 @@ pub enum KnownLstSolValCalc {
     Spl(SplLstSolValCalc),
     SanctumSpl(SanctumSplLstSolValCalc),
     Wsol(WsolLstSolValCalc),
+    SanctumSplMulti(SanctumSplMultiLstSolValCalc),
 }
 
 impl MutableLstSolValCalc for KnownLstSolValCalc {
@@ -38,6 +41,7 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.get_accounts_to_update(),
             Self::SanctumSpl(s) => s.get_accounts_to_update(),
             Self::Wsol(s) => s.get_accounts_to_update(),
+            Self::SanctumSplMulti(s) => s.get_accounts_to_update(),
         }
     }
 
@@ -51,6 +55,7 @@ impl MutableLstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.update(account_map),
             Self::SanctumSpl(s) => s.update(account_map),
             Self::Wsol(s) => s.update(account_map),
+            Self::SanctumSplMulti(s) => s.update(account_map),
         }
     }
 }
@@ -63,6 +68,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.sol_value_calculator_program_id(),
             Self::SanctumSpl(s) => s.sol_value_calculator_program_id(),
             Self::Wsol(s) => s.sol_value_calculator_program_id(),
+            Self::SanctumSplMulti(s) => s.sol_value_calculator_program_id(),
         }
     }
 
@@ -73,6 +79,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.lst_mint(),
             Self::SanctumSpl(s) => s.lst_mint(),
             Self::Wsol(s) => s.lst_mint(),
+            Self::SanctumSplMulti(s) => s.sol_value_calculator_program_id(),
         }
     }
 
@@ -83,6 +90,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.lst_to_sol(lst_amount),
             Self::SanctumSpl(s) => s.lst_to_sol(lst_amount),
             Self::Wsol(s) => s.lst_to_sol(lst_amount),
+            Self::SanctumSplMulti(s) => s.lst_to_sol(lst_amount),
         }
     }
 
@@ -93,6 +101,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.sol_to_lst(lamports),
             Self::SanctumSpl(s) => s.sol_to_lst(lamports),
             Self::Wsol(s) => s.sol_to_lst(lamports),
+            Self::SanctumSplMulti(s) => s.sol_to_lst(lamports),
         }
     }
 
@@ -103,6 +112,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.ix_accounts(),
             Self::SanctumSpl(s) => s.ix_accounts(),
             Self::Wsol(s) => s.ix_accounts(),
+            Self::SanctumSplMulti(s) => s.ix_accounts(),
         }
     }
 }

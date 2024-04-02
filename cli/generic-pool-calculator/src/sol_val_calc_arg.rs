@@ -39,6 +39,7 @@ impl SolValCalcArg {
                     lido_calculator_lib::program::ID => Self::Lido,
                     marinade_calculator_lib::program::ID => Self::Marinade,
                     sanctum_spl_sol_val_calc_program::ID => Self::SanctumSpl,
+                    sanctum_spl_multi_sol_val_calc_program::ID => Self::SanctumSplMulti,
                     spl_calculator_lib::program::ID => Self::Spl,
                     wsol_calculator_lib::program::ID => Self::Wsol,
                     _ => Self::Unknown(pk),

@@ -4,8 +4,8 @@ use sanctum_token_ratio::U64ValueRange;
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey, sysvar};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 use spl_calculator_lib::{
-    deserialize_sanctum_spl_stake_pool_checked, resolve_to_account_metas_for_calc,
-    sanctum_spl_sol_val_calc_program, SanctumSplSolValCalc, SplStakePoolCalc,
+    deserialize_sanctum_spl_multi_stake_pool_checked, resolve_to_account_metas_for_calc,
+    sanctum_spl_multi_sol_val_calc_program, SanctumSplMultiSolValCalc, SplStakePoolCalc,
 };
 use std::collections::HashMap;
 
@@ -16,9 +16,9 @@ use crate::{
 
 #[derive(Clone, Debug, Default)]
 #[repr(transparent)]
-pub struct SanctumSplLstSolValCalc(pub SplLstSolValCalc);
+pub struct SanctumSplMultiLstSolValCalc(pub SplLstSolValCalc);
 
-impl SanctumSplLstSolValCalc {
+impl SanctumSplMultiLstSolValCalc {
     pub fn from_keys(keys: SplLstSolValCalcInitKeys) -> Self {
         Self(SplLstSolValCalc::from_keys(keys))
     }
@@ -27,7 +27,7 @@ impl SanctumSplLstSolValCalc {
         pool_acc: P,
     ) -> Result<Self, GenericPoolCalculatorError> {
         let stake_pool_addr = *pool_acc.pubkey();
-        let pool = deserialize_sanctum_spl_stake_pool_checked(pool_acc)?;
+        let pool = deserialize_sanctum_spl_multi_stake_pool_checked(pool_acc)?;
         Ok(Self(SplLstSolValCalc {
             lst_mint: pool.pool_mint,
             stake_pool_addr,
@@ -37,7 +37,7 @@ impl SanctumSplLstSolValCalc {
     }
 }
 
-impl MutableLstSolValCalc for SanctumSplLstSolValCalc {
+impl MutableLstSolValCalc for SanctumSplMultiLstSolValCalc {
     fn get_accounts_to_update(&self) -> Vec<Pubkey> {
         vec![sysvar::clock::ID, self.0.stake_pool_addr]
     }
@@ -50,18 +50,20 @@ impl MutableLstSolValCalc for SanctumSplLstSolValCalc {
     }
 }
 
-impl LstSolValCalc for SanctumSplLstSolValCalc {
+impl LstSolValCalc for SanctumSplMultiLstSolValCalc {
     fn sol_value_calculator_program_id(&self) -> Pubkey {
-        sanctum_spl_sol_val_calc_program::ID
+        sanctum_spl_multi_sol_val_calc_program::ID
     }
 
     fn ix_accounts(&self) -> Vec<AccountMeta> {
-        Vec::from(resolve_to_account_metas_for_calc::<SanctumSplSolValCalc>(
-            LstSolCommonIntermediateKeys {
-                lst_mint: self.0.lst_mint,
-                pool_state: self.0.stake_pool_addr,
-            },
-        ))
+        Vec::from(
+            resolve_to_account_metas_for_calc::<SanctumSplMultiSolValCalc>(
+                LstSolCommonIntermediateKeys {
+                    lst_mint: self.0.lst_mint,
+                    pool_state: self.0.stake_pool_addr,
+                },
+            ),
+        )
     }
 
     fn lst_mint(&self) -> Pubkey {
@@ -77,12 +79,12 @@ impl LstSolValCalc for SanctumSplLstSolValCalc {
     }
 }
 
-impl TryFrom<KnownLstSolValCalc> for SanctumSplLstSolValCalc {
+impl TryFrom<KnownLstSolValCalc> for SanctumSplMultiLstSolValCalc {
     type Error = LstSolValCalcErr;
 
     fn try_from(value: KnownLstSolValCalc) -> Result<Self, Self::Error> {
         match value {
-            KnownLstSolValCalc::SanctumSpl(s) => Ok(s),
+            KnownLstSolValCalc::SanctumSplMulti(s) => Ok(s),
             _ => Err(LstSolValCalcErr::WrongLstSolValCalc),
         }
     }

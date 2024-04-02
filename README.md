@@ -99,7 +99,7 @@ facb55e2af9bcc88a71a2c9d3a661ed29fb15ddd698e3a8ccdc034554416efe8
 #### Sanctum SPL Multi SOL Value Calculator
 
 ```
-e8454a6077c84296597df29565bd284c998c0350d36761fcaede0c059b53ad39
+06ea2c8f019866754ab349c2695a6abf483c3200c9e81fa51ada2375524b6096
 ```
 
 #### Marinade SOL Value Calculator

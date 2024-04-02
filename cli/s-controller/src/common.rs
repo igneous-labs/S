@@ -7,7 +7,10 @@ use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 use s_controller_interface::PoolState;
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
 use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
-use spl_calculator_lib::{resolve_to_account_metas_for_calc, SanctumSplSolValCalc, SplSolValCalc};
+use spl_calculator_lib::{
+    resolve_to_account_metas_for_calc, SanctumSplMultiSolValCalc, SanctumSplSolValCalc,
+    SplSolValCalc,
+};
 use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 lazy_static! {
@@ -55,6 +58,9 @@ pub fn sol_val_calc_of_sanctum_lst(sanctum_lst: &SanctumLst) -> Pubkey {
         PoolInfo::ReservePool => wsol_calculator_lib::program::ID,
         PoolInfo::SanctumSpl(_) => spl_calculator_lib::sanctum_spl_sol_val_calc_program::ID,
         PoolInfo::Spl(_) => spl_calculator_lib::program::ID,
+        PoolInfo::SanctumSplMulti(_) => {
+            spl_calculator_lib::sanctum_spl_multi_sol_val_calc_program::ID
+        }
         PoolInfo::SPool(_) => todo!(),
     }
 }
@@ -84,6 +90,15 @@ pub fn sol_value_calculator_accounts_of_sanctum_lst(
                 lst_mint: *mint,
                 pool_state: *pool,
             })
+            .to_vec()
+        }
+        PoolInfo::SanctumSplMulti(SplPoolAccounts { pool, .. }) => {
+            resolve_to_account_metas_for_calc::<SanctumSplMultiSolValCalc>(
+                LstSolCommonIntermediateKeys {
+                    lst_mint: *mint,
+                    pool_state: *pool,
+                },
+            )
             .to_vec()
         }
         PoolInfo::SPool(_) => todo!(),

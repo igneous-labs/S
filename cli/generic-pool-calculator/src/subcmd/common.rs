@@ -39,53 +39,30 @@ pub async fn lst_sol_common_account_metas(
     arg: &SolValCalcArg,
     pool: Option<Pubkey>,
 ) -> Vec<AccountMeta> {
-    let pool = match arg {
-        SolValCalcArg::SanctumSpl | SolValCalcArg::Spl => {
-            pool.expect("pool pubkey must be provided if spl or sanctum-spl")
-        }
-        _ => Pubkey::default(), // dont care
-    };
     match arg {
         SolValCalcArg::Lido => lido_sol_val_calc_account_metas().to_vec(),
         SolValCalcArg::Marinade => marinade_sol_val_calc_account_metas().to_vec(),
-        SolValCalcArg::SanctumSpl => {
-            let pool_acc = rpc.get_account(&pool).await.unwrap();
-            SplLstSolCommonFreeArgsConst {
-                spl_stake_pool: Keyed {
-                    account: pool_acc,
-                    pubkey: pool,
-                },
-            }
-            .resolve_sanctum_spl_to_account_metas()
-            .unwrap()
-            .to_vec()
-        }
-        SolValCalcArg::SanctumSplMulti => {
-            let pool_acc = rpc.get_account(&pool).await.unwrap();
-            SplLstSolCommonFreeArgsConst {
-                spl_stake_pool: Keyed {
-                    account: pool_acc,
-                    pubkey: pool,
-                },
-            }
-            .resolve_sanctum_spl_multi_to_account_metas()
-            .unwrap()
-            .to_vec()
-        }
-        SolValCalcArg::Spl => {
-            let pool_acc = rpc.get_account(&pool).await.unwrap();
-            SplLstSolCommonFreeArgsConst {
-                spl_stake_pool: Keyed {
-                    account: pool_acc,
-                    pubkey: pool,
-                },
-            }
-            .resolve_spl_to_account_metas()
-            .unwrap()
-            .to_vec()
-        }
         SolValCalcArg::Wsol => WSOL_LST_SOL_COMMON_METAS.to_vec(),
-        SolValCalcArg::Unknown(_) => unreachable!(),
+        SolValCalcArg::Spl | SolValCalcArg::SanctumSpl | SolValCalcArg::SanctumSplMulti => {
+            let pool =
+                pool.expect("pool pubkey must be provided for spl, sanctum-spl, sanctum-spl-multi");
+            let pool_acc = rpc.get_account(&pool).await.unwrap();
+            let reso = SplLstSolCommonFreeArgsConst {
+                spl_stake_pool: Keyed {
+                    account: pool_acc,
+                    pubkey: pool,
+                },
+            };
+            match arg {
+                SolValCalcArg::Spl => reso.resolve_spl_to_account_metas(),
+                SolValCalcArg::SanctumSpl => reso.resolve_sanctum_spl_to_account_metas(),
+                SolValCalcArg::SanctumSplMulti => reso.resolve_sanctum_spl_multi_to_account_metas(),
+                _ => unreachable!(),
+            }
+            .unwrap()
+            .to_vec()
+        }
+        SolValCalcArg::Unknown(_) => todo!("Not supported for unknown pool calculator programs"),
     }
 }
 

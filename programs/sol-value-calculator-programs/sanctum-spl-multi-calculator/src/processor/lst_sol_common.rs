@@ -19,7 +19,7 @@ pub fn verify_lst_sol_common(
         spl_stake_pool: actual.pool_state,
         spl_stake_pool_prog: actual.pool_program,
     };
-    let (intermediate, stake_pool) = root_keys.resolve_sanctum_spl()?;
+    let (intermediate, stake_pool) = root_keys.resolve_sanctum_spl_multi()?;
     let expected = intermediate.resolve::<SanctumSplMultiSolValCalc>()?.into();
 
     lst_to_sol_verify_account_keys(actual, expected).map_err(log_and_return_wrong_acc_err)?;

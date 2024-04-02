@@ -25,7 +25,7 @@ pub struct SolToLstArgs {
     #[arg(
         long,
         short,
-        help = "The stake pool to run for. Must be provided for spl or sanctum-spl"
+        help = "The stake pool to run for. Must be provided for stake pool programs that have multiple stake pools"
     )]
     pub pool: Option<Pubkey>,
 }
