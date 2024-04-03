@@ -11,6 +11,8 @@ use subcmd::Subcmd;
 use tokio::runtime::Runtime;
 
 mod common;
+mod deposit_sol;
+mod lst_amt_arg;
 mod lst_arg;
 mod pricing_prog_arg;
 mod rpc;

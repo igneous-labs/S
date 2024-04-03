@@ -38,6 +38,7 @@ borsh = ">=0.9,<1.0.0"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
+inquire = { version = "^0.7", default-features = false, features = ["crossterm"] }
 jupiter-amm-interface = "^0.3"
 lazy_static = "^1"
 num-derive = ">=0.3"
@@ -86,6 +87,11 @@ system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-sol
 # sanctum-lst-list
 # TODO: update to 0.2.0 to include SanctumSplMulti
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b4f05b2"
+
+# stakedex
+stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
