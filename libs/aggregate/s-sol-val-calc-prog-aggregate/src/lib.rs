@@ -141,6 +141,12 @@ impl From<SanctumSplLstSolValCalc> for KnownLstSolValCalc {
     }
 }
 
+impl From<SanctumSplMultiLstSolValCalc> for KnownLstSolValCalc {
+    fn from(value: SanctumSplMultiLstSolValCalc) -> Self {
+        Self::SanctumSplMulti(value)
+    }
+}
+
 impl From<WsolLstSolValCalc> for KnownLstSolValCalc {
     fn from(value: WsolLstSolValCalc) -> Self {
         Self::Wsol(value)
