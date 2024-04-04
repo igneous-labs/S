@@ -4,8 +4,9 @@ use self::{
     add_disable_auth::AddDisableAuthArgs, add_lst::AddLstArgs,
     disable_lst_input::DisableLstInputArgs, disable_pool::DisablePoolArgs,
     enable_lst_input::EnableLstInputArgs, enable_pool::EnablePoolArgs, init::InitArgs,
-    remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs, set_admin::SetAdminArgs,
-    set_pricing_prog::SetPricingProgArgs, set_protocol_fee::SetProtocolFeeArgs,
+    rebal_sol::RebalSolArgs, remove_disable_auth::RemoveDisableAuthArgs, remove_lst::RemoveLstArgs,
+    set_admin::SetAdminArgs, set_pricing_prog::SetPricingProgArgs,
+    set_protocol_fee::SetProtocolFeeArgs,
     set_protocol_fee_beneficiary::SetProtocolFeeBeneficiaryArgs,
     set_rebalance_auth::SetRebalanceAuthArgs, set_sol_value_calculator::SetSolValueCalculatorArgs,
     sync::SyncArgs, sync_all::SyncAllArgs, view::ViewArgs,
@@ -19,6 +20,7 @@ mod disable_pool;
 mod enable_lst_input;
 mod enable_pool;
 mod init;
+mod rebal_sol;
 mod remove_disable_auth;
 mod remove_lst;
 mod set_admin;
@@ -53,6 +55,7 @@ pub enum Subcmd {
     SyncAll(SyncAllArgs),
     WithdrawProtocolFees(WithdrawProtocolFeesArgs),
     View(ViewArgs),
+    RebalSol(RebalSolArgs),
 }
 
 impl Subcmd {
@@ -77,6 +80,7 @@ impl Subcmd {
             Self::SyncAll(_) => SyncAllArgs::run(args).await,
             Self::WithdrawProtocolFees(_) => WithdrawProtocolFeesArgs::run(args).await,
             Self::View(_) => ViewArgs::run(args).await,
+            Self::RebalSol(_) => RebalSolArgs::run(args).await,
         }
     }
 }

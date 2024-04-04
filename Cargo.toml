@@ -38,6 +38,7 @@ borsh = ">=0.9,<1.0.0"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
+inquire = { version = "^0.7", default-features = false, features = ["crossterm"] }
 jupiter-amm-interface = "^0.3"
 lazy_static = "^1"
 num-derive = ">=0.3"
@@ -87,6 +88,12 @@ system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-sol
 # TODO: update to 0.2.0 to include SanctumSplMulti
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b4f05b2"
 
+# stakedex
+stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
 flat_fee_interface = { path = "./generated/pricing-programs/flat_fee_interface" }
@@ -111,6 +118,7 @@ generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs
 generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
 lido-calculator-lib = { path = "./libs/sol-value-calculator-programs/lido-calculator-lib" }
 marinade-calculator-lib = { path = "./libs/sol-value-calculator-programs/marinade-calculator-lib" }
+s-jup-interface = { path = "./libs/s-jup-interface"}
 s-pricing-prog-aggregate = { path = "./libs/aggregate/s-pricing-prog-aggregate"}
 s-sol-val-calc-prog-aggregate = { path = "./libs/aggregate/s-sol-val-calc-prog-aggregate" }
 sanctum-s-common = { path = "./libs/sanctum-s-common" }

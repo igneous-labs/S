@@ -15,12 +15,16 @@ clap = { workspace = true }
 data-encoding = { workspace = true }
 flat-fee-lib = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
+inquire = { workspace = true }
+jupiter-amm-interface = { workspace = true }
 lazy_static = { workspace = true }
 lido-calculator-lib = { workspace = true }
 marinade-calculator-lib = { workspace = true }
 s_controller_interface = { workspace = true }
 s-cli-utils = { workspace = true }
 s-controller-lib = { workspace = true }
+s-jup-interface = { workspace = true }
+s-sol-val-calc-prog-aggregate = { workspace = true }
 sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
 sanctum-associated-token-lib = { workspace = true }
@@ -31,6 +35,11 @@ solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
 solana-sdk = { workspace = true }
 spl-associated-token-account = { workspace = true }
 spl-calculator-lib = { workspace = true }
+spl-token = { workspace = true }
+stakedex_interface = { workspace = true }
+stakedex_marinade = { workspace = true }
+stakedex_sdk_common = { workspace = true }
+stakedex_spl_stake_pool = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 wsol-calculator-lib = { workspace = true }
 
@@ -38,12 +47,13 @@ wsol-calculator-lib = { workspace = true }
 assert_cmd = { workspace = true }
 bincode = { workspace = true }
 cli-test-utils = { workspace = true }
+flat_fee_interface = { workspace = true }
 flat-fee = { workspace = true }
+flat-fee-test-utils = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["banks-rpc-server", "cli", "token"] }
 sanctum-token-lib = { workspace = true }
 solana-program-test = { workspace = true }
-spl-token = { workspace = true }
 test-utils = { workspace = true }

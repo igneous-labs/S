@@ -16,6 +16,8 @@ pub trait SctrProgramTest {
     fn add_s_program(self) -> Self;
 
     fn add_flat_fee_pricing_program(self) -> Self;
+
+    fn add_stakedex_program(self) -> Self;
 }
 
 impl SctrProgramTest for ProgramTest {
@@ -35,6 +37,11 @@ impl SctrProgramTest for ProgramTest {
             processor!(flat_fee::entrypoint::process_instruction),
         );
         self
+    }
+
+    fn add_stakedex_program(self) -> Self {
+        self.add_test_fixtures_account("stakedex-prog.json")
+            .add_test_fixtures_account("stakedex-prog-data.json")
     }
 }
 

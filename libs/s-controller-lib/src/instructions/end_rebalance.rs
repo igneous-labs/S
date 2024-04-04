@@ -1,5 +1,5 @@
 use s_controller_interface::{
-    end_rebalance_ix, EndRebalanceKeys, SControllerError, SControllerProgramIx,
+    end_rebalance_ix_with_program_id, EndRebalanceKeys, SControllerError, SControllerProgramIx,
     StartRebalanceIxArgs, StartRebalanceKeys, START_REBALANCE_IX_ACCOUNTS_LEN,
 };
 use solana_program::{
@@ -17,7 +17,21 @@ pub fn end_rebalance_ix_full(
     dst_lst_calculator_accounts: &[AccountMeta],
     dst_lst_calculator_program_id: Pubkey,
 ) -> Result<Instruction, ProgramError> {
-    let mut ix = end_rebalance_ix(accounts)?;
+    end_rebalance_ix_full_for_prog(
+        crate::program::ID,
+        accounts,
+        dst_lst_calculator_accounts,
+        dst_lst_calculator_program_id,
+    )
+}
+
+pub fn end_rebalance_ix_full_for_prog(
+    program_id: Pubkey,
+    accounts: EndRebalanceKeys,
+    dst_lst_calculator_accounts: &[AccountMeta],
+    dst_lst_calculator_program_id: Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let mut ix = end_rebalance_ix_with_program_id(program_id, accounts)?;
     ix_extend_with_sol_value_calculator_accounts(
         &mut ix,
         dst_lst_calculator_accounts,
@@ -56,7 +70,8 @@ pub fn end_rebalance_ix_from_start_rebalance_ix(
         EndRebalanceFromStartRebalanceKeys(&StartRebalanceKeys::from(start_rebalance_keys))
             .resolve();
 
-    let mut ix = end_rebalance_ix(end_rebalance_keys)?;
+    let mut ix =
+        end_rebalance_ix_with_program_id(start_rebalance_ix.program_id, end_rebalance_keys)?;
     ix.accounts.extend(dst_lst_suffix.iter().cloned());
     Ok(ix)
 }
