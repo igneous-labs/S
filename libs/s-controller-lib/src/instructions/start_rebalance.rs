@@ -1,8 +1,8 @@
 use s_controller_interface::{
-    start_rebalance_ix, SControllerError, StartRebalanceIxArgs, StartRebalanceIxData,
-    StartRebalanceKeys,
+    start_rebalance_ix_with_program_id, SControllerError, StartRebalanceIxArgs,
+    StartRebalanceIxData, StartRebalanceKeys,
 };
-use solana_program::{instruction::Instruction, program_error::ProgramError};
+use solana_program::{instruction::Instruction, program_error::ProgramError, pubkey::Pubkey};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 
 use crate::{
@@ -28,6 +28,15 @@ pub struct StartRebalanceIxFullArgs {
 
 pub fn start_rebalance_ix_full(
     accounts: StartRebalanceKeys,
+    args: StartRebalanceIxFullArgs,
+    sol_val_calc_keys: SrcDstLstSolValueCalcAccounts,
+) -> Result<Instruction, ProgramError> {
+    start_rebalance_ix_full_for_prog(crate::program::ID, accounts, args, sol_val_calc_keys)
+}
+
+pub fn start_rebalance_ix_full_for_prog(
+    program_id: Pubkey,
+    accounts: StartRebalanceKeys,
     StartRebalanceIxFullArgs {
         src_lst_index,
         dst_lst_index,
@@ -42,7 +51,8 @@ pub fn start_rebalance_ix_full(
 ) -> Result<Instruction, ProgramError> {
     let src_lst_index = index_to_u32(src_lst_index)?;
     let dst_lst_index = index_to_u32(dst_lst_index)?;
-    let mut ix = start_rebalance_ix(
+    let mut ix = start_rebalance_ix_with_program_id(
+        program_id,
         accounts,
         StartRebalanceIxArgs {
             src_lst_calc_accs: 0,
@@ -89,6 +99,37 @@ pub fn start_rebalance_ix_by_mints_full<
         program_ids,
     ) = free_args.resolve()?;
     start_rebalance_ix_full(
+        start_rebalance_keys,
+        StartRebalanceIxFullArgs {
+            src_lst_index,
+            dst_lst_index,
+            lst_amts,
+        },
+        SrcDstLstSolValueCalcAccounts::new(program_ids, sol_val_calc_account_suffixes),
+    )
+}
+
+pub fn start_rebalance_ix_by_mints_full_for_prog<
+    SM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    DM: ReadonlyAccountOwner + ReadonlyAccountPubkey,
+    S: ReadonlyAccountData + ReadonlyAccountPubkey,
+    L: ReadonlyAccountData + ReadonlyAccountPubkey,
+>(
+    program_id: Pubkey,
+    free_args: StartRebalanceByMintsFreeArgs<SM, DM, S, L>,
+    lst_amts: StartRebalanceIxLstAmts,
+    sol_val_calc_account_suffixes: SrcDstLstSolValueCalcAccountSuffixes,
+) -> Result<Instruction, ProgramError> {
+    let (
+        start_rebalance_keys,
+        SrcDstLstIndexes {
+            src_lst_index,
+            dst_lst_index,
+        },
+        program_ids,
+    ) = free_args.resolve_for_prog(program_id)?;
+    start_rebalance_ix_full_for_prog(
+        program_id,
         start_rebalance_keys,
         StartRebalanceIxFullArgs {
             src_lst_index,

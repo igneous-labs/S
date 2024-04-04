@@ -89,6 +89,7 @@ system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-sol
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b4f05b2"
 
 # stakedex
+stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
 stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
 stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
 stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
@@ -117,6 +118,7 @@ generic-pool-calculator-onchain = { path = "./libs/sol-value-calculator-programs
 generic-pool-calculator-test-utils = { path = "./libs/sol-value-calculator-programs/generic-pool-calculator-test-utils" }
 lido-calculator-lib = { path = "./libs/sol-value-calculator-programs/lido-calculator-lib" }
 marinade-calculator-lib = { path = "./libs/sol-value-calculator-programs/marinade-calculator-lib" }
+s-jup-interface = { path = "./libs/s-jup-interface"}
 s-pricing-prog-aggregate = { path = "./libs/aggregate/s-pricing-prog-aggregate"}
 s-sol-val-calc-prog-aggregate = { path = "./libs/aggregate/s-sol-val-calc-prog-aggregate" }
 sanctum-s-common = { path = "./libs/sanctum-s-common" }

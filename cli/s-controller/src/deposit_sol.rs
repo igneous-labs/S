@@ -2,9 +2,14 @@ use std::{collections::HashMap, error::Error};
 
 use jupiter_amm_interface::SwapParams;
 use sanctum_lst_list::{PoolInfo, SanctumLst, SplPoolAccounts};
-use solana_sdk::{account::Account, instruction::Instruction, pubkey::Pubkey};
+use solana_sdk::{account::Account, instruction::Instruction, pubkey::Pubkey, system_program};
+use spl_token::native_mint;
+use stakedex_interface::{stake_wrapped_sol_ix, StakeWrappedSolIxArgs, StakeWrappedSolKeys};
 use stakedex_marinade::MarinadeStakedex;
-use stakedex_sdk_common::{BaseStakePoolAmm, DepositSol};
+use stakedex_sdk_common::{
+    find_fee_token_acc, stakedex_program::SOL_BRIDGE_OUT_ID, wsol_bridge_in, BaseStakePoolAmm,
+    DepositSol,
+};
 use stakedex_spl_stake_pool::SplStakePoolStakedex;
 
 pub enum DepositSolStakedex {
@@ -44,6 +49,8 @@ impl DepositSolStakedex {
         }
     }
 
+    /*
+    // not needed since SPool should cover it
     pub fn get_accounts_to_update(&self) -> Vec<Pubkey> {
         let mut res = match self {
             Self::Marinade(p) => p.get_accounts_to_update(),
@@ -53,6 +60,7 @@ impl DepositSolStakedex {
         res.dedup();
         res
     }
+     */
 
     pub fn update(
         &mut self,
@@ -78,9 +86,34 @@ impl DepositSolStakedex {
 
     pub fn deposit_sol_ix(
         &self,
-        swap_params: &SwapParams,
+        SwapParams {
+            in_amount,
+            destination_mint,
+            source_token_account,
+            destination_token_account,
+            token_transfer_authority,
+            ..
+        }: &SwapParams,
     ) -> Result<Instruction, Box<dyn Error + Send + Sync + 'static>> {
-        //m
-        todo!()
+        let mut ix = stake_wrapped_sol_ix(
+            StakeWrappedSolKeys {
+                user: *token_transfer_authority,
+                wsol_from: *source_token_account,
+                dest_token_to: *destination_token_account,
+                wsol_bridge_in: wsol_bridge_in::ID,
+                sol_bridge_out: SOL_BRIDGE_OUT_ID,
+                dest_token_fee_token_account: find_fee_token_acc(destination_mint).0,
+                dest_token_mint: *destination_mint,
+                wsol_mint: native_mint::ID,
+                token_program: spl_token::ID, // TODO: support token-22 LSTs
+                system_program: system_program::ID,
+            },
+            StakeWrappedSolIxArgs { amount: *in_amount },
+        )?;
+        ix.accounts.extend(match self {
+            Self::Marinade(p) => p.virtual_ix()?.accounts,
+            Self::SplLike(p) => p.virtual_ix()?.accounts,
+        });
+        Ok(ix)
     }
 }
