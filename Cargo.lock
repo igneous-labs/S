@@ -3973,6 +3973,8 @@ dependencies = [
  "data-encoding",
  "flat-fee",
  "flat-fee-lib",
+ "flat-fee-test-utils",
+ "flat_fee_interface",
  "generic-pool-calculator-lib",
  "generic_pool_calculator_interface",
  "inquire",

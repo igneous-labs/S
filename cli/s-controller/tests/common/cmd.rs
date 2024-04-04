@@ -50,6 +50,8 @@ pub trait TestSctrCmd {
     fn cmd_withdraw_protocol_fees(&mut self) -> &mut Self;
 
     fn cmd_view(&mut self) -> &mut Self;
+
+    fn cmd_rebal_sol(&mut self, sol_amt_arg: &str, lst_arg: &str) -> &mut Self;
 }
 
 impl TestSctrCmd for Command {
@@ -127,5 +129,12 @@ impl TestSctrCmd for Command {
 
     fn cmd_view(&mut self) -> &mut Self {
         self.arg("view")
+    }
+
+    fn cmd_rebal_sol(&mut self, sol_amt_arg: &str, lst_arg: &str) -> &mut Self {
+        self.arg("rebal-sol")
+            .arg("-y")
+            .arg(sol_amt_arg)
+            .arg(lst_arg)
     }
 }

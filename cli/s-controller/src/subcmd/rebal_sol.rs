@@ -97,6 +97,7 @@ impl RebalSolArgs {
                 panic!("Unknown LST {lst}. Only LSTs on sanctum-lst-list supported")
             }
         };
+        let symbol = &sanctum_lst.symbol;
         let (pool_id, _) = find_pool_state_address(program_id);
         let (lst_state_list_id, _) = find_lst_state_list_address(program_id);
 
@@ -156,23 +157,26 @@ impl RebalSolArgs {
 
         let (_state, LstData { sol_val_calc, .. }) =
             spool.find_ready_lst(sanctum_lst.mint).unwrap();
-        let required_lst_deposit = sol_val_calc.sol_to_lst(lamports).unwrap().get_min();
+        let required_lst_deposit = sol_val_calc.sol_to_lst(lamports).unwrap().get_max();
 
         let lst_minted = deposit_sol.quote_deposit_sol(lamports).unwrap();
 
         let subsidy_amt = required_lst_deposit.saturating_sub(lst_minted);
 
-        if subsidy_amt > 0 && !yes {
-            let has_confirmed = Confirm::new(&format!(
-                "Will need to subsidize {} {}. Proceed?",
-                lamports_to_sol(subsidy_amt),
-                sanctum_lst.symbol
-            ))
-            .with_default(false)
-            .prompt()
-            .unwrap();
-            if !has_confirmed {
-                return;
+        if subsidy_amt > 0 {
+            let subsidy_amt_decimals = lamports_to_sol(subsidy_amt);
+            if yes {
+                eprintln!("Subsidizing {subsidy_amt_decimals} {symbol}")
+            } else {
+                let has_confirmed = Confirm::new(&format!(
+                    "Will need to subsidize {subsidy_amt_decimals} {symbol}. Proceed?",
+                ))
+                .with_default(false)
+                .prompt()
+                .unwrap();
+                if !has_confirmed {
+                    return;
+                }
             }
         } else {
             eprintln!("No subsidy required, proceeding");
@@ -211,11 +215,11 @@ impl RebalSolArgs {
                 Some(a) => {
                     let ata_balance = token_account_balance(a).unwrap();
                     if ata_balance < subsidy_amt {
-                        panic!("Expected payer {} ATA to have at least {subsidy_amt} for subsidy, but it only has {ata_balance}", sanctum_lst.symbol);
+                        panic!("Expected payer {symbol} ATA to have at least {subsidy_amt} for subsidy, but it only has {ata_balance}");
                     }
                 }
                 None => {
-                    panic!("Expected payer to have {} ATA with at least {subsidy_amt} balance for subsidy", sanctum_lst.symbol);
+                    panic!("Expected payer to have {symbol} ATA with at least {subsidy_amt} balance for subsidy");
                 }
             }
         }

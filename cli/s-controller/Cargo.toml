@@ -47,7 +47,9 @@ wsol-calculator-lib = { workspace = true }
 assert_cmd = { workspace = true }
 bincode = { workspace = true }
 cli-test-utils = { workspace = true }
+flat_fee_interface = { workspace = true }
 flat-fee = { workspace = true }
+flat-fee-test-utils = { workspace = true }
 generic_pool_calculator_interface = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }

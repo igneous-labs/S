@@ -7,8 +7,7 @@ use spl_token::native_mint;
 use stakedex_interface::{stake_wrapped_sol_ix, StakeWrappedSolIxArgs, StakeWrappedSolKeys};
 use stakedex_marinade::MarinadeStakedex;
 use stakedex_sdk_common::{
-    find_fee_token_acc, stakedex_program::SOL_BRIDGE_OUT_ID, wsol_bridge_in, BaseStakePoolAmm,
-    DepositSol,
+    find_fee_token_acc, stakedex_program::SOL_BRIDGE_OUT_ID, wsol_bridge_in, DepositSol,
 };
 use stakedex_spl_stake_pool::SplStakePoolStakedex;
 
@@ -50,7 +49,9 @@ impl DepositSolStakedex {
     }
 
     /*
-    // not needed since SPool should cover it
+    // TODO: hacky, but this is not needed rn since
+    // we dont need to fetch the full validator list for deposit sol
+    // and spool.get_accounts_to_update_lsts_filtered should cover the pool
     pub fn get_accounts_to_update(&self) -> Vec<Pubkey> {
         let mut res = match self {
             Self::Marinade(p) => p.get_accounts_to_update(),
@@ -67,8 +68,16 @@ impl DepositSolStakedex {
         account_map: &HashMap<Pubkey, Account>,
     ) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
         match self {
-            Self::Marinade(p) => p.update(account_map)?,
-            Self::SplLike(p) => p.update(account_map)?,
+            Self::Marinade(p) => {
+                let marinade_state = account_map
+                    .get(&stakedex_sdk_common::marinade_state::ID)
+                    .ok_or("marinade state missing")?;
+                p.update_state(&marinade_state.data)?;
+            }
+            Self::SplLike(p) => {
+                let pool = account_map.get(&p.stake_pool_addr).ok_or("pool missing")?;
+                p.update_stake_pool(&pool.data)?;
+            }
         };
         Ok(())
     }
