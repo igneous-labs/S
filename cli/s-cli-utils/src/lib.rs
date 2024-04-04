@@ -6,3 +6,7 @@ pub const TX_SEND_MODE_HELP: &str = "Transaction send mode.
 - sim-only: simulates the tx against the cluster and outputs logs to stderr
 - dump-msg: dumps the base64 encoded tx to stdout. For use with inspectors and multisigs
 ";
+
+pub mod srlut {
+    sanctum_macros::declare_program_keys!("KtrvWWkPkhSWM9VMqafZhgnTuozQiHzrBDT8oPcMj3T", []);
+}

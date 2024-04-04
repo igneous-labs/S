@@ -34,7 +34,9 @@ use spl_token::native_mint;
 use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::{
-    common::SANCTUM_LST_LIST, deposit_sol::DepositSolStakedex, lst_amt_arg::LstAmtArg,
+    common::{fetch_srlut, SANCTUM_LST_LIST},
+    deposit_sol::DepositSolStakedex,
+    lst_amt_arg::LstAmtArg,
     lst_arg::LstArg,
 };
 
@@ -197,7 +199,7 @@ impl RebalSolArgs {
             ComputeBudgetInstruction::set_compute_unit_price(5),
         ];
 
-        let [wsol_withdraw_to, lst_deposit_from] = [
+        let [wsol_withdraw_to, lst_subsidize_from] = [
             (native_mint::ID, spl_token::ID),
             (sanctum_lst.mint, sanctum_lst.token_program),
         ]
@@ -206,12 +208,12 @@ impl RebalSolArgs {
         });
 
         let mut fetched = rpc
-            .get_multiple_accounts(&[wsol_withdraw_to, lst_deposit_from])
+            .get_multiple_accounts(&[wsol_withdraw_to, lst_subsidize_from])
             .await
             .unwrap();
-        let lst_deposit_from_acc = fetched.pop().unwrap();
+        let lst_subsidize_from_acc = fetched.pop().unwrap();
         if subsidy_amt > 0 {
-            match lst_deposit_from_acc {
+            match lst_subsidize_from_acc {
                 Some(a) => {
                     let ata_balance = token_account_balance(a).unwrap();
                     if ata_balance < subsidy_amt {
@@ -297,7 +299,7 @@ impl RebalSolArgs {
             ixs.push(
                 spl_token::instruction::transfer(
                     &sanctum_lst.token_program,
-                    &lst_deposit_from,
+                    &lst_subsidize_from,
                     &lst_reserves,
                     &payer.pubkey(),
                     &[],
@@ -311,8 +313,11 @@ impl RebalSolArgs {
         let mut signers = vec![payer.as_ref(), rebalance_auth];
         signers.dedup();
         let rbh = rpc.get_latest_blockhash().await.unwrap();
+        let srlut = fetch_srlut(&rpc).await;
         let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &ixs, &[], rbh).unwrap()),
+            VersionedMessage::V0(
+                Message::try_compile(&payer.pubkey(), &ixs, &[srlut], rbh).unwrap(),
+            ),
             &signers,
         )
         .unwrap();

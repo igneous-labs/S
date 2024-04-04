@@ -57,6 +57,7 @@ async fn rebal_all_sol_to_jitosol_rebal_auth_payer() {
     .add_stakedex_program()
     .add_test_fixtures_account("stakedex-jitosol-fee-acc.json")
     .add_test_fixtures_account("stakedex-sol-bridge-out.json")
+    .add_test_fixtures_account("srlut.json")
     .add_tokenkeg_account_from_args(
         FindAtaAddressArgs {
             wallet: mock_auth_kp.pubkey(),
