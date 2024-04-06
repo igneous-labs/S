@@ -7,12 +7,9 @@ use flat_fee_lib::{
     account_resolvers::SetLstFeeByMintFreeArgs, pda::ProgramStateFindPdaArgs,
     utils::try_program_state,
 };
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use s_cli_utils::handle_tx_full;
+use sanctum_solana_cli_utils::parse_signer;
 use solana_readonly_account::sdk::KeyedAccount;
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
 
 use crate::lst_arg::LstArg;
 
@@ -84,16 +81,14 @@ impl SetLstFeeArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), manager.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), manager.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

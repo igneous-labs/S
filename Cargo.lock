@@ -1612,6 +1612,7 @@ dependencies = [
  "sanctum-lst-list",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
+ "sanctum-solana-client-utils",
  "sanctum-solana-test-utils",
  "solana-client",
  "solana-program",
@@ -1832,6 +1833,7 @@ dependencies = [
  "s-cli-utils",
  "sanctum-macros",
  "sanctum-solana-cli-utils",
+ "sanctum-solana-client-utils",
  "sanctum-solana-test-utils",
  "sanctum-token-ratio",
  "solana-account-decoder",
@@ -2333,6 +2335,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indxvec"
+version = "1.8.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2f939f8f54f1855df393e7f758f7f2086ad3b90f41d654b2d6d7dfddc3808e9"
+
+[[package]]
 name = "inquire"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2699,10 +2707,19 @@ version = "0.1.0"
 source = "git+https://github.com/igneous-labs/marinade_finance_interface?branch=master#4d1895b6b1c34d731c1589e6d8a6c8feb6258152"
 dependencies = [
  "borsh 0.10.3",
- "num-derive 0.3.3",
+ "num-derive 0.4.1",
  "num-traits",
  "solana-program",
  "thiserror",
+]
+
+[[package]]
+name = "medians"
+version = "3.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "881ba1880776c8b9b1cb7a5b45e0bb341df0b3fc32ef7cfc40ae059916cb4510"
+dependencies = [
+ "indxvec",
 ]
 
 [[package]]
@@ -3921,7 +3938,11 @@ name = "s-cli-utils"
 version = "0.1.0"
 dependencies = [
  "sanctum-macros",
+ "sanctum-solana-cli-utils",
+ "sanctum-solana-client-utils",
+ "solana-client",
  "solana-program",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -3996,6 +4017,7 @@ dependencies = [
  "sanctum-associated-token-lib",
  "sanctum-lst-list",
  "sanctum-solana-cli-utils",
+ "sanctum-solana-client-utils",
  "sanctum-solana-test-utils",
  "sanctum-token-lib",
  "solana-account-decoder",
@@ -4216,8 +4238,8 @@ dependencies = [
 
 [[package]]
 name = "sanctum-solana-cli-utils"
-version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+version = "0.3.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
 dependencies = [
  "async-trait",
  "bincode",
@@ -4227,21 +4249,38 @@ dependencies = [
  "solana-clap-utils",
  "solana-cli-config",
  "solana-client",
+ "solana-rpc-client-api",
+ "solana-sdk",
+ "solana-transaction-status",
+]
+
+[[package]]
+name = "sanctum-solana-client-utils"
+version = "0.1.0"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
+dependencies = [
+ "log",
+ "medians",
+ "solana-client",
+ "solana-rpc-client-api",
  "solana-sdk",
 ]
 
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
 dependencies = [
+ "assert_cmd",
  "async-trait",
  "bincode",
  "borsh 0.10.3",
+ "chrono-humanize",
  "data-encoding",
  "http-body-util",
  "hyper 1.1.0",
  "hyper-util",
+ "log",
  "num-traits",
  "serde",
  "serde_json",
@@ -4323,7 +4362,7 @@ dependencies = [
 [[package]]
 name = "sanctum-system-program-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -4343,7 +4382,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
@@ -6299,7 +6338,7 @@ version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
 dependencies = [
  "borsh 0.10.3",
- "num-derive 0.3.3",
+ "num-derive 0.4.1",
  "num-traits",
  "solana-program",
  "thiserror",
@@ -6472,7 +6511,7 @@ dependencies = [
 [[package]]
 name = "system_program_interface"
 version = "1.17.13"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2db58d3#2db58d3083fbc4fda91383caf5c6aab512854ac1"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f1202db#f1202db6b5011ce8dfbce5fe897f6d6495cda53c"
 dependencies = [
  "serde",
  "solana-program",

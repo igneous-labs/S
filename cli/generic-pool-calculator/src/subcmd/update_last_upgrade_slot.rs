@@ -10,18 +10,12 @@ use generic_pool_calculator_interface::{
 use generic_pool_calculator_lib::{
     pda::CalculatorStateFindPdaArgs,
     utils::{read_stake_pool_progdata_meta, try_calculator_state},
-    UPDATE_LAST_UPGRADE_SLOT_COMPUTE_UNIT_CEIL,
 };
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use s_cli_utils::handle_tx_full;
+use sanctum_solana_cli_utils::parse_signer;
 use solana_account_decoder::{UiAccountEncoding, UiDataSliceConfig};
 use solana_rpc_client_api::config::RpcAccountInfoConfig;
-use solana_sdk::{
-    bpf_loader_upgradeable,
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::{bpf_loader_upgradeable, pubkey::Pubkey};
 
 use super::{common::verify_manager, Subcmd};
 
@@ -106,31 +100,14 @@ impl UpdateLastUpgradeSlotArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), curr_manager.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(
-                    &payer.pubkey(),
-                    &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(
-                            UPDATE_LAST_UPGRADE_SLOT_COMPUTE_UNIT_CEIL,
-                        ),
-                        // TODO: make compute unit price dynamic
-                        ComputeBudgetInstruction::set_compute_unit_price(200),
-                        ix,
-                    ],
-                    &[],
-                    rbh,
-                )
-                .unwrap(),
-            ),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), curr_manager.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

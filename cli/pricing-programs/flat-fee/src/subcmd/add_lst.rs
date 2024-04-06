@@ -5,15 +5,10 @@ use clap::{
 use flat_fee_interface::{add_lst_ix_with_program_id, AddLstIxArgs};
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
-    ADD_LST_COMPUTE_UNIT_CEIL,
 };
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use s_cli_utils::handle_tx_full;
+use sanctum_solana_cli_utils::parse_signer;
 use solana_readonly_account::sdk::KeyedAccount;
-use solana_sdk::{
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
 
 use crate::lst_arg::LstArg;
 
@@ -87,29 +82,14 @@ impl AddLstArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), manager.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(
-                    &payer.pubkey(),
-                    &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(ADD_LST_COMPUTE_UNIT_CEIL),
-                        // TODO: make compute unit price dynamic
-                        ComputeBudgetInstruction::set_compute_unit_price(33),
-                        ix,
-                    ],
-                    &[],
-                    rbh,
-                )
-                .unwrap(),
-            ),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), manager.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

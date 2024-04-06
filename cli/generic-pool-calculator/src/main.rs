@@ -2,7 +2,7 @@ use clap::{
     builder::{StringValueParser, TypedValueParser, ValueParser},
     Parser,
 };
-use s_cli_utils::{CONFIG_HELP, TX_SEND_MODE_HELP};
+use s_cli_utils::{CONFIG_HELP, FEE_LIMIT_CB_HELP, TX_SEND_MODE_HELP};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use sol_val_calc_arg::SolValCalcArg;
 use tokio::runtime::Runtime;
@@ -42,6 +42,14 @@ pub struct Args {
         value_parser = StringValueParser::new().try_map(|s| SolValCalcArg::parse_arg(&s)),
     )]
     pub program: SolValCalcArg,
+
+    #[arg(
+        long,
+        short,
+        help = FEE_LIMIT_CB_HELP,
+        default_value_t = 1
+    )]
+    pub fee_limit_cb: u64,
 
     #[command(subcommand)]
     pub subcmd: Subcmd,

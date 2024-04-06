@@ -2,13 +2,10 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::set_pricing_program_ix_with_program_id;
 use s_controller_lib::{try_pool_state, SetPricingProgramFreeArgs};
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use sanctum_solana_cli_utils::parse_signer;
 
 use crate::{common::verify_admin, pricing_prog_arg::PricingProgArg, rpc::fetch_pool_state};
 
@@ -63,16 +60,14 @@ impl SetPricingProgArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), admin.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), admin.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

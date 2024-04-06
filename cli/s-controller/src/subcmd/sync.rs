@@ -2,18 +2,14 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
+use s_cli_utils::handle_tx_full;
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, sync_sol_value_ix_full_for_prog,
     SyncSolValueByMintFreeArgs, SyncSolValuePdas,
 };
-use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
+use sanctum_solana_client_utils::to_est_cu_sim_tx;
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{
-    instruction::AccountMeta,
-    message::{v0::Message, VersionedMessage},
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 use std::str::FromStr;
 
 use crate::{lst_arg::LstArg, rpc::does_tx_modify_pool_state};
@@ -105,26 +101,19 @@ impl SyncArgs {
             lst_state_list: lst_state_list_addr,
         })
         .unwrap();
-        let ix = sync_sol_value_ix_full_for_prog(
+        let ixs = vec![sync_sol_value_ix_full_for_prog(
             program_id,
             keys,
             lst_index,
             &suffix,
             sol_value_calculator_program_id,
         )
-        .unwrap();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &[payer.as_ref()],
-        )
-        .unwrap();
+        .unwrap()];
 
         if !force {
             let should_run = does_tx_modify_pool_state(
                 &rpc,
-                &tx,
+                &to_est_cu_sim_tx(&payer.pubkey(), &ixs, &[]).unwrap(),
                 Keyed {
                     pubkey: pool_state_addr,
                     account: &pool_state_acc,
@@ -137,6 +126,14 @@ impl SyncArgs {
             }
         }
 
-        rpc.handle_tx(&tx, args.send_mode).await;
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            ixs,
+            &[],
+            &mut [payer.as_ref()],
+        )
+        .await;
     }
 }

@@ -5,17 +5,16 @@ use data_encoding::BASE64;
 use generic_pool_calculator_interface::CalculatorState;
 use lido_calculator_lib::lido_sol_val_calc_account_metas;
 use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
+use sanctum_solana_client_utils::{to_est_cu_sim_tx, EST_CU_SIM_TX_CONFIG};
 use sanctum_token_ratio::U64ValueRange;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_readonly_account::keyed::Keyed;
 use solana_rpc_client_api::response::RpcSimulateTransactionResult;
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
-    message::{v0::Message, VersionedMessage},
     native_token::lamports_to_sol,
     pubkey::Pubkey,
     signer::Signer,
-    transaction::VersionedTransaction,
 };
 use solana_transaction_status::{UiReturnDataEncoding, UiTransactionReturnData};
 use spl_calculator_lib::SplLstSolCommonFreeArgsConst;
@@ -67,18 +66,17 @@ pub async fn lst_sol_common_account_metas(
 }
 
 pub async fn handle_lst_sol_ix(rpc: &RpcClient, ix: Instruction, payer: &dyn Signer) {
-    let rbh = rpc.get_latest_blockhash().await.unwrap();
-    let tx = VersionedTransaction::try_new(
-        VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-        &[payer],
-    )
-    .unwrap();
+    let tx = to_est_cu_sim_tx(&payer.pubkey(), &[ix], &[]).unwrap();
     let RpcSimulateTransactionResult {
         return_data,
         err,
         logs,
         ..
-    } = rpc.simulate_transaction(&tx).await.unwrap().value;
+    } = rpc
+        .simulate_transaction_with_config(&tx, EST_CU_SIM_TX_CONFIG)
+        .await
+        .unwrap()
+        .value;
     if let Some(e) = err {
         eprintln!("Logs:");
         eprintln!("{logs:#?}");

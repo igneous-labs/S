@@ -2,18 +2,15 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::{disable_lst_input_ix_with_program_id, DisableLstInputIxArgs};
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, try_pool_state,
     DisableEnableLstInputByMintFreeArgs,
 };
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::parse_signer;
 use solana_readonly_account::ReadonlyAccountData;
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
 use crate::common::verify_admin;
@@ -79,16 +76,14 @@ impl DisableLstInputArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), admin.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), admin.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }
