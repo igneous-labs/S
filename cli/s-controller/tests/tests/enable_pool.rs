@@ -1,8 +1,8 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_interface::PoolState;
 use s_controller_test_utils::{
     assert_pool_disabled, assert_pool_enabled, PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_program_test::ProgramTest;
 
 use crate::common::{setup_with_init_auth_as_payer, SctrProgramTest, TestSctrCmd};

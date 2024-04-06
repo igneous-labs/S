@@ -1,6 +1,6 @@
 use std::process::Output;
 
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_program::pubkey::Pubkey;
 use solana_program_test::ProgramTest;
 

@@ -1,6 +1,8 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use generic_pool_calculator_lib::utils::try_calculator_state;
-use sanctum_solana_test_utils::{cli::temp_keypair_file, ExtendedBanksClient};
+use sanctum_solana_test_utils::{
+    cli::{assert_all_txs_success_nonempty, temp_keypair_file, ExtendedCommand},
+    ExtendedBanksClient,
+};
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::{signature::Keypair, signer::Signer};
 use spl_stake_pool_keys::spl_stake_pool_program;

@@ -1,5 +1,5 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_test_utils::{jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs};
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_sdk::{pubkey::Pubkey, signature::Keypair};
 
 use crate::common::{setup_with_payer, SctrProgramTest, TestSctrCmd};

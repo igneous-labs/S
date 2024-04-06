@@ -1,6 +1,6 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_test_utils::PoolStateBanksClient;
 use sanctum_solana_test_utils::{
+    cli::{assert_all_txs_success_nonempty, ExtendedCommand},
     test_fixtures_dir,
     token::{tokenkeg::TokenkegProgramTest, MockMintArgs},
 };

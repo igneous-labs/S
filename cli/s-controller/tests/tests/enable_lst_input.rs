@@ -1,8 +1,8 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_test_utils::{
     assert_lst_input_disabled, assert_lst_input_enabled, jito_marinade_no_fee_program_test,
     mock_lst_state, JitoMarinadeProgramTestArgs, LstStateListProgramTest, MockLstStateArgs,
 };
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_sdk::pubkey::Pubkey;
 use test_utils::jitosol;
 

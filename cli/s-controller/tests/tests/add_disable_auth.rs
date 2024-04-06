@@ -1,8 +1,8 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_lib::try_disable_pool_authority_list;
 use s_controller_test_utils::{
     DisablePoolAuthorityListBanksClient, PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_program_test::{BanksClient, ProgramTest};
 use solana_sdk::pubkey::Pubkey;
 
