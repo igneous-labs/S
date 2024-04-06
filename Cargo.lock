@@ -4239,7 +4239,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.3.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "async-trait",
  "bincode",
@@ -4257,7 +4257,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-client-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "log",
  "medians",
@@ -4269,7 +4269,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "assert_cmd",
  "async-trait",
@@ -4362,7 +4362,7 @@ dependencies = [
 [[package]]
 name = "sanctum-system-program-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -4382,7 +4382,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
@@ -6511,7 +6511,7 @@ dependencies = [
 [[package]]
 name = "system_program_interface"
 version = "1.17.13"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=228f9f5#228f9f5a3200cc683d1971af07b8f81378fbf9aa"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
 dependencies = [
  "serde",
  "solana-program",

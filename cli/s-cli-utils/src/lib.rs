@@ -1,7 +1,9 @@
 use sanctum_solana_cli_utils::{
     HandleTxArgs, RecentBlockhash, TxSendMode, TxSendingNonblockingRpcClient,
 };
-use sanctum_solana_client_utils::{get_compute_budget_ixs_auto_nonblocking, SortedSigners};
+use sanctum_solana_client_utils::{
+    get_compute_budget_ixs_auto_nonblocking, ComputeBudgetFeeLimit, SortedSigners,
+};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{address_lookup_table::AddressLookupTableAccount, instruction::Instruction};
 use solana_sdk::{
@@ -46,7 +48,7 @@ pub async fn handle_tx_full(
                 &payer_pk,
                 &ixs,
                 luts,
-                fee_limit_lamports,
+                &ComputeBudgetFeeLimit::TotalLamports(fee_limit_lamports),
                 CU_BUFFER_RATIO,
             )
             .await
