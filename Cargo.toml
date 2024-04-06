@@ -79,12 +79,12 @@ solana-transaction-status = "^1"
 sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db", features = ["clap"] }
-sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db"}
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db" }
-sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db" }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db" } 
-system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f1202db" }
+sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90", features = ["clap"] }
+sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90"}
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" } 
+system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
 
 # sanctum-lst-list
 # TODO: update to 0.2.0 to include SanctumSplMulti
