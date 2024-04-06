@@ -75,16 +75,18 @@ solana-transaction-status = "^1"
 
 # sanctum-solana-utils
 # TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor
-# 2d1718f is the older version, frozen for now due to use onchain
+# 2d1718f is the older version, frozen for now due to breaking changes in these 3 libs
 sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
 sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90", features = ["clap"] }
-sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90"}
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
-sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" } 
-system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "0df1a90" }
+# set to branch = "master" for downstream flexibility
+# rev = 228f9f5
+sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master", features = ["clap"] }
+sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master" }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master" }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master" } 
+system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "master" }
 
 # sanctum-lst-list
 # TODO: update to 0.2.0 to include SanctumSplMulti
