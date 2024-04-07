@@ -3,12 +3,8 @@ use flat_fee_interface::initialize_ix_with_program_id;
 use flat_fee_lib::{
     account_resolvers::InitializeFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
 };
-use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
-use solana_sdk::{
-    commitment_config::CommitmentConfig,
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use s_cli_utils::handle_tx_full;
+use solana_sdk::commitment_config::CommitmentConfig;
 
 #[derive(Args, Debug)]
 #[command(long_about = "Initializes the flat-fee pricing program's state")]
@@ -46,13 +42,14 @@ impl InitializeArgs {
         )
         .unwrap();
 
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&signer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &[signer.as_ref()],
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [signer.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

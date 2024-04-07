@@ -1,4 +1,3 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use flat_fee_test_utils::MockFeeAccountArgs;
 use s_controller_lib::{find_pool_reserves_address, FindLstPdaAtaKeys};
 use s_controller_test_utils::{
@@ -6,6 +5,7 @@ use s_controller_test_utils::{
 };
 use sanctum_associated_token_lib::FindAtaAddressArgs;
 use sanctum_solana_test_utils::{
+    cli::{assert_all_txs_success_nonempty, ExtendedCommand},
     test_fixtures_dir,
     token::{tokenkeg::TokenkegProgramTest, MockTokenAccountArgs},
     ExtendedProgramTest,

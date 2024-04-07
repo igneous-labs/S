@@ -1,12 +1,9 @@
 use clap::Args;
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::set_admin_ix_with_program_id;
 use s_controller_lib::{find_pool_state_address, try_pool_state, SetAdminFreeArgs};
-use sanctum_solana_cli_utils::{parse_pubkey_src, parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
 use solana_readonly_account::sdk::KeyedAccount;
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
 
 use crate::{common::verify_admin, rpc::fetch_pool_state};
 
@@ -48,7 +45,7 @@ impl SetAdminArgs {
 
         let curr_admin_signer = curr_admin.map(|s| parse_signer(&s).unwrap());
         let curr_admin = curr_admin_signer.as_ref().unwrap_or(&payer);
-        let new_admin = parse_pubkey_src(&new_admin).unwrap().pubkey();
+        let new_admin = PubkeySrc::parse(&new_admin).unwrap().pubkey();
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
@@ -68,16 +65,14 @@ impl SetAdminArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), curr_admin.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), curr_admin.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

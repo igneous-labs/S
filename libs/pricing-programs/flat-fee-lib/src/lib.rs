@@ -35,9 +35,3 @@ pub mod initial_constants {
 
     pub const INITIAL_LP_WITHDRAWAL_FEE_BPS: u16 = 5;
 }
-
-// Compute Unit ceilings for instructions
-
-pub const ADD_LST_COMPUTE_UNIT_CEIL: u32 = 30_000;
-
-pub const SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL: u32 = 10_000;

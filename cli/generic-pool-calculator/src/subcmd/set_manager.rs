@@ -1,11 +1,8 @@
 use clap::Args;
 use generic_pool_calculator_interface::{set_manager_ix_with_program_id, SetManagerKeys};
 use generic_pool_calculator_lib::{pda::CalculatorStateFindPdaArgs, utils::try_calculator_state};
-use sanctum_solana_cli_utils::{parse_pubkey_src, parse_signer, TxSendingNonblockingRpcClient};
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use s_cli_utils::handle_tx_full;
+use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
 
 use super::{common::verify_manager, Subcmd};
 
@@ -39,7 +36,7 @@ impl SetManagerArgs {
         let curr_manager_signer = curr_manager.map(|s| parse_signer(&s).unwrap());
         let curr_manager = curr_manager_signer.as_ref().unwrap_or(&payer);
 
-        let new_manager = parse_pubkey_src(&new_manager).unwrap();
+        let new_manager = PubkeySrc::parse(&new_manager).unwrap();
         let state_pda = CalculatorStateFindPdaArgs { program_id }
             .get_calculator_state_address_and_bump_seed()
             .0;
@@ -57,16 +54,14 @@ impl SetManagerArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), curr_manager.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), curr_manager.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

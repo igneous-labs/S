@@ -16,6 +16,7 @@ lazy_static = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+sanctum-solana-client-utils = { workspace = true }
 solana-client = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
 solana-sdk = { workspace = true }

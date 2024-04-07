@@ -1,15 +1,11 @@
 use data_encoding::BASE64;
 use flat_fee_interface::ProgramState;
+use sanctum_solana_client_utils::{to_est_cu_sim_tx, EST_CU_SIM_TX_CONFIG};
 use solana_client::{
     nonblocking::rpc_client::RpcClient, rpc_response::RpcSimulateTransactionResult,
 };
 use solana_sdk::{
-    instruction::Instruction,
-    message::{v0::Message, VersionedMessage},
-    native_token::lamports_to_sol,
-    pubkey::Pubkey,
-    signer::Signer,
-    transaction::VersionedTransaction,
+    instruction::Instruction, native_token::lamports_to_sol, pubkey::Pubkey, signer::Signer,
 };
 use solana_transaction_status::{UiReturnDataEncoding, UiTransactionReturnData};
 use std::convert::Infallible;
@@ -26,18 +22,17 @@ pub fn verify_manager(state: &ProgramState, curr_manager: Pubkey) -> Result<(), 
 }
 
 pub async fn handle_pricing_ix(rpc: &RpcClient, ix: Instruction, payer: &dyn Signer) {
-    let rbh = rpc.get_latest_blockhash().await.unwrap();
-    let tx = VersionedTransaction::try_new(
-        VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-        &[payer],
-    )
-    .unwrap();
+    let tx = to_est_cu_sim_tx(&payer.pubkey(), &[ix], &[]).unwrap();
     let RpcSimulateTransactionResult {
         return_data,
         err,
         logs,
         ..
-    } = rpc.simulate_transaction(&tx).await.unwrap().value;
+    } = rpc
+        .simulate_transaction_with_config(&tx, EST_CU_SIM_TX_CONFIG)
+        .await
+        .unwrap()
+        .value;
     if let Some(e) = err {
         eprintln!("Logs:");
         eprintln!("{logs:#?}");

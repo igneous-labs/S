@@ -2,18 +2,12 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::add_lst_ix_with_program_id;
-use s_controller_lib::{
-    find_pool_state_address, try_pool_state, AddLstFreeArgs, ADD_LST_COMPUTE_UNIT_CEIL,
-};
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use s_controller_lib::{find_pool_state_address, try_pool_state, AddLstFreeArgs};
+use sanctum_solana_cli_utils::parse_signer;
 use solana_readonly_account::{keyed::Keyed, ReadonlyAccountData};
-use solana_sdk::{
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
 use crate::{common::verify_admin, lst_arg::LstArg};
@@ -92,29 +86,14 @@ impl AddLstArgs {
         .unwrap();
         let ix = add_lst_ix_with_program_id(program_id, keys).unwrap();
 
-        let mut signers = vec![payer.as_ref(), admin.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(
-                    &payer.pubkey(),
-                    &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(ADD_LST_COMPUTE_UNIT_CEIL),
-                        // TODO: make compute unit price dynamic
-                        ComputeBudgetInstruction::set_compute_unit_price(20),
-                        ix,
-                    ],
-                    &[],
-                    rbh,
-                )
-                .unwrap(),
-            ),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), admin.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

@@ -2,6 +2,7 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::{
     withdraw_protocol_fees_ix_with_program_id, WithdrawProtocolFeesIxArgs,
 };
@@ -11,14 +12,9 @@ use s_controller_lib::{
     WithdrawProtocolFeesPdas,
 };
 use sanctum_associated_token_lib::FindAtaAddressArgs;
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::parse_signer;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    native_token::sol_to_lamports,
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::{native_token::sol_to_lamports, pubkey::Pubkey};
 use spl_associated_token_account::instruction::create_associated_token_account;
 
 use crate::lst_arg::LstArg;
@@ -200,16 +196,14 @@ impl WithdrawProtocolFeesArgs {
             .unwrap(),
         );
 
-        let mut signers = vec![payer.as_ref(), beneficiary.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &ixs, &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            ixs,
+            &[],
+            &mut [payer.as_ref(), beneficiary.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

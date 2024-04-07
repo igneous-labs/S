@@ -17,6 +17,7 @@ lido-calculator-lib = { workspace = true }
 marinade-calculator-lib = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }
+sanctum-solana-client-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true, features = ["borsh"] }
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }

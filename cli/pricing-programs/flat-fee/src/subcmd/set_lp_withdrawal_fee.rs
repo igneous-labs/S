@@ -2,15 +2,11 @@ use clap::Args;
 use flat_fee_interface::{set_lp_withdrawal_fee_ix_with_program_id, SetLpWithdrawalFeeIxArgs};
 use flat_fee_lib::{
     account_resolvers::SetLpWithdrawalFeeFreeArgs, pda::ProgramStateFindPdaArgs,
-    utils::try_program_state, SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL,
+    utils::try_program_state,
 };
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use s_cli_utils::handle_tx_full;
+use sanctum_solana_cli_utils::parse_signer;
 use solana_readonly_account::sdk::KeyedAccount;
-use solana_sdk::{
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
 
 use super::{common::verify_manager, Subcmd};
 
@@ -67,30 +63,14 @@ impl SetLpWithdrawalFeeArgs {
         )
         .unwrap();
 
-        let mut signers = vec![payer.as_ref(), manager.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(
-                    &payer.pubkey(),
-                    &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(
-                            SET_LP_WITHDRAWAL_FEE_COMPUTE_UNIT_CEIL,
-                        ),
-                        ComputeBudgetInstruction::set_compute_unit_price(100),
-                        ix,
-                    ],
-                    &[],
-                    rbh,
-                )
-                .unwrap(),
-            ),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), manager.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

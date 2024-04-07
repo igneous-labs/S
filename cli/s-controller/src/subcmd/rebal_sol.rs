@@ -6,6 +6,7 @@ use clap::{
 };
 use inquire::Confirm;
 use jupiter_amm_interface::SwapParams;
+use s_cli_utils::handle_tx_full;
 use s_controller_lib::{
     end_rebalance_ix_from_start_rebalance_ix, find_lst_state_list_address,
     find_pool_reserves_address, find_pool_reserves_address_with_pool_state_id,
@@ -15,17 +16,10 @@ use s_controller_lib::{
 };
 use s_jup_interface::{LstData, SPool, SPoolInitAccounts};
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
-use sanctum_solana_cli_utils::{parse_signer, TxSendingNonblockingRpcClient};
+use sanctum_solana_cli_utils::parse_signer;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{
-    account::Account,
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    native_token::lamports_to_sol,
-    pubkey::Pubkey,
-    transaction::VersionedTransaction,
-};
+use solana_sdk::{account::Account, native_token::lamports_to_sol, pubkey::Pubkey};
 use spl_associated_token_account::{
     get_associated_token_address_with_program_id,
     instruction::create_associated_token_account_idempotent,
@@ -194,10 +188,8 @@ impl RebalSolArgs {
             )
         }
 
-        let mut ixs = vec![
-            ComputeBudgetInstruction::set_compute_unit_limit(200_000),
-            ComputeBudgetInstruction::set_compute_unit_price(5),
-        ];
+        // 2 CB ixs + create wsol ata + start + depositSol + transfer + end
+        let mut ixs = Vec::with_capacity(7);
 
         let [wsol_withdraw_to, lst_subsidize_from] = [
             (native_mint::ID, spl_token::ID),
@@ -310,18 +302,16 @@ impl RebalSolArgs {
         }
         ixs.push(end_rebalance_ix);
 
-        let mut signers = vec![payer.as_ref(), rebalance_auth];
-        signers.dedup();
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
         let srlut = fetch_srlut(&rpc).await;
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(&payer.pubkey(), &ixs, &[srlut], rbh).unwrap(),
-            ),
-            &signers,
-        )
-        .unwrap();
 
-        rpc.handle_tx(&tx, args.send_mode).await;
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            ixs,
+            &[srlut],
+            &mut [payer.as_ref(), rebalance_auth],
+        )
+        .await;
     }
 }

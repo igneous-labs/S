@@ -1,9 +1,9 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_lib::try_lst_state_list;
 use s_controller_test_utils::{
     mock_lst_state, AddSplProgramTest, LstStateListBanksClient, MockLstStateArgs, MockLstStateRet,
     PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use sanctum_token_lib::MintWithTokenProgram;
 use solana_program_test::{BanksClient, ProgramTest};
 use test_utils::jitosol;

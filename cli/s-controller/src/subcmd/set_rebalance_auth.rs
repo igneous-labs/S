@@ -1,11 +1,8 @@
 use clap::Args;
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::set_rebalance_authority_ix_with_program_id;
 use s_controller_lib::{try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs};
-use sanctum_solana_cli_utils::{parse_pubkey_src, parse_signer, TxSendingNonblockingRpcClient};
-use solana_sdk::{
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
 
 use crate::rpc::fetch_pool_state;
 
@@ -41,7 +38,7 @@ impl SetRebalanceAuthArgs {
 
         let authority_signer = authority.map(|s| parse_signer(&s).unwrap());
         let authority = authority_signer.as_ref().unwrap_or(&payer);
-        let new_rebalance_authority = parse_pubkey_src(&new_rebalance_auth).unwrap().pubkey();
+        let new_rebalance_authority = PubkeySrc::parse(&new_rebalance_auth).unwrap().pubkey();
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;
         let pool_state = try_pool_state(&pool_state_acc.data).unwrap();
@@ -69,16 +66,14 @@ impl SetRebalanceAuthArgs {
 
         let ix = set_rebalance_authority_ix_with_program_id(program_id, keys).unwrap();
 
-        let mut signers = vec![payer.as_ref(), authority.as_ref()];
-        signers.dedup();
-
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &[ix], &[], rbh).unwrap()),
-            &signers,
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [payer.as_ref(), authority.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

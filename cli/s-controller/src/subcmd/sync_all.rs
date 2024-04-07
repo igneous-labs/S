@@ -1,18 +1,15 @@
 use clap::Args;
+use s_cli_utils::handle_tx_full;
 use s_controller_interface::LstState;
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, sync_sol_value_ix_full_for_prog,
     try_lst_state_list, SyncSolValueByMintFreeArgs, SyncSolValuePdas,
 };
 use sanctum_lst_list::SanctumLst;
-use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
+use sanctum_solana_client_utils::to_est_cu_sim_tx;
 use sanctum_token_lib::MintWithTokenProgram;
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{
-    instruction::Instruction,
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use solana_sdk::instruction::Instruction;
 
 use crate::{
     common::{find_sanctum_lst_by_mint, sol_value_calculator_accounts_of_sanctum_lst},
@@ -104,20 +101,10 @@ impl SyncAllArgs {
                         .unwrap()
                     })
                     .collect();
-                // since we're doing it sequentially, fetch blockhash
-                // on every iter to make sure it wont expire
-                let rbh = rpc.get_latest_blockhash().await.unwrap();
-                let tx = VersionedTransaction::try_new(
-                    VersionedMessage::V0(
-                        Message::try_compile(&payer.pubkey(), &ixs, &[], rbh).unwrap(),
-                    ),
-                    &[payer.as_ref()],
-                )
-                .unwrap();
                 if !force {
                     let should_run = does_tx_modify_pool_state(
                         &rpc,
-                        &tx,
+                        &to_est_cu_sim_tx(&payer.pubkey(), &ixs, &[]).unwrap(),
                         Keyed {
                             pubkey: pool_state_addr,
                             account: &pool_state_acc,
@@ -133,7 +120,15 @@ impl SyncAllArgs {
                         return;
                     }
                 }
-                rpc.handle_tx(&tx, args.send_mode).await;
+                handle_tx_full(
+                    &rpc,
+                    args.fee_limit_cb,
+                    args.send_mode,
+                    ixs,
+                    &[],
+                    &mut [payer.as_ref()],
+                )
+                .await;
             });
         for fut in fut_iter {
             fut.await;
@@ -145,10 +140,8 @@ impl SyncAllArgs {
 mod tests {
     use generic_pool_calculator_interface::SOL_TO_LST_IX_ACCOUNTS_LEN;
     use s_controller_interface::SyncSolValueKeys;
-    use solana_sdk::{
-        hash::Hash, instruction::AccountMeta, packet::PACKET_DATA_SIZE, pubkey::Pubkey,
-        signature::Keypair, signer::Signer,
-    };
+    use sanctum_solana_test_utils::assert_tx_with_cb_ixs_within_size_limits;
+    use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 
     use super::*;
 
@@ -183,15 +176,6 @@ mod tests {
                 .unwrap()
             })
             .collect();
-        let rbh = Hash::default();
-        let payer = Keypair::new();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(Message::try_compile(&payer.pubkey(), &ixs, &[], rbh).unwrap()),
-            &[&payer],
-        )
-        .unwrap();
-        let serlen = bincode::serialize(&tx).unwrap().len();
-        // println!("{serlen}");
-        assert!(serlen <= PACKET_DATA_SIZE);
+        assert_tx_with_cb_ixs_within_size_limits(&Pubkey::new_unique(), ixs.into_iter(), &[]);
     }
 }

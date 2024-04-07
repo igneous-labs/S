@@ -1,9 +1,9 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_lib::FindLstPdaAtaKeys;
 use s_controller_test_utils::{
     assert_lst_removed, AddSplProgramTest, LstStateListProgramTest, MockLstStateArgs,
     PoolStateProgramTest, DEFAULT_POOL_STATE,
 };
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use solana_program_test::ProgramTest;
 use test_utils::jitosol;
 

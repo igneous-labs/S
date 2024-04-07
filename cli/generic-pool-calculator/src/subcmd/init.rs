@@ -2,15 +2,9 @@ use clap::Args;
 use generic_pool_calculator_interface::init_ix_with_program_id;
 use generic_pool_calculator_lib::{
     account_resolvers::InitFreeArgs, pda::CalculatorStateFindPdaArgs, utils::try_calculator_state,
-    INIT_COMPUTE_UNIT_CEIL,
 };
-use sanctum_solana_cli_utils::TxSendingNonblockingRpcClient;
-use solana_sdk::{
-    commitment_config::CommitmentConfig,
-    compute_budget::ComputeBudgetInstruction,
-    message::{v0::Message, VersionedMessage},
-    transaction::VersionedTransaction,
-};
+use s_cli_utils::handle_tx_full;
+use solana_sdk::commitment_config::CommitmentConfig;
 
 #[derive(Args, Debug)]
 #[command(long_about = "Initializes the SOL value calculator program's state")]
@@ -27,7 +21,7 @@ impl InitArgs {
             .0;
 
         let state = rpc
-            .get_account_with_commitment(&state_pda, CommitmentConfig::default())
+            .get_account_with_commitment(&state_pda, CommitmentConfig::confirmed())
             .await
             .unwrap();
         if let Some(state) = state.value {
@@ -46,26 +40,14 @@ impl InitArgs {
         )
         .unwrap();
 
-        let rbh = rpc.get_latest_blockhash().await.unwrap();
-        let tx = VersionedTransaction::try_new(
-            VersionedMessage::V0(
-                Message::try_compile(
-                    &signer.pubkey(),
-                    &[
-                        ComputeBudgetInstruction::set_compute_unit_limit(INIT_COMPUTE_UNIT_CEIL),
-                        // TODO: make compute unit price dynamic
-                        ComputeBudgetInstruction::set_compute_unit_price(100),
-                        ix,
-                    ],
-                    &[],
-                    rbh,
-                )
-                .unwrap(),
-            ),
-            &[signer.as_ref()],
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            vec![ix],
+            &[],
+            &mut [signer.as_ref()],
         )
-        .unwrap();
-
-        rpc.handle_tx(&tx, args.send_mode).await;
+        .await;
     }
 }

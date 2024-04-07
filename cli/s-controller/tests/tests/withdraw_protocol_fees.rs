@@ -1,6 +1,6 @@
-use cli_test_utils::{assert_all_txs_success_nonempty, TestCliCmd};
 use s_controller_test_utils::{jito_marinade_no_fee_program_test, JitoMarinadeProgramTestArgs};
 use sanctum_associated_token_lib::FindAtaAddressArgs;
+use sanctum_solana_test_utils::cli::{assert_all_txs_success_nonempty, ExtendedCommand};
 use sanctum_token_lib::{token_account_balance, token_account_mint};
 use solana_sdk::{pubkey::Pubkey, signer::Signer};
 use test_utils::jitosol;
