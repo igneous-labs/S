@@ -2,7 +2,8 @@ use sanctum_solana_cli_utils::{
     HandleTxArgs, RecentBlockhash, TxSendMode, TxSendingNonblockingRpcClient,
 };
 use sanctum_solana_client_utils::{
-    get_compute_budget_ixs_auto_nonblocking, ComputeBudgetFeeLimit, SortedSigners,
+    buffer_compute_units, estimate_compute_unit_limit_nonblocking, to_est_cu_sim_tx,
+    ComputeBudgetFeeLimit, ComputeBudgetIxs, SortedSigners,
 };
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{address_lookup_table::AddressLookupTableAccount, instruction::Instruction};
@@ -43,16 +44,17 @@ pub async fn handle_tx_full(
     let ixs = match send_mode {
         TxSendMode::DumpMsg => ixs,
         _ => {
-            let cb_ixs = get_compute_budget_ixs_auto_nonblocking(
-                rpc,
-                &payer_pk,
-                &ixs,
-                luts,
-                &ComputeBudgetFeeLimit::TotalLamports(fee_limit_lamports),
-                CU_BUFFER_RATIO,
-            )
-            .await
-            .unwrap();
+            let cb_ixs = {
+                let tx_to_sim = to_est_cu_sim_tx(&payer_pk, &ixs, luts).unwrap();
+                let cus = estimate_compute_unit_limit_nonblocking(rpc, &tx_to_sim)
+                    .await
+                    .unwrap();
+                let cu_limit = buffer_compute_units(cus, CU_BUFFER_RATIO);
+                let micro_lamports_per_cu =
+                    ComputeBudgetFeeLimit::TotalLamports(fee_limit_lamports)
+                        .to_micro_lamports_per_cu(cu_limit);
+                ComputeBudgetIxs::new(cu_limit, micro_lamports_per_cu)
+            };
             for cb_ix in cb_ixs {
                 ixs.insert(0, cb_ix);
             }
