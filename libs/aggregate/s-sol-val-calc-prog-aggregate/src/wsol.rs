@@ -44,6 +44,10 @@ impl LstSolValCalc for WsolLstSolValCalc {
     fn ix_accounts(&self) -> Vec<AccountMeta> {
         WSOL_LST_SOL_COMMON_METAS.into()
     }
+
+    fn sol_value_calculator(&self) -> Option<&dyn SolValueCalculator> {
+        Some(&WsolSolCalc)
+    }
 }
 
 impl TryFrom<KnownLstSolValCalc> for WsolLstSolValCalc {

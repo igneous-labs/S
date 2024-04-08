@@ -1,6 +1,7 @@
 use generic_pool_calculator_interface::GenericPoolCalculatorError;
 use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
 use sanctum_token_ratio::U64ValueRange;
+use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey, sysvar};
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountOwner, ReadonlyAccountPubkey};
 use spl_calculator_lib::{
@@ -76,6 +77,10 @@ impl LstSolValCalc for SanctumSplMultiLstSolValCalc {
 
     fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange> {
         self.0.sol_to_lst(lamports)
+    }
+
+    fn sol_value_calculator(&self) -> Option<&dyn SolValueCalculator> {
+        self.0.sol_value_calculator()
     }
 }
 

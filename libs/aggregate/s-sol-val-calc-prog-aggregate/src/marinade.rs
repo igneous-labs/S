@@ -62,6 +62,10 @@ impl LstSolValCalc for MarinadeLstSolValCalc {
             MARINADE_LST_SOL_COMMON_INTERMEDIATE_KEYS,
         ))
     }
+
+    fn sol_value_calculator(&self) -> Option<&dyn SolValueCalculator> {
+        self.calc.as_ref().map(|c| c as &dyn SolValueCalculator)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
