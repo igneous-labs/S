@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use sanctum_token_ratio::U64ValueRange;
+use sol_value_calculator_lib::SolValueCalculator;
 use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 
@@ -64,4 +65,8 @@ pub trait LstSolValCalc {
     ///
     /// This should exclude the program_id and include the common interface account prefixes
     fn ix_accounts(&self) -> Vec<AccountMeta>;
+
+    /// Returns the underlying [`SolValueCalculator`]` if it has been initialized,
+    /// otherwise `None`.
+    fn sol_value_calculator(&self) -> Option<&dyn SolValueCalculator>;
 }

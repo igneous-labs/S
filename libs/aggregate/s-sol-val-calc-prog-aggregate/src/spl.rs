@@ -119,6 +119,10 @@ impl LstSolValCalc for SplLstSolValCalc {
             },
         ))
     }
+
+    fn sol_value_calculator(&self) -> Option<&dyn SolValueCalculator> {
+        self.calc.as_ref().map(|c| c as &dyn SolValueCalculator)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

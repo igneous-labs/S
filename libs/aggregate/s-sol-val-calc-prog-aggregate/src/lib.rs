@@ -115,6 +115,17 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::SanctumSplMulti(s) => s.ix_accounts(),
         }
     }
+
+    fn sol_value_calculator(&self) -> Option<&dyn sol_value_calculator_lib::SolValueCalculator> {
+        match self {
+            Self::Lido(s) => s.sol_value_calculator(),
+            Self::Marinade(s) => s.sol_value_calculator(),
+            Self::Spl(s) => s.sol_value_calculator(),
+            Self::SanctumSpl(s) => s.sol_value_calculator(),
+            Self::Wsol(s) => s.sol_value_calculator(),
+            Self::SanctumSplMulti(s) => s.sol_value_calculator(),
+        }
+    }
 }
 
 impl From<LidoLstSolValCalc> for KnownLstSolValCalc {
