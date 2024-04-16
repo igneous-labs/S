@@ -4099,6 +4099,8 @@ dependencies = [
  "flat-fee-test-utils",
  "flat_fee_interface",
  "jupiter-amm-interface",
+ "lido-calculator-lib",
+ "marinade-calculator-lib",
  "marinade-keys",
  "pricing_programs_interface",
  "rust_decimal",
@@ -4118,9 +4120,11 @@ dependencies = [
  "solana-program-test",
  "solana-readonly-account",
  "solana-sdk",
+ "spl-calculator-lib",
  "spl-token",
  "test-utils",
  "tokio",
+ "wsol-calculator-lib",
 ]
 
 [[package]]
