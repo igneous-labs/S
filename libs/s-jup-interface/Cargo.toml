@@ -10,7 +10,6 @@ jupiter-amm-interface = { workspace = true }
 pricing_programs_interface = { workspace = true }
 lido-calculator-lib = { workspace = true }
 marinade-calculator-lib = { workspace = true }
-marinade-keys = { workspace = true }
 rust_decimal = { workspace = true }
 s_controller_interface = { workspace = true }
 s-controller-lib = { workspace = true }
@@ -30,6 +29,7 @@ wsol-calculator-lib = { workspace = true }
 [dev-dependencies]
 async-trait = { workspace = true }
 flat-fee-test-utils = { workspace = true }
+marinade-keys = { workspace = true }
 s-controller = { workspace = true }
 s-controller-test-utils = { workspace = true }
 sanctum-solana-test-utils = { workspace = true, features = ["token"] }

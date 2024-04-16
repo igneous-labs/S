@@ -2,12 +2,8 @@ use anyhow::anyhow;
 use jupiter_amm_interface::{
     AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
 };
-use marinade_keys::marinade_program;
 use s_controller_lib::find_lst_state_list_address;
-use sanctum_lst_list::{
-    lido_program, sanctum_spl_multi_stake_pool_program, sanctum_spl_stake_pool_program,
-    spl_stake_pool_program, SanctumLstList,
-};
+use sanctum_lst_list::SanctumLstList;
 use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
@@ -103,36 +99,39 @@ impl Amm for SPoolJup {
     }
 
     fn program_dependencies(&self) -> Vec<(Pubkey, String)> {
+        // stake pool programs are commented out for now
+        // since we dont execute them and we haven't done
+        // account subslicing for program data account data yet
         vec![
             // SPL
-            (spl_stake_pool_program::ID, "spl_stake_pool".to_owned()),
+            // (spl_stake_pool_program::ID, "spl_stake_pool".to_owned()),
             (spl_calculator_lib::program::ID, "spl_calculator".to_owned()),
             // Sanctum SPL
-            (
+            /*(
                 sanctum_spl_stake_pool_program::ID,
                 "sanctum_spl_stake_pool".to_owned(),
-            ),
+            ),*/
             (
                 spl_calculator_lib::sanctum_spl_sol_val_calc_program::ID,
                 "sanctum_spl_calculator".to_owned(),
             ),
             // Sanctum SPL Multi
-            (
+            /*(
                 sanctum_spl_multi_stake_pool_program::ID,
                 "sanctum_spl_multi_stake_pool".to_owned(),
-            ),
+            ),*/
             (
                 spl_calculator_lib::sanctum_spl_multi_sol_val_calc_program::ID,
                 "sanctum_spl_multi_calculator".to_owned(),
             ),
             // marinade
-            (marinade_program::ID, "marinade".to_owned()),
+            //(marinade_program::ID, "marinade".to_owned()),
             (
                 marinade_calculator_lib::program::ID,
                 "marinade_calculator".to_owned(),
             ),
             // lido
-            (lido_program::ID, "lido".to_owned()),
+            //(lido_program::ID, "lido".to_owned()),
             (
                 lido_calculator_lib::program::ID,
                 "lido_calculator".to_owned(),
