@@ -12,7 +12,10 @@ use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_token_lib::MintWithTokenProgram;
 use sanctum_token_ratio::AmtsAfterFeeBuilder;
 use solana_readonly_account::ReadonlyAccountData;
-use solana_sdk::{instruction::Instruction, pubkey::Pubkey};
+use solana_sdk::{
+    instruction::{AccountMeta, Instruction},
+    pubkey::Pubkey,
+};
 
 use crate::{LstData, SPool};
 
@@ -210,19 +213,26 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             _,
         ) = free_args.resolve_exact_in_for_prog(self.program_id)?;
 
-        let mut account_metas = swap_exact_in_ix(
-            keys,
-            SwapExactInIxArgs {
-                // dont cares, we're only using the ix's accounts
-                src_lst_value_calc_accs: 0,
-                dst_lst_value_calc_accs: 0,
-                src_lst_index: 0,
-                dst_lst_index: 0,
-                min_amount_out: 0,
-                amount: 0,
-            },
-        )?
-        .accounts;
+        let mut account_metas = vec![AccountMeta {
+            pubkey: self.program_id,
+            is_signer: false,
+            is_writable: false,
+        }];
+        account_metas.extend(
+            swap_exact_in_ix(
+                keys,
+                SwapExactInIxArgs {
+                    // dont cares, we're only using the ix's accounts
+                    src_lst_value_calc_accs: 0,
+                    dst_lst_value_calc_accs: 0,
+                    src_lst_index: 0,
+                    dst_lst_index: 0,
+                    min_amount_out: 0,
+                    amount: 0,
+                },
+            )?
+            .accounts,
+        );
 
         let [src_calculator_accounts, dst_calculator_accounts] =
             [src_sol_val_calc, dst_sol_val_calc].map(|calc| calc.ix_accounts());
