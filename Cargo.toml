@@ -39,14 +39,14 @@ bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"
 inquire = { version = "^0.7", default-features = false, features = ["crossterm"] }
-jupiter-amm-interface = "^0.3"
+jupiter-amm-interface = { git = "https://github.com/jup-ag/jupiter-amm-interface.git", branch = "feat/sanctum-s" }
 lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
 rust_decimal = ">=1.0,<=1.32.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
-serde = "^1"
+serde = "^1.0.197"
 serde_json = "^1"
 spl-pod = ">=0.1.0"
 spl-token = ">=0.1.0"
