@@ -284,6 +284,7 @@ impl RebalSolArgs {
                     open_order_address: None,
                     quote_mint_to_referrer: None,
                     jupiter_program_id: &Pubkey::default(),
+                    missing_dynamic_accounts_as_default: false,
                 })
                 .unwrap(),
         );

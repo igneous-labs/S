@@ -16,7 +16,9 @@ impl Amm for SPoolJup {
     ///
     /// params can optionally be a b58-encoded pubkey string that is the S controller program's program_id.
     ///
-    /// Must be updated 2 more times before it can be used, see docs for [`Self::from_lst_state_list_account`]
+    /// Must be updated 2 more times before it can be used, see docs for [`Self::from_lst_state_list_account`].
+    ///
+    /// TODO: We can also repurpose params to pass in a [`SanctumLstList`] in order to allow dynamic reloading of list
     fn from_keyed_account(
         KeyedAccount {
             key,
