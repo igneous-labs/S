@@ -64,6 +64,12 @@ impl MutablePricingProg for KnownPricingProg {
 }
 
 impl PricingProg for KnownPricingProg {
+    fn pricing_program_id(&self) -> Pubkey {
+        match self {
+            Self::FlatFee(p) => p.pricing_program_id(),
+        }
+    }
+
     fn quote_lp_tokens_to_redeem(
         &self,
         output_lst_mint: Pubkey,

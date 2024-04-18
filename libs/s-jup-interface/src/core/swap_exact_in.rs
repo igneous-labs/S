@@ -3,9 +3,12 @@ use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams}
 use pricing_programs_interface::{PriceExactInIxArgs, PriceExactInKeys};
 use s_controller_interface::{swap_exact_in_ix, SControllerError, SwapExactInIxArgs};
 use s_controller_lib::{
-    calc_swap_protocol_fees, index_to_u32, swap_exact_in_ix_by_mint_full_for_prog, try_pool_state,
-    CalcSwapProtocolFeesArgs, SrcDstLstIndexes, SrcDstLstSolValueCalcAccountSuffixes,
-    SwapByMintsFreeArgs, SwapExactInAmounts,
+    account_metas_extend_with_pricing_program_price_swap_accounts,
+    account_metas_extend_with_src_dst_sol_value_calculator_accounts, calc_swap_protocol_fees,
+    index_to_u32, swap_exact_in_ix_by_mint_full_for_prog, try_pool_state, CalcSwapProtocolFeesArgs,
+    SrcDstLstIndexes, SrcDstLstSolValueCalcAccountSuffixes, SrcDstLstSolValueCalcAccounts,
+    SrcDstLstSolValueCalcExtendCount, SrcDstLstSolValueCalcProgramIds, SwapByMintsFreeArgs,
+    SwapExactInAmounts,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
@@ -210,7 +213,10 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
                 src_lst_index,
                 dst_lst_index,
             },
-            _,
+            SrcDstLstSolValueCalcProgramIds {
+                src_lst_calculator_program_id,
+                dst_lst_calculator_program_id,
+            },
         ) = free_args.resolve_exact_in_for_prog(self.program_id)?;
 
         let mut account_metas = vec![AccountMeta {
@@ -236,23 +242,33 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
 
         let [src_calculator_accounts, dst_calculator_accounts] =
             [src_sol_val_calc, dst_sol_val_calc].map(|calc| calc.ix_accounts());
-        let [src_lst_value_calc_accs, dst_lst_value_calc_accs] =
-            [&src_calculator_accounts, &dst_calculator_accounts].map(|a| a.len().try_into());
-        account_metas.extend(src_calculator_accounts);
-        account_metas.extend(dst_calculator_accounts);
+        let SrcDstLstSolValueCalcExtendCount {
+            src_lst: src_lst_value_calc_accs,
+            dst_lst: dst_lst_value_calc_accs,
+        } = account_metas_extend_with_src_dst_sol_value_calculator_accounts(
+            &mut account_metas,
+            SrcDstLstSolValueCalcAccounts {
+                src_lst_calculator_program_id,
+                dst_lst_calculator_program_id,
+                src_lst_calculator_accounts: &src_calculator_accounts,
+                dst_lst_calculator_accounts: &dst_calculator_accounts,
+            },
+        )?;
 
-        account_metas.extend(
-            self.pricing_prog()?
-                .price_exact_in_accounts(PriceExactInKeys {
-                    input_lst_mint: *source_mint,
-                    output_lst_mint: *destination_mint,
-                })?,
-        );
+        let pricing_prog = self.pricing_prog()?;
+        account_metas_extend_with_pricing_program_price_swap_accounts(
+            &mut account_metas,
+            &pricing_prog.price_exact_in_accounts(PriceExactInKeys {
+                input_lst_mint: *source_mint,
+                output_lst_mint: *destination_mint,
+            })?,
+            pricing_prog.pricing_program_id(),
+        )?;
 
         Ok(SwapAndAccountMetas {
             swap: jupiter_amm_interface::Swap::SanctumS {
-                src_lst_value_calc_accs: src_lst_value_calc_accs?,
-                dst_lst_value_calc_accs: dst_lst_value_calc_accs?,
+                src_lst_value_calc_accs,
+                dst_lst_value_calc_accs,
                 src_lst_index: index_to_u32(src_lst_index)?,
                 dst_lst_index: index_to_u32(dst_lst_index)?,
             },

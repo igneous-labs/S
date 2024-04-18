@@ -3,8 +3,10 @@ use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams}
 use pricing_programs_interface::PriceLpTokensToRedeemIxArgs;
 use s_controller_interface::{remove_liquidity_ix, RemoveLiquidityIxArgs, SControllerError};
 use s_controller_lib::{
-    calc_lp_tokens_sol_value, calc_remove_liquidity_protocol_fees, index_to_u32,
-    remove_liquidity_ix_by_mint_full_for_prog, try_pool_state, AddRemoveLiquidityAccountSuffixes,
+    account_metas_extend_with_pricing_program_price_lp_accounts,
+    account_metas_extend_with_sol_value_calculator_accounts, calc_lp_tokens_sol_value,
+    calc_remove_liquidity_protocol_fees, index_to_u32, remove_liquidity_ix_by_mint_full_for_prog,
+    try_pool_state, AddRemoveLiquidityAccountSuffixes, AddRemoveLiquidityProgramIds,
     CalcRemoveLiquidityProtocolFeesArgs, LpTokenRateArgs, RemoveLiquidityByMintFreeArgs,
     RemoveLiquidityIxAmts,
 };
@@ -170,7 +172,14 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             },
         ) = self.find_ready_lst(swap_params.destination_mint)?;
         let free_args = self.remove_liquidity_free_args(src_token_program, swap_params)?;
-        let (keys, lst_index, _program_ids) = free_args.resolve_for_prog(self.program_id)?;
+        let (
+            keys,
+            lst_index,
+            AddRemoveLiquidityProgramIds {
+                lst_calculator_program_id,
+                pricing_program_id,
+            },
+        ) = free_args.resolve_for_prog(self.program_id)?;
 
         let mut account_metas = vec![AccountMeta {
             pubkey: self.program_id,
@@ -191,14 +200,20 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             .accounts,
         );
 
-        let lst_calculator_accounts = src_sol_val_calc.ix_accounts();
-        let lst_value_calc_accs = lst_calculator_accounts.len().try_into()?;
-        account_metas.extend(lst_calculator_accounts);
+        let lst_value_calc_accs = account_metas_extend_with_sol_value_calculator_accounts(
+            &mut account_metas,
+            &src_sol_val_calc.ix_accounts(),
+            lst_calculator_program_id,
+        )?;
 
-        account_metas.extend(
-            self.pricing_prog()?
+        account_metas_extend_with_pricing_program_price_lp_accounts(
+            &mut account_metas,
+            &self
+                .pricing_prog()?
                 .price_lp_tokens_to_redeem_accounts(swap_params.source_mint)?,
-        );
+            pricing_program_id,
+        )?;
+
         Ok(SwapAndAccountMetas {
             // TODO: jup to update this once new variant introduced
             swap: jupiter_amm_interface::Swap::SanctumSRemoveLiquidity {
