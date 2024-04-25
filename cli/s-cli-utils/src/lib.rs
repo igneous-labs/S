@@ -69,7 +69,10 @@ pub async fn handle_tx_full(
         )
         .unwrap(),
         send_mode,
-        HandleTxArgs::cli_default(),
+        HandleTxArgs {
+            max_retries: None,
+            ..HandleTxArgs::cli_default()
+        },
     )
     .await;
 }
