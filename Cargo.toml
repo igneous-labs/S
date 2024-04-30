@@ -87,8 +87,7 @@ sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-ut
 system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
 
 # sanctum-lst-list
-# TODO: update to 0.2.0 to include SanctumSplMulti
-sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" } # rev = "b4f05b2"
+sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" }
 
 # stakedex
 stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
