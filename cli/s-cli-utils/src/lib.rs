@@ -28,7 +28,9 @@ pub mod srlut {
     sanctum_macros::declare_program_keys!("KtrvWWkPkhSWM9VMqafZhgnTuozQiHzrBDT8oPcMj3T", []);
 }
 
-pub const CU_BUFFER_RATIO: f64 = 1.125;
+pub const CU_BUFFER_RATIO: f64 = 1.1;
+
+pub const CUS_REQUIRED_FOR_SET_CU_IXS: u32 = 300;
 
 /// First signer in signers is transaction payer
 pub async fn handle_tx_full(
@@ -49,7 +51,8 @@ pub async fn handle_tx_full(
                 let cus = estimate_compute_unit_limit_nonblocking(rpc, &tx_to_sim)
                     .await
                     .unwrap();
-                let cu_limit = buffer_compute_units(cus, CU_BUFFER_RATIO);
+                let cu_limit = buffer_compute_units(cus, CU_BUFFER_RATIO)
+                    .saturating_add(CUS_REQUIRED_FOR_SET_CU_IXS);
                 let micro_lamports_per_cu =
                     ComputeBudgetFeeLimit::TotalLamports(fee_limit_lamports)
                         .to_micro_lamports_per_cu(cu_limit);
