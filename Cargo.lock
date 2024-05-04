@@ -4195,7 +4195,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#02101be10bb0eaa172d5ba7334e5db056048f52f"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#ec01312a37c04ecdb25971c992f9254e4791e4d9"
 dependencies = [
  "sanctum-macros",
  "serde",
