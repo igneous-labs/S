@@ -2,8 +2,8 @@ use sanctum_solana_cli_utils::{
     HandleTxArgs, RecentBlockhash, TxSendMode, TxSendingNonblockingRpcClient,
 };
 use sanctum_solana_client_utils::{
-    buffer_compute_units, estimate_compute_unit_limit_nonblocking, to_est_cu_sim_tx,
-    ComputeBudgetFeeLimit, ComputeBudgetIxs, SortedSigners,
+    buffer_compute_units, to_est_cu_sim_tx, ComputeBudgetFeeLimit, ComputeBudgetIxs, SortedSigners,
+    EST_CU_SIM_TX_CONFIG,
 };
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{address_lookup_table::AddressLookupTableAccount, instruction::Instruction};
@@ -48,9 +48,19 @@ pub async fn handle_tx_full(
         _ => {
             let cb_ixs = {
                 let tx_to_sim = to_est_cu_sim_tx(&payer_pk, &ixs, luts).unwrap();
-                let cus = estimate_compute_unit_limit_nonblocking(rpc, &tx_to_sim)
+
+                // TODO: move this edit to sanctum-solana-utils
+                // this panics if the simulation fails
+                let sim_result = rpc
+                    .simulate_transaction_with_config(&tx_to_sim, EST_CU_SIM_TX_CONFIG)
                     .await
-                    .unwrap();
+                    .unwrap()
+                    .value;
+                if let Some(err) = sim_result.err {
+                    panic!("{err}");
+                }
+                let cus = sim_result.units_consumed.unwrap();
+
                 let cu_limit = buffer_compute_units(cus, CU_BUFFER_RATIO)
                     .saturating_add(CUS_REQUIRED_FOR_SET_CU_IXS);
                 let micro_lamports_per_cu =
