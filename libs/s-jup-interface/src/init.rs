@@ -1,7 +1,7 @@
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, try_lst_state_list, try_pool_state,
 };
-use sanctum_lst_list::SanctumLst;
+use sanctum_lst_list::{SanctumLst, SanctumLstList};
 use solana_program::pubkey::Pubkey;
 use solana_readonly_account::ReadonlyAccountData;
 
@@ -54,10 +54,22 @@ impl<S, L> SPool<S, L> {
 }
 
 impl<S, L: ReadonlyAccountData> SPool<S, L> {
+    pub fn from_lst_state_list_account(
+        program_id: Pubkey,
+        lst_state_list_account: L,
+    ) -> anyhow::Result<Self> {
+        let SanctumLstList { sanctum_lst_list } = SanctumLstList::load();
+        Self::from_lst_state_list_account_and_sanctum_lst_list(
+            program_id,
+            lst_state_list_account,
+            &sanctum_lst_list,
+        )
+    }
+
     /// `Self`s created from this fn must be update_full() 2 more times before they can be used
     /// - first update fetches pool_state, updates various sol value calculator programs and pricing program
     /// - second update fetches LP token mint read from fetched pool_state
-    pub fn from_lst_state_list_account(
+    pub fn from_lst_state_list_account_and_sanctum_lst_list(
         program_id: Pubkey,
         lst_state_list_account: L,
         lst_list: &[SanctumLst],
@@ -105,7 +117,11 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             let pool_state = try_pool_state(&pool_state_acc_data)?;
             try_pricing_prog(pool_state, lst_state_list)?
         };
-        let mut res = Self::from_lst_state_list_account(program_id, lst_state_list_acc, lst_list)?;
+        let mut res = Self::from_lst_state_list_account_and_sanctum_lst_list(
+            program_id,
+            lst_state_list_acc,
+            lst_list,
+        )?;
         res.pool_state_account = Some(pool_state_acc);
         res.pricing_prog = Some(pricing_prog);
         Ok(res)

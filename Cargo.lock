@@ -2436,8 +2436,9 @@ dependencies = [
 
 [[package]]
 name = "jupiter-amm-interface"
-version = "0.3.3"
-source = "git+https://github.com/jup-ag/jupiter-amm-interface.git?branch=feat/sanctum-s#504fd1181317e62bd5e54384266200f2c1086d74"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c5dc42b3a8a4eb6a4b1f9444eb435e94320536a48963fd48edd476511e1489b"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
@@ -4017,7 +4018,7 @@ dependencies = [
  "generic-pool-calculator-lib",
  "generic_pool_calculator_interface",
  "inquire",
- "jupiter-amm-interface 0.3.3",
+ "jupiter-amm-interface 0.4.3",
  "lazy_static",
  "lido-calculator-lib",
  "marinade-calculator-lib",
@@ -4112,7 +4113,7 @@ dependencies = [
  "async-trait",
  "flat-fee-test-utils",
  "flat_fee_interface",
- "jupiter-amm-interface 0.3.3",
+ "jupiter-amm-interface 0.4.3",
  "lido-calculator-lib",
  "marinade-calculator-lib",
  "marinade-keys",
