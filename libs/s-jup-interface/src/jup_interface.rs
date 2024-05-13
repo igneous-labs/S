@@ -67,9 +67,8 @@ impl Amm for SPoolJup {
         self.program_id
     }
 
-    /// S Pools are 1 per program, so just use program ID as key
     fn key(&self) -> Pubkey {
-        self.program_id()
+        self.lst_state_list_addr
     }
 
     fn get_reserve_mints(&self) -> Vec<Pubkey> {
@@ -92,7 +91,19 @@ impl Amm for SPoolJup {
         &self,
         swap_params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {
-        self.get_swap_and_account_metas_full(swap_params)
+        let mut swap_and_account_metas = self.get_swap_and_account_metas_full(swap_params)?;
+
+        if !swap_params.token_transfer_authority.is_on_curve() {
+            for account_meta in swap_and_account_metas.account_metas.iter_mut() {
+                if account_meta.is_signer {
+                    account_meta.is_signer = false;
+                }
+            }
+        }
+        swap_and_account_metas
+            .account_metas
+            .push(swap_params.placeholder_account_meta());
+        Ok(swap_and_account_metas)
     }
 
     fn clone_amm(&self) -> Box<dyn Amm + Send + Sync> {
@@ -105,6 +116,10 @@ impl Amm for SPoolJup {
 
     /// TODO: this is not true for AddLiquidity and RemoveLiquidity
     fn supports_exact_out(&self) -> bool {
+        true
+    }
+
+    fn requires_update_for_reserve_mints(&self) -> bool {
         true
     }
 

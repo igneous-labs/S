@@ -69,14 +69,12 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             &input_lst_data.sol_val_calc,
         )?;
         Ok(Quote {
-            not_enough_liquidity: false,
-            min_in_amount: None,
-            min_out_amount: None,
             in_amount: *amount,
             out_amount: lp_tokens_to_mint,
             fee_mint: *input_mint,
             fee_amount,
             fee_pct,
+            ..Default::default()
         })
     }
 
