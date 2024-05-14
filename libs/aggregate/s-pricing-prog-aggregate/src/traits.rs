@@ -75,6 +75,8 @@ pub trait MutablePricingProg {
 }
 
 pub trait PricingProg {
+    fn pricing_program_id(&self) -> Pubkey;
+
     /// Returns SOL value of the LST to redeem
     fn quote_lp_tokens_to_redeem(
         &self,

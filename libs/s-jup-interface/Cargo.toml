@@ -5,8 +5,11 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
+flat_fee_interface = { workspace = true }
 jupiter-amm-interface = { workspace = true }
 pricing_programs_interface = { workspace = true }
+lido-calculator-lib = { workspace = true }
+marinade-calculator-lib = { workspace = true }
 rust_decimal = { workspace = true }
 s_controller_interface = { workspace = true }
 s-controller-lib = { workspace = true }
@@ -20,10 +23,11 @@ serde_json = { workspace = true }
 solana-program = { workspace = true }
 solana-sdk = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+spl-calculator-lib = { workspace = true }
+wsol-calculator-lib = { workspace = true }
 
 [dev-dependencies]
 async-trait = { workspace = true }
-flat_fee_interface = { workspace = true }
 flat-fee-test-utils = { workspace = true }
 marinade-keys = { workspace = true }
 s-controller = { workspace = true }

@@ -29,10 +29,6 @@ pub struct FlatFeePricingProg {
 }
 
 impl FlatFeePricingProg {
-    pub fn program_id(&self) -> Pubkey {
-        self.program_id
-    }
-
     pub fn find_program_state_addr(&self) -> Pubkey {
         ProgramStateFindPdaArgs {
             program_id: self.program_id,
@@ -168,6 +164,10 @@ impl MutablePricingProg for FlatFeePricingProg {
 }
 
 impl PricingProg for FlatFeePricingProg {
+    fn pricing_program_id(&self) -> Pubkey {
+        self.program_id
+    }
+
     fn quote_lp_tokens_to_redeem(
         &self,
         _output_lst_mint: Pubkey,

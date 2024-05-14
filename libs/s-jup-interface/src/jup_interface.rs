@@ -3,7 +3,10 @@ use jupiter_amm_interface::{
     AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
 };
 use s_controller_lib::find_lst_state_list_address;
-use sanctum_lst_list::SanctumLstList;
+use sanctum_lst_list::{
+    lido_program, marinade_program, sanctum_spl_multi_stake_pool_program,
+    sanctum_spl_stake_pool_program, spl_stake_pool_program, SanctumLstList,
+};
 use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
@@ -16,7 +19,9 @@ impl Amm for SPoolJup {
     ///
     /// params can optionally be a b58-encoded pubkey string that is the S controller program's program_id.
     ///
-    /// Must be updated 2 more times before it can be used, see docs for [`Self::from_lst_state_list_account`]
+    /// Must be updated 2 more times before it can be used, see docs for [`Self::from_lst_state_list_account`].
+    ///
+    /// TODO: We can also repurpose params to pass in a [`SanctumLstList`] in order to allow dynamic reloading of list
     fn from_keyed_account(
         KeyedAccount {
             key,
@@ -96,5 +101,56 @@ impl Amm for SPoolJup {
     /// TODO: this is not true for AddLiquidity and RemoveLiquidity
     fn supports_exact_out(&self) -> bool {
         true
+    }
+
+    fn program_dependencies(&self) -> Vec<(Pubkey, String)> {
+        // stake pool programs are commented out for now
+        // since we dont execute them and we haven't done
+        // account subslicing for program data account data yet
+        vec![
+            // SPL
+            (spl_stake_pool_program::ID, "spl_stake_pool".to_owned()),
+            (spl_calculator_lib::program::ID, "spl_calculator".to_owned()),
+            // Sanctum SPL
+            (
+                sanctum_spl_stake_pool_program::ID,
+                "sanctum_spl_stake_pool".to_owned(),
+            ),
+            (
+                spl_calculator_lib::sanctum_spl_sol_val_calc_program::ID,
+                "sanctum_spl_calculator".to_owned(),
+            ),
+            // Sanctum SPL Multi
+            (
+                sanctum_spl_multi_stake_pool_program::ID,
+                "sanctum_spl_multi_stake_pool".to_owned(),
+            ),
+            (
+                spl_calculator_lib::sanctum_spl_multi_sol_val_calc_program::ID,
+                "sanctum_spl_multi_calculator".to_owned(),
+            ),
+            // marinade
+            (marinade_program::ID, "marinade".to_owned()),
+            (
+                marinade_calculator_lib::program::ID,
+                "marinade_calculator".to_owned(),
+            ),
+            // lido
+            (lido_program::ID, "lido".to_owned()),
+            (
+                lido_calculator_lib::program::ID,
+                "lido_calculator".to_owned(),
+            ),
+            // wSOL
+            (
+                wsol_calculator_lib::program::ID,
+                "wsol_calculator".to_owned(),
+            ),
+            // pricing program
+            (
+                flat_fee_interface::ID,
+                "flat_fee_pricing_program".to_owned(),
+            ),
+        ]
     }
 }

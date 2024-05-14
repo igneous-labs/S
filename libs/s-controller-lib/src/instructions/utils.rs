@@ -108,14 +108,25 @@ pub fn ix_extend_with_sol_value_calculator_accounts(
     sol_value_calculator_accounts: &[AccountMeta],
     sol_value_calculator_program_id: Pubkey,
 ) -> Result<u8, TryFromIntError> {
-    ix.accounts.push(AccountMeta {
+    account_metas_extend_with_sol_value_calculator_accounts(
+        &mut ix.accounts,
+        sol_value_calculator_accounts,
+        sol_value_calculator_program_id,
+    )
+}
+
+pub fn account_metas_extend_with_sol_value_calculator_accounts(
+    accounts: &mut Vec<AccountMeta>,
+    sol_value_calculator_accounts: &[AccountMeta],
+    sol_value_calculator_program_id: Pubkey,
+) -> Result<u8, TryFromIntError> {
+    accounts.push(AccountMeta {
         pubkey: sol_value_calculator_program_id,
         is_signer: false,
         is_writable: false,
     });
     // exclude first account since that should be LST mint
-    ix.accounts
-        .extend(sol_value_calculator_accounts.iter().skip(1).cloned());
+    accounts.extend(sol_value_calculator_accounts.iter().skip(1).cloned());
     // n_accounts = len() - 1 + 1
     sol_value_calculator_accounts.len().try_into()
 }
@@ -124,6 +135,16 @@ pub fn ix_extend_with_sol_value_calculator_accounts(
 /// but exclude sol_value_calculator_program_id
 pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
     ix: &mut Instruction,
+    sol_val_calc_accounts: SrcDstLstSolValueCalcAccounts,
+) -> Result<SrcDstLstSolValueCalcExtendCount, TryFromIntError> {
+    account_metas_extend_with_src_dst_sol_value_calculator_accounts(
+        &mut ix.accounts,
+        sol_val_calc_accounts,
+    )
+}
+
+pub fn account_metas_extend_with_src_dst_sol_value_calculator_accounts(
+    accounts: &mut Vec<AccountMeta>,
     SrcDstLstSolValueCalcAccounts {
         src_lst_calculator_program_id,
         dst_lst_calculator_program_id,
@@ -131,13 +152,13 @@ pub fn ix_extend_with_src_dst_sol_value_calculator_accounts(
         dst_lst_calculator_accounts,
     }: SrcDstLstSolValueCalcAccounts,
 ) -> Result<SrcDstLstSolValueCalcExtendCount, TryFromIntError> {
-    let src_lst = ix_extend_with_sol_value_calculator_accounts(
-        ix,
+    let src_lst = account_metas_extend_with_sol_value_calculator_accounts(
+        accounts,
         src_lst_calculator_accounts,
         src_lst_calculator_program_id,
     )?;
-    let dst_lst = ix_extend_with_sol_value_calculator_accounts(
-        ix,
+    let dst_lst = account_metas_extend_with_sol_value_calculator_accounts(
+        accounts,
         dst_lst_calculator_accounts,
         dst_lst_calculator_program_id,
     )?;
@@ -154,14 +175,25 @@ pub fn ix_extend_with_pricing_program_price_lp_accounts(
     pricing_program_price_lp_accounts: &[AccountMeta],
     pricing_program_id: Pubkey,
 ) -> Result<u8, TryFromIntError> {
-    ix.accounts.push(AccountMeta {
+    account_metas_extend_with_pricing_program_price_lp_accounts(
+        &mut ix.accounts,
+        pricing_program_price_lp_accounts,
+        pricing_program_id,
+    )
+}
+
+pub fn account_metas_extend_with_pricing_program_price_lp_accounts(
+    accounts: &mut Vec<AccountMeta>,
+    pricing_program_price_lp_accounts: &[AccountMeta],
+    pricing_program_id: Pubkey,
+) -> Result<u8, TryFromIntError> {
+    accounts.push(AccountMeta {
         pubkey: pricing_program_id,
         is_signer: false,
         is_writable: false,
     });
     // exclude first account since that should be LST mint
-    ix.accounts
-        .extend(pricing_program_price_lp_accounts.iter().skip(1).cloned());
+    accounts.extend(pricing_program_price_lp_accounts.iter().skip(1).cloned());
     // n_accounts = len() - 1 + 1
     pricing_program_price_lp_accounts.len().try_into()
 }
@@ -174,14 +206,25 @@ pub fn ix_extend_with_pricing_program_price_swap_accounts(
     pricing_program_price_swap_accounts: &[AccountMeta],
     pricing_program_id: Pubkey,
 ) -> Result<u8, SControllerError> {
-    ix.accounts.push(AccountMeta {
+    account_metas_extend_with_pricing_program_price_swap_accounts(
+        &mut ix.accounts,
+        pricing_program_price_swap_accounts,
+        pricing_program_id,
+    )
+}
+
+pub fn account_metas_extend_with_pricing_program_price_swap_accounts(
+    accounts: &mut Vec<AccountMeta>,
+    pricing_program_price_swap_accounts: &[AccountMeta],
+    pricing_program_id: Pubkey,
+) -> Result<u8, SControllerError> {
+    accounts.push(AccountMeta {
         pubkey: pricing_program_id,
         is_signer: false,
         is_writable: false,
     });
     // exclude first 2 accounts since that should be input_lst_mint and output_lst_mint
-    ix.accounts
-        .extend(pricing_program_price_swap_accounts.iter().skip(2).cloned());
+    accounts.extend(pricing_program_price_swap_accounts.iter().skip(2).cloned());
     // n_accounts = len() - 2 + 1
     pricing_program_price_swap_accounts
         .len()

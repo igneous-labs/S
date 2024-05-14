@@ -1,18 +1,20 @@
 use anyhow::anyhow;
 use jupiter_amm_interface::{Quote, QuoteParams, SwapAndAccountMetas, SwapParams};
 use pricing_programs_interface::{PriceExactOutIxArgs, PriceExactOutKeys};
-use s_controller_interface::SControllerError;
+use s_controller_interface::{swap_exact_out_ix, SControllerError, SwapExactOutIxArgs};
 use s_controller_lib::{
-    calc_swap_protocol_fees, swap_exact_out_ix_by_mint_full_for_prog, try_pool_state,
-    CalcSwapProtocolFeesArgs, SrcDstLstSolValueCalcAccountSuffixes, SwapByMintsFreeArgs,
-    SwapExactOutAmounts,
+    account_metas_extend_with_pricing_program_price_swap_accounts,
+    account_metas_extend_with_src_dst_sol_value_calculator_accounts, calc_swap_protocol_fees,
+    index_to_u32, swap_exact_out_ix_by_mint_full_for_prog, try_pool_state,
+    CalcSwapProtocolFeesArgs, SrcDstLstIndexes, SrcDstLstSolValueCalcAccountSuffixes,
+    SrcDstLstSolValueCalcAccounts, SrcDstLstSolValueCalcExtendCount,
+    SrcDstLstSolValueCalcProgramIds, SwapExactOutAmounts,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
-use sanctum_token_lib::MintWithTokenProgram;
 use sanctum_token_ratio::AmtsAfterFeeBuilder;
 use solana_readonly_account::ReadonlyAccountData;
-use solana_sdk::instruction::Instruction;
+use solana_sdk::instruction::{AccountMeta, Instruction};
 
 use crate::{LstData, SPool};
 
@@ -94,53 +96,40 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
 
     pub(crate) fn swap_exact_out_ix(
         &self,
-        SwapParams {
+        swap_params: &SwapParams,
+    ) -> anyhow::Result<Instruction> {
+        let SwapParams {
             in_amount,
             out_amount,
             source_mint,
             destination_mint,
-            source_token_account,
-            destination_token_account,
-            token_transfer_authority,
             ..
-        }: &SwapParams,
-    ) -> anyhow::Result<Instruction> {
-        let (
+        } = swap_params;
+        let [src_rdy, dst_rdy] =
+            [source_mint, destination_mint].map(|mint| self.find_ready_lst(*mint));
+        let [(
             _,
             LstData {
                 token_program: src_token_program,
                 sol_val_calc: src_sol_val_calc,
                 ..
             },
-        ) = self.find_ready_lst(*source_mint)?;
-        let (
+        ), (
             _,
             LstData {
                 token_program: dst_token_program,
                 sol_val_calc: dst_sol_val_calc,
                 ..
             },
-        ) = self.find_ready_lst(*destination_mint)?;
+        )] = [src_rdy?, dst_rdy?];
+
         let pricing_program = {
             let pool_state_data = self.pool_state_data()?;
             try_pool_state(&pool_state_data)?.pricing_program
         };
         Ok(swap_exact_out_ix_by_mint_full_for_prog(
             self.program_id,
-            SwapByMintsFreeArgs {
-                signer: *token_transfer_authority,
-                src_lst_acc: *source_token_account,
-                dst_lst_acc: *destination_token_account,
-                src_lst_mint: MintWithTokenProgram {
-                    pubkey: *source_mint,
-                    token_program: *src_token_program,
-                },
-                dst_lst_mint: MintWithTokenProgram {
-                    pubkey: *destination_mint,
-                    token_program: *dst_token_program,
-                },
-                lst_state_list: &self.lst_state_list_account,
-            },
+            self.swap_by_mints_free_args(*src_token_program, *dst_token_program, swap_params)?,
             SwapExactOutAmounts {
                 // TODO: where did other_amount_threshold go?
                 max_amount_in: *in_amount,
@@ -162,13 +151,99 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
 
     pub(crate) fn swap_exact_out_swap_and_account_metas(
         &self,
-        params: &SwapParams,
+        swap_params: &SwapParams,
     ) -> anyhow::Result<SwapAndAccountMetas> {
-        let Instruction { accounts, .. } = self.swap_exact_out_ix(params)?;
+        let SwapParams {
+            source_mint,
+            destination_mint,
+            ..
+        } = swap_params;
+        let [src_rdy, dst_rdy] =
+            [source_mint, destination_mint].map(|mint| self.find_ready_lst(*mint));
+        let [(
+            _,
+            LstData {
+                token_program: src_token_program,
+                sol_val_calc: src_sol_val_calc,
+                ..
+            },
+        ), (
+            _,
+            LstData {
+                token_program: dst_token_program,
+                sol_val_calc: dst_sol_val_calc,
+                ..
+            },
+        )] = [src_rdy?, dst_rdy?];
+        let free_args =
+            self.swap_by_mints_free_args(*src_token_program, *dst_token_program, swap_params)?;
+        let (
+            keys,
+            SrcDstLstIndexes {
+                src_lst_index,
+                dst_lst_index,
+            },
+            SrcDstLstSolValueCalcProgramIds {
+                src_lst_calculator_program_id,
+                dst_lst_calculator_program_id,
+            },
+        ) = free_args.resolve_exact_out_for_prog(self.program_id)?;
+
+        let mut account_metas = vec![AccountMeta {
+            pubkey: self.program_id,
+            is_signer: false,
+            is_writable: false,
+        }];
+
+        account_metas.extend(
+            swap_exact_out_ix(
+                keys,
+                SwapExactOutIxArgs {
+                    // dont cares, we're only using the ix's accounts
+                    src_lst_value_calc_accs: 0,
+                    dst_lst_value_calc_accs: 0,
+                    src_lst_index: 0,
+                    dst_lst_index: 0,
+                    amount: 0,
+                    max_amount_in: 0,
+                },
+            )?
+            .accounts,
+        );
+
+        let [src_calculator_accounts, dst_calculator_accounts] =
+            [src_sol_val_calc, dst_sol_val_calc].map(|calc| calc.ix_accounts());
+        let SrcDstLstSolValueCalcExtendCount {
+            src_lst: src_lst_value_calc_accs,
+            dst_lst: dst_lst_value_calc_accs,
+        } = account_metas_extend_with_src_dst_sol_value_calculator_accounts(
+            &mut account_metas,
+            SrcDstLstSolValueCalcAccounts {
+                src_lst_calculator_program_id,
+                dst_lst_calculator_program_id,
+                src_lst_calculator_accounts: &src_calculator_accounts,
+                dst_lst_calculator_accounts: &dst_calculator_accounts,
+            },
+        )?;
+
+        let pricing_prog = self.pricing_prog()?;
+        account_metas_extend_with_pricing_program_price_swap_accounts(
+            &mut account_metas,
+            &pricing_prog.price_exact_out_accounts(PriceExactOutKeys {
+                input_lst_mint: *source_mint,
+                output_lst_mint: *destination_mint,
+            })?,
+            pricing_prog.pricing_program_id(),
+        )?;
+
         Ok(SwapAndAccountMetas {
-            // TODO: jup to update this once new variant introduced
-            swap: jupiter_amm_interface::Swap::StakeDexStakeWrappedSol,
-            account_metas: accounts,
+            swap: jupiter_amm_interface::Swap::SanctumS {
+                src_lst_value_calc_accs,
+                dst_lst_value_calc_accs,
+                src_lst_index: index_to_u32(src_lst_index)?,
+                dst_lst_index: index_to_u32(dst_lst_index)?,
+            },
+            account_metas,
         })
     }
 }
