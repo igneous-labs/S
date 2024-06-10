@@ -2437,10 +2437,10 @@ dependencies = [
 [[package]]
 name = "jupiter-amm-interface"
 version = "0.3.3"
-source = "git+https://github.com/jup-ag/jupiter-amm-interface.git?branch=feat/sanctum-s#504fd1181317e62bd5e54384266200f2c1086d74"
+source = "git+https://github.com/jup-ag/jupiter-amm-interface.git#4bc3019f78abeb7a9156c146a1a5d2b165bdc0c5"
 dependencies = [
  "anyhow",
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "rust_decimal",
  "serde",
  "serde_json",
