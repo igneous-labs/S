@@ -79,7 +79,7 @@ impl LstSolValCalc for KnownLstSolValCalc {
             Self::Spl(s) => s.lst_mint(),
             Self::SanctumSpl(s) => s.lst_mint(),
             Self::Wsol(s) => s.lst_mint(),
-            Self::SanctumSplMulti(s) => s.sol_value_calculator_program_id(),
+            Self::SanctumSplMulti(s) => s.lst_mint(),
         }
     }
 
