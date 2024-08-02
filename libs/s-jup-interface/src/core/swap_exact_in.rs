@@ -8,7 +8,7 @@ use s_controller_lib::{
     index_to_u32, swap_exact_in_ix_by_mint_full_for_prog, try_pool_state, CalcSwapProtocolFeesArgs,
     SrcDstLstIndexes, SrcDstLstSolValueCalcAccountSuffixes, SrcDstLstSolValueCalcAccounts,
     SrcDstLstSolValueCalcExtendCount, SrcDstLstSolValueCalcProgramIds, SwapByMintsFreeArgs,
-    SwapExactInAmounts,
+    SwapExactInAmounts, U8Bool,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
@@ -42,6 +42,9 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             .ok_or_else(|| anyhow!("pricing program not fetched"))?;
 
         let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
+        if U8Bool(input_lst_state.is_input_disabled).is_true() {
+            return Err(SControllerError::LstInputDisabled.into());
+        }
         let (pool_state, _input_lst_state, _input_reserves_balance) =
             apply_sync_sol_value(*pool_state, input_lst_state, input_lst_data)?;
         let (output_lst_state, output_lst_data) = self.find_ready_lst(*output_mint)?;
