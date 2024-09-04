@@ -7,7 +7,7 @@ use s_controller_lib::{
     account_metas_extend_with_sol_value_calculator_accounts,
     add_liquidity_ix_by_mint_full_for_prog, calc_lp_tokens_to_mint, index_to_u32, try_pool_state,
     AddLiquidityByMintFreeArgs, AddLiquidityIxAmts, AddRemoveLiquidityAccountSuffixes,
-    AddRemoveLiquidityProgramIds, LpTokenRateArgs,
+    AddRemoveLiquidityProgramIds, LpTokenRateArgs, U8Bool,
 };
 use s_pricing_prog_aggregate::PricingProg;
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
@@ -41,6 +41,9 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
             .ok_or_else(|| anyhow!("LP mint not fetched"))?;
 
         let (input_lst_state, input_lst_data) = self.find_ready_lst(*input_mint)?;
+        if U8Bool(input_lst_state.is_input_disabled).is_true() {
+            return Err(SControllerError::LstInputDisabled.into());
+        }
         let (pool_state, _input_lst_state, _input_reserves_balance) =
             apply_sync_sol_value(*pool_state, input_lst_state, input_lst_data)?;
 
