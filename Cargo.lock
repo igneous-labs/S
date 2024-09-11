@@ -2440,7 +2440,7 @@ version = "0.3.3"
 source = "git+https://github.com/jup-ag/jupiter-amm-interface.git#4bc3019f78abeb7a9156c146a1a5d2b165bdc0c5"
 dependencies = [
  "anyhow",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "rust_decimal",
  "serde",
  "serde_json",
@@ -4013,6 +4013,7 @@ version = "0.1.0"
 dependencies = [
  "assert_cmd",
  "bincode",
+ "bs58",
  "clap 4.4.18",
  "cli-test-utils",
  "data-encoding",
@@ -4219,7 +4220,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#ec01312a37c04ecdb25971c992f9254e4791e4d9"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#17a9bd300580c84f4a235e06df5ca04b17a04965"
 dependencies = [
  "sanctum-macros",
  "serde",

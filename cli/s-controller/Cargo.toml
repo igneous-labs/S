@@ -11,6 +11,7 @@ path = "src/main.rs"
 testing = ["s-controller/testing"]
 
 [dependencies]
+bs58 = { workspace = true }
 clap = { workspace = true }
 data-encoding = { workspace = true }
 flat-fee-lib = { workspace = true }

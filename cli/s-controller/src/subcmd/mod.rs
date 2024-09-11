@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use rebal_b58::RebalB58Args;
 
 use self::{
     add_disable_auth::AddDisableAuthArgs, add_lst::AddLstArgs,
@@ -20,6 +21,7 @@ mod disable_pool;
 mod enable_lst_input;
 mod enable_pool;
 mod init;
+mod rebal_b58;
 mod rebal_sol;
 mod remove_disable_auth;
 mod remove_lst;
@@ -56,6 +58,7 @@ pub enum Subcmd {
     WithdrawProtocolFees(WithdrawProtocolFeesArgs),
     View(ViewArgs),
     RebalSol(RebalSolArgs),
+    RebalB58(RebalB58Args),
 }
 
 impl Subcmd {
@@ -81,6 +84,7 @@ impl Subcmd {
             Self::WithdrawProtocolFees(_) => WithdrawProtocolFeesArgs::run(args).await,
             Self::View(_) => ViewArgs::run(args).await,
             Self::RebalSol(_) => RebalSolArgs::run(args).await,
+            Self::RebalB58(_) => RebalB58Args::run(args).await,
         }
     }
 }
