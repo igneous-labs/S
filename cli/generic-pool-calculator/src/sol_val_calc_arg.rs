@@ -17,7 +17,7 @@ pub enum SolValCalcArg {
 }
 
 impl SolValCalcArg {
-    pub const HELP_STR: &str = "A SOL Value Calculator Program. Can either be a program ID pubkey or one of the following known programs:
+    pub const HELP_STR: &'static str = "A SOL Value Calculator Program. Can either be a program ID pubkey or one of the following known programs:
 - lido
 - marinade
 - sanctum-spl

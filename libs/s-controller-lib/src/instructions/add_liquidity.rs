@@ -72,14 +72,14 @@ pub fn add_liquidity_ix_full_for_prog(
     )
     .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update lst_value_calc_accs than double serialization here
-    let mut overwrite = &mut ix.data[..];
+    let overwrite = &mut ix.data[..];
     AddLiquidityIxData(AddLiquidityIxArgs {
         lst_value_calc_accs,
         lst_index,
         lst_amount,
         min_lp_out,
     })
-    .serialize(&mut overwrite)?;
+    .serialize(overwrite)?;
     Ok(ix)
 }
 

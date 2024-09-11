@@ -1,5 +1,0 @@
-[toolchain]
-# Mirrors solana-labs/solana/rust-toolchain.toml
-# Need rust >1.68 to compile solana_rbpf==0.8.0 for solana-program-test=~1.17 (once_cell feature unstable in 1.68),
-# so the tests are gonna be using a different rustc vers from the bpf programs
-channel = "1.73.0"

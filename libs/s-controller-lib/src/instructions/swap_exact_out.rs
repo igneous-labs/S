@@ -81,7 +81,7 @@ pub fn swap_exact_out_ix_full_for_prog(
     )
     .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update *_calc_accs than double serialization here
-    let mut overwrite = &mut ix.data[..];
+    let overwrite = &mut ix.data[..];
     SwapExactOutIxData(SwapExactOutIxArgs {
         src_lst_value_calc_accs,
         dst_lst_value_calc_accs,
@@ -90,7 +90,7 @@ pub fn swap_exact_out_ix_full_for_prog(
         max_amount_in,
         amount,
     })
-    .serialize(&mut overwrite)?;
+    .serialize(overwrite)?;
     Ok(ix)
 }
 

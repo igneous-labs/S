@@ -47,7 +47,7 @@ impl<'me, 'info> PricingProgramPriceLpCpi<'me, 'info> {
         accounts_suffix_slice: &'me [AccountInfo<'info>],
     ) -> Result<Self, ProgramError> {
         let program = accounts_suffix_slice
-            .get(0)
+            .first()
             .ok_or(ProgramError::NotEnoughAccountKeys)?;
         Ok(Self {
             program,
@@ -163,7 +163,7 @@ impl<'me, 'info> PricingProgramPriceSwapCpi<'me, 'info> {
         accounts_suffix_slice: &'me [AccountInfo<'info>],
     ) -> Result<Self, ProgramError> {
         let program = accounts_suffix_slice
-            .get(0)
+            .first()
             .ok_or(ProgramError::NotEnoughAccountKeys)?;
         Ok(Self {
             program,

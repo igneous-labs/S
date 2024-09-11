@@ -67,7 +67,7 @@ pub fn start_rebalance_ix_full_for_prog(
         ix_extend_with_src_dst_sol_value_calculator_accounts(&mut ix, sol_val_calc_keys)
             .map_err(|_e| SControllerError::MathError)?;
     // TODO: better way to update src_lst_calc_accs than double serialization here
-    let mut overwrite = &mut ix.data[..];
+    let overwrite = &mut ix.data[..];
     StartRebalanceIxData(StartRebalanceIxArgs {
         src_lst_calc_accs: extend_count.src_lst,
         src_lst_index,
@@ -76,7 +76,7 @@ pub fn start_rebalance_ix_full_for_prog(
         min_starting_src_lst,
         max_starting_dst_lst,
     })
-    .serialize(&mut overwrite)?;
+    .serialize(overwrite)?;
     Ok(ix)
 }
 
