@@ -21,6 +21,7 @@ sanctum-solana-client-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true, features = ["borsh"] }
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }
+solana-remote-wallet = { workspace = true }
 solana-rpc-client-api = { workspace = true }
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] } # needed for trait bounds on Account
 solana-sdk = { workspace = true }

@@ -5,16 +5,24 @@ use clap::{
     Args,
 };
 use inquire::Confirm;
+use s_cli_utils::handle_tx_full;
 use s_controller_lib::{
-    find_lst_state_list_address, find_pool_reserves_address, find_pool_state_address,
-    FindLstPdaAtaKeys,
+    end_rebalance_ix_from_start_rebalance_ix, find_lst_state_list_address,
+    find_pool_reserves_address, find_pool_state_address, start_rebalance_ix_by_mints_full_for_prog,
+    FindLstPdaAtaKeys, SrcDstLstSolValueCalcAccountSuffixes, StartRebalanceByMintsFreeArgs,
+    StartRebalanceIxLstAmts,
 };
 use s_jup_interface::{LstData, SPool, SPoolInitAccounts};
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::parse_signer;
-use sanctum_token_lib::token_account_balance;
-use solana_sdk::{account::Account, native_token::lamports_to_sol, pubkey::Pubkey};
+use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
+use solana_readonly_account::keyed::Keyed;
+use solana_sdk::{
+    account::Account, native_token::lamports_to_sol, pubkey::Pubkey, system_instruction,
+};
+use spl_associated_token_account::get_associated_token_address_with_program_id;
 use spl_token::native_mint;
+use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::{common::SANCTUM_LST_LIST, lst_amt_arg::LstAmtArg, lst_arg::LstArg};
 
@@ -77,7 +85,6 @@ impl RebalIntoSolArgs {
                 panic!("Unknown LST {lst}. Only LSTs on sanctum-lst-list supported")
             }
         };
-        let symbol = &sanctum_lst.symbol;
         let (pool_id, _) = find_pool_state_address(program_id);
         let (lst_state_list_id, _) = find_lst_state_list_address(program_id);
 
@@ -89,11 +96,11 @@ impl RebalIntoSolArgs {
         let amt = match lst_amt {
             LstAmtArg::Amt(v) => v,
             LstAmtArg::All => {
-                let (wsol_reserves, _) = find_pool_reserves_address(FindLstPdaAtaKeys {
+                let (src_lst_reserves, _) = find_pool_reserves_address(FindLstPdaAtaKeys {
                     lst_mint: sanctum_lst.mint,
-                    token_program: spl_token::ID,
+                    token_program: sanctum_lst.token_program,
                 });
-                let fetched_reserves = rpc.get_account(&wsol_reserves).await.unwrap();
+                let fetched_reserves = rpc.get_account(&src_lst_reserves).await.unwrap();
                 token_account_balance(fetched_reserves).unwrap()
             }
         };
@@ -135,7 +142,8 @@ impl RebalIntoSolArgs {
 
         let (_state, LstData { sol_val_calc, .. }) =
             spool.find_ready_lst(sanctum_lst.mint).unwrap();
-        let required_lamports_deposit = sol_val_calc.lst_to_sol(amt).unwrap().get_max();
+        // TODO: need to fix off by one
+        let required_lamports_deposit = sol_val_calc.lst_to_sol(amt).unwrap().get_max() + 1;
         let required_sol_deposit = lamports_to_sol(required_lamports_deposit);
 
         if yes {
@@ -151,5 +159,71 @@ impl RebalIntoSolArgs {
                 return;
             }
         }
+
+        let withdraw_to = get_associated_token_address_with_program_id(
+            &payer.pubkey(),
+            &sanctum_lst.mint,
+            &sanctum_lst.token_program,
+        );
+        let start_rebalance_ix = start_rebalance_ix_by_mints_full_for_prog(
+            program_id,
+            StartRebalanceByMintsFreeArgs {
+                withdraw_to,
+                lst_state_list: Keyed {
+                    pubkey: lst_state_list_id,
+                    account: &spool.lst_state_list_account,
+                },
+                pool_state: Keyed {
+                    pubkey: pool_id,
+                    account: &spool.pool_state_account.unwrap(),
+                },
+                src_lst_mint: MintWithTokenProgram {
+                    pubkey: sanctum_lst.mint,
+                    token_program: sanctum_lst.token_program,
+                },
+                dst_lst_mint: MintWithTokenProgram {
+                    pubkey: native_mint::ID,
+                    token_program: spl_token::ID,
+                },
+            },
+            StartRebalanceIxLstAmts {
+                amount: amt,
+                // TODO: allow for slippage config
+                min_starting_src_lst: 0,
+                max_starting_dst_lst: u64::MAX,
+            },
+            SrcDstLstSolValueCalcAccountSuffixes {
+                src_lst_calculator_accounts: &lst.sol_value_calculator_accounts_of().unwrap(),
+                dst_lst_calculator_accounts: &WSOL_LST_SOL_COMMON_METAS,
+            },
+        )
+        .unwrap();
+        let end_rebalance_ix =
+            end_rebalance_ix_from_start_rebalance_ix(&start_rebalance_ix).unwrap();
+        let (wsol_reserves, _) = find_pool_reserves_address(FindLstPdaAtaKeys {
+            lst_mint: native_mint::ID,
+            token_program: spl_token::ID,
+        });
+
+        let ixs = vec![
+            start_rebalance_ix,
+            system_instruction::transfer(
+                &payer.pubkey(),
+                &wsol_reserves,
+                required_lamports_deposit,
+            ),
+            spl_token::instruction::sync_native(&spl_token::ID, &wsol_reserves).unwrap(),
+            end_rebalance_ix,
+        ];
+
+        handle_tx_full(
+            &rpc,
+            args.fee_limit_cb,
+            args.send_mode,
+            ixs,
+            &[],
+            &mut [payer.as_ref(), rebalance_auth],
+        )
+        .await;
     }
 }

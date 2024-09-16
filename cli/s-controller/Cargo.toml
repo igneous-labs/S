@@ -32,7 +32,8 @@ sanctum-associated-token-lib = { workspace = true }
 sanctum-token-lib = { workspace = true }
 solana-client = { workspace = true }
 solana-account-decoder = { workspace = true }
-solana-readonly-account = { workspace = true, features = ["solana-sdk"]}
+solana-readonly-account = { workspace = true, features = ["solana-sdk"] }
+solana-remote-wallet = { workspace = true }
 solana-sdk = { workspace = true }
 spl-associated-token-account = { workspace = true }
 spl-calculator-lib = { workspace = true }

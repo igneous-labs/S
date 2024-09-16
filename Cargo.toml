@@ -69,6 +69,7 @@ solana-account-decoder = "^1"
 solana-client = "^1"
 solana-program = "^1"
 solana-program-test = "^1"
+solana-remote-wallet = { version = "^1", features = ["hidapi", "linux-static-hidraw"] }
 solana-rpc-client-api = "^1"
 solana-sdk = "^1"
 solana-transaction-status = "^1"
