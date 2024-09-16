@@ -42,7 +42,7 @@ use super::Subcmd;
     long_about = "Rebalance from SOL to another LST by staking the SOL to the LST's stake pool.
 May require the payer to subsidize some amount of LST to make up for the stake pool's SOL deposit fees"
 )]
-pub struct RebalSolArgs {
+pub struct RebalFromSolArgs {
     #[arg(
         long,
         short,
@@ -71,7 +71,7 @@ pub struct RebalSolArgs {
     pub lst: LstArg,
 }
 
-impl RebalSolArgs {
+impl RebalFromSolArgs {
     pub async fn run(args: crate::Args) {
         let Self {
             rebalance_auth,
@@ -79,7 +79,7 @@ impl RebalSolArgs {
             sol,
             lst,
         } = match args.subcmd {
-            Subcmd::RebalSol(a) => a,
+            Subcmd::RebalFromSol(a) => a,
             _ => unreachable!(),
         };
 
