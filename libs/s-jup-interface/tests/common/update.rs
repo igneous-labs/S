@@ -1,19 +1,25 @@
 use async_trait::async_trait;
-use jupiter_amm_interface::{Amm, KeyedAccount};
+use jupiter_amm_interface::{Amm, AmmContext, ClockRef, KeyedAccount};
 use s_jup_interface::{SPoolInitKeys, SPoolJup};
 use sanctum_solana_test_utils::ExtendedBanksClient;
 use solana_program_test::BanksClient;
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{clock::Clock, pubkey::Pubkey, sysvar::clock};
 use std::collections::{HashMap, HashSet};
 
 pub async fn fully_init_amm(bc: &mut BanksClient, program_id: Pubkey) -> SPoolJup {
     let SPoolInitKeys { lst_state_list, .. } = SPoolJup::init_keys(program_id);
     let lst_state_list_acc = bc.get_account_unwrapped(lst_state_list).await;
-    SPoolJup::from_keyed_account(&KeyedAccount {
-        key: lst_state_list,
-        account: lst_state_list_acc,
-        params: Some(serde_json::Value::String(program_id.to_string())),
-    })
+    let clock: Clock = bincode::deserialize(&bc.get_account_data(clock::ID).await).unwrap();
+    SPoolJup::from_keyed_account(
+        &KeyedAccount {
+            key: lst_state_list,
+            account: lst_state_list_acc,
+            params: Some(serde_json::Value::String(program_id.to_string())),
+        },
+        &AmmContext {
+            clock_ref: ClockRef::from(clock),
+        },
+    )
     .unwrap()
     .initial_update(bc)
     .await

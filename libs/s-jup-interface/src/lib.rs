@@ -15,10 +15,8 @@ mod init;
 mod jup_interface;
 mod update;
 
-pub use core::*;
 pub use init::*;
 pub use jup_interface::*;
-pub use update::*;
 
 #[derive(Debug, Clone)]
 pub struct LstData {

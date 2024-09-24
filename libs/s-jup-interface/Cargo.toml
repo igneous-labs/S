@@ -28,6 +28,7 @@ wsol-calculator-lib = { workspace = true }
 
 [dev-dependencies]
 async-trait = { workspace = true }
+bincode = { workspace = true }
 flat-fee-test-utils = { workspace = true }
 marinade-keys = { workspace = true }
 s-controller = { workspace = true }

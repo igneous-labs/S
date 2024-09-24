@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use jupiter_amm_interface::{
-    AccountMap, Amm, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
+    AccountMap, Amm, AmmContext, KeyedAccount, Quote, QuoteParams, SwapAndAccountMetas, SwapParams,
 };
 use s_controller_lib::find_lst_state_list_address;
 use sanctum_lst_list::{
@@ -28,6 +28,7 @@ impl Amm for SPoolJup {
             account,
             params,
         }: &KeyedAccount,
+        _amm_context: &AmmContext,
     ) -> anyhow::Result<Self>
     where
         Self: Sized,

@@ -80,13 +80,14 @@ impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
         let total_dst_lst_out = amount
             .checked_add(to_protocol_fees_lst_amount)
             .ok_or(SControllerError::MathError)?;
-        let not_enough_liquidity = total_dst_lst_out > output_reserves_balance;
+        if total_dst_lst_out > output_reserves_balance {
+            return Err(SControllerError::NotEnoughLiquidity.into());
+        }
         let (fee_amount, fee_pct) = calc_quote_fees(
             AmtsAfterFeeBuilder::new_amt_bef_fee(in_sol_value).with_amt_aft_fee(out_sol_value)?,
             &output_lst_data.sol_val_calc,
         )?;
         Ok(Quote {
-            not_enough_liquidity,
             min_in_amount: None,
             min_out_amount: None,
             in_amount: src_lst_in,
