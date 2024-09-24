@@ -2421,26 +2421,12 @@ dependencies = [
 
 [[package]]
 name = "jupiter-amm-interface"
-version = "0.3.2"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bad613279e534eba2c9d95ef6f2d2c7e170f6647ce50216301741ed3e73a79bb"
+checksum = "be954b20150b666b2bc328d1e490294a1c096e545f985d852f53c941209b2649"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
- "rust_decimal",
- "serde",
- "serde_json",
- "solana-account-decoder",
- "solana-sdk",
-]
-
-[[package]]
-name = "jupiter-amm-interface"
-version = "0.3.3"
-source = "git+https://github.com/jup-ag/jupiter-amm-interface.git#4bc3019f78abeb7a9156c146a1a5d2b165bdc0c5"
-dependencies = [
- "anyhow",
- "borsh 0.9.3",
  "rust_decimal",
  "serde",
  "serde_json",
@@ -4017,7 +4003,7 @@ dependencies = [
  "generic-pool-calculator-lib",
  "generic_pool_calculator_interface",
  "inquire",
- "jupiter-amm-interface 0.3.3",
+ "jupiter-amm-interface",
  "lazy_static",
  "lido-calculator-lib",
  "marinade-calculator-lib",
@@ -4110,9 +4096,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "bincode",
  "flat-fee-test-utils",
  "flat_fee_interface",
- "jupiter-amm-interface 0.3.3",
+ "jupiter-amm-interface",
  "lido-calculator-lib",
  "marinade-calculator-lib",
  "marinade-keys",
@@ -6335,7 +6322,7 @@ dependencies = [
 [[package]]
 name = "stakedex_deposit_sol_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
@@ -6344,7 +6331,7 @@ dependencies = [
 [[package]]
 name = "stakedex_deposit_stake_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
@@ -6353,7 +6340,7 @@ dependencies = [
 [[package]]
 name = "stakedex_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "borsh 0.10.3",
  "num-derive 0.4.1",
@@ -6365,11 +6352,11 @@ dependencies = [
 [[package]]
 name = "stakedex_marinade"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
- "jupiter-amm-interface 0.3.2",
+ "jupiter-amm-interface",
  "marinade_finance_interface",
  "solana-program",
  "spl-token",
@@ -6381,10 +6368,10 @@ dependencies = [
 [[package]]
 name = "stakedex_sdk_common"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "anyhow",
- "jupiter-amm-interface 0.3.2",
+ "jupiter-amm-interface",
  "rust_decimal",
  "sanctum-macros",
  "solana-program",
@@ -6395,12 +6382,12 @@ dependencies = [
 [[package]]
 name = "stakedex_spl_stake_pool"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "anyhow",
  "bincode",
  "borsh 0.10.3",
- "jupiter-amm-interface 0.3.2",
+ "jupiter-amm-interface",
  "solana-program",
  "spl-stake-pool",
  "spl-token",
@@ -6413,7 +6400,7 @@ dependencies = [
 [[package]]
 name = "stakedex_withdraw_stake_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#c731efa6a4dd6c1c3668f5c99c598e269cb21b41"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#9bffa48f601ff0a5707933599def234b611d0f2a"
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
