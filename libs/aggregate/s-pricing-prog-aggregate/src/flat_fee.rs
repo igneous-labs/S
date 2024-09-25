@@ -24,7 +24,7 @@ use crate::{KnownPricingProg, MutablePricingProg, PricingProg, PricingProgErr};
 #[derive(Clone, Debug, Default)]
 pub struct FlatFeePricingProg {
     program_id: Pubkey,
-    program_state: Option<ProgramState>,
+    program_state: Option<ProgramState>, // value = None means ProgramState not yet fetched
     mints_to_fee_accounts: HashMap<Pubkey, Option<FeeAccount>>, // value = None means FeeAccount not yet fetched
 }
 
@@ -37,11 +37,17 @@ impl FlatFeePricingProg {
         .0
     }
 
-    fn get_fee_account_checked(&self, lst_mint: &Pubkey) -> Result<&FeeAccount, FlatFeeError> {
+    #[inline]
+    pub fn get_fee_account_checked(&self, lst_mint: &Pubkey) -> Result<&FeeAccount, FlatFeeError> {
         match self.mints_to_fee_accounts.get(lst_mint) {
             Some(Some(a)) => Ok(a),
             _ => Err(FlatFeeError::UnsupportedLstMint), // TODO: better error for when FeeAccount not yet fetched?
         }
+    }
+
+    #[inline]
+    pub const fn program_state(&self) -> Option<&ProgramState> {
+        self.program_state.as_ref()
     }
 
     /// Returns (input_bump, output_bump)
