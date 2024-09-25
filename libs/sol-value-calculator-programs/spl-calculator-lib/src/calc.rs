@@ -3,7 +3,7 @@ use sanctum_token_ratio::{
     U64ValueRange,
 };
 use sol_value_calculator_lib::SolValueCalculator;
-use solana_program::{clock::Clock, program_error::ProgramError};
+use solana_program::program_error::ProgramError;
 use spl_calculator_interface::{Fee, SplCalculatorError, SplStakePool};
 
 /// Parameters from SplStakePool required to calculate SOL value
@@ -49,9 +49,9 @@ impl From<SplStakePool> for SplStakePoolCalc {
 impl SplStakePoolCalc {
     pub const fn verify_pool_updated_for_this_epoch(
         &self,
-        clock: &Clock,
+        this_epoch: u64,
     ) -> Result<(), SplCalculatorError> {
-        if self.last_update_epoch == clock.epoch {
+        if self.last_update_epoch == this_epoch {
             Ok(())
         } else {
             Err(SplCalculatorError::PoolNotUpdated)

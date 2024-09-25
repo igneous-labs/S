@@ -31,7 +31,7 @@ pub fn verify_lst_sol_common(
     })?;
 
     let calc: SplStakePoolCalc = stake_pool.into();
-    calc.verify_pool_updated_for_this_epoch(&Clock::get()?)?;
+    calc.verify_pool_updated_for_this_epoch(Clock::get()?.epoch)?;
 
     Ok(calc)
 }

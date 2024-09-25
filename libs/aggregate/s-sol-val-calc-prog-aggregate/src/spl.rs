@@ -97,7 +97,7 @@ impl LstSolValCalc for SplLstSolValCalc {
             .clock
             .as_ref()
             .ok_or(SplLstSolValCalcErr::ClockNotFetched)?;
-        calc.verify_pool_updated_for_this_epoch(clock)?;
+        calc.verify_pool_updated_for_this_epoch(clock.epoch)?;
         Ok(calc.calc_lst_to_sol(lst_amount)?)
     }
 
@@ -107,7 +107,7 @@ impl LstSolValCalc for SplLstSolValCalc {
             .clock
             .as_ref()
             .ok_or(SplLstSolValCalcErr::ClockNotFetched)?;
-        calc.verify_pool_updated_for_this_epoch(clock)?;
+        calc.verify_pool_updated_for_this_epoch(clock.epoch)?;
         Ok(calc.calc_sol_to_lst(lamports)?)
     }
 
