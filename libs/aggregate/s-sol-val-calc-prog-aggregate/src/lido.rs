@@ -4,31 +4,51 @@ use lido_calculator_lib::{LidoCalc, LidoSolValCalc, LIDO_LST_SOL_COMMON_INTERMED
 use lido_keys::{lido_state, stsol};
 use sanctum_token_ratio::U64ValueRange;
 use sol_value_calculator_lib::SolValueCalculator;
-use solana_program::{clock::Clock, instruction::AccountMeta, pubkey::Pubkey, sysvar};
+use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 use solana_readonly_account::ReadonlyAccountData;
 use spl_calculator_lib::resolve_to_account_metas_for_calc;
-use std::{collections::HashMap, error::Error, fmt::Display};
+use std::{
+    collections::HashMap,
+    error::Error,
+    fmt::Display,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+};
 
 use crate::{KnownLstSolValCalc, LstSolValCalc, LstSolValCalcErr, MutableLstSolValCalc};
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct LidoLstSolValCalc {
     pub calc: Option<LidoCalc>,
-    pub clock: Option<Clock>,
+    pub shared_current_epoch: Arc<AtomicU64>,
+}
+
+impl LidoLstSolValCalc {
+    #[inline]
+    pub const fn new(shared_current_epoch: Arc<AtomicU64>) -> Self {
+        Self {
+            calc: None,
+            shared_current_epoch,
+        }
+    }
+
+    #[inline]
+    pub fn current_epoch(&self) -> u64 {
+        self.shared_current_epoch.load(Ordering::Relaxed)
+    }
 }
 
 impl MutableLstSolValCalc for LidoLstSolValCalc {
     fn get_accounts_to_update(&self) -> Vec<Pubkey> {
-        vec![lido_state::ID, sysvar::clock::ID]
+        vec![lido_state::ID]
     }
 
     fn update<D: ReadonlyAccountData>(
         &mut self,
         account_map: &HashMap<Pubkey, D>,
     ) -> anyhow::Result<()> {
-        if let Some(acc) = account_map.get(&sysvar::clock::ID) {
-            self.clock = Some(bincode::deserialize::<Clock>(&acc.data())?);
-        }
         if let Some(acc) = account_map.get(&lido_state::ID) {
             self.calc = Some(LidoCalc::from(Lido::deserialize(&mut acc.data().as_ref())?));
         }
@@ -47,21 +67,13 @@ impl LstSolValCalc for LidoLstSolValCalc {
 
     fn lst_to_sol(&self, lst_amount: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(LidoLstSolValCalcErr::StateNotFetched)?;
-        let clock = self
-            .clock
-            .as_ref()
-            .ok_or(LidoLstSolValCalcErr::ClockNotFetched)?;
-        calc.verify_pool_updated_for_this_epoch(clock)?;
+        calc.verify_pool_updated_for_this_epoch(self.current_epoch())?;
         Ok(calc.calc_lst_to_sol(lst_amount)?)
     }
 
     fn sol_to_lst(&self, lamports: u64) -> anyhow::Result<U64ValueRange> {
         let calc = self.calc.ok_or(LidoLstSolValCalcErr::StateNotFetched)?;
-        let clock = self
-            .clock
-            .as_ref()
-            .ok_or(LidoLstSolValCalcErr::ClockNotFetched)?;
-        calc.verify_pool_updated_for_this_epoch(clock)?;
+        calc.verify_pool_updated_for_this_epoch(self.current_epoch())?;
         Ok(calc.calc_sol_to_lst(lamports)?)
     }
 
@@ -79,14 +91,12 @@ impl LstSolValCalc for LidoLstSolValCalc {
 #[derive(Debug, Clone, Copy)]
 pub enum LidoLstSolValCalcErr {
     StateNotFetched,
-    ClockNotFetched,
 }
 
 impl Display for LidoLstSolValCalcErr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::StateNotFetched => f.write_str("lido state not yet fetched"),
-            Self::ClockNotFetched => f.write_str("clock not yet fetched"),
         }
     }
 }

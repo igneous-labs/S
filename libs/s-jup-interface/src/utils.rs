@@ -1,3 +1,5 @@
+use std::sync::{atomic::AtomicU64, Arc};
+
 use s_controller_interface::{LstState, PoolState};
 use s_pricing_prog_aggregate::{KnownPricingProg, MutablePricingProg};
 use s_sol_val_calc_prog_aggregate::{
@@ -26,6 +28,7 @@ pub fn try_lst_data(
         sol_value_calculator,
         ..
     }: &LstState,
+    shared_current_epoch: Arc<AtomicU64>,
 ) -> Option<LstData> {
     let SanctumLst {
         pool,
@@ -33,20 +36,26 @@ pub fn try_lst_data(
         ..
     } = lst_list.iter().find(|s| s.mint == *mint)?;
     let calc = match pool {
-        PoolInfo::Lido => KnownLstSolValCalc::Lido(LidoLstSolValCalc::default()),
+        PoolInfo::Lido => KnownLstSolValCalc::Lido(LidoLstSolValCalc::new(shared_current_epoch)),
         PoolInfo::Marinade => KnownLstSolValCalc::Marinade(MarinadeLstSolValCalc::default()),
         PoolInfo::ReservePool => KnownLstSolValCalc::Wsol(WsolLstSolValCalc),
-        PoolInfo::SanctumSpl(SplPoolAccounts { pool, .. }) => KnownLstSolValCalc::SanctumSpl(
-            SanctumSplLstSolValCalc::from_keys(SplLstSolValCalcInitKeys {
-                lst_mint: *mint,
-                stake_pool_addr: *pool,
-            }),
-        ),
+        PoolInfo::SanctumSpl(SplPoolAccounts { pool, .. }) => {
+            KnownLstSolValCalc::SanctumSpl(SanctumSplLstSolValCalc::from_keys(
+                SplLstSolValCalcInitKeys {
+                    lst_mint: *mint,
+                    stake_pool_addr: *pool,
+                },
+                shared_current_epoch,
+            ))
+        }
         PoolInfo::Spl(SplPoolAccounts { pool, .. }) => {
-            KnownLstSolValCalc::Spl(SplLstSolValCalc::from_keys(SplLstSolValCalcInitKeys {
-                lst_mint: *mint,
-                stake_pool_addr: *pool,
-            }))
+            KnownLstSolValCalc::Spl(SplLstSolValCalc::from_keys(
+                SplLstSolValCalcInitKeys {
+                    lst_mint: *mint,
+                    stake_pool_addr: *pool,
+                },
+                shared_current_epoch,
+            ))
         }
         PoolInfo::SanctumSplMulti(SplPoolAccounts { pool, .. }) => {
             KnownLstSolValCalc::SanctumSplMulti(SanctumSplMultiLstSolValCalc::from_keys(
@@ -54,6 +63,7 @@ pub fn try_lst_data(
                     lst_mint: *mint,
                     stake_pool_addr: *pool,
                 },
+                shared_current_epoch,
             ))
         }
         PoolInfo::SPool(_) => None?,

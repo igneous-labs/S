@@ -1,7 +1,7 @@
 use lido_calculator_interface::{ExchangeRate, Lido, LidoCalculatorError};
 use sanctum_token_ratio::{FloorDiv, ReversibleRatio, U64Ratio, U64ValueRange};
 use sol_value_calculator_lib::SolValueCalculator;
-use solana_program::{clock::Clock, program_error::ProgramError};
+use solana_program::program_error::ProgramError;
 
 /// Parameters from Lido required to calculate SOL value.
 /// Basically `ExchangeRate` but redeclared to derive Copy
@@ -51,12 +51,16 @@ impl From<Lido> for LidoCalc {
 impl LidoCalc {
     pub const fn verify_pool_updated_for_this_epoch(
         &self,
-        clock: &Clock,
+        this_epoch: u64,
     ) -> Result<(), LidoCalculatorError> {
-        if self.computed_in_epoch < clock.epoch {
-            return Err(LidoCalculatorError::ExchangeRateNotUpdatedInThisEpoch);
+        // The original code checks computed_in_epoch >= this_epoch,
+        // but if computed_in_epoch is somehow > this_epoch there's probably
+        // something weird going on, so we should just fail too
+        if self.computed_in_epoch == this_epoch {
+            Ok(())
+        } else {
+            Err(LidoCalculatorError::ExchangeRateNotUpdatedInThisEpoch)
         }
-        Ok(())
     }
 
     pub const fn stlamports_to_lamports_ratio(&self) -> FloorDiv<U64Ratio<u64, u64>> {

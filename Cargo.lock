@@ -2522,7 +2522,7 @@ dependencies = [
 
 [[package]]
 name = "lido-calculator"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "borsh 0.10.3",
  "generic-pool-calculator-lib",
@@ -2545,7 +2545,7 @@ dependencies = [
 
 [[package]]
 name = "lido-calculator-lib"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "borsh 0.10.3",
  "generic-pool-calculator-lib",
@@ -4092,7 +4092,7 @@ dependencies = [
 
 [[package]]
 name = "s-jup-interface"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4142,7 +4142,7 @@ dependencies = [
 
 [[package]]
 name = "s-sol-val-calc-prog-aggregate"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -4306,7 +4306,7 @@ dependencies = [
 
 [[package]]
 name = "sanctum-spl-calculator"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
@@ -4328,7 +4328,7 @@ dependencies = [
 
 [[package]]
 name = "sanctum-spl-multi-calculator"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
@@ -5980,7 +5980,7 @@ dependencies = [
 
 [[package]]
 name = "spl-calculator"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "generic-pool-calculator-lib",
  "generic-pool-calculator-onchain",
@@ -6002,7 +6002,7 @@ dependencies = [
 
 [[package]]
 name = "spl-calculator-lib"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "borsh 0.10.3",
  "generic-pool-calculator-lib",
