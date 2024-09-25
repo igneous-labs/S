@@ -53,10 +53,14 @@ impl LidoCalc {
         &self,
         this_epoch: u64,
     ) -> Result<(), LidoCalculatorError> {
-        if self.computed_in_epoch < this_epoch {
-            return Err(LidoCalculatorError::ExchangeRateNotUpdatedInThisEpoch);
+        // The original code checks computed_in_epoch >= this_epoch,
+        // but if computed_in_epoch is somehow > this_epoch there's probably
+        // something weird going on, so we should just fail too
+        if self.computed_in_epoch == this_epoch {
+            Ok(())
+        } else {
+            Err(LidoCalculatorError::ExchangeRateNotUpdatedInThisEpoch)
         }
-        Ok(())
     }
 
     pub const fn stlamports_to_lamports_ratio(&self) -> FloorDiv<U64Ratio<u64, u64>> {
