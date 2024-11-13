@@ -58,14 +58,16 @@ impl ViewArgs {
             }
         });
 
-        for (pk, acc) in program_accs {
+        for (pk, acc) in program_accs.iter() {
             let symbol = pda_to_lst
-                .get(&pk)
+                .get(pk)
                 .map_or_else(|| "Unknown LST", |SanctumLst { symbol, .. }| symbol);
-            println!("{symbol}:");
+            println!("{symbol} (PDA {pk}):");
             let fee = try_fee_account(&acc.data).unwrap();
             println!("{fee:#?}");
             println!();
         }
+
+        println!("{} LSTs total", program_accs.len());
     }
 }
