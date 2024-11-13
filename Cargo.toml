@@ -35,6 +35,7 @@ assert_cmd = "^2"
 async-trait = ">=0.1"
 bincode = "^1"
 borsh = ">=0.9,<1.0.0"
+bs58 = "^0.4"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
 data-encoding = "^2"

@@ -1,6 +1,8 @@
+use batch_set_fees::BatchSetFeesArgs;
 use clap::Subcommand;
 
 mod add_lst;
+mod batch_set_fees;
 mod common;
 mod create_lut;
 mod initialize;
@@ -44,6 +46,7 @@ pub enum Subcmd {
     PriceLpTokensToMint(PriceLpTokensToMintArgs),
     PriceLpTokensToRedeem(PriceLpTokensToRedeemArgs),
     CreateLut(CreateLutArgs),
+    BatchSetFees(BatchSetFeesArgs),
 }
 
 impl Subcmd {
@@ -62,6 +65,7 @@ impl Subcmd {
             Self::PriceLpTokensToMint(_) => PriceLpTokensToMintArgs::run(args).await,
             Self::PriceLpTokensToRedeem(_) => PriceLpTokensToRedeemArgs::run(args).await,
             Self::CreateLut(_) => CreateLutArgs::run(args).await,
+            Self::BatchSetFees(_) => BatchSetFeesArgs::run(args).await,
         }
     }
 }

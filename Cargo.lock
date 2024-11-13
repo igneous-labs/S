@@ -1600,6 +1600,8 @@ name = "flat-fee-cli"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
+ "bincode",
+ "bs58",
  "clap 4.4.18",
  "cli-test-utils",
  "data-encoding",

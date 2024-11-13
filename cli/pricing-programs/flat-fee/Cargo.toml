@@ -8,6 +8,8 @@ name = "flt"
 path = "src/main.rs"
 
 [dependencies]
+bincode = { workspace = true }
+bs58 = { workspace = true }
 clap = { workspace = true }
 data-encoding = { workspace = true }
 flat_fee_interface = { workspace = true }
