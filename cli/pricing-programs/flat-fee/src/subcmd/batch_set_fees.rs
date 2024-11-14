@@ -19,7 +19,9 @@ use super::Subcmd;
 #[derive(Args, Debug)]
 #[command(
     long_about = "Set the input fee and output fee for all LSTs under the program in one shot.
-Assumes manager is a squads multisig and outputs a base58-encoded VersionedTransaction that can be imported into the squads UI."
+Assumes manager is a squads multisig and outputs a base58-encoded VersionedTransaction that can be imported into the squads UI.
+IMPORTANT: Due to the size of the tx, it is likely the created proposal will throw  `Access violation in heap section at address 0x30000804a of size 1` if executed via the squads UI.
+You will need to programmatically prefix the transaction with a top-level ComputeBudgetInstruction::request_heap_frame(MAX_HEAP_FRAME_BYTES) to execute it."
 )]
 pub struct BatchSetFeesArgs {
     #[arg(long, short, help = "Pubkey of address lookup table to use")]
