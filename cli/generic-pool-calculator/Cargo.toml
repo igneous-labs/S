@@ -21,8 +21,9 @@ sanctum-solana-client-utils = { workspace = true }
 sanctum-token-ratio = { workspace = true, features = ["borsh"] }
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }
-solana-rpc-client-api = { workspace = true }
+solana-remote-wallet = { workspace = true, features = ["hidapi", "linux-static-hidraw"] } # for ledger support, these should be default-features but they're disabled somewhere
 solana-readonly-account = { workspace = true, features = ["solana-sdk"] } # needed for trait bounds on Account
+solana-rpc-client-api = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 spl-calculator-lib = { workspace = true }
