@@ -1,7 +1,10 @@
+use batch_set_fees::BatchSetFeesArgs;
 use clap::Subcommand;
 
 mod add_lst;
+mod batch_set_fees;
 mod common;
+mod create_lut;
 mod initialize;
 mod price_exact_in;
 mod price_exact_out;
@@ -15,6 +18,7 @@ mod view;
 mod view_lst;
 
 use add_lst::AddLstArgs;
+use create_lut::CreateLutArgs;
 use initialize::InitializeArgs;
 use remove_lst::RemoveLstArgs;
 use set_lp_withdrawal_fee::SetLpWithdrawalFeeArgs;
@@ -41,6 +45,8 @@ pub enum Subcmd {
     PriceExactOut(PriceExactOutArgs),
     PriceLpTokensToMint(PriceLpTokensToMintArgs),
     PriceLpTokensToRedeem(PriceLpTokensToRedeemArgs),
+    CreateLut(CreateLutArgs),
+    BatchSetFees(BatchSetFeesArgs),
 }
 
 impl Subcmd {
@@ -58,6 +64,8 @@ impl Subcmd {
             Self::PriceExactOut(_) => PriceExactOutArgs::run(args).await,
             Self::PriceLpTokensToMint(_) => PriceLpTokensToMintArgs::run(args).await,
             Self::PriceLpTokensToRedeem(_) => PriceLpTokensToRedeemArgs::run(args).await,
+            Self::CreateLut(_) => CreateLutArgs::run(args).await,
+            Self::BatchSetFees(_) => BatchSetFeesArgs::run(args).await,
         }
     }
 }

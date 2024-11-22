@@ -1600,6 +1600,8 @@ name = "flat-fee-cli"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
+ "bincode",
+ "bs58",
  "clap 4.4.18",
  "cli-test-utils",
  "data-encoding",
@@ -1618,6 +1620,7 @@ dependencies = [
  "solana-program",
  "solana-program-test",
  "solana-readonly-account",
+ "solana-remote-wallet",
  "solana-sdk",
  "solana-transaction-status",
  "test-utils",
@@ -1841,6 +1844,7 @@ dependencies = [
  "solana-program",
  "solana-program-test",
  "solana-readonly-account",
+ "solana-remote-wallet",
  "solana-rpc-client-api",
  "solana-sdk",
  "solana-transaction-status",
@@ -2053,6 +2057,19 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
+name = "hidapi"
+version = "2.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03b876ecf37e86b359573c16c8366bc3eba52b689884a0fc42ba3f67203d2a8b"
+dependencies = [
+ "cc",
+ "cfg-if",
+ "libc",
+ "pkg-config",
+ "windows-sys 0.48.0",
+]
 
 [[package]]
 name = "histogram"
@@ -4024,6 +4041,7 @@ dependencies = [
  "solana-client",
  "solana-program-test",
  "solana-readonly-account",
+ "solana-remote-wallet",
  "solana-sdk",
  "spl-associated-token-account",
  "spl-calculator-lib",
@@ -5443,6 +5461,7 @@ checksum = "bdd33ec995f43a813d5e3598f6d713eea754900f32db6c7a5966e78c074b039a"
 dependencies = [
  "console",
  "dialoguer",
+ "hidapi",
  "log",
  "num-derive 0.3.3",
  "num-traits",
