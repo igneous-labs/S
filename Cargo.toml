@@ -76,15 +76,15 @@ solana-transaction-status = ">=1"
 # sanctum-solana-utils
 # TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor
 # 2d1718f is the older version, frozen for now due to breaking changes in these 3 libs
-sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0", features = ["clap"] }
-sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" } 
-system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
+sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps", features = ["clap"] }
+sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" } 
+system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
 
 # sanctum-lst-list
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" }
