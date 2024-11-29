@@ -1,8 +1,8 @@
 use clap::Args;
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::set_rebalance_authority_ix_with_program_id;
 use s_controller_lib::{try_pool_state, KnownAuthoritySetRebalanceAuthorityFreeArgs};
-use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
+use sanctum_solana_cli_utils::PubkeySrc;
 
 use crate::rpc::fetch_pool_state;
 
@@ -36,7 +36,8 @@ impl SetRebalanceAuthArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let authority_signer = authority.map(|s| parse_signer(&s).unwrap());
+        let authority_signer =
+            authority.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let authority = authority_signer.as_ref().unwrap_or(&payer);
         let new_rebalance_authority = PubkeySrc::parse(&new_rebalance_auth).unwrap().pubkey();
 

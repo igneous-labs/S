@@ -1,8 +1,8 @@
 use clap::Args;
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::initialize_ix_with_program_id;
 use s_controller_lib::{InitializeFreeArgs, InitializeResolveForProg};
-use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
+use sanctum_solana_cli_utils::PubkeySrc;
 
 use super::Subcmd;
 
@@ -45,7 +45,8 @@ impl InitArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let init_auth_signer = init_auth.map(|s| parse_signer(&s).unwrap());
+        let init_auth_signer =
+            init_auth.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let init_auth = init_auth_signer.as_ref().unwrap_or(&payer);
 
         let lp_token_mint = PubkeySrc::parse(&lp_token_mint).unwrap();

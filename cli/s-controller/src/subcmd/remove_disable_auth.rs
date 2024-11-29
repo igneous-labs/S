@@ -4,13 +4,13 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::remove_disable_pool_authority_ix_with_program_id;
 use s_controller_lib::{
     find_disable_pool_authority_list_address, find_pool_state_address,
     try_disable_pool_authority_list, try_pool_state, RemoveDisablePoolAuthorityByPubkeyFreeArgs,
 };
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::pubkey::Pubkey;
 
@@ -60,7 +60,8 @@ impl RemoveDisableAuthArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let authority_signer = authority.map(|s| parse_signer(&s).unwrap());
+        let authority_signer =
+            authority.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let authority = authority_signer.as_ref().unwrap_or(&payer);
         let refund_rent_to = refund_rent_to.unwrap_or_else(|| payer.pubkey());
 

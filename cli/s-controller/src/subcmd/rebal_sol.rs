@@ -9,7 +9,7 @@ use clap::{
 };
 use inquire::Confirm;
 use jupiter_amm_interface::SwapParams;
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_lib::{
     end_rebalance_ix_from_start_rebalance_ix, find_lst_state_list_address,
     find_pool_reserves_address, find_pool_reserves_address_with_pool_state_id,
@@ -19,7 +19,7 @@ use s_controller_lib::{
 };
 use s_jup_interface::{LstData, SPool, SPoolInitAccounts};
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_readonly_account::keyed::Keyed;
 use solana_sdk::{
@@ -102,7 +102,8 @@ impl RebalSolArgs {
         let (pool_id, _) = find_pool_state_address(program_id);
         let (lst_state_list_id, _) = find_lst_state_list_address(program_id);
 
-        let rebalance_auth = rebalance_auth.map(|s| parse_signer(&s).unwrap());
+        let rebalance_auth =
+            rebalance_auth.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let rebalance_auth = rebalance_auth
             .as_ref()
             .map_or_else(|| payer.as_ref(), |s| s.as_ref());

@@ -1,8 +1,8 @@
 use clap::Args;
 use generic_pool_calculator_interface::{set_manager_ix_with_program_id, SetManagerKeys};
 use generic_pool_calculator_lib::{pda::CalculatorStateFindPdaArgs, utils::try_calculator_state};
-use s_cli_utils::handle_tx_full;
-use sanctum_solana_cli_utils::{parse_signer, PubkeySrc};
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
+use sanctum_solana_cli_utils::PubkeySrc;
 
 use super::{common::verify_manager, Subcmd};
 
@@ -33,7 +33,8 @@ impl SetManagerArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program.program_id();
 
-        let curr_manager_signer = curr_manager.map(|s| parse_signer(&s).unwrap());
+        let curr_manager_signer =
+            curr_manager.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let curr_manager = curr_manager_signer.as_ref().unwrap_or(&payer);
 
         let new_manager = PubkeySrc::parse(&new_manager).unwrap();

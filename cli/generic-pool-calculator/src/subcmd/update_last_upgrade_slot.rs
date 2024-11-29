@@ -11,8 +11,8 @@ use generic_pool_calculator_lib::{
     pda::CalculatorStateFindPdaArgs,
     utils::{read_stake_pool_progdata_meta, try_calculator_state},
 };
-use s_cli_utils::handle_tx_full;
-use sanctum_solana_cli_utils::parse_signer;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_account_decoder::{UiAccountEncoding, UiDataSliceConfig};
 use solana_rpc_client_api::config::RpcAccountInfoConfig;
 use solana_sdk::{bpf_loader_upgradeable, pubkey::Pubkey};
@@ -51,7 +51,8 @@ impl UpdateLastUpgradeSlotArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program.program_id();
 
-        let curr_manager_signer = curr_manager.map(|s| parse_signer(&s).unwrap());
+        let curr_manager_signer =
+            curr_manager.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let curr_manager = curr_manager_signer.as_ref().unwrap_or(&payer);
 
         let state_pda = CalculatorStateFindPdaArgs { program_id }
