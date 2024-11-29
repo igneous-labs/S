@@ -20,6 +20,7 @@ inquire = { workspace = true }
 jupiter-amm-interface = { workspace = true }
 lazy_static = { workspace = true }
 lido-calculator-lib = { workspace = true }
+marinade_finance_interface = { workspace = true }
 marinade-calculator-lib = { workspace = true }
 s_controller_interface = { workspace = true }
 s-cli-utils = { workspace = true }
@@ -38,6 +39,7 @@ solana-remote-wallet = { workspace = true, features = ["hidapi", "linux-static-h
 solana-sdk = { workspace = true }
 spl-associated-token-account = { workspace = true }
 spl-calculator-lib = { workspace = true }
+spl-stake-pool = { workspace = true }
 spl-token = { workspace = true }
 stakedex_interface = { workspace = true }
 stakedex_marinade = { workspace = true }
