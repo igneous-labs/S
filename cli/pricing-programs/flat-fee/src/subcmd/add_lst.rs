@@ -6,8 +6,8 @@ use flat_fee_interface::{add_lst_ix_with_program_id, AddLstIxArgs};
 use flat_fee_lib::{
     account_resolvers::AddLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
 };
-use s_cli_utils::handle_tx_full;
-use sanctum_solana_cli_utils::parse_signer;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_readonly_account::sdk::KeyedAccount;
 
 use crate::lst_arg::LstArg;
@@ -52,7 +52,8 @@ impl AddLstArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let manager_signer = manager.map(|s| parse_signer(&s).unwrap());
+        let manager_signer =
+            manager.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let manager = manager_signer.as_ref().unwrap_or(&payer);
 
         let state_pda = ProgramStateFindPdaArgs { program_id }

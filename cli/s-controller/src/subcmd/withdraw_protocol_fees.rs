@@ -2,7 +2,7 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::{
     withdraw_protocol_fees_ix_with_program_id, WithdrawProtocolFeesIxArgs,
 };
@@ -12,7 +12,7 @@ use s_controller_lib::{
     WithdrawProtocolFeesPdas,
 };
 use sanctum_associated_token_lib::FindAtaAddressArgs;
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_sdk::{native_token::sol_to_lamports, pubkey::Pubkey};
 use spl_associated_token_account::instruction::create_associated_token_account;
@@ -86,7 +86,8 @@ impl WithdrawProtocolFeesArgs {
             mint.token_program()
                 .expect("Unknown mint, token program must be provided")
         });
-        let beneficiary_signer = beneficiary.map(|s| parse_signer(&s).unwrap());
+        let beneficiary_signer =
+            beneficiary.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let beneficiary = beneficiary_signer.as_ref().unwrap_or(&payer);
         let beneficiary_ata = FindAtaAddressArgs {
             wallet: beneficiary.pubkey(),

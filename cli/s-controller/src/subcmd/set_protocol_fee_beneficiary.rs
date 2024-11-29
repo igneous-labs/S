@@ -4,10 +4,10 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::set_protocol_fee_beneficiary_ix_with_program_id;
 use s_controller_lib::{try_pool_state, SetProtocolFeeBeneficiaryFreeArgs};
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_sdk::pubkey::Pubkey;
 
 use crate::{common::verify_protocol_fee_beneficiary, rpc::fetch_pool_state};
@@ -45,7 +45,8 @@ impl SetProtocolFeeBeneficiaryArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let curr_beneficiary_signer = curr_beneficiary.map(|s| parse_signer(&s).unwrap());
+        let curr_beneficiary_signer =
+            curr_beneficiary.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let curr_beneficiary = curr_beneficiary_signer.as_ref().unwrap_or(&payer);
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;

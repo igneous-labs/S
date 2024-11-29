@@ -2,10 +2,10 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::set_pricing_program_ix_with_program_id;
 use s_controller_lib::{try_pool_state, SetPricingProgramFreeArgs};
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 
 use crate::{common::verify_admin, pricing_prog_arg::PricingProgArg, rpc::fetch_pool_state};
 
@@ -42,7 +42,8 @@ impl SetPricingProgArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let admin_signer = admin.map(|s| parse_signer(&s).unwrap());
+        let admin_signer =
+            admin.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let admin = admin_signer.as_ref().unwrap_or(&payer);
 
         let pool_state_acc = fetch_pool_state(&rpc, program_id).await;

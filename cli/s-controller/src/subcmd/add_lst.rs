@@ -2,10 +2,10 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::add_lst_ix_with_program_id;
 use s_controller_lib::{find_pool_state_address, try_pool_state, AddLstFreeArgs};
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_readonly_account::{keyed::Keyed, ReadonlyAccountData};
 use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
@@ -54,7 +54,8 @@ impl AddLstArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let admin_signer = admin.map(|s| parse_signer(&s).unwrap());
+        let admin_signer =
+            admin.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let admin = admin_signer.as_ref().unwrap_or(&payer);
 
         let sol_val_calc = sol_val_calc.unwrap_or_else(|| {

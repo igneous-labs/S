@@ -2,13 +2,13 @@ use clap::{
     builder::{StringValueParser, TypedValueParser},
     Args,
 };
-use s_cli_utils::handle_tx_full;
+use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::{disable_lst_input_ix_with_program_id, DisableLstInputIxArgs};
 use s_controller_lib::{
     find_lst_state_list_address, find_pool_state_address, try_pool_state,
     DisableEnableLstInputByMintFreeArgs,
 };
-use sanctum_solana_cli_utils::parse_signer;
+use sanctum_solana_cli_utils::PubkeySrc;
 use solana_readonly_account::ReadonlyAccountData;
 use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
@@ -45,7 +45,8 @@ impl DisableLstInputArgs {
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let admin_signer = admin.map(|s| parse_signer(&s).unwrap());
+        let admin_signer =
+            admin.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
         let admin = admin_signer.as_ref().unwrap_or(&payer);
 
         let pool_state_addr = find_pool_state_address(program_id).0;

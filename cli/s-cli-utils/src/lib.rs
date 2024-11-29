@@ -1,5 +1,5 @@
 use sanctum_solana_cli_utils::{
-    HandleTxArgs, RecentBlockhash, TxSendMode, TxSendingNonblockingRpcClient,
+    HandleTxArgs, PubkeySrc, RecentBlockhash, TxSendMode, TxSendingNonblockingRpcClient,
 };
 use sanctum_solana_client_utils::{
     buffer_compute_units, to_est_cu_sim_tx, ComputeBudgetFeeLimit, ComputeBudgetIxs, SortedSigners,
@@ -9,6 +9,8 @@ use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{address_lookup_table::AddressLookupTableAccount, instruction::Instruction};
 use solana_sdk::{
     message::{v0::Message, VersionedMessage},
+    pubkey::Pubkey,
+    signature::Signature,
     signer::Signer,
     transaction::VersionedTransaction,
 };
@@ -43,6 +45,15 @@ pub async fn handle_tx_full(
 ) {
     let payer_pk = signers[0].pubkey();
     signers.sort_by_key(|s| s.pubkey());
+
+    // This is a hax to allow for `-s dump-msg` to not pass keypairs so that
+    // it can work with multisigs. We probably want a better solution in the long-term
+    if send_mode != TxSendMode::DumpMsg {
+        verify_no_null_signers(signers)
+            .map_err(|pk| format!("Invalid signer for {pk}"))
+            .unwrap();
+    }
+
     let ixs = match send_mode {
         TxSendMode::DumpMsg => ixs,
         _ => {
@@ -89,4 +100,22 @@ pub async fn handle_tx_full(
         },
     )
     .await;
+}
+
+fn verify_no_null_signers(signers: &[&dyn Signer]) -> Result<(), Pubkey> {
+    const TEST_MSG: [u8; 1] = [1u8];
+    signers
+        .iter()
+        .find(|signer| {
+            !signer.is_interactive()
+                && signer.try_sign_message(&TEST_MSG).unwrap() == Signature::default()
+        })
+        .map_or_else(|| Ok(()), |signer| Err(signer.pubkey()))
+}
+
+pub fn pubkey_src_to_box_dyn_signer(pubkey_src: PubkeySrc) -> Box<dyn Signer> {
+    match pubkey_src {
+        PubkeySrc::Pubkey(null_signer) => Box::new(null_signer),
+        PubkeySrc::Signer(signer) => signer,
+    }
 }
