@@ -34,7 +34,7 @@ anyhow = "^1"
 assert_cmd = "^2"
 async-trait = ">=0.1"
 bincode = "^1"
-borsh = ">=0.9,<1.0.0"
+borsh = ">=0.9"
 bs58 = "^0.4"
 bytemuck = "^1"
 clap = { version = "^4", features = ["derive"] }
@@ -45,7 +45,7 @@ lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
-rust_decimal = ">=1.0,<=1.32.0" # anything >1.32 uses borsh ^1
+rust_decimal = ">=1.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
 serde = "^1.0.197"
 serde_json = "^1"
@@ -63,30 +63,28 @@ tokio = "^1"
 solana-readonly-account = "^1.1"
 
 # solana libraries (not pure rust)
-# Use ^1 for flexibility for library users, but lock to 1.17.6 for deploy.
-# To update versions, set solana-program and solana-program-test to `=<new-vers>`,
-# then restore `^1` after Cargo.lock is updated
-solana-account-decoder = "^1"
-solana-client = "^1"
-solana-program = "^1"
-solana-program-test = "^1"
-solana-remote-wallet = "^1"
-solana-rpc-client-api = "^1"
-solana-sdk = "^1"
-solana-transaction-status = "^1"
+# Use >=1 for flexibility for library users, but lock to 1.17.6 for deploy.
+solana-account-decoder = ">=1"
+solana-client = ">=1"
+solana-program = ">=1"
+solana-program-test = ">=1"
+solana-remote-wallet = ">=1"
+solana-rpc-client-api = ">=1"
+solana-sdk = ">=1"
+solana-transaction-status = ">=1"
 
 # sanctum-solana-utils
 # TODO: use the same commit for everything once all the *-lib libs are ready, requires refactor
 # 2d1718f is the older version, frozen for now due to breaking changes in these 3 libs
-sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "2d1718f" }
-sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0", features = ["clap"] }
-sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
-sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" } 
-system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", rev = "f6c40a0" }
+sanctum-associated-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-misc-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-token-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "2d1718f-loose-deps" }
+sanctum-solana-cli-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps", features = ["clap"] }
+sanctum-solana-client-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-solana-test-utils = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-system-program-lib = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
+sanctum-token-ratio = { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" } 
+system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-solana-utils.git", branch = "f6c40a0-loose-deps" }
 
 # sanctum-lst-list
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" }

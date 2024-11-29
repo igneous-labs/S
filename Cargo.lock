@@ -4208,7 +4208,7 @@ dependencies = [
 [[package]]
 name = "sanctum-associated-token-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=2d1718f-loose-deps#5ea4598ea008028d0f7191139e6d32ce2a0f4d35"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -4243,7 +4243,7 @@ dependencies = [
 [[package]]
 name = "sanctum-misc-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=2d1718f-loose-deps#5ea4598ea008028d0f7191139e6d32ce2a0f4d35"
 dependencies = [
  "borsh 0.10.3",
  "solana-program",
@@ -4262,7 +4262,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-cli-utils"
 version = "0.3.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "async-trait",
  "bincode",
@@ -4280,7 +4280,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-client-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "log",
  "medians",
@@ -4292,7 +4292,7 @@ dependencies = [
 [[package]]
 name = "sanctum-solana-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "assert_cmd",
  "async-trait",
@@ -4385,7 +4385,7 @@ dependencies = [
 [[package]]
 name = "sanctum-system-program-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -4395,7 +4395,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-lib"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=2d1718f#2d1718f4837a0048570b656ad8a7ccc7c1ab1377"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=2d1718f-loose-deps#5ea4598ea008028d0f7191139e6d32ce2a0f4d35"
 dependencies = [
  "solana-program",
  "solana-readonly-account",
@@ -4405,7 +4405,7 @@ dependencies = [
 [[package]]
 name = "sanctum-token-ratio"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "borsh 0.10.3",
  "num-traits",
@@ -6535,7 +6535,7 @@ dependencies = [
 [[package]]
 name = "system_program_interface"
 version = "1.17.13"
-source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?rev=f6c40a0#f6c40a08285be741e4e6ee46afdba4763586c570"
+source = "git+https://github.com/igneous-labs/sanctum-solana-utils.git?branch=f6c40a0-loose-deps#5cf8b16d76530353fe5ede0f605ed3b36fde3c69"
 dependencies = [
  "serde",
  "solana-program",
