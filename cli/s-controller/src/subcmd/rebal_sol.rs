@@ -34,9 +34,9 @@ use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::{
     common::{fetch_srlut, SANCTUM_LST_LIST},
-    deposit_sol::DepositSolStakedex,
     lst_amt_arg::LstAmtArg,
     lst_arg::LstArg,
+    stakedex_reimpl::DepositSolStakedex,
 };
 
 use super::Subcmd;
