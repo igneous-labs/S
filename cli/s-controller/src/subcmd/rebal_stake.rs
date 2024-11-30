@@ -13,7 +13,7 @@ use s_controller_lib::{
     try_pool_state, FindLstPdaAtaKeys, SrcDstLstSolValueCalcAccountSuffixes,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxLstAmts,
 };
-use s_jup_interface::{SPool, SPoolInitAccounts};
+use s_jup_interface::{LstData, SPool, SPoolInitAccounts};
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
@@ -42,7 +42,9 @@ use super::Subcmd;
 #[command(
     about = "Rebalance from one LST to another by withdrawing stake from one and depositing it into the other.",
     long_about = "Rebalance from one LST to another by withdrawing stake from one and depositing it into the other.
-May require the payer to subsidize some amount of LST to make up for the stake pools' fees"
+May require the payer to subsidize some amount of LST to make up for the stake pools' fees.
+Note that there is also an implicit subsidy of `STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS` SOL for every call to this subcmd,
+which is used to prefund the blank stake account to withdraw stake to"
 )]
 pub struct RebalStakeArgs {
     #[arg(
@@ -178,16 +180,42 @@ impl RebalStakeArgs {
             first_avail_withdraw_deposit_stake_quote(amt, &withdraw_stake, &deposit_stake).unwrap();
 
         let subsidy_amt = {
-            let [from_svc, to_svc] =
-                [from, to].map(|slst| &spool.find_ready_lst(slst.mint).unwrap().1.sol_val_calc);
-            let from_sol_val = from_svc.lst_to_sol(amt).unwrap().get_max();
-            // account for the SOL value from stake account rent exempt lamports
-            let from_sol_val_discounted =
-                from_sol_val.saturating_sub(STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS);
-            let required_lst_deposit = to_svc
-                .sol_to_lst(from_sol_val_discounted)
-                .unwrap()
-                .get_max();
+            let [(
+                from_lst_state,
+                LstData {
+                    sol_val_calc: from_svc,
+                    reserves_balance: from_reserves_balance,
+                    ..
+                },
+            ), (
+                to_lst_state,
+                LstData {
+                    sol_val_calc: to_svc,
+                    reserves_balance: to_reserves_balance,
+                    ..
+                },
+            )] = [from, to].map(|slst| spool.find_ready_lst(slst.mint).unwrap());
+            // SyncSolValue counts by lst_to_sol().get_min().
+            // Determine how much SOL value the pool will drop by from StartRebalance by taking
+            // old_sol_value - new_sol_value
+            // = old_sol_value - lst_to_sol(remainder).get_min()
+            let from_sol_val = from_lst_state.sol_value.saturating_sub(
+                from_svc
+                    .lst_to_sol(from_reserves_balance.unwrap().saturating_sub(amt))
+                    .unwrap()
+                    .get_min(),
+            );
+            let required_lst_deposit = {
+                let required_to_sol_val = to_lst_state.sol_value.saturating_add(from_sol_val);
+                let mut ending_to_balance =
+                    to_svc.sol_to_lst(required_to_sol_val).unwrap().get_max();
+                // account for rounding error
+                while to_svc.lst_to_sol(ending_to_balance).unwrap().get_min() < required_to_sol_val
+                {
+                    ending_to_balance += 1;
+                }
+                ending_to_balance.saturating_sub(to_reserves_balance.unwrap())
+            };
             required_lst_deposit.saturating_sub(dsq.tokens_out)
         };
         if subsidy_amt > 0 {
