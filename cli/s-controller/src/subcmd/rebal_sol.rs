@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::{atomic::AtomicU64, Arc},
-};
+use std::sync::{atomic::AtomicU64, Arc};
 
 use clap::{
     builder::{StringValueParser, TypedValueParser},
@@ -22,9 +19,7 @@ use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{
-    account::Account, clock::Clock, native_token::lamports_to_sol, pubkey::Pubkey, sysvar,
-};
+use solana_sdk::{clock::Clock, native_token::lamports_to_sol, pubkey::Pubkey, sysvar};
 use spl_associated_token_account::{
     get_associated_token_address_with_program_id,
     instruction::create_associated_token_account_idempotent,
@@ -36,6 +31,7 @@ use crate::{
     common::{fetch_srlut, SANCTUM_LST_LIST},
     lst_amt_arg::LstAmtArg,
     lst_arg::LstArg,
+    rpc::fetch_accounts_as_map,
     stakedex_reimpl::DepositSolStakedex,
 };
 
@@ -141,21 +137,23 @@ impl RebalSolArgs {
         .unwrap();
         let mut deposit_sol = DepositSolStakedex::from_sanctum_lst(sanctum_lst);
 
+        let expected_rebalance_auth = try_pool_state(&spool.pool_state_data().unwrap())
+            .unwrap()
+            .rebalance_authority;
+        if rebalance_auth.pubkey() != expected_rebalance_auth {
+            panic!(
+                "Wrong rebalance auth. Expecting {expected_rebalance_auth}, got {}",
+                rebalance_auth.pubkey()
+            )
+        }
+
         let mut accounts_to_fetch = spool.get_accounts_to_update_lsts_filtered(|state, _data| {
             state.mint == sanctum_lst.mint || state.mint == native_mint::ID
         });
         accounts_to_fetch.sort();
         accounts_to_fetch.dedup();
 
-        // TODO: make sure accounts_to_fetch.len() < 5 or we get kicked by rpc
-        let account_map: HashMap<Pubkey, Account> = rpc
-            .get_multiple_accounts(&accounts_to_fetch)
-            .await
-            .unwrap()
-            .into_iter()
-            .zip(accounts_to_fetch)
-            .filter_map(|(acc, pk)| acc.map(|acc| (pk, acc)))
-            .collect();
+        let account_map = fetch_accounts_as_map(&rpc, &accounts_to_fetch).await;
 
         spool.update_full(&account_map).unwrap();
         deposit_sol.update(&account_map).unwrap();
@@ -185,16 +183,6 @@ impl RebalSolArgs {
             }
         } else {
             eprintln!("No subsidy required, proceeding");
-        }
-
-        let expected_rebalance_auth = try_pool_state(&spool.pool_state_data().unwrap())
-            .unwrap()
-            .rebalance_authority;
-        if rebalance_auth.pubkey() != expected_rebalance_auth {
-            panic!(
-                "Wrong rebalance auth. Expecting {expected_rebalance_auth}, got {}",
-                rebalance_auth.pubkey()
-            )
         }
 
         // 2 CB ixs + create wsol ata + start + depositSol + transfer + end

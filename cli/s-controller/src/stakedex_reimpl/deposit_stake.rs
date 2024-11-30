@@ -76,18 +76,15 @@ impl DepositStakeStakedex {
     /// Uses `get_deposit_stake_quote_unchecked()` under the hood to allow for
     /// quoting of pools with deposit authorities. This means this assumes the
     /// pool has already been updated for this epoch.
+    ///
+    /// Like the `stakedex-sdk` fn, returns Default::default() if no route found
     pub fn quote_deposit_stake(
         &self,
         withdraw_stake_quote: WithdrawStakeQuote,
-    ) -> Result<DepositStakeQuote, Box<dyn Error + Send + Sync + 'static>> {
-        let quote = match self {
+    ) -> DepositStakeQuote {
+        match self {
             Self::Marinade(p) => p.get_deposit_stake_quote_unchecked(withdraw_stake_quote),
             Self::SplLike(p) => p.get_deposit_stake_quote_unchecked(withdraw_stake_quote),
-        };
-        if quote.is_zero_out() {
-            Err("0-output deposit stake quote".into())
-        } else {
-            Ok(quote)
         }
     }
 

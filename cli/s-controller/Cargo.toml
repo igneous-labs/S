@@ -22,6 +22,7 @@ lazy_static = { workspace = true }
 lido-calculator-lib = { workspace = true }
 marinade_finance_interface = { workspace = true }
 marinade-calculator-lib = { workspace = true }
+rand = { workspace = true }
 s_controller_interface = { workspace = true }
 s-cli-utils = { workspace = true }
 s-controller-lib = { workspace = true }

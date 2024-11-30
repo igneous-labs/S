@@ -45,6 +45,7 @@ lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
+rand = ">=0.1"
 rust_decimal = ">=1.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
 serde = "^1.0.197"

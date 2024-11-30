@@ -4025,6 +4025,7 @@ dependencies = [
  "lido-calculator-lib",
  "marinade-calculator-lib",
  "marinade_finance_interface",
+ "rand 0.7.3",
  "s-cli-utils",
  "s-controller",
  "s-controller-lib",

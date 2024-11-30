@@ -5,8 +5,10 @@
 
 mod deposit_sol;
 mod deposit_stake;
+mod utils;
 mod withdraw_stake;
 
 pub use deposit_sol::*;
 pub use deposit_stake::*;
+pub use utils::*;
 pub use withdraw_stake::*;
