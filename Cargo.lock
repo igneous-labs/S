@@ -4025,7 +4025,7 @@ dependencies = [
  "lido-calculator-lib",
  "marinade-calculator-lib",
  "marinade_finance_interface",
- "rand 0.7.3",
+ "rand 0.8.5",
  "s-cli-utils",
  "s-controller",
  "s-controller-lib",
@@ -4221,7 +4221,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#ec01312a37c04ecdb25971c992f9254e4791e4d9"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#196f83704c1686c0fd82be3d34faa3236e28e33b"
 dependencies = [
  "sanctum-macros",
  "serde",

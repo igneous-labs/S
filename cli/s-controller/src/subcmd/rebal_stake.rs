@@ -174,15 +174,22 @@ impl RebalStakeArgs {
         withdraw_stake.update(&account_map).unwrap();
         deposit_stake.update(&account_map).unwrap();
 
-        let [from_svc, to_svc] =
-            [from, to].map(|slst| &spool.find_ready_lst(slst.mint).unwrap().1.sol_val_calc);
-        let from_sol_val = from_svc.lst_to_sol(amt).unwrap().get_max();
-        let required_lst_deposit = to_svc.sol_to_lst(from_sol_val).unwrap().get_max();
-
         let (wsq, dsq) =
             first_avail_withdraw_deposit_stake_quote(amt, &withdraw_stake, &deposit_stake).unwrap();
 
-        let subsidy_amt = required_lst_deposit.saturating_sub(dsq.tokens_out);
+        let subsidy_amt = {
+            let [from_svc, to_svc] =
+                [from, to].map(|slst| &spool.find_ready_lst(slst.mint).unwrap().1.sol_val_calc);
+            let from_sol_val = from_svc.lst_to_sol(amt).unwrap().get_max();
+            // account for the SOL value from stake account rent exempt lamports
+            let from_sol_val_discounted =
+                from_sol_val.saturating_sub(STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS);
+            let required_lst_deposit = to_svc
+                .sol_to_lst(from_sol_val_discounted)
+                .unwrap()
+                .get_max();
+            required_lst_deposit.saturating_sub(dsq.tokens_out)
+        };
         if subsidy_amt > 0 {
             let subsidy_amt_decimals = lamports_to_sol(subsidy_amt);
             if yes {
