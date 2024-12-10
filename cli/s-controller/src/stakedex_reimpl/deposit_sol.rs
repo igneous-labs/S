@@ -9,7 +9,7 @@ use stakedex_marinade::MarinadeStakedex;
 use stakedex_sdk_common::{
     find_fee_token_acc, stakedex_program::SOL_BRIDGE_OUT_ID, wsol_bridge_in, DepositSol,
 };
-use stakedex_spl_stake_pool::SplStakePoolStakedex;
+use stakedex_spl_stake_pool::{SplStakePoolStakedex, SplStakePoolStakedexInitKeys};
 
 pub enum DepositSolStakedex {
     Marinade(MarinadeStakedex),
@@ -17,32 +17,35 @@ pub enum DepositSolStakedex {
 }
 
 impl DepositSolStakedex {
-    pub fn from_sanctum_lst(
-        SanctumLst {
-            pool, name, symbol, ..
-        }: &SanctumLst,
-    ) -> Self {
+    pub fn from_sanctum_lst(SanctumLst { pool, symbol, .. }: &SanctumLst) -> Self {
         match pool {
             PoolInfo::Marinade => Self::Marinade(MarinadeStakedex::default()),
             PoolInfo::Spl(SplPoolAccounts {
                 pool: stake_pool_addr,
+                validator_list,
                 ..
             })
             | PoolInfo::SanctumSpl(SplPoolAccounts {
                 pool: stake_pool_addr,
+                validator_list,
                 ..
             })
             | PoolInfo::SanctumSplMulti(SplPoolAccounts {
                 pool: stake_pool_addr,
+                validator_list,
                 ..
             }) => {
                 let stake_pool_program = pool.pool_program().into();
-                Self::SplLike(SplStakePoolStakedex {
-                    stake_pool_addr: *stake_pool_addr,
-                    stake_pool_program,
-                    stake_pool_label: name.clone(),
-                    ..Default::default()
-                })
+                let mut inner = SplStakePoolStakedex::new_uninitialized(
+                    SplStakePoolStakedexInitKeys {
+                        stake_pool_program,
+                        stake_pool_addr: *stake_pool_addr,
+                    },
+                    Default::default(),
+                );
+                // so that we only need one more get_accounts_to_update() + update()
+                inner.stake_pool.validator_list = *validator_list;
+                Self::SplLike(inner)
             }
             _ => panic!("Deposit SOL unsupported for {symbol}"),
         }
@@ -82,13 +85,15 @@ impl DepositSolStakedex {
         Ok(())
     }
 
+    /// Uses `get_deposit_sol_quote_unchecked()` under the hood.
+    /// This means this assumes the pool has already been updated for this epoch.
     pub fn quote_deposit_sol(
         &self,
         lamports_to_deposit: u64,
     ) -> Result<u64, Box<dyn Error + Send + Sync + 'static>> {
         let quote = match self {
-            Self::Marinade(p) => p.get_deposit_sol_quote(lamports_to_deposit),
-            Self::SplLike(p) => p.get_deposit_sol_quote(lamports_to_deposit),
+            Self::Marinade(p) => p.get_deposit_sol_quote_unchecked(lamports_to_deposit),
+            Self::SplLike(p) => p.get_deposit_sol_quote_unchecked(lamports_to_deposit),
         }?;
         Ok(quote.out_amount)
     }
