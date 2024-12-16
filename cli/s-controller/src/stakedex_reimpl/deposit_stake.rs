@@ -96,14 +96,14 @@ impl DepositStakeStakedex {
     ) -> Result<Vec<Instruction>, Box<dyn Error + Send + Sync + 'static>> {
         match self {
             Self::Marinade(sp) => {
-                marinade_deposit_stake_ix(sp, swap_params, quote, deposit_stake_info)
+                marinade_deposit_stake_ixs(sp, swap_params, quote, deposit_stake_info)
             }
-            Self::SplLike(sp) => spl_deposit_stake_ix(sp, swap_params, quote, deposit_stake_info),
+            Self::SplLike(sp) => spl_deposit_stake_ixs(sp, swap_params, quote, deposit_stake_info),
         }
     }
 }
 
-fn marinade_deposit_stake_ix(
+fn marinade_deposit_stake_ixs(
     m: &MarinadeStakedex,
     SwapParams {
         token_transfer_authority,
@@ -146,7 +146,7 @@ fn marinade_deposit_stake_ix(
     )?])
 }
 
-fn spl_deposit_stake_ix(
+fn spl_deposit_stake_ixs(
     spl: &SplStakePoolStakedex,
     SwapParams {
         token_transfer_authority,
@@ -156,25 +156,53 @@ fn spl_deposit_stake_ix(
     quote: &DepositStakeQuote,
     deposit_stake_info: &DepositStakeInfo,
 ) -> Result<Vec<Instruction>, Box<dyn Error + Send + Sync + 'static>> {
-    Ok(spl_stake_pool::instruction::deposit_stake(
-        &spl.program_id(),
-        &spl.stake_pool_addr,
-        &spl.stake_pool.validator_list,
-        &spl.withdraw_authority_addr(),
-        &deposit_stake_info.addr,
-        token_transfer_authority,
-        &spl_stake_pool::find_stake_program_address(
-            &spl.program_id(),
-            &quote.voter,
-            &spl.stake_pool_addr,
-            None,
-        )
-        .0,
-        &spl.stake_pool.reserve_stake,
-        destination_token_account,
-        &spl.stake_pool.manager_fee_account,
-        destination_token_account,
-        &spl.stake_pool.pool_mint,
-        &spl.stake_pool.token_program_id,
-    ))
+    Ok(
+        if spl.stake_pool.stake_deposit_authority == spl.deposit_authority_program_address {
+            spl_stake_pool::instruction::deposit_stake(
+                &spl.program_id(),
+                &spl.stake_pool_addr,
+                &spl.stake_pool.validator_list,
+                &spl.withdraw_authority_addr(),
+                &deposit_stake_info.addr,
+                token_transfer_authority,
+                &spl_stake_pool::find_stake_program_address(
+                    &spl.program_id(),
+                    &quote.voter,
+                    &spl.stake_pool_addr,
+                    None,
+                )
+                .0,
+                &spl.stake_pool.reserve_stake,
+                destination_token_account,
+                &spl.stake_pool.manager_fee_account,
+                destination_token_account,
+                &spl.stake_pool.pool_mint,
+                &spl.stake_pool.token_program_id,
+            )
+        } else {
+            // permissioned pool
+            spl_stake_pool::instruction::deposit_stake_with_authority(
+                &spl.program_id(),
+                &spl.stake_pool_addr,
+                &spl.stake_pool.validator_list,
+                &spl.stake_pool.stake_deposit_authority,
+                &spl.withdraw_authority_addr(),
+                &deposit_stake_info.addr,
+                token_transfer_authority,
+                &spl_stake_pool::find_stake_program_address(
+                    &spl.program_id(),
+                    &quote.voter,
+                    &spl.stake_pool_addr,
+                    None,
+                )
+                .0,
+                &spl.stake_pool.reserve_stake,
+                destination_token_account,
+                &spl.stake_pool.manager_fee_account,
+                destination_token_account,
+                &spl.stake_pool.pool_mint,
+                &spl.stake_pool.token_program_id,
+            )
+        },
+    )
 }
