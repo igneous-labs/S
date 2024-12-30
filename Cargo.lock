@@ -6350,28 +6350,28 @@ dependencies = [
 [[package]]
 name = "stakedex_deposit_sol_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "solana-program",
 ]
 
 [[package]]
 name = "stakedex_deposit_stake_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "solana-program",
 ]
 
 [[package]]
 name = "stakedex_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
- "borsh 0.10.3",
- "num-derive 0.4.1",
+ "borsh 0.9.3",
+ "num-derive 0.3.3",
  "num-traits",
  "solana-program",
  "thiserror",
@@ -6380,10 +6380,10 @@ dependencies = [
 [[package]]
 name = "stakedex_marinade"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
  "anyhow",
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "jupiter-amm-interface",
  "marinade_finance_interface",
  "solana-program",
@@ -6396,7 +6396,7 @@ dependencies = [
 [[package]]
 name = "stakedex_sdk_common"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
  "anyhow",
  "jupiter-amm-interface",
@@ -6410,11 +6410,11 @@ dependencies = [
 [[package]]
 name = "stakedex_spl_stake_pool"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
  "anyhow",
  "bincode",
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "jupiter-amm-interface",
  "solana-program",
  "spl-stake-pool",
@@ -6428,9 +6428,9 @@ dependencies = [
 [[package]]
 name = "stakedex_withdraw_stake_interface"
 version = "0.1.0"
-source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=feat/support-for-inf#39320693a76df09d40cc8ae22dc6bfd1bfa8afed"
+source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=master#27f3e495eeac4429071af39babaa1209fca598f7"
 dependencies = [
- "borsh 0.10.3",
+ "borsh 0.9.3",
  "solana-program",
 ]
 
