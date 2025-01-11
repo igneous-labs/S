@@ -91,12 +91,12 @@ system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-sol
 # sanctum-lst-list
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" }
 
-# stakedex
 marinade_finance_interface = { git = "https://github.com/igneous-labs/marinade_finance_interface.git", branch = "master" }
-stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+# stakedex
+stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }
