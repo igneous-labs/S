@@ -4,7 +4,7 @@ use clap::{
     builder::{StringValueParser, TypedValueParser, ValueParser},
     Parser,
 };
-use s_cli_utils::{CONFIG_HELP, FEE_LIMIT_CB_HELP, TX_SEND_MODE_HELP};
+use s_cli_utils::{srlut, CONFIG_HELP, FEE_LIMIT_CB_HELP, TX_SEND_MODE_HELP};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use solana_sdk::pubkey::Pubkey;
 use subcmd::Subcmd;
@@ -55,6 +55,14 @@ pub struct Args {
         default_value_t = 1
     )]
     pub fee_limit_cb: u64,
+
+    #[arg(
+        long,
+        short,
+        help = "LUT address to be used",
+        default_value_t = srlut::ID,
+    )]
+    pub lut: Pubkey,
 
     #[command(subcommand)]
     pub subcmd: Subcmd,
