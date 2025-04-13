@@ -18,12 +18,12 @@ use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{clock::Clock, native_token::lamports_to_sol, system_instruction, sysvar};
+use solana_sdk::{clock::Clock, native_token::lamports_to_sol, sysvar};
 use spl_associated_token_account::{
     get_associated_token_address_with_program_id,
     instruction::create_associated_token_account_idempotent,
 };
-use stakedex_sdk_common::{DepositStakeInfo, STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS};
+use stakedex_sdk_common::DepositStakeInfo;
 
 use crate::{
     common::{fetch_srlut, sol_value_calculator_accounts_of_sanctum_lst, SANCTUM_LST_LIST},
@@ -314,16 +314,9 @@ impl RebalStakeArgs {
         let (bridge_stake, bridge_stake_seed) =
             find_unused_stake_prog_create_with_seed(&rpc, &payer.pubkey()).await;
 
-        // need to prefund bridge stake
-        ixs.push(system_instruction::transfer(
-            &payer.pubkey(),
-            &bridge_stake,
-            STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS,
-        ));
-
         ixs.extend(
             withdraw_stake
-                .withdraw_stake_ix(
+                .prefund_withdraw_stake_ixs(
                     &SwapParams {
                         in_amount: amt,
                         source_token_account: withdraw_to,

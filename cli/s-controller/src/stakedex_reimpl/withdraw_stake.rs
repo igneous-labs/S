@@ -7,9 +7,11 @@ use solana_sdk::{
     instruction::Instruction,
     pubkey::Pubkey,
     stake::{self, state::StakeStateV2},
-    system_instruction::{allocate_with_seed, assign_with_seed},
+    system_instruction::create_account_with_seed,
 };
-use stakedex_sdk_common::{BaseStakePoolAmm, WithdrawStakeIter, WithdrawStakeQuote};
+use stakedex_sdk_common::{
+    BaseStakePoolAmm, WithdrawStakeIter, WithdrawStakeQuote, STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS,
+};
 use stakedex_spl_stake_pool::{SplStakePoolStakedex, SplStakePoolStakedexInitKeys};
 
 pub enum WithdrawStakeStakedex {
@@ -78,7 +80,7 @@ impl WithdrawStakeStakedex {
         })
     }
 
-    pub fn withdraw_stake_ix(
+    pub fn prefund_withdraw_stake_ixs(
         &self,
         swap_params: &SwapParams,
         quote: &WithdrawStakeQuote,
@@ -111,17 +113,13 @@ fn spl_withdraw_stake_ix(
     let bridge_stake =
         Pubkey::create_with_seed(token_transfer_authority, seed, &stake::program::ID).unwrap();
     Ok(vec![
-        allocate_with_seed(
+        create_account_with_seed(
+            token_transfer_authority,
             &bridge_stake,
             token_transfer_authority,
             seed,
+            STAKE_ACCOUNT_RENT_EXEMPT_LAMPORTS,
             size_of::<StakeStateV2>() as u64,
-            &stake::program::ID,
-        ),
-        assign_with_seed(
-            &bridge_stake,
-            token_transfer_authority,
-            seed,
             &stake::program::ID,
         ),
         spl_stake_pool::instruction::withdraw_stake(

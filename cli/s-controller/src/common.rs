@@ -119,7 +119,7 @@ pub fn find_sanctum_lst_by_mint(mint: Pubkey) -> Option<&'static SanctumLst> {
 }
 
 pub async fn fetch_srlut(rpc: &RpcClient, lut: &Pubkey) -> AddressLookupTableAccount {
-    let srlut = rpc.get_account(&lut).await.unwrap();
+    let srlut = rpc.get_account(lut).await.unwrap();
     AddressLookupTableAccount {
         key: *lut,
         addresses: AddressLookupTable::deserialize(&srlut.data)

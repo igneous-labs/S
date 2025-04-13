@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use data_encoding::BASE64;
-use rand::Rng;
 use s_controller_lib::{find_disable_pool_authority_list_address, find_pool_state_address};
 use solana_account_decoder::{UiAccount, UiAccountData, UiAccountEncoding};
 use solana_client::{
@@ -103,11 +102,10 @@ pub async fn find_unused_stake_prog_create_with_seed(
     rpc: &RpcClient,
     base: &Pubkey,
 ) -> (Pubkey, String) {
-    // MAX_SEED_LEN = 32, just randomly generate u32 as string to make seed
-    const MAX_ATTEMPTS: usize = 5;
-    let mut rng = rand::thread_rng();
-    for _i in 0..MAX_ATTEMPTS {
-        let seed: u32 = rng.gen();
+    // MAX_SEED_LEN = 32, just pick a digit 0-9 as string to make seed.
+    // this means if we rebalance into pools that do not delete stake accounts immediately
+    // (msol and sanctum reserve), then we can only make 10 rebal-stakes max per epoch
+    for seed in 0..9 {
         let seed = seed.to_string();
         let pk = Pubkey::create_with_seed(base, &seed, &stake::program::ID).unwrap();
         let acc = rpc
