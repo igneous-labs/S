@@ -389,7 +389,7 @@ impl RebalStakeArgs {
         }
         ixs.push(end_rebalance_ix);
 
-        let srlut = fetch_srlut(&rpc).await;
+        let srlut = fetch_srlut(&rpc, &args.lut).await;
 
         handle_tx_full(
             &rpc,
