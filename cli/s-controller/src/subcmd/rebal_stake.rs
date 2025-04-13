@@ -13,7 +13,7 @@ use s_controller_lib::{
     try_pool_state, FindLstPdaAtaKeys, SrcDstLstSolValueCalcAccountSuffixes,
     StartRebalanceByMintsFreeArgs, StartRebalanceIxLstAmts,
 };
-use s_jup_interface::{LstData, SPool, SPoolInitAccounts};
+use s_jup_interface::{apply_sync_sol_value, SPool, SPoolInitAccounts};
 use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
@@ -179,42 +179,44 @@ impl RebalStakeArgs {
         let (wsq, dsq) =
             first_avail_withdraw_deposit_stake_quote(amt, &withdraw_stake, &deposit_stake).unwrap();
 
+        let pool_state = *try_pool_state(&spool.pool_state_data().unwrap()).unwrap();
         let subsidy_amt = {
-            let [(
-                from_lst_state,
-                LstData {
-                    sol_val_calc: from_svc,
-                    reserves_balance: from_reserves_balance,
-                    ..
-                },
-            ), (
-                to_lst_state,
-                LstData {
-                    sol_val_calc: to_svc,
-                    reserves_balance: to_reserves_balance,
-                    ..
-                },
-            )] = [from, to].map(|slst| spool.find_ready_lst(slst.mint).unwrap());
+            let [(from_lst_state, from_lst_data), (to_lst_state, to_lst_data)] =
+                [from, to].map(|slst| spool.find_ready_lst(slst.mint).unwrap());
+            let (pool_state, from_lst_state, from_reserves_balance) =
+                apply_sync_sol_value(pool_state, from_lst_state, from_lst_data).unwrap();
+            let (_pool_state, to_lst_state, to_reserves_balance) =
+                apply_sync_sol_value(pool_state, to_lst_state, to_lst_data).unwrap();
+
             // SyncSolValue counts by lst_to_sol().get_min().
             // Determine how much SOL value the pool will drop by from StartRebalance by taking
             // old_sol_value - new_sol_value
             // = old_sol_value - lst_to_sol(remainder).get_min()
             let from_sol_val = from_lst_state.sol_value.saturating_sub(
-                from_svc
-                    .lst_to_sol(from_reserves_balance.unwrap().saturating_sub(amt))
+                from_lst_data
+                    .sol_val_calc
+                    .lst_to_sol(from_reserves_balance.saturating_sub(amt))
                     .unwrap()
                     .get_min(),
             );
             let required_lst_deposit = {
                 let required_to_sol_val = to_lst_state.sol_value.saturating_add(from_sol_val);
-                let mut ending_to_balance =
-                    to_svc.sol_to_lst(required_to_sol_val).unwrap().get_max();
+                let mut ending_to_balance = to_lst_data
+                    .sol_val_calc
+                    .sol_to_lst(required_to_sol_val)
+                    .unwrap()
+                    .get_max();
                 // account for rounding error
-                while to_svc.lst_to_sol(ending_to_balance).unwrap().get_min() < required_to_sol_val
+                while to_lst_data
+                    .sol_val_calc
+                    .lst_to_sol(ending_to_balance)
+                    .unwrap()
+                    .get_min()
+                    < required_to_sol_val
                 {
                     ending_to_balance += 1;
                 }
-                ending_to_balance.saturating_sub(to_reserves_balance.unwrap())
+                ending_to_balance.saturating_sub(to_reserves_balance)
             };
             required_lst_deposit.saturating_sub(dsq.tokens_out)
         };

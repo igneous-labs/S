@@ -15,6 +15,7 @@ mod init;
 mod jup_interface;
 mod update;
 
+pub use core::apply_sync_sol_value;
 pub use init::*;
 pub use jup_interface::*;
 
