@@ -4227,7 +4227,7 @@ dependencies = [
 [[package]]
 name = "sanctum-lst-list"
 version = "0.2.0"
-source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#196f83704c1686c0fd82be3d34faa3236e28e33b"
+source = "git+https://github.com/igneous-labs/sanctum-lst-list.git?branch=master#f221483e7d41dcf6d85d3489ca6dabc33e763417"
 dependencies = [
  "sanctum-macros",
  "serde",
@@ -6352,7 +6352,7 @@ name = "stakedex_deposit_sol_interface"
 version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#cc2659e5999e7a99e5da5fcf933a0f020453a2a7"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "solana-program",
 ]
 
@@ -6361,7 +6361,7 @@ name = "stakedex_deposit_stake_interface"
 version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#cc2659e5999e7a99e5da5fcf933a0f020453a2a7"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "solana-program",
 ]
 
@@ -6370,8 +6370,8 @@ name = "stakedex_interface"
 version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#cc2659e5999e7a99e5da5fcf933a0f020453a2a7"
 dependencies = [
- "borsh 0.9.3",
- "num-derive 0.3.3",
+ "borsh 0.10.3",
+ "num-derive 0.4.1",
  "num-traits",
  "solana-program",
  "thiserror",
@@ -6383,7 +6383,7 @@ version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#cc2659e5999e7a99e5da5fcf933a0f020453a2a7"
 dependencies = [
  "anyhow",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "jupiter-amm-interface",
  "marinade_finance_interface",
  "solana-program",
@@ -6414,7 +6414,7 @@ source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#
 dependencies = [
  "anyhow",
  "bincode",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "jupiter-amm-interface",
  "solana-program",
  "spl-stake-pool",
@@ -6430,7 +6430,7 @@ name = "stakedex_withdraw_stake_interface"
 version = "0.1.0"
 source = "git+https://github.com/igneous-labs/stakedex-sdk.git?branch=solana-v1#cc2659e5999e7a99e5da5fcf933a0f020453a2a7"
 dependencies = [
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "solana-program",
 ]
 
