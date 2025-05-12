@@ -777,9 +777,7 @@ pub struct SwapExactOutAccounts<'me, 'info> {
     pub dst_lst_acc: &'me AccountInfo<'info>,
     ///Protocol fee accumulator token account
     pub protocol_fee_accumulator: &'me AccountInfo<'info>,
-    ///
     pub src_lst_token_program: &'me AccountInfo<'info>,
-    ///
     pub dst_lst_token_program: &'me AccountInfo<'info>,
     ///The pool's state singleton PDA
     pub pool_state: &'me AccountInfo<'info>,
@@ -804,9 +802,7 @@ pub struct SwapExactOutKeys {
     pub dst_lst_acc: Pubkey,
     ///Protocol fee accumulator token account
     pub protocol_fee_accumulator: Pubkey,
-    ///
     pub src_lst_token_program: Pubkey,
-    ///
     pub dst_lst_token_program: Pubkey,
     ///The pool's state singleton PDA
     pub pool_state: Pubkey,

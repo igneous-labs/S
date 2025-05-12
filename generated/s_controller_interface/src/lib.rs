@@ -1,3 +1,5 @@
+#![allow(non_local_definitions)]
+
 solana_program::declare_id!("5ocnV1qiCgaQR8Jb8xWnVbApfaygJ8tNoZfgPwsgx9kx");
 pub mod typedefs;
 pub use typedefs::*;

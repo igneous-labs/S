@@ -86,8 +86,7 @@ impl UpdateLastUpgradeSlotArgs {
             .unwrap();
         let (last_update_slot, _) = read_stake_pool_progdata_meta(pool_progdata).unwrap();
         if state.last_upgrade_slot == last_update_slot {
-            eprint!("Already at latest last upgrade slot {last_update_slot}");
-            return;
+            eprintln!("Already at latest last upgrade slot {last_update_slot}");
         }
 
         let ix = update_last_upgrade_slot_ix_with_program_id(

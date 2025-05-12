@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use pricing_programs_interface::{
     PriceExactInIxArgs, PriceExactOutIxArgs, PriceLpTokensToMintIxArgs,
     PriceLpTokensToRedeemIxArgs, PricingProgramsProgramIx,

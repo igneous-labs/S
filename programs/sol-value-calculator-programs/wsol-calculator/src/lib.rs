@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use sanctum_misc_utils::{load_accounts, log_and_return_wrong_acc_err};
 use sol_value_calculator_onchain::{process_lst_to_sol_unchecked, process_sol_to_lst_unchecked};
 use solana_program::{

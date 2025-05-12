@@ -1,3 +1,5 @@
+#![allow(non_local_definitions)]
+
 solana_program::declare_id!("wsoGmxQLSvwWpuaidCApxN5kEowLe2HLQLJhCQnj4bE");
 pub mod instructions;
 pub use instructions::*;
