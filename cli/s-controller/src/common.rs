@@ -4,7 +4,7 @@ use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys
 use lazy_static::lazy_static;
 use lido_calculator_lib::lido_sol_val_calc_account_metas;
 use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
-use s_cli_utils::srlut;
+
 use s_controller_interface::PoolState;
 use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
 use solana_client::nonblocking::rpc_client::RpcClient;
@@ -118,10 +118,10 @@ pub fn find_sanctum_lst_by_mint(mint: Pubkey) -> Option<&'static SanctumLst> {
         .find(|lst| lst.mint == mint)
 }
 
-pub async fn fetch_srlut(rpc: &RpcClient) -> AddressLookupTableAccount {
-    let srlut = rpc.get_account(&srlut::ID).await.unwrap();
+pub async fn fetch_srlut(rpc: &RpcClient, lut: &Pubkey) -> AddressLookupTableAccount {
+    let srlut = rpc.get_account(lut).await.unwrap();
     AddressLookupTableAccount {
-        key: srlut::ID,
+        key: *lut,
         addresses: AddressLookupTable::deserialize(&srlut.data)
             .unwrap()
             .addresses

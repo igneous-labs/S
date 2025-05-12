@@ -76,7 +76,7 @@ impl<
 #[derive(Clone, Copy, Debug)]
 pub struct EndRebalanceFromStartRebalanceKeys<'a>(pub &'a StartRebalanceKeys);
 
-impl<'a> EndRebalanceFromStartRebalanceKeys<'a> {
+impl EndRebalanceFromStartRebalanceKeys<'_> {
     pub fn resolve(self) -> EndRebalanceKeys {
         let Self(StartRebalanceKeys {
             rebalance_authority,

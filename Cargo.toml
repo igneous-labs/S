@@ -45,11 +45,13 @@ lazy_static = "^1"
 num-derive = ">=0.3"
 num-traits = ">=0.2"
 proptest = "^1"
+rand = ">=0.1"
 rust_decimal = ">=1.0" # anything >1.32 uses borsh ^1
 sanctum-macros = "^1.2"
 serde = "^1.0.197"
 serde_json = "^1"
 spl-pod = ">=0.1.0"
+spl-stake-pool = ">=0.1.0"
 spl-token = ">=0.1.0"
 spl-token-2022 = ">=0.1.0"
 spl-token-metadata-interface = ">=0.1.0"
@@ -89,11 +91,12 @@ system_program_interface =  { git = "https://github.com/igneous-labs/sanctum-sol
 # sanctum-lst-list
 sanctum-lst-list = { git = "https://github.com/igneous-labs/sanctum-lst-list.git", branch = "master" }
 
+marinade_finance_interface = { git = "https://github.com/igneous-labs/marinade_finance_interface.git", branch = "master" }
 # stakedex
-stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
-stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "master" }
+stakedex_interface = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_marinade = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_sdk_common = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
+stakedex_spl_stake_pool = { git = "https://github.com/igneous-labs/stakedex-sdk.git", branch = "solana-v1" }
 
 # workspace members
 cli-test-utils = { path = "./cli/cli-test-utils" }

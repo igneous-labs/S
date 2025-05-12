@@ -15,7 +15,7 @@ mod remove_liquidity;
 mod swap_exact_in;
 mod swap_exact_out;
 
-use common::*;
+pub use common::*;
 
 impl<S: ReadonlyAccountData, L: ReadonlyAccountData> SPool<S, L> {
     // Allows for use with transactions without jup program

@@ -18,7 +18,7 @@ impl U8Bool {
 #[derive(Debug)]
 pub struct U8BoolMut<'a>(pub &'a mut u8);
 
-impl<'a> U8BoolMut<'a> {
+impl U8BoolMut<'_> {
     pub fn set_true(&mut self) {
         *self.0 = 1;
     }
@@ -28,7 +28,7 @@ impl<'a> U8BoolMut<'a> {
     }
 }
 
-impl<'a> From<U8BoolMut<'a>> for U8Bool {
+impl From<U8BoolMut<'_>> for U8Bool {
     fn from(U8BoolMut(v): U8BoolMut) -> Self {
         Self(*v)
     }

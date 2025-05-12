@@ -90,10 +90,7 @@ impl FlatFeePricingProg {
             bump: *bump,
         }
         .get_fee_account_address()
-        .map_or_else(
-            |_e| find_pda_args.get_fee_account_address_and_bump_seed().0,
-            |pk| pk,
-        )
+        .unwrap_or_else(|_e| find_pda_args.get_fee_account_address_and_bump_seed().0)
     }
 }
 

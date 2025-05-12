@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use data_encoding::BASE64;
 use s_controller_lib::{find_disable_pool_authority_list_address, find_pool_state_address};
 use solana_account_decoder::{UiAccount, UiAccountData, UiAccountEncoding};
@@ -7,7 +9,10 @@ use solana_client::{
     rpc_response::RpcSimulateTransactionResult,
 };
 use solana_readonly_account::{ReadonlyAccountData, ReadonlyAccountPubkey};
-use solana_sdk::{account::Account, pubkey::Pubkey, transaction::VersionedTransaction};
+use solana_sdk::{
+    account::Account, commitment_config::CommitmentConfig, pubkey::Pubkey, stake,
+    transaction::VersionedTransaction,
+};
 
 pub async fn fetch_pool_state(rpc: &RpcClient, program_id: Pubkey) -> Account {
     rpc.get_account(&find_pool_state_address(program_id).0)
@@ -76,4 +81,40 @@ pub async fn does_tx_modify_pool_state<P: ReadonlyAccountData + ReadonlyAccountP
     };
     let d = pool_state_before.data();
     *pool_state_data_after.as_slice() != **d
+}
+
+pub async fn fetch_accounts_as_map(
+    rpc: &RpcClient,
+    accounts_to_fetch: &[Pubkey],
+) -> HashMap<Pubkey, Account> {
+    // TODO: perform in batches of 5 for free RPCs
+    rpc.get_multiple_accounts(accounts_to_fetch)
+        .await
+        .unwrap()
+        .into_iter()
+        .zip(accounts_to_fetch)
+        .filter_map(|(acc, pk)| acc.map(|acc| (*pk, acc)))
+        .collect()
+}
+
+// Returns (pubkey, seed)
+pub async fn find_unused_stake_prog_create_with_seed(
+    rpc: &RpcClient,
+    base: &Pubkey,
+) -> (Pubkey, String) {
+    // MAX_SEED_LEN = 32, just pick a digit 0-9 as string to make seed.
+    // this means if we rebalance into pools that do not delete stake accounts immediately
+    // (msol and sanctum reserve), then we can only make 10 rebal-stakes max per epoch
+    for seed in 0..9 {
+        let seed = seed.to_string();
+        let pk = Pubkey::create_with_seed(base, &seed, &stake::program::ID).unwrap();
+        let acc = rpc
+            .get_account_with_commitment(&pk, CommitmentConfig::processed())
+            .await
+            .unwrap();
+        if acc.value.is_none() {
+            return (pk, seed);
+        }
+    }
+    panic!("Could not find unused seed for new stake account");
 }

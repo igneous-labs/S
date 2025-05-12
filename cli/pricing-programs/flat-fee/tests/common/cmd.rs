@@ -107,8 +107,6 @@ pub trait TestCmd {
 
     fn cmd_set_lst_fee(&mut self) -> &mut Self;
 
-    fn cmd_view(&mut self) -> &mut Self;
-
     fn cmd_view_lst(&mut self) -> &mut Self;
 }
 
@@ -139,10 +137,6 @@ impl TestCmd for Command {
 
     fn cmd_set_lst_fee(&mut self) -> &mut Self {
         self.arg("set-lst-fee")
-    }
-
-    fn cmd_view(&mut self) -> &mut Self {
-        self.arg("view")
     }
 
     fn cmd_view_lst(&mut self) -> &mut Self {
