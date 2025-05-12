@@ -1,5 +1,6 @@
 use clap::Subcommand;
 use rebal_stake::RebalStakeArgs;
+use rebal_withdraw_sol::RebalWithdrawSolArgs;
 
 use self::{
     add_disable_auth::AddDisableAuthArgs, add_lst::AddLstArgs,
@@ -23,6 +24,7 @@ mod enable_pool;
 mod init;
 mod rebal_sol;
 mod rebal_stake;
+mod rebal_withdraw_sol;
 mod remove_disable_auth;
 mod remove_lst;
 mod set_admin;
@@ -59,6 +61,7 @@ pub enum Subcmd {
     View(ViewArgs),
     RebalSol(RebalSolArgs),
     RebalStake(RebalStakeArgs),
+    RebalWithdrawSol(RebalWithdrawSolArgs),
 }
 
 impl Subcmd {
@@ -85,6 +88,7 @@ impl Subcmd {
             Self::View(_) => ViewArgs::run(args).await,
             Self::RebalSol(_) => RebalSolArgs::run(args).await,
             Self::RebalStake(_) => RebalStakeArgs::run(args).await,
+            Self::RebalWithdrawSol(_) => RebalWithdrawSolArgs::run(args).await,
         }
     }
 }
