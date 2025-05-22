@@ -19,7 +19,9 @@ use s_sol_val_calc_prog_aggregate::LstSolValCalc;
 use sanctum_solana_cli_utils::PubkeySrc;
 use sanctum_token_lib::{token_account_balance, MintWithTokenProgram};
 use solana_readonly_account::keyed::Keyed;
-use solana_sdk::{clock::Clock, native_token::lamports_to_sol, pubkey::Pubkey, sysvar};
+use solana_sdk::{
+    clock::Clock, native_token::lamports_to_sol, pubkey::Pubkey, system_instruction, sysvar,
+};
 use spl_associated_token_account::{
     get_associated_token_address_with_program_id,
     instruction::create_associated_token_account_idempotent,
@@ -41,7 +43,7 @@ use super::Subcmd;
 #[command(
     about = "Rebalance from spl stake pool LST to SOL by withdrawing inactive SOL from the pool's reserves.",
     long_about = "Rebalance from spl stake pool LST to SOL by withdrawing inactive SOL from the pool's reserves.
-May require the payer to subsidize some amount of LST to make up for the stake pool's SOL withdrawal fees"
+May require the payer to subsidize some amount of LST to make up for the stake pool's SOL withdrawal fees."
 )]
 pub struct RebalWithdrawSolArgs {
     #[arg(
@@ -50,6 +52,13 @@ pub struct RebalWithdrawSolArgs {
         help = "The program's rebalance authority. Defaults to config wallet if not set."
     )]
     pub rebalance_auth: Option<String>,
+
+    #[arg(
+        long,
+        short,
+        help = "System account to transfer SOL from to pay subsidies if required. Defaults to config wallet if not set."
+    )]
+    pub subsidy_payer: Option<String>,
 
     #[arg(
         long,
@@ -76,6 +85,7 @@ impl RebalWithdrawSolArgs {
     pub async fn run(args: crate::Args) {
         let Self {
             rebalance_auth,
+            subsidy_payer,
             yes,
             amt,
             lst,
@@ -98,11 +108,10 @@ impl RebalWithdrawSolArgs {
         let (pool_id, _) = find_pool_state_address(program_id);
         let (lst_state_list_id, _) = find_lst_state_list_address(program_id);
 
-        let rebalance_auth =
-            rebalance_auth.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap()));
-        let rebalance_auth = rebalance_auth
-            .as_ref()
-            .map_or_else(|| payer.as_ref(), |s| s.as_ref());
+        let [rebalance_auth, subsidy_payer] = [rebalance_auth, subsidy_payer]
+            .map(|opt| opt.map(|s| pubkey_src_to_box_dyn_signer(PubkeySrc::parse(&s).unwrap())));
+        let [rebalance_auth, subsidy_payer] = [&rebalance_auth, &subsidy_payer]
+            .map(|opt| opt.as_ref().map_or_else(|| payer.as_ref(), |s| s.as_ref()));
 
         let amt = match amt {
             LstAmtArg::Amt(v) => v,
@@ -156,14 +165,28 @@ impl RebalWithdrawSolArgs {
         let account_map = fetch_accounts_as_map(&rpc, &accounts_to_fetch).await;
 
         spool.update_full(&account_map).unwrap();
-        let _reserves_missing_ignore_err: Result<_, _> = withdraw_sol.update(&account_map);
+        let _spl_reserves_missing_ignore_err: Result<_, _> = withdraw_sol.update(&account_map);
         // Spl needs to be updated twice before it can be used
         let account_map = fetch_accounts_as_map(&rpc, &withdraw_sol.get_accounts_to_update()).await;
         withdraw_sol.update(&account_map).unwrap();
 
-        let (_state, LstData { sol_val_calc, .. }) =
-            spool.find_ready_lst(sanctum_lst.mint).unwrap();
-        let required_sol_deposit = sol_val_calc.lst_to_sol(amt).unwrap().get_max();
+        let (
+            _state,
+            LstData {
+                sol_val_calc,
+                reserves_balance,
+                ..
+            },
+        ) = spool.find_ready_lst(sanctum_lst.mint).unwrap();
+        let required_sol_deposit = {
+            let init_reserves = reserves_balance.unwrap();
+            let init_sol_val = sol_val_calc.lst_to_sol(init_reserves).unwrap().get_min();
+            let aft_start_rebal_sol_val = sol_val_calc
+                .lst_to_sol(init_reserves - amt)
+                .unwrap()
+                .get_min();
+            init_sol_val - aft_start_rebal_sol_val
+        };
 
         let sol_withdrawn = withdraw_sol.quote_withdraw_sol(amt).unwrap();
 
@@ -171,10 +194,10 @@ impl RebalWithdrawSolArgs {
         if subsidy_amt > 0 {
             let subsidy_amt_decimals = lamports_to_sol(subsidy_amt);
             if yes {
-                eprintln!("Subsidizing {subsidy_amt_decimals} {symbol}")
+                eprintln!("Subsidizing {subsidy_amt_decimals} SOL")
             } else {
                 let has_confirmed = Confirm::new(&format!(
-                    "Will need to subsidize {subsidy_amt_decimals} {symbol}. Proceed?",
+                    "Will need to subsidize {subsidy_amt_decimals} SOL. Proceed?",
                 ))
                 .with_default(false)
                 .prompt()
@@ -187,21 +210,16 @@ impl RebalWithdrawSolArgs {
             eprintln!("No subsidy required, proceeding");
         }
 
-        // 2 CB ixs + create ata + start + withdraw sol + syncnative + transfer subsidy + end
+        // 2 CB ixs + create ata + start + withdraw sol + transfer subsidy + syncnative + end
         let mut ixs = Vec::with_capacity(8);
 
-        let [lst_withdraw_to, wsol_subsidize_from] = [
-            (sanctum_lst.mint, sanctum_lst.token_program),
-            (native_mint::ID, spl_token::ID),
-        ]
-        .map(|(mint, token_program)| {
-            get_associated_token_address_with_program_id(&payer.pubkey(), &mint, &token_program)
-        });
+        let lst_withdraw_to = get_associated_token_address_with_program_id(
+            &payer.pubkey(),
+            &sanctum_lst.mint,
+            &sanctum_lst.token_program,
+        );
 
-        let mut fetched = rpc
-            .get_multiple_accounts(&[lst_withdraw_to, wsol_subsidize_from])
-            .await
-            .unwrap();
+        let mut fetched = rpc.get_multiple_accounts(&[lst_withdraw_to]).await.unwrap();
         let wsol_subsidize_from_acc = fetched.pop().unwrap();
         if subsidy_amt > 0 {
             match wsol_subsidize_from_acc {
@@ -287,20 +305,14 @@ impl RebalWithdrawSolArgs {
                 })
                 .unwrap(),
         );
-        ixs.push(sync_native(&spl_token::ID, &wsol_reserves).unwrap());
         if subsidy_amt > 0 {
-            ixs.push(
-                spl_token::instruction::transfer(
-                    &sanctum_lst.token_program,
-                    &wsol_subsidize_from,
-                    &wsol_reserves,
-                    &payer.pubkey(),
-                    &[],
-                    subsidy_amt,
-                )
-                .unwrap(),
-            )
+            ixs.push(system_instruction::transfer(
+                &subsidy_payer.pubkey(),
+                &wsol_reserves,
+                subsidy_amt,
+            ))
         }
+        ixs.push(sync_native(&spl_token::ID, &wsol_reserves).unwrap());
         ixs.push(end_rebalance_ix);
 
         let srlut = fetch_srlut(&rpc, &args.lut).await;
