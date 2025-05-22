@@ -104,7 +104,6 @@ impl RebalWithdrawSolArgs {
                 panic!("Unknown LST {lst}. Only LSTs on sanctum-lst-list supported")
             }
         };
-        let symbol = &sanctum_lst.symbol;
         let (pool_id, _) = find_pool_state_address(program_id);
         let (lst_state_list_id, _) = find_lst_state_list_address(program_id);
 
@@ -219,22 +218,27 @@ impl RebalWithdrawSolArgs {
             &sanctum_lst.token_program,
         );
 
-        let mut fetched = rpc.get_multiple_accounts(&[lst_withdraw_to]).await.unwrap();
-        let wsol_subsidize_from_acc = fetched.pop().unwrap();
+        let [lst_withdraw_to_acc, subsidy_payer_acc] = rpc
+            .get_multiple_accounts(&[lst_withdraw_to, subsidy_payer.pubkey()])
+            .await
+            .unwrap()
+            .try_into()
+            .unwrap();
         if subsidy_amt > 0 {
-            match wsol_subsidize_from_acc {
+            match subsidy_payer_acc {
                 Some(a) => {
-                    let ata_balance = token_account_balance(a).unwrap();
-                    if ata_balance < subsidy_amt {
-                        panic!("Expected payer {symbol} ATA to have at least {subsidy_amt} for subsidy, but it only has {ata_balance}");
+                    let balance = a.lamports;
+                    if balance < subsidy_amt {
+                        panic!("Expected subsidy-payer to have at least {subsidy_amt} for subsidy, but it only has {balance}");
                     }
                 }
                 None => {
-                    panic!("Expected payer to have {symbol} ATA with at least {subsidy_amt} balance for subsidy");
+                    panic!(
+                        "Expected subsidy-payer to have at least {subsidy_amt} balance for subsidy"
+                    );
                 }
             }
         }
-        let lst_withdraw_to_acc = fetched.pop().unwrap();
         if lst_withdraw_to_acc.is_none() {
             ixs.push(create_associated_token_account_idempotent(
                 &payer.pubkey(),
