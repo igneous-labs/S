@@ -1,7 +1,4 @@
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use s_cli_utils::{handle_tx_full, pubkey_src_to_box_dyn_signer};
 use s_controller_interface::{
     withdraw_protocol_fees_ix_with_program_id, WithdrawProtocolFeesIxArgs,
@@ -25,10 +22,9 @@ use super::Subcmd;
 #[command(long_about = "Withdraw accumulated protocol fees for a given LST.")]
 pub struct WithdrawProtocolFeesArgs {
     #[arg(
-        help = "Mint of the LST to withdraw protocol fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the LST to withdraw protocol fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
     )]
-    pub mint: LstArg,
+    pub mint: String,
 
     #[arg(
         long,
@@ -67,6 +63,7 @@ enum WithdrawToAtaStatus {
 
 impl WithdrawProtocolFeesArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             mint,
             beneficiary,
@@ -77,6 +74,7 @@ impl WithdrawProtocolFeesArgs {
             Subcmd::WithdrawProtocolFees(a) => a,
             _ => unreachable!(),
         };
+        let mint = LstArg::parse_arg(&mint, &slsts).unwrap();
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();

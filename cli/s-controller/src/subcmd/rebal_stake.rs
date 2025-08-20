@@ -26,7 +26,7 @@ use spl_associated_token_account::{
 use stakedex_sdk_common::DepositStakeInfo;
 
 use crate::{
-    common::{fetch_srlut, sol_value_calculator_accounts_of_sanctum_lst, SANCTUM_LST_LIST},
+    common::{fetch_srlut, sol_value_calculator_accounts_of_sanctum_lst},
     lst_amt_arg::LstAmtArg,
     lst_arg::LstArg,
     rpc::{fetch_accounts_as_map, find_unused_stake_prog_create_with_seed},
@@ -62,17 +62,11 @@ pub struct RebalStakeArgs {
     )]
     pub yes: bool,
 
-    #[arg(
-        help = "The LST to rebalance and withdraw stake from",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
-    )]
-    pub from: LstArg,
+    #[arg(help = "The LST to rebalance and withdraw stake from")]
+    pub from: String,
 
-    #[arg(
-        help = "The LST to rebalance and deposit stake into",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
-    )]
-    pub to: LstArg,
+    #[arg(help = "The LST to rebalance and deposit stake into")]
+    pub to: String,
 
     #[arg(
         help = "Amount in `from` LST to rebalance",
@@ -83,6 +77,7 @@ pub struct RebalStakeArgs {
 
 impl RebalStakeArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             rebalance_auth,
             yes,
@@ -93,12 +88,13 @@ impl RebalStakeArgs {
             Subcmd::RebalStake(a) => a,
             _ => unreachable!(),
         };
+        let [from, to] = [from, to].map(|a| LstArg::parse_arg(&a, &slsts).unwrap());
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let [from, to] = [from, to].map(|lst| match lst {
+        let [from, to] = [&from, &to].map(|lst| match lst {
             LstArg::SanctumLst(s) => s,
             LstArg::Unknown(lst) => {
                 panic!("Unknown LST {lst}. Only LSTs on sanctum-lst-list supported")
@@ -142,7 +138,7 @@ impl RebalStakeArgs {
                 lst_state_list: lst_state_list_acc,
                 pool_state: pool_acc,
             },
-            &SANCTUM_LST_LIST.sanctum_lst_list,
+            &slsts,
             &Arc::new(AtomicU64::new(clock.epoch)),
         )
         .unwrap();

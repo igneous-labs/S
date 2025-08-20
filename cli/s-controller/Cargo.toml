@@ -18,7 +18,6 @@ flat-fee-lib = { workspace = true }
 generic-pool-calculator-lib = { workspace = true }
 inquire = { workspace = true }
 jupiter-amm-interface = { workspace = true }
-lazy_static = { workspace = true }
 lido-calculator-lib = { workspace = true }
 marinade_finance_interface = { workspace = true }
 marinade-calculator-lib = { workspace = true }

@@ -1,10 +1,11 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::{
     builder::{StringValueParser, TypedValueParser, ValueParser},
     Parser,
 };
 use s_cli_utils::{srlut, CONFIG_HELP, FEE_LIMIT_CB_HELP, TX_SEND_MODE_HELP};
+use sanctum_lst_list::{SanctumLst, SanctumLstList};
 use sanctum_solana_cli_utils::{ConfigWrapper, TxSendMode};
 use solana_sdk::pubkey::Pubkey;
 use subcmd::Subcmd;
@@ -64,8 +65,24 @@ pub struct Args {
     )]
     pub lut: Pubkey,
 
+    #[arg(long, short = 'a', help = "Path to sanctum-lst-list.toml")]
+    pub sanctum_lst_list: Option<PathBuf>,
+
     #[command(subcommand)]
     pub subcmd: Subcmd,
+}
+
+impl Args {
+    pub fn load_slst_list(&self) -> Vec<SanctumLst> {
+        self.sanctum_lst_list
+            .as_ref()
+            .map_or_else(SanctumLstList::load, |p| {
+                SanctumLstList::load_from_file(p)
+                    .map_err(|e| format!("Could not load sanctum-lst-list: {e}"))
+                    .unwrap()
+            })
+            .sanctum_lst_list
+    }
 }
 
 fn main() {
