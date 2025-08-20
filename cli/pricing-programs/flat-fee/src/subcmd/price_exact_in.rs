@@ -1,7 +1,4 @@
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use flat_fee_interface::{price_exact_in_ix_with_program_id, PriceExactInIxArgs, PriceExactInKeys};
 use flat_fee_lib::pda::FeeAccountFindPdaArgs;
 use solana_sdk::native_token::sol_to_lamports;
@@ -32,20 +29,19 @@ pub struct PriceExactInArgs {
     pub sol_value: f64,
 
     #[arg(
-        help = "Input LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Input LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
     )]
-    pub input: LstArg,
+    pub input: String,
 
     #[arg(
-        help = "Output LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Output LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
     )]
-    pub output: LstArg,
+    pub output: String,
 }
 
 impl PriceExactInArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             amount,
             sol_value,
@@ -55,6 +51,7 @@ impl PriceExactInArgs {
             Subcmd::PriceExactIn(a) => a,
             _ => unreachable!(),
         };
+        let [input, output] = [input, output].map(|a| LstArg::parse_arg(&a, &slsts).unwrap());
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;

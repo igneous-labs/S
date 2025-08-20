@@ -1,7 +1,4 @@
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use flat_fee_lib::{pda::FeeAccountFindPdaArgs, utils::try_fee_account};
 
 use crate::{lst_arg::LstArg, subcmd::Subcmd};
@@ -10,18 +7,19 @@ use crate::{lst_arg::LstArg, subcmd::Subcmd};
 #[command(long_about = "View the current fees for a given LST")]
 pub struct ViewLstArgs {
     #[arg(
-        help = "Mint of the LST to view fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the LST to view fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
     )]
-    pub lst_mint: LstArg,
+    pub lst_mint: String,
 }
 
 impl ViewLstArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self { lst_mint } = match args.subcmd {
             Subcmd::ViewLst(a) => a,
             _ => unreachable!(),
         };
+        let lst_mint = LstArg::parse_arg(&lst_mint, &slsts).unwrap();
 
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;

@@ -1609,7 +1609,6 @@ dependencies = [
  "flat-fee-lib",
  "flat-fee-test-utils",
  "flat_fee_interface",
- "lazy_static",
  "s-cli-utils",
  "sanctum-lst-list",
  "sanctum-macros",

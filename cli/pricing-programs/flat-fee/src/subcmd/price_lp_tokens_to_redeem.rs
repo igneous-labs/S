@@ -1,7 +1,4 @@
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use flat_fee_interface::{
     price_lp_tokens_to_redeem_ix_with_program_id, PriceLpTokensToRedeemIxArgs,
     PriceLpTokensToRedeemKeys,
@@ -35,14 +32,14 @@ pub struct PriceLpTokensToRedeemArgs {
     pub sol_value: f64,
 
     #[arg(
-        help = "Mint of the LST to redeem into. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the LST to redeem into. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
     )]
-    pub lst_mint: LstArg,
+    pub lst_mint: String,
 }
 
 impl PriceLpTokensToRedeemArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             amount,
             sol_value,
@@ -51,6 +48,7 @@ impl PriceLpTokensToRedeemArgs {
             Subcmd::PriceLpTokensToRedeem(a) => a,
             _ => unreachable!(),
         };
+        let lst_mint = LstArg::parse_arg(&lst_mint, &slsts).unwrap();
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
