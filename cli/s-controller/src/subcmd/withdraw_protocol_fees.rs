@@ -22,7 +22,7 @@ use super::Subcmd;
 #[command(long_about = "Withdraw accumulated protocol fees for a given LST.")]
 pub struct WithdrawProtocolFeesArgs {
     #[arg(
-        help = "Mint of the LST to withdraw protocol fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to withdraw protocol fees for. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub mint: String,
 

@@ -24,7 +24,7 @@ To sync all LSTs in the pool that are on sanctum-lst-list, use sync-all."
 )]
 pub struct SyncArgs {
     #[arg(
-        help = "Mint of the LST to sync SOL value for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to sync SOL value for. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub mint: String,
 

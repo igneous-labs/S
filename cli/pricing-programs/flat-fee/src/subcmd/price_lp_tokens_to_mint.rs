@@ -30,7 +30,7 @@ pub struct PriceLpTokensToMintArgs {
     pub sol_value: f64,
 
     #[arg(
-        help = "Mint of the LST to deposit. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to deposit. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub lst_mint: String,
 }

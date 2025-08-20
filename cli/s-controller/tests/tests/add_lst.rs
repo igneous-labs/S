@@ -83,7 +83,7 @@ async fn add_lst_jitosol_token_name_matched_sol_val_calc_success_payer_init_auth
         .add_s_program()
         .add_pool_state(DEFAULT_POOL_STATE);
     let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
-    cmd.cmd_add_lst().arg("jItOsOL");
+    cmd.cmd_add_lst().arg("JitoSOL");
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
     assert_all_txs_success_nonempty(&exec_res);
     assert_lst_added(

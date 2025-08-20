@@ -33,7 +33,7 @@ pub struct AddLstArgs {
     pub sol_val_calc: Option<Pubkey>,
 
     #[arg(
-        help = "Mint of the new LST to add. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the new LST to add. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub mint: String,
 }

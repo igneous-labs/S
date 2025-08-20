@@ -39,7 +39,7 @@ pub struct SetSolValueCalculatorArgs {
     #[arg(
         long,
         short,
-        help = "Mint of the LST to set SOL value calculator program for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to set SOL value calculator program for. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub mint: String,
 

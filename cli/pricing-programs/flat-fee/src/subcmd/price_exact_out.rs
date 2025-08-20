@@ -31,12 +31,12 @@ pub struct PriceExactOutArgs {
     pub sol_value: f64,
 
     #[arg(
-        help = "Input LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Input LST. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub input: String,
 
     #[arg(
-        help = "Output LST. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Output LST. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub output: String,
 }

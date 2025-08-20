@@ -22,7 +22,7 @@ async fn sync_success_jitosol_symbol_force() {
 
     let (mut cmd, _cfg, mut bc, _mock_auth_kp) = setup_with_payer(pt, payer).await;
 
-    cmd.cmd_sync().arg("-f").arg("jitosol");
+    cmd.cmd_sync().arg("-f").arg("JitoSOL");
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
     assert_all_txs_success_nonempty(&exec_res);
     // TODO: check new synced sol value correct

@@ -7,7 +7,7 @@ use crate::{lst_arg::LstArg, subcmd::Subcmd};
 #[command(long_about = "View the current fees for a given LST")]
 pub struct ViewLstArgs {
     #[arg(
-        help = "Mint of the LST to view fees for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to view fees for. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub lst_mint: String,
 }

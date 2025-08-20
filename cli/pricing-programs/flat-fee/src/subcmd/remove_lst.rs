@@ -22,7 +22,7 @@ pub struct RemoveLstArgs {
     pub manager: Option<String>,
 
     #[arg(
-        help = "Mint of the LST to remove. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'"
+        help = "Mint of the LST to remove. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
     pub lst_mint: String,
 
