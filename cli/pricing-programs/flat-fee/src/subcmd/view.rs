@@ -8,8 +8,6 @@ use flat_fee_lib::{
 use sanctum_lst_list::SanctumLst;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::lst_arg::SANCTUM_LST_LIST;
-
 use super::Subcmd;
 
 #[derive(Args, Debug)]
@@ -18,6 +16,7 @@ pub struct ViewArgs;
 
 impl ViewArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self = match args.subcmd {
             Subcmd::View(a) => a,
             _ => unreachable!(),
@@ -30,8 +29,7 @@ impl ViewArgs {
             .get_program_state_address_and_bump_seed()
             .0;
 
-        let pda_to_lst: HashMap<Pubkey, &'static SanctumLst> = SANCTUM_LST_LIST
-            .sanctum_lst_list
+        let pda_to_lst: HashMap<Pubkey, &SanctumLst> = slsts
             .iter()
             .map(|lst| {
                 (

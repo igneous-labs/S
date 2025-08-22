@@ -30,10 +30,7 @@ use spl_token::{instruction::sync_native, native_mint};
 use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
 
 use crate::{
-    common::{fetch_srlut, SANCTUM_LST_LIST},
-    lst_amt_arg::LstAmtArg,
-    lst_arg::LstArg,
-    rpc::fetch_accounts_as_map,
+    common::fetch_srlut, lst_amt_arg::LstAmtArg, lst_arg::LstArg, rpc::fetch_accounts_as_map,
     stakedex_reimpl::WithdrawSolStakedex,
 };
 
@@ -74,15 +71,13 @@ pub struct RebalWithdrawSolArgs {
     )]
     pub amt: LstAmtArg,
 
-    #[arg(
-        help = "The LST to rebalance SOL into",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
-    )]
-    pub lst: LstArg,
+    #[arg(help = "The LST to rebalance SOL into")]
+    pub lst: String,
 }
 
 impl RebalWithdrawSolArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             rebalance_auth,
             subsidy_payer,
@@ -93,12 +88,13 @@ impl RebalWithdrawSolArgs {
             Subcmd::RebalWithdrawSol(a) => a,
             _ => unreachable!(),
         };
+        let lst = LstArg::parse_arg(&lst, &slsts).unwrap();
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
 
-        let sanctum_lst = match lst {
+        let sanctum_lst = match &lst {
             LstArg::SanctumLst(s) => s,
             LstArg::Unknown(lst) => {
                 panic!("Unknown LST {lst}. Only LSTs on sanctum-lst-list supported")
@@ -139,7 +135,7 @@ impl RebalWithdrawSolArgs {
                 lst_state_list: lst_state_list_acc,
                 pool_state: pool_acc,
             },
-            &SANCTUM_LST_LIST.sanctum_lst_list,
+            &slsts,
             &Arc::new(AtomicU64::new(clock.epoch)),
         )
         .unwrap();

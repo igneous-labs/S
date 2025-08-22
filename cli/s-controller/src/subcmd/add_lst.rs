@@ -33,14 +33,14 @@ pub struct AddLstArgs {
     pub sol_val_calc: Option<Pubkey>,
 
     #[arg(
-        help = "Mint of the new LST to add. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the new LST to add. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
-    pub mint: LstArg,
+    pub mint: String,
 }
 
 impl AddLstArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             admin,
             sol_val_calc,
@@ -49,6 +49,7 @@ impl AddLstArgs {
             Subcmd::AddLst(a) => a,
             _ => unreachable!(),
         };
+        let mint = LstArg::parse_arg(&mint, &slsts).unwrap();
 
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();

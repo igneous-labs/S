@@ -21,6 +21,7 @@ pub struct ViewArgs {
 
 impl ViewArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self { raw } = match args.subcmd {
             Subcmd::View(a) => a,
             _ => unreachable!(),
@@ -97,7 +98,7 @@ impl ViewArgs {
                     sol_value_calculator,
                     ..
                 } = lst_state;
-                let sanctum_lst_opt = find_sanctum_lst_by_mint(*mint);
+                let sanctum_lst_opt = find_sanctum_lst_by_mint(&slsts, *mint);
                 println!(
                     "    {}:",
                     sanctum_lst_opt.map_or_else(|| mint.to_string(), |lst| lst.symbol.clone())

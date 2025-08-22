@@ -1,12 +1,11 @@
 use std::convert::Infallible;
 
 use generic_pool_calculator_lib::account_resolvers::LstSolCommonIntermediateKeys;
-use lazy_static::lazy_static;
 use lido_calculator_lib::lido_sol_val_calc_account_metas;
 use marinade_calculator_lib::marinade_sol_val_calc_account_metas;
 
 use s_controller_interface::PoolState;
-use sanctum_lst_list::{PoolInfo, SanctumLst, SanctumLstList, SplPoolAccounts};
+use sanctum_lst_list::{PoolInfo, SanctumLst, SplPoolAccounts};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::{
     address_lookup_table::{state::AddressLookupTable, AddressLookupTableAccount},
@@ -18,10 +17,6 @@ use spl_calculator_lib::{
     SplSolValCalc,
 };
 use wsol_calculator_lib::WSOL_LST_SOL_COMMON_METAS;
-
-lazy_static! {
-    pub static ref SANCTUM_LST_LIST: SanctumLstList = SanctumLstList::load();
-}
 
 pub fn verify_admin(state: &PoolState, admin: Pubkey) -> Result<(), Infallible> {
     if state.admin != admin {
@@ -111,11 +106,8 @@ pub fn sol_value_calculator_accounts_of_sanctum_lst(
     }
 }
 
-pub fn find_sanctum_lst_by_mint(mint: Pubkey) -> Option<&'static SanctumLst> {
-    SANCTUM_LST_LIST
-        .sanctum_lst_list
-        .iter()
-        .find(|lst| lst.mint == mint)
+pub fn find_sanctum_lst_by_mint(slsts: &[SanctumLst], mint: Pubkey) -> Option<&SanctumLst> {
+    slsts.iter().find(|lst| lst.mint == mint)
 }
 
 pub async fn fetch_srlut(rpc: &RpcClient, lut: &Pubkey) -> AddressLookupTableAccount {

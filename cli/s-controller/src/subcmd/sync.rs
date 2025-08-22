@@ -24,10 +24,9 @@ To sync all LSTs in the pool that are on sanctum-lst-list, use sync-all."
 )]
 pub struct SyncArgs {
     #[arg(
-        help = "Mint of the LST to sync SOL value for. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the LST to sync SOL value for. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
-    pub mint: LstArg,
+    pub mint: String,
 
     #[arg(
         long,
@@ -50,6 +49,7 @@ pub struct SyncArgs {
 
 impl SyncArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             mint,
             suffix,
@@ -62,6 +62,7 @@ impl SyncArgs {
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
+        let mint = LstArg::parse_arg(&mint, &slsts).unwrap();
 
         // accounts suffix slice including lst_mint as first account
         let suffix = mint.sol_value_calculator_accounts_of().unwrap_or_else(|| {

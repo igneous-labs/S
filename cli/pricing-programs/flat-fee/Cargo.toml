@@ -14,7 +14,6 @@ clap = { workspace = true }
 data-encoding = { workspace = true }
 flat_fee_interface = { workspace = true }
 flat-fee-lib = { workspace = true }
-lazy_static = { workspace = true }
 s-cli-utils = { workspace = true }
 sanctum-lst-list = { workspace = true }
 sanctum-solana-cli-utils = { workspace = true }

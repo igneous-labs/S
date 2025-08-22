@@ -25,7 +25,7 @@ async fn withdraw_all_protocol_fees_success_jitosol_symbol_beneficiary_payer_cre
 
     let (mut cmd, _cfg, mut bc, mock_auth_kp) = setup_with_init_auth_as_payer(pt).await;
 
-    cmd.cmd_withdraw_protocol_fees().arg("jitosol");
+    cmd.cmd_withdraw_protocol_fees().arg("JitoSOL");
     let exec_res = cmd.exec_b64_txs(&mut bc).await;
     assert_all_txs_success_nonempty(&exec_res);
     let created_ata_addr = FindAtaAddressArgs {

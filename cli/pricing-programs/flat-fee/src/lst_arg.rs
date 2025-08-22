@@ -1,35 +1,31 @@
-use lazy_static::lazy_static;
-use sanctum_lst_list::{SanctumLst, SanctumLstList};
+use sanctum_lst_list::SanctumLst;
 use solana_sdk::pubkey::Pubkey;
 use std::{error::Error, str::FromStr};
 
-lazy_static! {
-    pub static ref SANCTUM_LST_LIST: SanctumLstList = SanctumLstList::load();
-}
-
-#[derive(Clone, Copy, Debug)]
+#[allow(clippy::large_enum_variant)]
+#[derive(Clone, Debug)]
 pub enum LstArg {
-    SanctumLst(&'static SanctumLst),
+    SanctumLst(SanctumLst),
     Unknown(Pubkey),
 }
 
 impl LstArg {
-    pub fn parse_arg(arg: &str) -> Result<Self, Box<dyn Error + Send + Sync + 'static>> {
+    pub fn parse_arg(
+        arg: &str,
+        slsts: &[SanctumLst],
+    ) -> Result<Self, Box<dyn Error + Send + Sync + 'static>> {
         if let Ok(mint) = Pubkey::from_str(arg) {
-            let res = SANCTUM_LST_LIST
-                .sanctum_lst_list
+            let res = slsts
                 .iter()
                 .find(|lst| lst.mint == mint)
-                .map_or_else(|| Self::Unknown(mint), Self::SanctumLst);
+                .map_or_else(|| Self::Unknown(mint), |s| Self::SanctumLst(s.clone()));
             return Ok(res);
         }
-        let arg_lc = arg.to_lowercase();
-        let lst = SANCTUM_LST_LIST
-            .sanctum_lst_list
+        let lst = slsts
             .iter()
-            .find(|lst| lst.symbol.to_lowercase() == arg_lc)
+            .find(|lst| lst.symbol == arg)
             .ok_or_else(|| format!("LST with symbol {arg} not found on list"))?;
-        Ok(Self::SanctumLst(lst))
+        Ok(Self::SanctumLst(lst.clone()))
     }
 
     pub fn mint(&self) -> Pubkey {

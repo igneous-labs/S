@@ -39,6 +39,7 @@ pub struct SyncAllArgs {
 
 impl SyncAllArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self { force } = match args.subcmd {
             Subcmd::SyncAll(a) => a,
             _ => unreachable!(),
@@ -63,7 +64,7 @@ impl SyncAllArgs {
         let sanctum_lsts: Vec<&SanctumLst> = lst_state_list
             .iter()
             .filter_map(|LstState { mint, .. }| {
-                let res = find_sanctum_lst_by_mint(*mint);
+                let res = find_sanctum_lst_by_mint(&slsts, *mint);
                 if res.is_none() {
                     eprintln!("{mint} not on sanctum-lst-list, skipping");
                 }

@@ -1,7 +1,4 @@
-use clap::{
-    builder::{StringValueParser, TypedValueParser},
-    Args,
-};
+use clap::Args;
 use flat_fee_interface::remove_lst_ix_with_program_id;
 use flat_fee_lib::{
     account_resolvers::RemoveLstFreeArgs, pda::ProgramStateFindPdaArgs, utils::try_program_state,
@@ -25,10 +22,9 @@ pub struct RemoveLstArgs {
     pub manager: Option<String>,
 
     #[arg(
-        help = "Mint of the LST to remove. Can either be a pubkey or case-insensitive symbol of a token on sanctum-lst-list. e.g. 'bsol'",
-        value_parser = StringValueParser::new().try_map(|s| LstArg::parse_arg(&s)),
+        help = "Mint of the LST to remove. Can either be a pubkey or case-sensitive symbol of a token on sanctum-lst-list. e.g. 'bSOL'"
     )]
-    pub lst_mint: LstArg,
+    pub lst_mint: String,
 
     #[arg(help = "Account to refund SOL rent to")]
     pub refund_rent_to: String,
@@ -36,6 +32,7 @@ pub struct RemoveLstArgs {
 
 impl RemoveLstArgs {
     pub async fn run(args: crate::Args) {
+        let slsts = args.load_slst_list();
         let Self {
             manager,
             lst_mint,
@@ -44,6 +41,7 @@ impl RemoveLstArgs {
             Subcmd::RemoveLst(a) => a,
             _ => unreachable!(),
         };
+        let lst_mint = LstArg::parse_arg(&lst_mint, &slsts).unwrap();
         let payer = args.config.signer();
         let rpc = args.config.nonblocking_rpc_client();
         let program_id = args.program;
