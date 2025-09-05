@@ -22,7 +22,7 @@ pub fn read_programdata_addr<D: ReadonlyAccountData>(
 }
 
 /// Attempts to deserialize the header of the program data account
-/// of a stake pool program program data account and return
+/// of a stake pool program data account and return
 /// (last_upgrade_slot, upgrade_authority)
 pub fn read_stake_pool_progdata_meta<D: ReadonlyAccountData>(
     stake_pool_prog_data_acc: D,
